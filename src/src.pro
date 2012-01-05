@@ -48,7 +48,8 @@ HEADERS += mainwindow.h \
     glcubeobject.h \
     formhelp.h \
     cshader.h \
-    glcolorbar.h
+    glcolorbar.h \
+    glaxesobject.h
 SOURCES += glnemo.cc \
     mainwindow.cc \
     glwindow.cc \
@@ -88,7 +89,8 @@ SOURCES += glnemo.cc \
     glcubeobject.cc \
     formhelp.cc \
     cshader.cc \
-    glcolorbar.cc
+    glcolorbar.cc \
+    glaxesobject.cc
 RESOURCES = glnemo.qrc
 CONFIG += $$GLOBAL \
     warn_on \
@@ -128,6 +130,10 @@ QMAKE_LIBDIR = \
     ../plugins/zlib/lib/$$ARCH/$$COMPILEMODE \
     ../plugins/network/lib/$$ARCH/$$COMPILEMODE
 
+# Icons
+macx {
+  ICON = ../res/images/glnemo2.icns
+}
 # INSTALLS for Linux and Mac OS X
 MYNEMO = $$(NEMO)
 !win32 {
@@ -177,5 +183,7 @@ POST_TARGETDEPS += \
     ../plugins/zlib/lib/$$ARCH/$$COMPILEMODE/libzlib.a \
     ../utils/lib/$$ARCH/$$COMPILEMODE/libutils.a
 DISTFILES += ../ChangeLog
+
+
 
 

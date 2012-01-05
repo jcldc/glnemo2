@@ -28,6 +28,7 @@
 #include "gltexture.h"
 #include "gloctree.h"
 #include "glcolorbar.h"
+#include "glaxesobject.h"
 #include "camera.h"
 
 
@@ -47,7 +48,12 @@ public:
     void resize(const int w, const int h ) { resizeGL(w,h);}
     void resizeOsd(const int w, const int h ) { osd->setWH(w,h);}
     void resetView() {    // reset view to initial
-      setRotation(0,0,0);
+      resetMatScreen();
+      resetMatScene();
+      reset_screen_rotation = true;
+      reset_scene_rotation  = true;
+      setRotationScreen(0,0,0);
+      setRotationScene(0,0,0);
       setTranslation(0,0,0);
       resetEvents(true);
     }
@@ -93,6 +99,19 @@ public slots:
    void setOsd(const GLObjectOsd::OsdKeys k, const float value1, 
                       const float value2, const float value3,  bool show,bool b=true);
    void changeOsdFont();     
+   void toggleRotateScreen() {
+     rotate_screen = !rotate_screen;
+     last_posx = last_posy = last_posz =0;
+     if (rotate_screen) {
+       y_mouse = store_options->xrot;
+       x_mouse = store_options->yrot;
+       z_mouse = store_options->zrot;
+     } else {
+       y_mouse = store_options->urot;
+       x_mouse = store_options->vrot;
+       z_mouse = store_options->wrot;     
+     }
+   }
 
    void resetFrame() { nframe=0; }
    int getFrame() { return nframe;}
@@ -114,11 +133,22 @@ private slots:
   void rotateAroundX() { rotateAroundAxis(0);}
   void rotateAroundY() { rotateAroundAxis(1);}
   void rotateAroundZ() { rotateAroundAxis(2);}
+  void rotateAroundU() { rotateAroundAxis(3);}
+  void rotateAroundV() { rotateAroundAxis(4);}
+  void rotateAroundW() { rotateAroundAxis(5);}
+  
   void translateX()    { translateAlongAxis(0); }
   void translateY()    { translateAlongAxis(1); }
   void translateZ()    { translateAlongAxis(2); }
   void setTextureObject(const int, const int);
   void resetEvents(bool pos=false);
+  void resetMatScreen() {
+    memcpy(mScreen,mIdentity, 16*sizeof(GLdouble));
+  }
+  void resetMatScene() {
+    memcpy(mScene,mIdentity, 16*sizeof(GLdouble));
+  }
+
 private:
   // my parent
   QWidget * parent;
@@ -127,12 +157,14 @@ private:
   // grid variables
   GLGridObject * gridx, * gridy, * gridz;
   GLCubeObject * cube;
+  // axes
+  GLAxesObject * axes;
   // Vectors
   GLObjectParticlesVector gpv;
   ParticlesObjectVector * pov;
   ParticlesData   * p_data;
   // projections
-  void setProjection(const int w, const int h);
+  void setProjection(const int x, const int y, const int w, const int h );
   void computeOrthoFactor();
   float ratio, fx,fy;
   int wwidth, wheight;
@@ -162,24 +194,34 @@ private:
   int  x_mouse, y_mouse, z_mouse,
       tx_mouse,ty_mouse,tz_mouse,
       last_posx, last_posy, last_posz;
-  void setRotation( const int x, const int y, const int z );
+  float last_xrot, last_yrot, last_zrot;
+  float last_urot, last_vrot, last_wrot;
+  int   i_umat, i_vmat, i_wmat; // index of the SCENE/Object rotation matrix
+  bool rotate_screen;
+  
+  void setRotationScreen( const int x, const int y, const int z );
+  void setRotationScene ( const int u, const int v, const int w );
   void getPixelTranslation(int *x, int *y, int *z);
   void setTranslation( const int x, const int y, const int z );
   void setZoom(const int z);
   void setZoom(const float z);
   int zoom_dynam;
   // gl matrix
-  GLdouble mProj[16], mModel[16], mModel2[16];
+  GLdouble mProj[16], mModel[16], mModel2[16],
+  mScreen[16], mScene[16], mRot[16];
+  GLdouble static mIdentity[16];
   int viewport[4];
+  bool reset_screen_rotation, reset_scene_rotation;
   void setProjMatrix()  {
     glGetDoublev(GL_PROJECTION_MATRIX, (GLdouble *) mProj);
-  };
+  }
   void setModelMatrix() {
     glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel);
-  };
+  }
   void setViewPort() {
     glGetIntegerv(GL_VIEWPORT,viewport);
-  };
+  }
+  void drawAxes();
   // OSD
   GLObjectOsd * osd;
   QImage image,gldata;

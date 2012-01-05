@@ -11,48 +11,25 @@
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
 /**
-	@author Jean-Charles Lambert <jean-charles.lambert@oamp.fr>
+	@author Jean-Charles Lambert <Jean-Charles.Lambert@oamp.fr>
 */
-#ifndef GLNEMOSNAPSHOTRAMSES_H
-#define GLNEMOSNAPSHOTRAMSES_H
-#include <QObject>
-#include "snapshotinterface.h"
-#include "camr.h"
-#include "cpart.h"
-#include "globaloptions.h"
+#ifndef GLAXESOBJECT_H
+#define GLAXESOBJECT_H
+#include "globject.h"
 
 namespace glnemo {
 
-class SnapshotRamses: public SnapshotInterface
-{
-    Q_OBJECT
-    Q_INTERFACES(glnemo::SnapshotInterface)
-
+class GLAxesObject: public GLObject {
 public:
-    SnapshotRamses();
-
-    ~SnapshotRamses();
-    
-    SnapshotInterface * newObject(const std::string _filename, const int x=0);
-    ComponentRangeVector * getSnapshotRange();
-    bool isValidData();
-    int initLoading(GlobalOptions * so);
-    int nextFrame(const int * index_tab, const int nsel);
-    int close() { return 1;}
-    QString endOfDataMessage();
-
+  GLAxesObject();
+  ~GLAxesObject();
+  void display(const double * mScreen,const double * mScene, const int width);
 private:
-    ramses::CAmr * amr;
-    ramses::CPart * part;
-    int namr;
-    int nstars;
-    int ndm;
-    bool valid;
-    int full_nbody;
-    GlobalOptions * go;
-    bool take_gas, take_halo, take_stars;
+  void buildDisplayList();
+  void buildDisplayList2();
+  void buildArrow(const float length, const float radius, const int nbSubdivisions);
+  GLUquadric *quadric;
 };
 
-}
-
-#endif
+} // namespace
+#endif // GLAXESOBJECT_H
