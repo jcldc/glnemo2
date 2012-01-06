@@ -160,6 +160,7 @@ INCLUDEPATH += \
     $$NEMOINC \
     glew
 LIBS += \
+    -lGLU \
     -lpfntlib \
     -lsnapshot \
     -lftm \
