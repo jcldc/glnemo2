@@ -160,7 +160,6 @@ INCLUDEPATH += \
     $$NEMOINC \
     glew
 LIBS += \
-    -lGLU \
     -lpfntlib \
     -lsnapshot \
     -lftm \
@@ -172,6 +171,12 @@ LIBS += \
     -lutils
 win32 {
     LIBS += -lopengl32
+}
+unix {
+    LIBS += -lGLU
+}
+macx {
+    LIBS -= -lGLU
 }
 POST_TARGETDEPS += \
     ../3rdparty/pfntlib/lib/$$ARCH/$$COMPILEMODE/libpfntlib.a \
