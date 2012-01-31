@@ -64,6 +64,7 @@ public:
     float urot,vrot,wrot;
     float ixrot,iyrot,izrot;
     float iurot,ivrot,iwrot;
+    bool xbrot,ybrot,zbrot,ubrot,vbrot,wbrot;
     float xtrans,ytrans,ztrans;
     // from Grids TAB
     bool show_grid;
@@ -84,8 +85,13 @@ public:
     bool octree_enable;
     bool octree_display;
     int octree_level;
+    // from rotation/axis tab
     // axes
-    bool axes_enable;
+    bool  axes_enable;
+    int   axes_loc; // 0 bottom, 1 center
+    float axes_psize; // percentage of windows width size
+    bool rotate_screen; // 0 world, 1 screen
+    
     // Colorbar
     bool   gcb_enable, gcb_logmode;
     int    gcb_min, gcb_max; // threshold
