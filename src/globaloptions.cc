@@ -146,6 +146,7 @@ GlobalOptions::GlobalOptions()
   select_time = "";
   select_part = "";
   auto_render=true;
+  ortho_range = 6.0;
 }
 // ============================================================================
 // destructor                                                                  
@@ -212,6 +213,8 @@ const GlobalOptions& GlobalOptions::operator=(const GlobalOptions &m)
   // zoom
   zoom   = m.zoom;
   zoomo  = m.zoomo;
+  // orthographic range
+  ortho_range = m.ortho_range;
   
     // SET default parameters
   MAX_PARTICLES_SIZE   = m.MAX_PARTICLES_SIZE;

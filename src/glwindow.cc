@@ -34,7 +34,7 @@ namespace glnemo {
   bool GLWindow::GLSL_support = false;
   GLuint framebuffer, renderbuffer;
   GLdouble GLWindow::mIdentity[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
-  float range;
+  //float store_options->ortho_range;
   
 // ============================================================================
 // Constructor                                                                 
@@ -432,7 +432,7 @@ void GLWindow::paintGL()
   
   glLoadIdentity (); // reset OGL rotations
   // set camera
-  if (store_options->perspective) {
+  if ( store_options->perspective) {
     camera->setEye(0.0,  0.0,  -store_options->zoom);
     camera->moveTo();
   }
@@ -633,22 +633,19 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
     gluPerspective(45.,ratio,0.0005,(float) DOF);
   }
   else {
-#if 1
-    computeOrthoFactor();
-    //float range=6.;
-    std::cerr << "RANGE="<<range<<" zoom="<<store_options->zoom<<" zoomo="<<store_options->zoomo<<"\n";
-    ortho_right = range;
-    ortho_left  =-range;
-    ortho_top   = range;
-    ortho_bottom=-range;
-    std::cerr << "zoom0 = " << store_options->zoomo << "\n";
+    computeOrthoFactor();    
+    std::cerr << "RANGE="<<store_options->ortho_range<<" zoom="<<store_options->zoom<<" zoomo="<<store_options->zoomo<<"\n";
+    ortho_right = store_options->ortho_range;
+    ortho_left  =-store_options->ortho_range;
+    ortho_top   = store_options->ortho_range;
+    ortho_bottom=-store_options->ortho_range;
+    //std::cerr << "zoom0 = " << store_options->zoomo << "\n";
     glOrtho(ortho_left   * fx  * store_options->zoomo,
             ortho_right  * fx  * store_options->zoomo,
             ortho_bottom * fy  * store_options->zoomo,
             ortho_top    * fy  * store_options->zoomo,
             -100000,100000);
             //(float) -DOF/2.,(float) -DOF/2.);
-#endif
   }
   glGetIntegerv(GL_VIEWPORT,viewport);
 }
@@ -722,6 +719,7 @@ void GLWindow::mouseReleaseEvent( QMouseEvent *e )
 #endif
   if (is_shift_pressed) {
     if ( !store_options->duplicate_mem) mutex_data->lock();
+    setPerspectiveMatrix(); // toggle to perspective matrix mode
     gl_select->zoomOnArea(pov->size(),mProj,mModel,viewport);
     osd->setText(GLObjectOsd::Zoom,(const float) store_options->zoom);
     osd->updateDisplay();
@@ -1093,54 +1091,46 @@ void GLWindow::setZoom(const float z)
   osdZoom();
 }
 // ============================================================================
+// >> HERE WE FORCE PERSPECTIVE PROJECTION
+//    TO COMPUTE BOTH BEST ZOOM FOR ORTHO
+//    AND PERSPECTVE PROJECTION
+//
+//    we must force perspective projection to have
+//    te good prjection and modelview matrix
+void GLWindow::setPerspectiveMatrix()
+{
+  gluPerspective(45.,ratio,0.0005,(float) DOF);
+  glMatrixMode( GL_MODELVIEW );
+  glLoadIdentity();
+  camera->setEye(0.0,  0.0,  -store_options->zoom);
+  camera->moveTo();
+  // apply screen rotation on the whole system
+  glMultMatrixd (mScreen);   
+  // apply scene/world rotation on the whole system
+  glMultMatrixd (mScene);   
+  setModelMatrix(); // save ModelView  Matrix
+  setProjMatrix();  // save Projection Matrix
+}
+
+// ============================================================================
 // Best Zoom fit
 // fit all the particles on the screen from perspective view
 void GLWindow::bestZoomFit()
 {
   if ( !store_options->duplicate_mem) mutex_data->lock();
-  if (store_options->perspective) {
-    Tools3D::bestZoomFromObject(mProj,mModel,
-                                viewport, pov, p_data, store_options);
-  }
-  else {
-   bestZoomOrtho(); 
-  }
+  
+  setPerspectiveMatrix(); // toggle to perspective matric mode
+  
+  Tools3D::bestZoomFromObject(mProj,mModel,
+                              viewport, pov, p_data, store_options);
+    
+  ortho_right = store_options->ortho_range;
+  ortho_left  =-store_options->ortho_range;
+  ortho_top   = store_options->ortho_range;
+  ortho_bottom=-store_options->ortho_range;
+  store_options->zoomo = 1.;
+  
   osdZoom();
   if ( !store_options->duplicate_mem) mutex_data->unlock();
-}
-// ============================================================================
-// Best Zoom fit rom Orthographic projection
-// fit all the particles on the screen from orthographic view
-void GLWindow::bestZoomOrtho()
-{
-  if (pov && pov->size() ) {
-    // force ZOOM to fit all particles
-    // Zoom is located in ModelView matrix at coordinates MM(2,3)
-    double absxmax=fabs(std::numeric_limits<double>::min());
-    double absymax=fabs(std::numeric_limits<double>::min());
-    // loop on all the objects
-    for (int i=0; i<(int)pov->size(); i++) {
-      //const ParticlesObject * po = gpv[i].getPartObj();        // object
-      const ParticlesObject * po = &(*pov)[i];
-      if (po->isVisible()) {                                   // is visible  
-        //const ParticlesData * part_data = gpv[i].getPartData();// get its Data
-        // loop on all the particles of the object
-        for (int j  = 0; j  <  po->npart; j ++) {
-          int jndex= po->index_tab[j];
-          float
-          x=fabs(p_data->pos[jndex*3  ]+store_options->xtrans),
-          y=fabs(p_data->pos[jndex*3+1]+store_options->ytrans);
-          if (x>absxmax) absxmax =x;
-          if (y>absymax) absymax =y;                    
-        }
-      }
-    }
-    range=std::max(absxmax,absymax);
-    ortho_right = range;
-    ortho_left  =-range;
-    ortho_top   = range;
-    ortho_bottom=-range;
-    store_options->zoomo = 1.;
-  }
 }
 } // namespace glnemo

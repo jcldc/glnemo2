@@ -145,6 +145,8 @@ public:
     std::string select_time;
     std::string select_part;
     bool auto_render;
+    // orthographic range
+    float ortho_range;
 };
 
 }

@@ -939,11 +939,10 @@ void MainWindow::parseNemoParameters()
   store_options->texture_alpha      =getdparam((char *) "texture_a");
   
   store_options->duplicate_mem = getbparam((char *) "smooth_gui");
+  
   // ortho
-  float range_ortho;
-  if (store_options->orthographic) {
-    range_ortho=getdparam((char *) "ortho_range");
-  }
+  store_options->ortho_range = getdparam((char *) "ortho_range");
+  
   if (store_options->port) {;} // do nothing (remove compiler warning)
   
   //                         finish NEMO

@@ -190,8 +190,6 @@ private:
   bool is_ctrl_pressed;
 
   void translateAlongAxis(const int);
-  //
-  void bestZoomOrtho();
   
   // transformations (rotation, translation)
   bool is_translation;
@@ -224,6 +222,7 @@ private:
   void setViewPort() {
     glGetIntegerv(GL_VIEWPORT,viewport);
   }
+  void setPerspectiveMatrix();
   // OSD
   GLObjectOsd * osd;
   QImage image,gldata;
