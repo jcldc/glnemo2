@@ -1216,6 +1216,8 @@ void MainWindow::actionToggleRotationScreen()
 void MainWindow::actionToggleProjection()
 {
   store_options->perspective = !store_options->perspective;
+  updateOsd(false);
+  form_options->update();
   gl_window->updateGL();
 }
 // -----------------------------------------------------------------------------
@@ -1683,6 +1685,11 @@ void MainWindow::updateOsd(bool ugl)
     if (title=="") {
       title = current_data->getFileName();
     }
+    
+    gl_window->setOsd(GLObjectOsd::Projection,
+                      g->perspective==true?QString("Perspective"):QString("Orthographic"),
+                      g->osd_projection,false);
+    
     gl_window->setOsd(GLObjectOsd::Title,
                       QString(title.c_str()),
                       g->osd_title,false);

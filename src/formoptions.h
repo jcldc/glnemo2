@@ -117,6 +117,10 @@ class FormOptions: public QDialog {
       go->osd_rot = b;
       emit update_osd(true);
     }
+    void on_osd_proj_clicked(bool b) {
+      go->osd_projection = b;
+      emit update_osd(true);
+    }
     void on_spin_font_size_valueChanged(double value) {
       go->osd_font_size = (float ) value;
       emit update_osd_font();
@@ -423,6 +427,19 @@ class FormOptions: public QDialog {
       
       emit autoRotate(5);
     }
+    //
+    // OpenGL tab
+    void on_radio_ortho_clicked() {
+      go->perspective = false;
+      emit update_osd(true);
+      //emit update_gl();
+    }
+    void on_radio_persp_clicked() {
+      go->perspective = true;
+      emit update_osd(true);
+      //emit update_gl();
+    }
+
   signals:
     void start_bench(const bool);
     void select_and_zoom(const bool);

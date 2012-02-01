@@ -158,6 +158,12 @@ void FormOptions::update()
   
   form.wwrotate->setChecked(go->wbrot);
   form.wwreverse->setChecked(go->iwrot==-1?true:false);
+  
+  // OpenGL tab
+  if (go->perspective) 
+    form.radio_persp->setChecked(true);
+  else
+    form.radio_ortho->setChecked(true);
 }
 // ============================================================================
 // updateFrame                                                                 

@@ -85,13 +85,14 @@ void GLObject::setProjection(const int x, const int y, const int width, const in
     gluPerspective(45.,ratio,0.0005,(float) DOF);
   }
   else {
-#if 0
-    computeOrthoFactor();
-    float range=6.;
-    ortho_right = range;
-    ortho_left  =-range;
-    ortho_top   = range;
-    ortho_bottom=-range;
+#if 1
+    //computeOrthoFactor();
+    float range=3;
+    float fx,fy=fx=1.0;
+    float ortho_right = range;
+    float ortho_left  =-range;
+    float ortho_top   = range;
+    float ortho_bottom=-range;
     glOrtho(ortho_left   * fx  * 1.,
             ortho_right  * fx  * 1.,
             ortho_bottom * fy  * 1.,
