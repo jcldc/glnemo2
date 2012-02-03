@@ -702,6 +702,14 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
     if (is_translation) {;} //!parent->statusBar()->message("Translating Z");
     else                {;} //!parent->statusBar()->message("Rotating Z");
   }
+  if ( e->button() == Qt::MiddleButton ) {
+    std::cerr << "Middle button pressed\n";
+    is_mouse_pressed        = TRUE;
+    is_pressed_middle_button= TRUE;
+    setMouseTracking(TRUE);
+    last_posx = e->x();
+    last_posy = e->y();
+  }
   emit sigKeyMouse( is_key_pressed, is_mouse_pressed);
   //!options_form->downloadOptions(store_options);
 }
@@ -714,6 +722,7 @@ void GLWindow::mouseReleaseEvent( QMouseEvent *e )
   is_pressed_left_button = FALSE;
   is_pressed_right_button = FALSE;
   is_mouse_pressed = FALSE;
+  is_pressed_middle_button = FALSE;
   setMouseTracking(FALSE);
   //!statusBar()->message("Ready");
   //!options_form->downloadOptions(store_options);
@@ -795,7 +804,15 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
     }
   }
   //!options_form->downloadOptions(store_options);
-
+  if (is_pressed_middle_button) {
+    dx = e->x()-last_posx;
+    dy = e->y()-last_posy;
+    // save last position
+    last_posx = e->x();
+    last_posy = e->y();
+    emit sigMouseXY(dx,dy);
+    //std::cerr << "dx="<<dx<< "  dy="<<dy<<"\n";
+  }
 }
 // ============================================================================
 // manage zoom according to wheel event
@@ -1105,6 +1122,7 @@ void GLWindow::setPerspectiveMatrix()
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(45.,ratio,0.0005,(float) DOF);
+#if 1
   glMatrixMode( GL_MODELVIEW );
   glLoadIdentity();
   camera->setEye(0.0,  0.0,  -store_options->zoom);
@@ -1114,6 +1132,7 @@ void GLWindow::setPerspectiveMatrix()
   // apply scene/world rotation on the whole system
   glMultMatrixd (mScene);   
   setModelMatrix(); // save ModelView  Matrix
+#endif
   setProjMatrix();  // save Projection Matrix
 }
 
