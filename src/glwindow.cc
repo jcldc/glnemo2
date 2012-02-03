@@ -637,6 +637,7 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
   else {
     computeOrthoFactor();    
     //std::cerr << "RANGE="<<store_options->ortho_range<<" zoom="<<store_options->zoom<<" zoomo="<<store_options->zoomo<<"\n";
+    //std::cerr << "fx = "<< fx << " fy=" << fy <<  " range*fx*zoom0=" <<  store_options->zoomo*fx*store_options->ortho_range <<  "\n";
     ortho_right = store_options->ortho_range;
     ortho_left  =-store_options->ortho_range;
     ortho_top   = store_options->ortho_range;
