@@ -115,6 +115,8 @@ GlobalOptions::GlobalOptions()
   // vel 
   vel_req = false;
   new_frame = false;
+  // cod
+  cod=false;
   // memory
   duplicate_mem = true;
   octree_enable = false;
@@ -308,6 +310,8 @@ const GlobalOptions& GlobalOptions::operator=(const GlobalOptions &m)
   // vel 
   vel_req = m.vel_req;
   new_frame = m.new_frame;
+  // cod
+  cod = m.cod;
   // memory
   duplicate_mem = m.duplicate_mem;
   // physical value

@@ -94,6 +94,7 @@ using namespace std;
     "cbph=0.65\n       CB size in percentage of the OpenGL windows height",
     "cbfs=13\n   size of the fonts used to display CB             ",
     "com=t\n           centering according Center Of Mass               ", 
+    "cod=f\n           centering according Center Of Density            ",
     "point=f\n         show particles as points                         ",
     "selphys=1\n        select physical quantity to display\n           "
     "             (1:density, 2:temperature, 3:pressure)                ",
