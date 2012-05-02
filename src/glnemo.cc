@@ -28,7 +28,7 @@
 #include "mainwindow.h"
 using namespace std;
 
-#define RELEASE_VERSION "1.41"
+#define RELEASE_VERSION "1.50-dev-2012-march-22"
 
 // ============================================================================
 // NEMO parameters                                                             
@@ -84,6 +84,9 @@ using namespace std;
     "osddata=t\n       Show data type on OSD                            ",
     "osd_set_title=\n  Set an explicit title on OSD                     ",
     "osdfs=13.0\n Size of OSD's font                                    ",
+    "od=f\n            enable opaque disc for hiding spherical objects  ",
+    "odr=0.0\n         opaque disc radius                               ",
+    "odd=f\n           enable opaque disc display (coronograph)        ",
     "axis=t\n          display axis                                     ",
     "cb=t\n            display Color Bar (CB) on the screen             ",
     "cblog=f\n         display real or log of the physical value on CB  ",

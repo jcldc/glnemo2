@@ -149,6 +149,10 @@ public:
     bool auto_render;
     // orthographic range
     float ortho_range;
+    // opaque disc
+    bool od_enable;
+    bool od_display;
+    float od_radius;
 };
 
 }

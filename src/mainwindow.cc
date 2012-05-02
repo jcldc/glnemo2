@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@oamp.fr                                      
 // address:  Dynamique des galaxies                                            
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Ple de l'Etoile, site de Chteau-Gombert                         
+//           38, rue Frdric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -515,7 +515,7 @@ void MainWindow::createActions()
   movie_form_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/video_section.png"),tr("Make a movie"),this);
   movie_form_action->setShortcut(tr(""));
   movie_form_action->setStatusTip(tr("Make a movie"));
-  connect(movie_form_action, SIGNAL( activated() ), this, SLOT(actionEmpty()) );
+  connect(movie_form_action, SIGNAL( activated() ), this, SLOT(actionFormOptionsShowMovie()) );
   // Next colormap
   next_cmap_action = new QAction(this);
   next_cmap_action->setShortcut(tr("Alt+Shift+n"));
@@ -881,6 +881,10 @@ void MainWindow::parseNemoParameters()
     store_options->osd_title_name = getparam((char *) "osd_set_title");
   }
   store_options->osd_font_size = getdparam((char *) "osdfs");
+  // use opaque disc
+  store_options->od_enable   = getbparam((char *) "od");
+  store_options->od_display  = getbparam((char *) "odd");
+  store_options->od_radius   = getdparam((char *) "odr");
   // Axes
   store_options->axes_enable = getbparam((char *) "axis");
   // Color Bar
@@ -1094,6 +1098,13 @@ void MainWindow::actionFormOptions()
   bool show= ! dock_options->isVisible();
   if (show) dock_options->show();
   else      dock_options->close();
+}
+// -----------------------------------------------------------------------------
+// actionFormOptionsShowTab()
+void MainWindow::actionFormOptionsShowMovie()
+{
+  form_options->showTab(7);
+  actionFormOptions();
 }
 // -----------------------------------------------------------------------------
 // actionFullScreen()                                                           
