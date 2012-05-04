@@ -35,6 +35,16 @@ class FormOptions: public QDialog {
     void showTab(const int index) {
         form.options_dialog->setCurrentIndex(index);
     }
+    void activatePlayTime(bool b) {
+        form.direction_box->setEnabled(b);
+        form.frame_box->setEnabled(b);;
+    }
+    void setPlaySettings(const int maxframe, const int frame) {
+      form.frame_spin->setValue(frame);
+      form.frame_slide->setMaximum(maxframe);
+      form.frame_slide->setValue(frame);
+    }
+
   private:
     Ui::FormOptions form;
     GlobalOptions * go;
@@ -77,6 +87,12 @@ class FormOptions: public QDialog {
     // play selection tab
     void on_play_pressed();
     void on_com_clicked() { go->auto_com = form.com->isChecked();}
+    void on_forward_radio_clicked()  { go->play_forward=true; emit play_forward(true);}
+    void on_backward_radio_clicked() { go->play_forward=false;emit play_forward(false);}
+    void on_frame_slide_valueChanged(int value) {
+      go->jump_frame = value; emit jump_frame(value);
+    }
+
     //                   
     // auto-screenshot selection tab
     void on_frame_name_pressed();
@@ -469,6 +485,8 @@ class FormOptions: public QDialog {
     void update_osd_font();
     void update_gcb_font();
     void update_gl();
+    void play_forward(const bool);
+    void jump_frame(const int);
     // auto rotation
     void autoRotate(const int);
     

@@ -40,6 +40,8 @@ public:
     int nextFrame(const int * index_tab, const int nsel);
     int close();
     QString endOfDataMessage();
+    int getNumberFrames() { return vector_file.size();}
+    int getCurrentFrameIndex() { return current_file_index;} // >
 private:
     std::ifstream fi;
     static const char * magic;
@@ -52,6 +54,9 @@ private:
     std::string interface_type_ori;
     GlobalOptions * go;
     QString dirpath;
+    std::vector<std::string> vector_file;
+    int current_file_index;
+    bool getNextFile();
 };
 
 }

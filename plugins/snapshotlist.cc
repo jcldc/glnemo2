@@ -27,6 +27,8 @@ SnapshotList::SnapshotList():SnapshotInterface()
   plugins = new PluginsManage();
   interface_type    ="List";
   interface_type_ori="List";
+  current_file_index=0;
+  vector_file.clear();
 }
 
 // ============================================================================
@@ -37,6 +39,7 @@ SnapshotList::~SnapshotList()
     delete current_data;
   if (part_data)
     delete part_data;
+  vector_file.clear();
 }
 // ============================================================================
 SnapshotInterface * SnapshotList::newObject(const std::string _filename, const int x)
@@ -54,7 +57,7 @@ ComponentRangeVector * SnapshotList::getSnapshotRange()
   ComponentRangeVector * crv=NULL;
   
   int ipvs = part_data->getIpvs(); // backup ipvsr
-  while (!stop && getLine()) {  
+  while (!stop && getNextFile()) {
     if (current_data) {
       delete current_data;
     }
@@ -137,12 +140,19 @@ bool SnapshotList::openFile()
     else {
 #if 1
       fi.seekg(0, std::ios::beg); // go back to the beginning
+      vector_file.clear();
+
       if (getLine(true)) { // read the first file
         SnapshotInterface * test_data = plugins->getObject(snapshot);
         if (test_data) { // it's a valid snaphot
           delete test_data;
           status = true;
-          fi.seekg(0, std::ios::beg); // go back to the beginning
+          //fi.seekg(0, std::ios::beg); // go back to the beginning
+          vector_file.push_back(snapshot); // add one more file
+          bool stop=false;
+          while (!stop && getLine(true)) {       // read all files
+            vector_file.push_back(snapshot); // feed up vector
+          }
         }
       } 
       else {        
@@ -204,13 +214,44 @@ bool SnapshotList::getLine(const bool force)
         stop   = true;
         status = false;
       }
-      std::cerr << "SnapshotList::getLine line="<<line<<"\n";
+      //std::cerr << "SnapshotList::getLine line="<<line<<"\n";
     }
   }
   else status=false;
   return status;
 
 }
+// ============================================================================
+bool SnapshotList::getNextFile()
+{
+  bool status=false;
+  if (jump_frame==-1) { // no explicit frame selection
+    snapshot = vector_file[current_file_index]; // get current snap
+    if (play_forward) { // forward play
+      assert(current_file_index>=0);
+      if (current_file_index < (int) vector_file.size()) {
+        current_file_index++;
+        status=true;
+      }
+    }
+    else {             // backward play
+      if (current_file_index>0) {
+        current_file_index--;
+        status=true;
+      }
+    }
+  } else {              //    explicit frame selection
+    if (jump_frame>=0 && jump_frame < (int) vector_file.size()) {
+      current_file_index = jump_frame;
+      snapshot = vector_file[current_file_index]; // get current snap
+      status = true;
+      jump_frame=-1;
+    }
+  }
+
+  return status;
+}
+
 // ============================================================================
 int SnapshotList::close()
 {

@@ -161,7 +161,11 @@ void MainWindow::start(std::string shot)
     bool exist=hasvalue((char*)"select");
     current_data = plugins->getObject(snapshot);
     if (current_data) {
+      store_options->list_type = current_data->isListOf();
+      form_options->activatePlayTime(store_options->list_type); // enable group box
       connect(current_data,SIGNAL(stringStatus(QString)),status_bar, SLOT(showMessage(QString)));
+      connect(form_options,SIGNAL(play_forward(bool)),current_data,SLOT(setPlayForward(bool)));
+      connect(form_options,SIGNAL(jump_frame(int)),current_data,SLOT(setJumpFrame(int)));
       current_data->part_data->setIpvs(selphys);
       if (! exist ) {
         current_data->initLoading(store_options); 
@@ -1000,7 +1004,11 @@ void MainWindow::actionMenuFileOpen()
       if (current_data)
         delete current_data;      // free memory                   
       current_data = new_data;  // link new_data   
+      store_options->list_type = current_data->isListOf();
+      form_options->activatePlayTime(store_options->list_type); // enable group box
       connect(current_data,SIGNAL(stringStatus(QString)),status_bar, SLOT(showMessage(QString)));
+      connect(form_options,SIGNAL(play_forward(bool)),current_data,SLOT(setPlayForward(bool)));
+      connect(form_options,SIGNAL(jump_frame(int)),current_data,SLOT(setJumpFrame(int)));
       current_data->part_data->setIpvs(selphys);
 //       loadNewData("all","all",  // load data
 //           keep_all,store_options->vel_req,true); //
@@ -1633,15 +1641,13 @@ void MainWindow::uploadNewFrame()
 {
   static bool first=true;
   if (loading_thread->isValidLoading()) {
-    if (  current_data->getInterfaceType() == "List of Ftm"      ||
-	  current_data->getInterfaceType() == "List of Gadget 2" ||
-          current_data->getInterfaceType() == "List of PhiGRAPE" ||
-          current_data->getInterfaceType() == "List of Nemo") { 
+    if (  current_data->isListOf() ) { // it's list of data
       //mutex_data->lock();
       //pov2=pov;
       ParticlesObject::initOrbitsVectorPOV(pov);
       ParticlesObject::copyVVkeepProperties(pov,pov2,user_select->getNSel()); 
       form_o_c->update( current_data->part_data, &pov2,store_options,false); // update Form
+      form_options->setPlaySettings(current_data->getNumberFrames(), current_data->getCurrentFrameIndex());
       //mutex_data->unlock();
     } else {
       //pov2=pov; // modif orbits

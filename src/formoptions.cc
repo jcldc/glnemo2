@@ -134,7 +134,7 @@ void FormOptions::update()
   form.gcb_spin_digit->setValue(go->gcb_ndigits);
   form.gcb_spin_font_size->setValue(go->gcb_font_size);
   form.gcb_spin_offset->setValue(go->gcb_offset);
-  
+
   // rotation/axis tab
   form.show_3daxis->setChecked(go->axes_enable);
   if (go->rotate_screen) 
