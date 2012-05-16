@@ -42,6 +42,32 @@ public:
     QString endOfDataMessage();
     int getNumberFrames() { return vector_file.size();}
     int getCurrentFrameIndex() { return current_file_index;} // >
+    virtual void checkJumpFrame(const int _v=-1) {
+      frame.lock();
+      jump_frame = _v;
+      if (jump_frame>=0 && jump_frame < (int) vector_file.size()) {
+        end_of_data=false;
+      }
+      frame.unlock();
+    }
+    bool isEndOfData() {
+      if ( (current_file_index>0 && current_file_index<((int) vector_file.size()-1) ) ||  // in the limit
+           ( play_forward &&  current_file_index<(int) vector_file.size()-1)          ||  // forward
+           (!play_forward &&  current_file_index>0))                                       // backward
+        end_of_data=false;
+      else {
+        end_of_data=true;
+        if (current_file_index>=(int)vector_file.size()) {
+          current_file_index=vector_file.size()-1;
+        }
+      }
+
+      std::cerr << "FORWARD = " << play_forward << "    EOD="<<end_of_data
+                <<" curren file index="<<current_file_index<<" jumpframe="<<jump_frame<< "\n";
+      return end_of_data;
+    }
+
+
 private:
     std::ifstream fi;
     static const char * magic;

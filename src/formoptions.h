@@ -19,6 +19,7 @@
 #include <QTimer>
 #include <QColorDialog>
 #include <iostream>
+#include <QMutex>
 #include "ui_formoptions.h"
 #include "globaloptions.h"
 namespace glnemo {
@@ -26,7 +27,7 @@ namespace glnemo {
 class FormOptions: public QDialog {
   Q_OBJECT
   public:
-    FormOptions(GlobalOptions * ,QWidget *parent = 0);
+    FormOptions(GlobalOptions * ,QMutex * _mutex, QWidget *parent = 0);
     ~FormOptions();
   public slots:
     void update();
@@ -40,9 +41,11 @@ class FormOptions: public QDialog {
         form.frame_box->setEnabled(b);;
     }
     void setPlaySettings(const int maxframe, const int frame) {
+      //mutex_load.lock();
       form.frame_spin->setValue(frame);
       form.frame_slide->setMaximum(maxframe);
       form.frame_slide->setValue(frame);
+      //mutex_load.unlock();
     }
 
   private:
@@ -52,6 +55,7 @@ class FormOptions: public QDialog {
     QTime time;
     QTimer * limited_timer;
     static int windows_size[][2];
+    QMutex * mutex_data;
   private slots:
     void leaveEvent ( QEvent * event ) {
       if (event) {;}
@@ -85,14 +89,29 @@ class FormOptions: public QDialog {
     void on_cam_play_pressed();
     //                   
     // play selection tab
-    void on_play_pressed();
+    void on_play_pressed(const int forcestop=-1);
     void on_com_clicked() { go->auto_com = form.com->isChecked();}
-    void on_forward_radio_clicked()  { go->play_forward=true; emit play_forward(true);}
-    void on_backward_radio_clicked() { go->play_forward=false;emit play_forward(false);}
+    void on_forward_radio_clicked()  {  emit play_forward(true); go->play_forward=true;}
+    void on_backward_radio_clicked() {  emit play_forward(false); go->play_forward=false;}
     void on_frame_slide_valueChanged(int value) {
-      go->jump_frame = value; emit jump_frame(value);
+      frameValueChanged(value);
     }
-
+    void on_frame_spin_valueChanged(int value) {      
+      frameValueChanged(value);      
+    }
+    void frameValueChanged(int value) {
+      mutex_data->lock();
+      go->jump_frame = value;
+      emit jump_frame(value);
+      emit change_frame();    
+      mutex_data->unlock();
+    }
+    void lockFrame() {
+      mutex_data->lock();
+    }
+    void unLockFrame() {
+      mutex_data->unlock();
+    }
     //                   
     // auto-screenshot selection tab
     void on_frame_name_pressed();
@@ -487,6 +506,7 @@ class FormOptions: public QDialog {
     void update_gl();
     void play_forward(const bool);
     void jump_frame(const int);
+    void change_frame();
     // auto rotation
     void autoRotate(const int);
     

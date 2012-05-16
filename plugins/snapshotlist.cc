@@ -65,6 +65,7 @@ ComponentRangeVector * SnapshotList::getSnapshotRange()
     if (current_data) {
       stop=true;
       std::cerr << "SnapshotList::getSnapshotRange select_time=" << select_time << "\n";
+      std::cerr << " Play forward = " << play_forward << "\n";
       current_data->initLoading(go);      
       //loadNewData(select,select_time,load_vel);
       // get snapshot component ranges
@@ -225,7 +226,10 @@ bool SnapshotList::getLine(const bool force)
 bool SnapshotList::getNextFile()
 {
   bool status=false;
+  std::cerr << "jumframe in ="<<jump_frame<<"\n";
+  frame.lock();
   if (jump_frame==-1) { // no explicit frame selection
+    assert(current_file_index< (int) vector_file.size());
     snapshot = vector_file[current_file_index]; // get current snap
     if (play_forward) { // forward play
       assert(current_file_index>=0);
@@ -240,15 +244,16 @@ bool SnapshotList::getNextFile()
         status=true;
       }
     }
-  } else {              //    explicit frame selection
-    if (jump_frame>=0 && jump_frame < (int) vector_file.size()) {
+  } else {              //    explicit frame selection    
+    if (jump_frame>=0 && jump_frame < (int) vector_file.size()) {      
       current_file_index = jump_frame;
       snapshot = vector_file[current_file_index]; // get current snap
-      status = true;
-      jump_frame=-1;
+      status = true;      
     }
+    jump_frame=-1;
   }
-
+  frame.unlock();
+  std::cerr << "jumframe out ="<<jump_frame<<"\n";
   return status;
 }
 

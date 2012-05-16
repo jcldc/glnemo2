@@ -2100,7 +2100,7 @@
           </sizepolicy>
          </property>
          <property name="title">
-          <string>direction</string>
+          <string>Direction</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_38">
           <item row="0" column="0">
@@ -2143,8 +2143,17 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="cursor">
+             <cursorShape>OpenHandCursor</cursorShape>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksAbove</enum>
+            </property>
+            <property name="tickInterval">
+             <number>10</number>
             </property>
            </widget>
           </item>

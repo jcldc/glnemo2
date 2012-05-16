@@ -25,6 +25,7 @@
 #include "componentrange.h"
 #include "globaloptions.h"
 #include <QObject>
+#include <QMutex>
 
 namespace glnemo {
 //class ParticlesData;
@@ -61,7 +62,8 @@ class SnapshotInterface: public QObject
       crv.clear();
       stv.clear();
       parseSelectTime();
-      setPlayForward();
+      //setPlayForward();
+      play_forward = true;
       setJumpFrame();
     }
     virtual ~SnapshotInterface() {};
@@ -80,13 +82,17 @@ class SnapshotInterface: public QObject
     virtual int close() = 0;
     virtual QString endOfDataMessage() = 0;
     // simple Virtual functions
-    virtual bool isEndOfData() const { return end_of_data;}
+    virtual bool isEndOfData() { return end_of_data;}
     virtual void setPort(const int x=4000) { port=x;}
     virtual void setSelectPart(const std::string _sel) { select_part = _sel;}
     virtual std::string getSelectPart() { return select_part; }
     virtual int getNumberFrames() { return 0;} // >
     virtual int getCurrentFrameIndex() { return 0;} // >
-
+    virtual void checkJumpFrame(const int _v=-1) {
+      frame.lock();
+      jump_frame = _v;
+      frame.unlock();
+    }
     // normal functions        
 	void setFileName(std::string _f) { filename = _f;}
 	std::string getFileName() const { return filename;}
@@ -120,7 +126,7 @@ public slots:
       play_forward = _b;
     }
     void setJumpFrame(const int _v=-1) {
-      jump_frame = _v;
+      checkJumpFrame(_v);
     }
 
 protected:
@@ -134,6 +140,7 @@ protected:
     // play seeting
     bool play_forward;
     int  jump_frame;
+    QMutex frame;
     ComponentRangeVector crv;
     float * pos, *vel;
     bool first;

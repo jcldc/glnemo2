@@ -21,7 +21,7 @@ namespace glnemo {
   };
 // ============================================================================
 // Constructor                                                                 
-FormOptions::FormOptions(GlobalOptions * _go, QWidget *parent):QDialog(parent)
+FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):QDialog(parent)
 {
   if (parent) {;}  // remove compiler warning
   form.setupUi(this);
@@ -31,13 +31,17 @@ FormOptions::FormOptions(GlobalOptions * _go, QWidget *parent):QDialog(parent)
   
   // density tab
   go = _go;
+  mutex_data = _mutex;
   // default screen resolution for offscreen rendering set to 1280x720
   form.screen_size->setCurrentIndex(8);
   form.frame_name_text->setText(QString(go->base_frame_name));
   // activate the first TAB by default
   form.options_dialog->setCurrentIndex(0);
   form.com->setChecked(go->auto_com);
-  
+  // player tab
+  form.frame_slide->setTracking(true);
+  connect(form.frame_slide,SIGNAL(sliderPressed()),this,SLOT(lockFrame()));
+  connect(form.frame_slide,SIGNAL(sliderReleased()),this,SLOT(unLockFrame()));
 
   QString css;
   // ---------- Grid tab
@@ -249,16 +253,24 @@ void FormOptions::on_frame_name_pressed()
   }
 }
 // ============================================================================
-void FormOptions::on_play_pressed()
+void FormOptions::on_play_pressed(const int forcestop)
 {
   static bool play=false;
-  play = ! play;
+  switch (forcestop) {
+    case    0: play=true ; break;
+    case    1: play=false; break;
+    default  : play = ! play;
+      emit playPressed();
+      break;
+  }
+
   if (play) {
     form.play->setText("STOP");
   } else {
     form.play->setText("PLAY");
   }
-  emit playPressed();  
+ // if (!forcestop)
+ //   emit playPressed();
 }
 // ============================================================================
 void FormOptions::on_screen_size_activated(int index)
