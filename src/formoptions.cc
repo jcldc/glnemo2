@@ -38,6 +38,7 @@ FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):
   // activate the first TAB by default
   form.options_dialog->setCurrentIndex(0);
   form.com->setChecked(go->auto_com);
+  form.cod->setChecked(go->cod);
   // player tab
   form.frame_slide->setTracking(true);
   connect(form.frame_slide,SIGNAL(sliderPressed()),this,SLOT(lockFrame()));

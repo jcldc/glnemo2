@@ -166,6 +166,9 @@ void MainWindow::start(std::string shot)
       form_options->activatePlayTime(store_options->list_type); // enable group box
       connectCurrentData(); // signal and slots connection
       current_data->part_data->setIpvs(selphys);
+      if (  current_data->isListOf() ) { // it's list of data
+        form_options->setPlaySettings(current_data->getNumberFrames(), 0);
+      }
       if (! exist ) {
         current_data->initLoading(store_options); 
         if (shot == "") interactiveSelect("",true);
@@ -650,6 +653,7 @@ void MainWindow::connectCurrentData()
     connect(current_data,SIGNAL(stringStatus(QString)),status_bar, SLOT(showMessage(QString)));
     connect(form_options,SIGNAL(play_forward(bool)),current_data,SLOT(setPlayForward(bool)));
     connect(form_options,SIGNAL(jump_frame(int)),current_data,SLOT(setJumpFrame(int)));
+    connect(current_data,SIGNAL(stringStatus(QString)),status_bar, SLOT(showMessage(QString)));
   }
 }
 
@@ -662,6 +666,10 @@ void MainWindow::interactiveSelect(std::string _select, const bool first_snapsho
   if (current_data) {
     if (!reload) {
       crv = current_data->getSnapshotRange();
+    } else {
+      current_data->setJumpFrame(0);
+      form_options->setPlaySettings(current_data->getNumberFrames(), 0);
+      emit endOfSnapshot(1);
     }
     form_spart->update(current_data,&current_data->crv_first,_select, first_snapshot);
     form_spart->show();
@@ -682,7 +690,8 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
     current_data->close();     // close the current snapshot
     delete current_data;       // delete previous object    
     current_data = plugins->getObject(snapshot); // connect
-    connect(current_data,SIGNAL(stringStatus(QString)),status_bar, SLOT(showMessage(QString)));
+    connectCurrentData();
+    //connect(current_data,SIGNAL(stringStatus(QString)),status_bar, SLOT(showMessage(QString)));
     current_data->initLoading(store_options);
     crv = current_data->getSnapshotRange();    
     //ComponentRange::list(crv);
@@ -1655,9 +1664,9 @@ void MainWindow::playEvent()
 // playOneFrame, load a frame in parallele if play_animation is false
 void MainWindow::playOneFrame()
 {
-  //if (!play_animation) {
+  if (!play_animation) {   
     play_timer_one_frame->start();
-  //}
+  }
 }
 
 // -----------------------------------------------------------------------------

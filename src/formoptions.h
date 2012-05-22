@@ -91,8 +91,10 @@ class FormOptions: public QDialog {
     // play selection tab
     void on_play_pressed(const int forcestop=-1);
     void on_com_clicked() { go->auto_com = form.com->isChecked();}
+    void on_cod_clicked() { go->cod      = form.cod->isChecked();}
     void on_forward_radio_clicked()  {  emit play_forward(true); go->play_forward=true;}
-    void on_backward_radio_clicked() {  emit play_forward(false); go->play_forward=false;}
+    void on_backward_radio_clicked() {
+      emit play_forward(false); go->play_forward=false;}
     void on_frame_slide_valueChanged(int value) {
       frameValueChanged(value);
     }

@@ -61,9 +61,6 @@ public:
           current_file_index=vector_file.size()-1;
         }
       }
-
-      std::cerr << "FORWARD = " << play_forward << "    EOD="<<end_of_data
-                <<" curren file index="<<current_file_index<<" jumpframe="<<jump_frame<< "\n";
       return end_of_data;
     }
 
