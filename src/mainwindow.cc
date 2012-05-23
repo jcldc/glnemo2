@@ -31,7 +31,6 @@
 #include "nemo.h"
 namespace glnemo {
 #define ICONSIZE 25
-  
 // -----------------------------------------------------------------------------
 // MainWindow constructor                                                       
 // -----------------------------------------------------------------------------
@@ -671,6 +670,7 @@ void MainWindow::interactiveSelect(std::string _select, const bool first_snapsho
 {
   if (current_data) {
     if (!reload) {
+      if (first_snapshot) current_data->setJumpFrame(0);
       crv = current_data->getSnapshotRange();
     } else {
       current_data->setJumpFrame(0);
@@ -691,7 +691,9 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
 {
   select = _select;
   store_options->select_part = select;
-  if (reload && current_data) {// reload action requested   
+  std::cerr << " 1111111111\n";
+  if ((first_snapshot || reload) && current_data) {// reload action requested
+    std::cerr << " 2222222222222\n";
     store_options->phys_max_glob = store_options->phys_min_glob = -1; // reset for colobar display
     current_data->close();     // close the current snapshot
     delete current_data;       // delete previous object    
@@ -700,11 +702,12 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
     //connect(current_data,SIGNAL(stringStatus(QString)),status_bar, SLOT(showMessage(QString)));
     current_data->initLoading(store_options);
     crv = current_data->getSnapshotRange();    
-    //ComponentRange::list(crv);
+    ComponentRange::list(crv);
     //ComponentRange::list(&current_data->crv_first);
   } else {
     actionReset();             // reset view if menu file open
   }
+  std::cerr << " 3333333333\n";
   current_data->setSelectPart(select);
   std::cerr << "MainWindow::selectPart store_options->select_time = " << store_options->select_time << "\n";
   loadNewData(select,store_options->select_time,  // load data
@@ -1030,6 +1033,7 @@ void MainWindow::actionMenuFileOpen()
     snapshot = fileName.toStdString();
     bool save_rho_exist = store_options->rho_exist;
     store_options->rho_exist = false;
+
     SnapshotInterface * new_data = plugins->getObject(snapshot);
     if (new_data)  { // valid object
       mutex_loading.lock();     // protect area
