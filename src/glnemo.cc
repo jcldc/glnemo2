@@ -28,7 +28,7 @@
 #include "mainwindow.h"
 using namespace std;
 
-#define RELEASE_VERSION "1.50-dev-2012-May-22"
+#define RELEASE_VERSION "1.50-dev-2012-May-23"
 
 // ============================================================================
 // NEMO parameters                                                             

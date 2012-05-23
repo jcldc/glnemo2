@@ -43,7 +43,9 @@ FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):
   form.frame_slide->setTracking(true);
   connect(form.frame_slide,SIGNAL(sliderPressed()),this,SLOT(lockFrame()));
   connect(form.frame_slide,SIGNAL(sliderReleased()),this,SLOT(unLockFrame()));
-
+  // frame spin box
+  form.frame_spin->setKeyboardTracking(false);
+  form.frame_spin->setButtonSymbols(QAbstractSpinBox::PlusMinus);
   QString css;
   // ---------- Grid tab
   // Color cube button
@@ -113,7 +115,10 @@ void FormOptions::update()
   form.mesh_length_spin->setValue(go->mesh_length);
   form.mesh_nb_spin->setValue(go->nb_meshs);
   form.cube_checkb->setChecked(go->show_cube);
-  
+
+  // Play tab
+  form.cod->setEnabled(go->rho_exist);
+
   // OSD tabs
   form.show_osd_checkb->setChecked(go->show_osd);
   form.osd_datatype->setChecked(go->osd_data_type);

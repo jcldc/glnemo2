@@ -122,6 +122,7 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_options,SIGNAL(playPressed()),this,SLOT(actionPlay()));
   connect(this,SIGNAL(endOfSnapshot(const int)),form_options,SLOT(on_play_pressed(const int)));
   connect(form_options,SIGNAL(change_frame()),this,SLOT(playOneFrame()));
+  connect(form_options,SIGNAL(centering()),this,SLOT(actionCenterToCom()));
   // options auto rotate
   connect(form_options,SIGNAL(autoRotate(int)),this,SLOT(actionAutoRotate(int)));
   // leaveEvent to pass focus to gl_window
@@ -158,6 +159,8 @@ void MainWindow::start(std::string shot)
   }
   // try to load a snapshot
   user_select = new UserSelection();
+  form_options->activatePlayTime(false); // disable group box by default
+
   if (hasvalue((char*)"in")) {
     bool exist=hasvalue((char*)"select");
     current_data = plugins->getObject(snapshot);
@@ -178,8 +181,11 @@ void MainWindow::start(std::string shot)
       if (!store_options->rho_exist) {
         store_options->render_mode = 0;
       }
-      
+
       gl_window->updateGL();
+    } else { // no data
+      form_options->activatePlayTime(false); // disable group box
+
     }
   }
   else if (hasvalue((char*)"server")) {
@@ -767,6 +773,7 @@ void MainWindow::loadNewData(const std::string select,
       }
       
       form_o_c->update( current_data->part_data, &pov2,store_options);
+      form_options->update();
       updateOsd();
       tbench.restart();
       
@@ -1021,6 +1028,8 @@ void MainWindow::actionMenuFileOpen()
   if (!fileName.isEmpty()) {
     menudir = fileName;
     snapshot = fileName.toStdString();
+    bool save_rho_exist = store_options->rho_exist;
+    store_options->rho_exist = false;
     SnapshotInterface * new_data = plugins->getObject(snapshot);
     if (new_data)  { // valid object
       mutex_loading.lock();     // protect area
@@ -1031,6 +1040,9 @@ void MainWindow::actionMenuFileOpen()
       form_options->activatePlayTime(store_options->list_type); // enable group box
       connectCurrentData(); // signal and slots connection
       current_data->part_data->setIpvs(selphys);
+      if (  current_data->isListOf() ) { // it's list of data
+        form_options->setPlaySettings(current_data->getNumberFrames(), 0);
+      }
 //       loadNewData("all","all",  // load data
 //           keep_all,store_options->vel_req,true); //
       reload=false;
@@ -1039,6 +1051,9 @@ void MainWindow::actionMenuFileOpen()
       current_data->initLoading(store_options);
       interactiveSelect("",true);
       mutex_loading.unlock();   // release area                  
+    } else { // no new data
+      store_options->rho_exist = save_rho_exist;
+      //form_options->activatePlayTime(false); // disable group box
     }
   }
 }
@@ -1681,6 +1696,7 @@ void MainWindow::uploadNewFrame()
       ParticlesObject::initOrbitsVectorPOV(pov);
       ParticlesObject::copyVVkeepProperties(pov,pov2,user_select->getNSel()); 
       form_o_c->update( current_data->part_data, &pov2,store_options,false); // update Form
+      form_options->update();
       form_options->setPlaySettings(current_data->getNumberFrames(), current_data->getCurrentFrameIndex());
       //mutex_data->unlock();
     } else {

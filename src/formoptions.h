@@ -45,6 +45,7 @@ class FormOptions: public QDialog {
       form.frame_spin->setValue(frame);
       form.frame_slide->setMaximum(maxframe);
       form.frame_slide->setValue(frame);
+      form.frame_max->setText(QString("%1").arg(maxframe));
       //mutex_load.unlock();
     }
 
@@ -90,8 +91,12 @@ class FormOptions: public QDialog {
     //                   
     // play selection tab
     void on_play_pressed(const int forcestop=-1);
-    void on_com_clicked() { go->auto_com = form.com->isChecked();}
-    void on_cod_clicked() { go->cod      = form.cod->isChecked();}
+    void on_com_clicked() { go->auto_com = form.com->isChecked();
+                            if (go->auto_com) emit centering();
+                          }
+    void on_cod_clicked() { go->cod      = form.cod->isChecked();
+                             if (go->cod) emit centering();
+                          }
     void on_forward_radio_clicked()  {  emit play_forward(true); go->play_forward=true;}
     void on_backward_radio_clicked() {
       emit play_forward(false); go->play_forward=false;}
@@ -509,6 +514,7 @@ class FormOptions: public QDialog {
     void play_forward(const bool);
     void jump_frame(const int);
     void change_frame();
+    void centering();
     // auto rotation
     void autoRotate(const int);
     
