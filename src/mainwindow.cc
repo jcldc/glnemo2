@@ -119,7 +119,7 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_o_c,SIGNAL(reverseColorMap(bool)),colormap,SLOT(reverse(bool)));
   // options play tab
   connect(form_options,SIGNAL(playPressed()),this,SLOT(actionPlay()));
-  connect(this,SIGNAL(endOfSnapshot(const int)),form_options,SLOT(on_play_pressed(const int)));
+  connect(this,SIGNAL(endOfSnapshot(const int)),form_options,SLOT(on_play_pressed2(const int)));
   connect(form_options,SIGNAL(change_frame()),this,SLOT(playOneFrame()));
   connect(form_options,SIGNAL(centering()),this,SLOT(actionCenterToCom()));
   // options auto rotate
@@ -482,7 +482,7 @@ void MainWindow::createActions()
   toggle_play_action->setShortcut(tr("p"));
   toggle_play_action->setStatusTip(tr("Play next snapshot"));
   //connect(toggle_play_action, SIGNAL( activated() ), this, SLOT(actionPlay()) );
-  connect(toggle_play_action, SIGNAL( activated() ), form_options, SLOT(on_play_pressed()));
+  connect(toggle_play_action, SIGNAL( activated() ), form_options, SLOT(on_play_pressed2()));
   
   // reload
   reload_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/reload.png"),tr("Reload snaphot"),this);
@@ -691,9 +691,7 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
 {
   select = _select;
   store_options->select_part = select;
-  std::cerr << " 1111111111\n";
-  if ((first_snapshot || reload) && current_data) {// reload action requested
-    std::cerr << " 2222222222222\n";
+  if ((reload) && current_data) {// reload action requested
     store_options->phys_max_glob = store_options->phys_min_glob = -1; // reset for colobar display
     current_data->close();     // close the current snapshot
     delete current_data;       // delete previous object    
@@ -707,7 +705,7 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
   } else {
     actionReset();             // reset view if menu file open
   }
-  std::cerr << " 3333333333\n";
+
   current_data->setSelectPart(select);
   std::cerr << "MainWindow::selectPart store_options->select_time = " << store_options->select_time << "\n";
   loadNewData(select,store_options->select_time,  // load data
@@ -1042,7 +1040,7 @@ void MainWindow::actionMenuFileOpen()
       current_data = new_data;  // link new_data   
       store_options->list_type = current_data->isListOf();
       form_options->activatePlayTime(store_options->list_type); // enable group box
-      connectCurrentData(); // signal and slots connection
+      connectCurrentData(); // signal and slots connections
       current_data->part_data->setIpvs(selphys);
       if (  current_data->isListOf() ) { // it's list of data
         form_options->setPlaySettings(current_data->getNumberFrames(), 0);

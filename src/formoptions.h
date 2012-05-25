@@ -42,10 +42,12 @@ class FormOptions: public QDialog {
     }
     void setPlaySettings(const int maxframe, const int frame) {
       //mutex_load.lock();
+      EMIT=false;
       form.frame_spin->setValue(frame);
-      form.frame_slide->setMaximum(maxframe);
+      form.frame_slide->setMaximum(maxframe-1);
       form.frame_slide->setValue(frame);
       form.frame_max->setText(QString("%1").arg(maxframe));
+      EMIT=true;
       //mutex_load.unlock();
     }
 
@@ -57,6 +59,7 @@ class FormOptions: public QDialog {
     QTimer * limited_timer;
     static int windows_size[][2];
     QMutex * mutex_data;
+    bool EMIT;
   private slots:
     void leaveEvent ( QEvent * event ) {
       if (event) {;}
@@ -90,7 +93,11 @@ class FormOptions: public QDialog {
     void on_cam_play_pressed();
     //                   
     // play selection tab
-    void on_play_pressed(const int forcestop=-1);
+    void on_play_pressed2(const int forcestop=-1);
+    void on_play_pressed() {
+      on_play_pressed2();
+    }
+
     void on_com_clicked() { go->auto_com = form.com->isChecked();
                             if (go->auto_com) emit centering();
                           }
@@ -109,8 +116,10 @@ class FormOptions: public QDialog {
     void frameValueChanged(int value) {
       mutex_data->lock();
       go->jump_frame = value;
-      emit jump_frame(value);
-      emit change_frame();    
+      if (EMIT) {
+        emit jump_frame(value);
+        emit change_frame();
+      }
       mutex_data->unlock();
     }
     void lockFrame() {

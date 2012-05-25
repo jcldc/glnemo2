@@ -25,6 +25,7 @@ FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):
 {
   if (parent) {;}  // remove compiler warning
   form.setupUi(this);
+  EMIT=true;
   start=false;
   limited_timer = new QTimer(this);
   connect(limited_timer, SIGNAL(timeout()), this, SLOT(stop_bench()));
@@ -259,7 +260,7 @@ void FormOptions::on_frame_name_pressed()
   }
 }
 // ============================================================================
-void FormOptions::on_play_pressed(const int forcestop)
+void FormOptions::on_play_pressed2(const int forcestop)
 {
   static bool play=false;
   switch (forcestop) {

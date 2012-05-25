@@ -35,6 +35,8 @@ SnapshotList::SnapshotList():SnapshotInterface()
 SnapshotList::~SnapshotList()
 {
   close();
+  std::cerr << "SnapshotList::~SnapshotList()\n";
+  if (obj)       delete obj;
   if (current_data)
     delete current_data;
   if (part_data)
@@ -226,17 +228,19 @@ bool SnapshotList::getNextFile()
   bool status=false;
   frame.lock();
   if (jump_frame==-1) { // no explicit frame selection
-    assert(current_file_index< (int) vector_file.size());
-    snapshot = vector_file[current_file_index]; // get current snap
+    //assert(current_file_index< (int) vector_file.size());
+    //snapshot = vector_file[current_file_index]; // get current snap
     if (play_forward) { // forward play
       assert(current_file_index>=0);
       if (current_file_index < (int) vector_file.size()) {
+        snapshot = vector_file[current_file_index]; // get current snap
         current_file_index++;
         status=true;
       }
     }
     else {             // backward play
       if (current_file_index>0) {
+        snapshot = vector_file[current_file_index]; // get current snap
         current_file_index--;
         status=true;
       }
