@@ -42,8 +42,10 @@ FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):
   form.cod->setChecked(go->cod);
   // player tab
   form.frame_slide->setTracking(true);
-  connect(form.frame_slide,SIGNAL(sliderPressed()),this,SLOT(lockFrame()));
+  connect(form.frame_slide,SIGNAL(sliderPressed()) ,this,SLOT(lockFrame()));
   connect(form.frame_slide,SIGNAL(sliderReleased()),this,SLOT(unLockFrame()));
+  connect(form.frame_dial ,SIGNAL(sliderPressed()) ,this,SLOT(lockFrame()));
+  connect(form.frame_dial ,SIGNAL(sliderReleased()),this,SLOT(unLockFrame()));
   // frame spin box
   form.frame_spin->setKeyboardTracking(false);
   form.frame_spin->setButtonSymbols(QAbstractSpinBox::PlusMinus);

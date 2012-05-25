@@ -46,6 +46,8 @@ class FormOptions: public QDialog {
       form.frame_spin->setValue(frame);
       form.frame_slide->setMaximum(maxframe-1);
       form.frame_slide->setValue(frame);
+      form.frame_dial->setMaximum(maxframe-1);
+      form.frame_dial->setValue(frame);
       form.frame_max->setText(QString("%1").arg(maxframe));
       EMIT=true;
       //mutex_load.unlock();
