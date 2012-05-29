@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>757</width>
-    <height>239</height>
+    <height>258</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2132,7 +2132,7 @@
           </sizepolicy>
          </property>
          <property name="title">
-          <string>Time frame</string>
+          <string>Time line</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_40">
           <item row="0" column="0" colspan="3">
