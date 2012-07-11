@@ -900,6 +900,11 @@ int GLObjectParticles::compareZ( const void * a, const void * b )
 // ============================================================================
 // buildIndexHisto()
 // store first index particles belonging to each percent of physical array
+// index_histo[percentile->0:99%]. It allows to find quickly the index of the
+// first min and max particles.
+// index_histo array stores the first index of the particle which belong to the
+// percentile. Particles physical data must be sorted. Percentile
+// vary from 0 to 99% of log of the physical data.
 void GLObjectParticles::buildIndexHisto()
 {
   // reset index_histo array

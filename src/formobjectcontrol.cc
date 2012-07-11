@@ -610,16 +610,22 @@ void FormObjectControl::updateObjectSettings( const int row)
       //min
       double minphys=pobj->getMinPhys();
       double maxphys=pobj->getMaxPhys();
+      double gminphys=minphys,
+             gmaxphys=maxphys;
       //std::cerr << "minphys ="<<minphys << " maxphys="<<maxphys<<"\n";
-      int min=rint((log(minphys)-log(phys_select->getMin()))*1./diff_rho);
+      if (go->phys_min_glob !=-1 && go->phys_max_glob !=-1) {
+          gminphys = go->phys_min_glob;
+          gmaxphys = go->phys_max_glob;
+      }
+      int min=rint((log(gminphys)-log(phys_select->getMin()))*1./diff_rho);
       form.dens_slide_min->setValue(min);
       //pobj->setMinPercenPhys(std::max(min-1,0));
       //max      
-      int max=rint((log(maxphys)-log(phys_select->getMin()))*1./diff_rho);      
+      int max=rint((log(gmaxphys)-log(phys_select->getMin()))*1./diff_rho);
       form.dens_slide_max->setValue(max);
       //pobj->setMaxPercenPhys(std::max(1,max-1));
 #if 1
-      setNewPhys();
+      setNewPhys(false);
       go->gcb_min = form.dens_slide_min->value();
       go->gcb_max = form.dens_slide_max->value();
 #endif
@@ -627,8 +633,10 @@ void FormObjectControl::updateObjectSettings( const int row)
       dens_color_bar->draw(form.dens_slide_min->value(),form.dens_slide_max->value());
       //pobj->setMinPhys(minphys);
       //pobj->setMaxPhys(maxphys);
+#if 0 // July 2012
       go->phys_min_glob = minphys;
       go->phys_max_glob = maxphys;
+#endif
     } 
   }
   if ( i_obj == -1 ) { // no object selected
@@ -690,9 +698,11 @@ void FormObjectControl::checkPhysic()
         }
         //min
         float minphys=pobj->getMinPhys();
-        float maxphys=pobj->getMaxPhys();                
+        float maxphys=pobj->getMaxPhys();
+#if 0 // july 2012
         go->phys_min_glob = minphys;
         go->phys_max_glob = maxphys;
+#endif
       }
     }
   }
@@ -1068,7 +1078,7 @@ void FormObjectControl::dens_slide_min_max(const int x, const int y)
       }
     }
     EMIT=TRUE;
-    setNewPhys();      
+    setNewPhys();
     go->gcb_min = form.dens_slide_min->value();
     go->gcb_max = form.dens_slide_max->value();
     emit changeBoundaryPhys(i_obj,EMIT); 
@@ -1155,7 +1165,7 @@ void FormObjectControl::on_dens_slide_max_valueChanged(int value)
 }
 // ============================================================================
 // setNewPhys
-void FormObjectControl::setNewPhys()
+void FormObjectControl::setNewPhys(bool update_glob)
 {
   if (go  && ! go->duplicate_mem) mutex_data->lock();
   int i_obj = object_index[current_object];
@@ -1165,8 +1175,10 @@ void FormObjectControl::setNewPhys()
     double diff_rho=(log(phys_select->getMax())-log(phys_select->getMin()))/100.;
     pobj->setMinPhys(exp(log(phys_select->getMin())+form.dens_slide_min->value()*diff_rho));
     pobj->setMaxPhys(exp(log(phys_select->getMin())+form.dens_slide_max->value()*diff_rho));
-    go->phys_min_glob = pobj->getMinPhys();
-    go->phys_max_glob = pobj->getMaxPhys();
+    if (update_glob) {
+      go->phys_min_glob = pobj->getMinPhys();
+      go->phys_max_glob = pobj->getMaxPhys();
+    }
   }
 }
 // ============================================================================
