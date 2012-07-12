@@ -608,18 +608,22 @@ void FormObjectControl::updateObjectSettings( const int row)
       dens_histo->drawDensity(phys_select->data_histo);
       double diff_rho=(log(phys_select->getMax())-log(phys_select->getMin()))/100.;
       //min
-      double minphys=pobj->getMinPhys();
-      double maxphys=pobj->getMaxPhys();
+      double minphys=pobj->getMinPhys(); // object's max phys value
+      double maxphys=pobj->getMaxPhys(); // object's min phys value
       double gminphys=minphys,
              gmaxphys=maxphys;
       //std::cerr << "minphys ="<<minphys << " maxphys="<<maxphys<<"\n";
       if (go->phys_min_glob !=-1 && go->phys_max_glob !=-1) {
+          // physical min/max values has been specified from the
+          // command line, or user has interactively modified min/max
           gminphys = go->phys_min_glob;
           gmaxphys = go->phys_max_glob;
       }
+      // compute min/max value for the object according to
+      // the global value if it has been defined
+      //min
       int min=rint((log(gminphys)-log(phys_select->getMin()))*1./diff_rho);
-      form.dens_slide_min->setValue(min);
-      //pobj->setMinPercenPhys(std::max(min-1,0));
+      form.dens_slide_min->setValue(min);      
       //max      
       int max=rint((log(gmaxphys)-log(phys_select->getMin()))*1./diff_rho);
       form.dens_slide_max->setValue(max);
@@ -636,6 +640,13 @@ void FormObjectControl::updateObjectSettings( const int row)
 #if 0 // July 2012
       go->phys_min_glob = minphys;
       go->phys_max_glob = maxphys;
+#else
+      // there is no physical values set on the CL
+      // then we set min/max glob from the first frame
+      if (go->phys_min_glob ==-1 && go->phys_max_glob ==-1) {
+        go->phys_min_glob = pobj->getMinPhys();
+        go->phys_max_glob = pobj->getMaxPhys();
+      }
 #endif
     } 
   }
@@ -696,10 +707,10 @@ void FormObjectControl::checkPhysic()
             pobj->setMaxPhys(go->phys_max_glob);
           }
         }
+#if 0 // july 2012
         //min
         float minphys=pobj->getMinPhys();
         float maxphys=pobj->getMaxPhys();
-#if 0 // july 2012
         go->phys_min_glob = minphys;
         go->phys_max_glob = maxphys;
 #endif
@@ -1165,6 +1176,7 @@ void FormObjectControl::on_dens_slide_max_valueChanged(int value)
 }
 // ============================================================================
 // setNewPhys
+// Set new physical values for the object
 void FormObjectControl::setNewPhys(bool update_glob)
 {
   if (go  && ! go->duplicate_mem) mutex_data->lock();
@@ -1176,6 +1188,8 @@ void FormObjectControl::setNewPhys(bool update_glob)
     pobj->setMinPhys(exp(log(phys_select->getMin())+form.dens_slide_min->value()*diff_rho));
     pobj->setMaxPhys(exp(log(phys_select->getMin())+form.dens_slide_max->value()*diff_rho));
     if (update_glob) {
+      // user has selected new values for physical data min/max
+      // we save globally these values
       go->phys_min_glob = pobj->getMinPhys();
       go->phys_max_glob = pobj->getMaxPhys();
     }

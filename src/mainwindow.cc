@@ -692,7 +692,7 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
   select = _select;
   store_options->select_part = select;
   if ((reload) && current_data) {// reload action requested
-    store_options->phys_max_glob = store_options->phys_min_glob = -1; // reset for colobar display
+    //store_options->phys_max_glob = store_options->phys_min_glob = -1; // reset for colobar display
     current_data->close();     // close the current snapshot
     delete current_data;       // delete previous object    
     current_data = plugins->getObject(snapshot); // connect
@@ -1036,7 +1036,8 @@ void MainWindow::actionMenuFileOpen()
     if (new_data)  { // valid object
       mutex_loading.lock();     // protect area
       if (current_data)
-        delete current_data;      // free memory                   
+        delete current_data;      // free memory
+      store_options->phys_min_glob = store_options->phys_max_glob =-1;
       current_data = new_data;  // link new_data   
       store_options->list_type = current_data->isListOf();
       form_options->activatePlayTime(store_options->list_type); // enable group box

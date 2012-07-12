@@ -38,6 +38,7 @@ namespace glnemo {
 float PHYS_MIN=-1.;
 float PHYS_MAX=0.000006;
 int index_min, index_max;
+int nhisto=10000;
 
 // ============================================================================
 // constructor                                                                 
@@ -46,6 +47,8 @@ GLObjectParticles::GLObjectParticles(GLTextureVector * _gtv ):GLObject()
   dplist_index = glGenLists( 1 );    // get a new display list index
   texture = NULL;                    // no texture yet              
   gtv = _gtv;
+  // reserve memory
+  index_histo.reserve(nhisto);
   if (GLWindow::GLSL_support) {
     glGenBuffersARB(1,&vbo_pos);
     glGenBuffersARB(1,&vbo_data);
@@ -63,12 +66,14 @@ GLObjectParticles::GLObjectParticles(GLTextureVector * _gtv ):GLObject()
 GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
                                      ParticlesObject * _po,
                                      const GlobalOptions   * _go,
-				     GLTextureVector * _gtv, CShader * _shader):GLObject()
+                                     GLTextureVector * _gtv, CShader * _shader):GLObject()
 {
   shader = _shader; // link shader program pointer
   dplist_index = glGenLists( 1 );    // get a new display list index
   vel_dp_list  = glGenLists( 1 );    // get a new display vel list
   orb_dp_list  = glGenLists( 1 );    // get a new display orb list
+  // reserve memory
+  index_histo.reserve(nhisto);
   if (GLWindow::GLSL_support) {
     glGenBuffersARB(1,&vbo_pos);     // get Vertex Buffer Object
 //    glGenBuffersARB(1,&vbo_color);   // get Vertex Buffer Object
@@ -216,6 +221,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   glEnableClientState(GL_VERTEX_ARRAY);
   int start=3*min_index*sizeof(float);
   int maxvert=max_index-min_index+1;
+  //std::cerr << "min_index="<<min_index<<" max_inex="<<max_index<<" maxvert="<<maxvert<<"\n";
   glVertexPointer(3, GL_FLOAT, 0, (void *) (start));
 
   // get attribute location for sprite size
@@ -432,8 +438,8 @@ void GLObjectParticles::updateBoundaryPhys()
     //std::cerr << " Pobj min index="<<po->getMinPercenPhys()
     //    << " max index="<<po->getMaxPercenPhys()<<"\n";
     assert(po->getMinPercenPhys()>=0 && po->getMaxPercenPhys()<100);
-    min_index = index_histo[po->getMinPercenPhys()];
-    max_index = index_histo[po->getMaxPercenPhys()];
+    min_index = index_histo[po->getMinPercenPhys()*nhisto/100];
+    max_index = index_histo[po->getMaxPercenPhys()*nhisto/100];
   }
 }
 // ============================================================================
@@ -908,7 +914,8 @@ int GLObjectParticles::compareZ( const void * a, const void * b )
 void GLObjectParticles::buildIndexHisto()
 {
   // reset index_histo array
-  for (int i=0; i <100;i++) index_histo[i]=-1;
+  index_histo.clear();
+  for (int i=0; i <nhisto;i++) index_histo.push_back(-1);
   
 
   // compute first particle index in the percentage
@@ -920,11 +927,11 @@ void GLObjectParticles::buildIndexHisto()
     if (part_data->rho) {
       log_part_r_max = log(part_data->rho->getMax());
       log_part_r_min = log(part_data->rho->getMin());
-      diff_log_part  = 99./(log_part_r_max-log_part_r_min);
+      diff_log_part  = (nhisto-1.)/(log_part_r_max-log_part_r_min);
     }
     log_phys_max = log(phys_select->getMax());
     log_phys_min = log(phys_select->getMin());
-    diff_log_phys= 99./(log_phys_max-log_phys_min);
+    diff_log_phys= (nhisto-1.)/(log_phys_max-log_phys_min);
     
     int cpt=0;
     // find first index of particle in the percentage
@@ -938,7 +945,7 @@ void GLObjectParticles::buildIndexHisto()
         if (rho_data!=0 && rho_data!=-1) {
           //std::cerr << "I="<<i<<" => "<<phys_select->data[index]<<"\n";
           int percen=(log(rho_data)-log_part_r_min)*diff_log_part;
-          assert(percen<100 && percen>=0);
+          assert(percen<nhisto && percen>=0);
           if (index_histo[percen]==-1) { // no value yet
             index_histo[percen]=cpt; // store 
             
@@ -952,7 +959,7 @@ void GLObjectParticles::buildIndexHisto()
         if (phys_data!=0 && phys_data!=-1) {
           //std::cerr << "I="<<i<<" => "<<phys_data<<"\n";
           int percen=(log(phys_data)-log_phys_min)*diff_log_phys;
-          assert(percen<100 && percen>=0);
+          assert(percen<nhisto && percen>=0);
           if (index_histo[percen]==-1) { // no value yet
             index_histo[percen]=cpt; // store 
             
@@ -965,14 +972,14 @@ void GLObjectParticles::buildIndexHisto()
     }
     // fill empty index_histo
     int last=0;
-    for (int i=0; i <100; i++) {
+    for (int i=0; i <nhisto; i++) {
       if (index_histo[i]==-1) index_histo[i]=last;
       else last=index_histo[i];
       //std::cerr << "Percentage["<<i<<"%]="<<index_histo[i]<<" quant="<< 
       //    phys_select->data[phys_itv[index_histo[i]].index]<<"\n";
     }
     // if no physical quantity for the object
-    if (index_histo[99]==0) index_histo[99] = nvert_pos;
+    if (index_histo[nhisto-1]==0) index_histo[nhisto-1] = nvert_pos;
   }
 }
 // ============================================================================
