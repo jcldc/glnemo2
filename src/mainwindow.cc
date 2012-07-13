@@ -1191,40 +1191,41 @@ void MainWindow::actionRenderMode()
 void MainWindow::actionCenterToCom(const bool ugl)
 {
   double com[3] = {0., 0., 0.};
-  int np=0; 
+  int np=0;
   double weight=0.0;
   mutex_data->lock();
   //mutex_loading.lock();
   if (current_data ) {
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // September 2009, 4th                               
-    // Change "pov2" by "pov", seems to fix              
+    // September 2009, 4th
+    // Change "pov2" by "pov", seems to fix
     // a bug regarding bad COM when interactive centering
-    // while loading snapshot...                         
+    // while loading snapshot...
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     for (int i=0; i<(int)pov2.size();i++) {
-	 // loop on all the objects
-	const ParticlesObject * po = &(pov2[i]);        // object
-	if (po->isVisible()) {                                   // is visible  
-	  ParticlesData * part_data = current_data->part_data;// get its Data
-	  // loop on all the particles of the object
-	  for (int j  = 0; j  <  po->npart; j ++) {
-	    np++;
-	    int jndex= po->index_tab[j];
-            float rho_fac=1.0;
-            if (store_options->cod &&part_data->rho && (part_data->rho->data[jndex]!=-1.0))
-              rho_fac = part_data->rho->data[jndex];
-	    com[0] +=(part_data->pos[jndex*3  ]*rho_fac);
-	    com[1] +=(part_data->pos[jndex*3+1]*rho_fac);
-            com[2] +=(part_data->pos[jndex*3+2]*rho_fac);
-            weight += rho_fac;
-	  }
-	}
+      // loop on all the objects
+      const ParticlesObject * po = &(pov2[i]);        // object
+      if (po->isVisible()) {                                   // is visible
+        ParticlesData * part_data = current_data->part_data;// get its Data
+        // loop on all the particles of the object
+        for (int j  = 0; j  <  po->npart; j ++) {
+          np++;
+          int jndex= po->index_tab[j];
+          float rho_fac=1.0;
+          if (store_options->cod &&part_data->rho && (part_data->rho->data[jndex]!=-1.0))
+            rho_fac = part_data->rho->data[jndex];
+          com[0] +=(part_data->pos[jndex*3  ]*rho_fac);
+          com[1] +=(part_data->pos[jndex*3+1]*rho_fac);
+          com[2] +=(part_data->pos[jndex*3+2]*rho_fac);
+          weight += rho_fac;
+        }
+      }
     }
     store_options->xtrans = -(com[0]/weight);
     store_options->ytrans = -(com[1]/weight);
     store_options->ztrans = -(com[2]/weight);
-    if (ugl) gl_window->updateGL();
+    //if (ugl) gl_window->updateGL();
+    updateOsd(ugl);
   }
   mutex_data->unlock();
   //mutex_loading.unlock();
