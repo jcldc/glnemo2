@@ -182,14 +182,14 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   else
     glColor4ub(mycolor.red(), mycolor.green(), mycolor.blue(),po->getGazAlpha());
   
-  if (go->render_mode == 0 || go->render_mode == 1) { // Alpha blending accumulation	
+  if ((go->render_mode == 0 || go->render_mode == 1) && !hasPhysic) { // Alpha blending accumulation
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glEnable(GL_BLEND);
     glDepthMask(GL_FALSE);
     checkGlError("GLObjectParticles::displayVboShader -> Alpha blending accumulation");
   }
   else 
-    if (go->render_mode == 2) {  // No Alpha bending accumulation
+    if (hasPhysic || go->render_mode == 2) {  // No Alpha bending accumulation
       glDepthMask(GL_FALSE);
       glDisable(GL_DEPTH_TEST);
       //glEnable(GL_DEPTH_TEST);
@@ -239,7 +239,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
     std::cerr << "Error occured when getting \"a_phys_data\" attribute\n";
     exit(1);
   }
-  if (go->render_mode == 1 || go->render_mode == 2) { // individual size and color
+  if ((go->render_mode == 0 || go->render_mode == 2)) { // individual size and color
   
     // Send vertex object neighbours size
     if (hasPhysic && phys_select && phys_select->isValid()) { 
@@ -310,7 +310,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   shader->stop();
 
 
-  if (go->render_mode == 1 || go->render_mode == 2) {
+  if (hasPhysic || go->render_mode == 1 || go->render_mode == 2) {
     //glDisableClientState(GL_NORMAL_ARRAY);
     if (phys_select && phys_select->isValid()) {  
       glDisableVertexAttribArray(a_sprite_size);
