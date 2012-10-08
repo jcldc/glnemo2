@@ -101,7 +101,7 @@ int GadgetIO::close()
 // ============================================================================
 int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho, float * rneib, float * temp,const int *index, const int nsel,   const bool load_vel)
 {
-  bool is_temp=true;
+  bool is_temp=false;
   if (! is_read ) {
     use_gas = false;
     s_gas=1e9;  // starting gas index according to the user
@@ -369,7 +369,7 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
     std::cerr << "Use gas = " << use_gas << " start=" << s_gas << " end=" << e_gas << "\n";
     if (version == 2 && is_temp && use_gas && ! header.flag_cooling) {
       for(int n=0;n<nsel;n++) {
-        temp[n] = 1.0;
+      //  temp[n] = 1.0;
       }
     }
     // sort particles according to their indexes
@@ -380,7 +380,7 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
       rhop      = rho;
       tempp     = temp;
       intenergp = intenerg;
-      unitConversion();
+      //unitConversion();
     }
     if (! is_temp) {
       delete [] temp;
