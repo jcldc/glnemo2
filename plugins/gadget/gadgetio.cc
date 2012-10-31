@@ -383,8 +383,8 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
       //unitConversion();
     }
     if (! is_temp) {
-      delete [] temp;
-      temp=NULL;
+      //delete [] temp;
+      //temp=NULL;
     }
     // garbage collecting
     delete [] index2;
