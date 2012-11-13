@@ -47,6 +47,7 @@ CAmr::CAmr(const std::string _indir, const bool _v)
       s_run_index.erase(found,found);
     }
     infile = indir + "/amr_" + s_run_index + ".out00001";
+    testhydrofile = indir + "/hydro_" + s_run_index + ".out00001";
     std::cerr << "Run index = " << s_run_index <<  "  infile=[" << infile << "]\n";
   }
   //computeNbody();
@@ -61,10 +62,11 @@ CAmr::~CAmr()
 //
 bool CAmr::isValid()
 {    
-  if (amr.open(infile)) {
+  if (amr.open(infile) && hydro.open(testhydrofile)) {
     valid=true;
     readHeader();
     amr.close();
+    hydro.close();
     std::cerr << "ncpu="<<ncpu<<"  ndim="<<ndim<< "\n";// "npart=" << npart << "\n";
     xbound[0] = nx/2;
     xbound[1] = ny/2;

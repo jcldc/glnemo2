@@ -59,7 +59,7 @@ private:
     // some variables
     
     bool verbose,valid;
-    std::string infile,indir;
+    std::string infile,testhydrofile,indir;
     int select,nselect;
     int nbody;
     std::string s_run_index,ordering;
