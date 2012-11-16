@@ -125,11 +125,11 @@ int SnapshotRamses::nextFrame(const int * index_tab, const int nsel)
     //part_data->computeMaxSize();
     // rescale particles
     for (int i=0;i <nsel; i++) {
-      part_data->pos[i*3+0]     *= go->scale;
-      part_data->pos[i*3+1]     *= go->scale;
-      part_data->pos[i*3+2]     *= go->scale;
+      part_data->pos[i*3+0]     *= go->scale*amr->getHeader()->boxlen;
+      part_data->pos[i*3+1]     *= go->scale*amr->getHeader()->boxlen;
+      part_data->pos[i*3+2]     *= go->scale*amr->getHeader()->boxlen;
       if (part_data->rneib->data[i]!=-1)
-        part_data->rneib->data[i] *= go->scale;
+        part_data->rneib->data[i] *= go->scale*amr->getHeader()->boxlen;
     }
     part_data->computeVelNorm();
     part_data->rho->computeMinMax();
@@ -144,7 +144,8 @@ int SnapshotRamses::nextFrame(const int * index_tab, const int nsel)
       part_data->temp=NULL;
     }
     if (! part_data->timu ) part_data->timu = new float;
-    *part_data->timu = 0; // !!!!!! gadget_io->getTime();
+    //*part_data->timu = amr->getHeader()->time; // !!!!!! gadget_io->getTime();
+    *part_data->timu = amr->getMapInfo("time")*amr->getMapInfo("unit_t") /(60.*60.*24.*365.15*1E9) ;
     end_of_data=true; // only one frame from an gadget snapshot
     
   }
