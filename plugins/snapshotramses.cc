@@ -62,7 +62,7 @@ bool SnapshotRamses::isValidData()
   valid=false;
   part = new ramses::CPart(filename,2);
   amr  = new ramses::CAmr(filename);
-  if (part->isValid() && amr->isValid()) {
+  if (part->isValid() || amr->isValid()) {
     connect(amr, SIGNAL(stringStatus(const QString)),this,SLOT(slotStringStatus(QString)));    //SLOT(slotStringStatus(const Qstring)));
     connect(part,SIGNAL(stringStatus(const QString)),this,SLOT(slotStringStatus(QString)));
     valid=true;
@@ -215,14 +215,14 @@ int SnapshotRamses::initLoading(GlobalOptions * so)
   if (so->select_part=="" || (so->select_part.find("stars")!=std::string::npos)) 
     take_stars = true;
   
-  if (take_gas) {
+  if (take_gas && amr->isValid()) {
     take_gas = true;
     namr=amr->loadData(); // count gas particles
   } else {
     namr=0;
   }
   
-  if (take_halo || take_stars) {
+  if ((take_halo || take_stars) && part->isValid()) {
     part->loadData(take_halo,take_stars);     // count dm+stars particles
     part->getNbody(&ndm,&nstars);
   } else {
