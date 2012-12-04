@@ -24,6 +24,8 @@
 #include <QObject>
 #include <cmath>
 #include <map>
+#include <climits>
+#include <cstdlib>
 
 namespace ramses {
 
