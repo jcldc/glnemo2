@@ -134,6 +134,8 @@ int main(int argc, char *argv[])
 {
   QApplication::setDesktopSettingsAware(true);
   QApplication app(argc, argv);
+  setlocale(LC_NUMERIC,"C"); // force numerics functions to use decimal point
+
   if ( !QGLFormat::hasOpenGL() ) {
     qWarning( "This system has no OpenGL support. Exiting." );
     return -1;
