@@ -27,7 +27,7 @@ FormAbout::FormAbout(QWidget *parent):QDialog(parent)
   //"<b>Glnemo2:</b> an interactive 3D visualisation program for nbody simulation data"
   
   QString info(tr(
-       "<center>Copyright (c) <b>Jean-Charles LAMBERT</b> 2007-2012"
+       "<center>Copyright (c) <b>Jean-Charles LAMBERT</b> 2007-2013"
       "<br><a href=\"mailto:Jean-Charles.Lambert@oamp.fr\">Jean-Charles.Lambert@oamp.fr</a>"
        "<br><br>Dynamique des Galaxies"
        "<br>Centre de donnéeS Astrophysique de Marseille (CeSAM)"
