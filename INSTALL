@@ -37,10 +37,10 @@ qt4 are still installed there). Change to 'glnemo2' directory and enter the comm
 
     c) cmake experimental
        - - - - - - - - -
-     for linux only, if you have cmake package installed, you can try
-    the following :
+     for linux only and qt5 dev package installed, if you have cmake package installed, you can try
+    to run the following commands :
     cd build
-    cmake .
+    cmake ..
     make
     make install
 
