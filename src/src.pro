@@ -169,7 +169,7 @@ LIBS += \
     -lgadget \
     -lramses \
     -lnetwork \
-    -lzlib \
+    -lz \
     -lutils
 win32 {
     LIBS += -lopengl32
