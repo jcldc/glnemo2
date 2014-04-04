@@ -171,7 +171,7 @@ LIBS += \
     -lnetwork \
     -lutils
 win32 {
-    LIBS += -zlib
+    LIBS += -lzlib
     LIBS += -lopengl32
 }
 unix {
