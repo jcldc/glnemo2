@@ -83,13 +83,13 @@ int SnapshotRamses::nextFrame(const int * index_tab, const int nsel)
   parseSelectTime();
   
   
-  if ((go->select_part.find("gas")!=std::string::npos)) 
+  if (go->select_part=="all" || (go->select_part.find("gas")!=std::string::npos))
     take_gas = true;
   else namr=0;
-  if ((go->select_part.find("halo")!=std::string::npos)) 
+  if (go->select_part=="all" || (go->select_part.find("halo")!=std::string::npos))
     take_halo = true;
   else ndm=0;
-  if ((go->select_part.find("stars")!=std::string::npos)) 
+  if (go->select_part=="all" || (go->select_part.find("stars")!=std::string::npos))
     take_stars = true;
   else nstars=0;
   
@@ -218,11 +218,11 @@ int SnapshotRamses::initLoading(GlobalOptions * so)
 #endif
   amr->setBoundary(x);
   part->setBoundary(x);
-  if (so->select_part=="" || (so->select_part.find("gas")!=std::string::npos)) 
+  if (so->select_part=="" || so->select_part=="all" || (so->select_part.find("gas")!=std::string::npos))
     take_gas = true;
-  if (so->select_part=="" || (so->select_part.find("halo")!=std::string::npos)) 
+  if (so->select_part=="" || so->select_part=="all" || (so->select_part.find("halo")!=std::string::npos))
     take_halo = true;
-  if (so->select_part=="" || (so->select_part.find("stars")!=std::string::npos)) 
+  if (so->select_part=="" || so->select_part=="all" || (so->select_part.find("stars")!=std::string::npos))
     take_stars = true;
   
   if (take_gas && amr->isValid()) {
