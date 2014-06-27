@@ -84,10 +84,10 @@ ComponentRangeVector * SnapshotList::getSnapshotRange()
       // load from disk
       //current_data->nextFrame(user_select->getIndexesTab(),user_select->getNSel());
       if (first) {
-	first       = false;
-	crv_first   = current_data->crv_first;
-	nbody_first = current_data->nbody_first;
-	time_first  = current_data->time_first;
+        first       = false;
+        crv_first   = current_data->crv_first;
+        nbody_first = current_data->nbody_first;
+        time_first  = current_data->time_first;
       }
     }
   }
