@@ -77,7 +77,7 @@ Q_IMPORT_PLUGIN(networkplugin);
     "zmax=1.0\n        zmax box (for ramses input)                      ",
     "lmin=0.0\n        level min (for ramses amr input)                 ",
     "lmax=0.0\n        level max (for ramses amr input)                 ",
-    "scale=1000.\n     ramses rescaling factor                          ",
+    "scale=1.\n        ramses rescaling factor                          ",
     "vel=f\n           load velocity coordinates                        ",
     "disp_vel=f\n      display velocity vectors                         ",
     "blending=t\n      Activate blending colors                         ",

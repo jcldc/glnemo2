@@ -53,6 +53,7 @@ class ParticlesObject{
     static void backupVVProperties(ParticlesObjectVector& src,ParticlesObjectVector& dest, const int nsel);
     static void clearOrbitsVectorPOV(ParticlesObjectVector&);   
     static void initOrbitsVectorPOV(ParticlesObjectVector&);   
+    static void checkPhysic(ParticlesObjectVector&, ParticlesData   * current_data);
     void buildIndexList(const int, const int, const int, const int _step=1);
     void buildIndexList();
     void buildIndexList(std::vector<int> &);

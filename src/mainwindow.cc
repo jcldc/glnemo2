@@ -777,11 +777,19 @@ void MainWindow::loadNewData(const std::string select,
         //listObjects(pov2);
       }
       if (first) {
+        if (current_data)
+          ParticlesObject::checkPhysic(pov2,current_data->part_data);
         if (store_options->auto_texture_size && !store_options->rho_exist) {
-          store_options->texture_size = current_data->part_data->getMaxSize()/100.;
+          store_options->texture_size = current_data->part_data->getMaxSize()/300.;
           if (store_options->texture_size>1.0) store_options->texture_size=1.0;
           //store_options->texture_size = pow(current_data->part_data->getMaxSize(),3)/(*(current_data->part_data->nbody));
           std::cerr << "Resampled Texture Size = "<< store_options->texture_size <<"\n";
+        } else {
+          if (store_options->auto_texture_size && store_options->rho_exist) {            
+            store_options->texture_size = current_data->part_data->rneib->getMin()*2.;
+            std::cerr << "Use HSMLx2 as Texture Size = "<< store_options->texture_size <<"\n";
+            if (store_options->texture_size>1.0) store_options->texture_size=1.0;
+          }
         }
         setDefaultParamObject(pov2); // set some default parameter if first loading
       }
@@ -887,7 +895,14 @@ void MainWindow::setDefaultParamObject(ParticlesObjectVector & pov){
     if (store_options->phys_max_glob!=-1) {
       pov[i].setMaxPhys(store_options->phys_max_glob);
     }
-    
+    if (pov[i].hasPhysic()) {
+      std::cerr << "object ["<<i<<"] has physic\n";
+      pov[i].setGazSize(1.0);
+      pov[i].setGazSizeMax(1.0);
+    } else {
+      std::cerr << "object ["<<i<<"] has no physic\n";
+      pov[i].setGazSize(store_options->texture_size);
+    }
   }
 }
 // -----------------------------------------------------------------------------

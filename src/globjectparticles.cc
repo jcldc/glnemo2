@@ -256,6 +256,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
       start = min_index*sizeof(float);
       glVertexAttribPointerARB(a_phys_data,1,GL_FLOAT, 0, 0, (void *) (start));
     }
+  } else {
 
   }
   // Draw points 

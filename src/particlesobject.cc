@@ -304,6 +304,22 @@ void ParticlesObject::initOrbitsVectorPOV(ParticlesObjectVector& pov)
   }
 }
 // ============================================================================
+// checkPhysic()
+void ParticlesObject::checkPhysic(ParticlesObjectVector& pov, ParticlesData   * current_data )
+{
+  if (current_data) {
+    glnemo::PhysicalData * phys_select = current_data->getPhysData();
+    for (ParticlesObjectVector::iterator pvit=pov.begin(); pvit!=pov.end(); pvit++) {
+      for (int i=0; i<pvit->npart; i++) {
+        int index=pvit->index_tab[i];
+        if (phys_select && phys_select->isValid()) {
+          if (phys_select->data[index] != -1) pvit->setPhysic(true);
+        }
+      }
+    }
+  }
+}
+// ============================================================================
 // destructor                                                                  
 ParticlesObject::~ParticlesObject()
 {
