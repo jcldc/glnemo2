@@ -211,6 +211,7 @@ const ParticlesObject& ParticlesObject::operator=(const ParticlesObject&m)
 // copyProperties                                                             
 void ParticlesObject::copyProperties(const ParticlesObject&m)
 {
+  first_init   = m.first_init;
   visible      = m.visible;
   part         = m.part;
   part_size    = m.part_size;
@@ -345,6 +346,7 @@ void ParticlesObject::init(const ObjFrom _of, const std::string _name)
   obj_name = _name;
   pos = nobj;
   nobj++;
+  first_init   =  true;
   npart        =  0;
   first        = -1;
   last         = -1;

@@ -76,6 +76,9 @@ class ParticlesObject{
     void setVisible(const bool _v)  { visible = _v;  }
     const QColor getColor()  const  { return color;  }
     void setColor(const QColor _v)  { color = _v;    }
+    void setFirstInit(const bool _v)  { first_init = _v;  }
+    bool isFirstInit() const { return first_init;}
+
     // particles
     bool isPartEnable() const { return part;  }
     void setPart(const bool _v)     { part = _v; }
@@ -143,6 +146,8 @@ class ParticlesObject{
     void copyDataObject(const ParticlesObject&, const bool garbage=false);
     QColor color;    // object color                    
     bool visible;    // TRUE if object is visible       
+    bool first_init;
+
     // part
     bool part;       // TRUE to display particles
     float part_size;
