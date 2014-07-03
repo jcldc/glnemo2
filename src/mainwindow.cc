@@ -496,7 +496,13 @@ void MainWindow::createActions()
   toggle_play_action->setStatusTip(tr("Play next snapshot"));
   //connect(toggle_play_action, SIGNAL( triggered() ), this, SLOT(actionPlay()) );
   connect(toggle_play_action, SIGNAL( triggered() ), form_options, SLOT(on_play_pressed2()));
-  
+  // alternative play action with space bar
+  toggle_play_action2 = new QAction(toggle_play_action);
+  toggle_play_action2->setShortcut(QKeySequence(Qt::Key_Space));
+  connect(toggle_play_action2, SIGNAL( triggered() ), toggle_play_action, SIGNAL(triggered()));
+  addAction(toggle_play_action2);
+
+
   // reload
   reload_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/reload.png"),tr("Reload snaphot"),this);
   reload_action->setShortcut(tr("l"));
