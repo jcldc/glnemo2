@@ -244,8 +244,8 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
     // Send vertex object neighbours size
     if (hasPhysic && phys_select && phys_select->isValid()) { 
       // set back texture_size to one for gas
-      po->setGazSize(1.0);
-      po->setGazSizeMax(1.0);
+      //po->setGazSize(1.0);
+      //po->setGazSizeMax(1.0);
       glEnableVertexAttribArrayARB(a_sprite_size);
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_size);
       start = min_index*sizeof(float);
@@ -260,7 +260,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
     }
   } else {
     if (hasPhysic) { // gas only
-      glVertexAttrib1f(a_sprite_size,go->texture_size);
+      //glVertexAttrib1f(a_sprite_size,go->texture_size);
     }
   }
   // Draw points 
