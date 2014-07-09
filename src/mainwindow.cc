@@ -798,13 +798,7 @@ void MainWindow::loadNewData(const std::string select,
           }
         }
       }
-      setDefaultParamObject(pov2); // set some default parameter if first loading
 
-      form_o_c->update( current_data->part_data, &pov2,store_options);
-      form_options->update();
-      updateOsd();
-      tbench.restart();
-      
       if (interact && !reload && store_options->rho_exist) {
         store_options->render_mode = 1; // density mode
       }
@@ -820,8 +814,16 @@ void MainWindow::loadNewData(const std::string select,
       if (! store_options->auto_render) {
         store_options->render_mode=0;
       }
+      setDefaultParamObject(pov2); // set some default parameter if first loading
+
       setRenderMode(pov);
       setRenderMode(pov2);
+
+      form_o_c->update( current_data->part_data, &pov2,store_options);
+      form_options->update();
+      updateOsd();
+      tbench.restart();
+
 
       if (store_options->auto_com ||  store_options->cod) {
         actionCenterToCom(false);
