@@ -319,7 +319,7 @@ int CAmr::loadData(float * pos, float * vel, float * rho, float * rneib, float *
           for (int ind=0;ind<twotondim;ind++) {
             for (int ivar=0; ivar<nvarh; ivar++) {
               if (j==icpu) {
-		hydro.readDataBlock((char *) &var[ivar*ngrida*twotondim+ind*ngrida]);
+                hydro.readDataBlock((char *) &var[ivar*ngrida*twotondim+ind*ngrida]);
               }
               else hydro.skipBlock();
             }
@@ -340,10 +340,10 @@ int CAmr::loadData(float * pos, float * vel, float * rho, float * rneib, float *
                 (ilevel>=lmin)                        &&
                 ((px+dx2)>=xmin)                      &&
                 ((py+dx2)>=ymin)                      &&
-                ((pz+dx2)>=zmin)                      &&
+                (((ndim<3)||(pz+dx2)>=zmin))          &&
                 ((px-dx2)<=xmax)                      &&
                 ((py-dx2)<=ymax)                      &&
-                ((pz-dx2)<=zmax) );
+                (((ndim<3)||((pz-dx2)<=zmax) )));
             if (ok_cell) {
               if (!count_only) {
                 int idx=index[nbody];
@@ -361,7 +361,10 @@ int CAmr::loadData(float * pos, float * vel, float * rho, float * rneib, float *
 #else
                   pos[3*cpt+0] = px*header.boxlen ;
                   pos[3*cpt+1] = py*header.boxlen ;
-                  pos[3*cpt+2] = pz*header.boxlen ;
+                  if (ndim>2)
+                    pos[3*cpt+2] = pz*header.boxlen ;
+                  else
+                    pos[3*cpt+2] = 0.0 ;
 #endif
 
 #endif

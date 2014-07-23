@@ -13,6 +13,7 @@
 #include <QtGui>  // Mandatory for plugins management
 #include "snapshotramses.h"
 #include <limits>
+#include <iostream>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 Q_PLUGIN_METADATA(IID "fr.glnemo2.phigrapePlugin")
 #endif
@@ -134,6 +135,9 @@ int SnapshotRamses::nextFrame(const int * index_tab, const int nsel)
       part_data->pos[i*3+2]     *= go->scale;//*amr->getHeader()->boxlen;
       if (part_data->rneib->data[i]!=-1)
         part_data->rneib->data[i] *= go->scale;//*amr->getHeader()->boxlen;
+       //std::cerr << part_data->rho->data[i] <<"\n";
+      //part_data->rho->data[i]=1.0;
+
     }
     part_data->computeVelNorm();
     part_data->rho->computeMinMax();
