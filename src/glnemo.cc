@@ -35,7 +35,7 @@
 
 #include "mainwindow.h"
 using namespace std;
-#define RELEASE_VERSION "1.8.0-dev-2014_Jul_17"
+#define RELEASE_VERSION "1.8.0-dev-2014_Jul_25"
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 // Import snapshot plugins
@@ -45,7 +45,7 @@ Q_IMPORT_PLUGIN(SnapshotGadget)
 Q_IMPORT_PLUGIN(SnapshotPhiGrape)
 Q_IMPORT_PLUGIN(SnapshotRamses)
 #ifndef _WIN32
-Q_IMPORT_PLUGIN(SnapshotTipsy)
+Q_IMPORT_PLUGIN(SnapshotTipsy) // WIN32 has no native XDR support requested by TIPSY
 #endif
 Q_IMPORT_PLUGIN(SnapshotList)
 Q_IMPORT_PLUGIN(SnapshotNetwork)
@@ -56,7 +56,7 @@ Q_IMPORT_PLUGIN(gadgetplugin);
 Q_IMPORT_PLUGIN(phigrapeplugin);
 Q_IMPORT_PLUGIN(ramsesplugin);
 #ifndef _WIN32
-Q_IMPORT_PLUGIN(tipsyplugin);
+Q_IMPORT_PLUGIN(tipsyplugin); // WIN32 has no native XDR support requested by TIPSY
 #endif
 Q_IMPORT_PLUGIN(listplugin);
 Q_IMPORT_PLUGIN(networkplugin);
