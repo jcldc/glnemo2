@@ -87,6 +87,7 @@ bool CAmr::isValid()
   else
     valid=false;
   amr.close();
+  hydro.close();
   return valid;
 }
 // ============================================================================
@@ -99,7 +100,7 @@ bool CAmr::readInfoFile()
   fi.open(info_file.c_str(),std::ios::in);
 
   if (! fi.is_open()) {
-    std::cerr << "Unable to open file ["<<info_file.c_str()<<"] for reading, aborting...\n";
+    std::cerr << "CAmr::readInfoFile(): Unable to open file ["<<info_file.c_str()<<"] for reading, aborting...\n";
     status = false;
   }
   else {

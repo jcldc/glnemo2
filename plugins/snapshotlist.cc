@@ -138,7 +138,7 @@ bool SnapshotList::openFile()
   }
   std::cerr << "good :" << fi.good() << "\n";
   if (! fi.is_open() || dir.exists()) {
-    std::cerr << "Unable to open file ["<<filename<<"] for reading, aborting...\n";
+    std::cerr << "SnapshotList::openFile(): Unable to open file ["<<filename<<"] for reading, aborting...\n";
     status = false;
   }
   else {
