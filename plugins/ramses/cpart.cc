@@ -31,7 +31,8 @@ CPart::CPart(const std::string _indir, const int _select,const bool _v)
   select = _select;
   indir = _indir;
   infile="";
-  
+  ndim=0;
+
   // keep filename untill last /
   int found=indir.find_last_of("/");
   if (found != (int) string::npos && (int) indir.rfind("output_")<found) {

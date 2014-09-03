@@ -14,6 +14,7 @@
 #include "snapshotramses.h"
 #include <limits>
 #include <iostream>
+#include <sstream>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 Q_PLUGIN_METADATA(IID "fr.glnemo2.phigrapePlugin")
 #endif
@@ -71,6 +72,10 @@ bool SnapshotRamses::isValidData()
     connect(amr, SIGNAL(stringStatus(const QString)),this,SLOT(slotStringStatus(QString)));    //SLOT(slotStringStatus(const Qstring)));
     connect(part,SIGNAL(stringStatus(const QString)),this,SLOT(slotStringStatus(QString)));
     valid=true;
+    int ndim=std::max(part->getNdim(),amr->getNdim());
+    std::stringstream ss;
+    ss << ndim << "D";
+    interface_type = interface_type + ss.str();
   }
 
   return valid; 

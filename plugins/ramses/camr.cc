@@ -31,7 +31,7 @@ CAmr::CAmr(const std::string _indir, const bool _v)
   verbose=_v;
   indir = _indir;
   infile="";
-
+  ndim=0;
   // keep filename untill last /
   int found=indir.find_last_of("/");
   if (found != (int) std::string::npos && (int) indir.rfind("output_")<found) {
