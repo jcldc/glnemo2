@@ -1424,7 +1424,9 @@ void MainWindow::takeScreenshot(const int width, const int height,  std::string 
         gl_window->setFBO(true);                              // activate Frame Buffer Object
         gl_window->setFBOSize(size.width(),size.height());    // set the offscreen rendering size
 
-        gl_window->updateGL();                                // draw in FBO
+        //!!!gl_window->updateGL();                                // draw in FBO
+        gl_window->forcePaintGL();  // draw in FBO
+                                    // use force for screenshot from CLI
 
         QImage img=(((gl_window->grabFrameBufferObject()).mirrored()).rgbSwapped()); // convert FBO to img
 

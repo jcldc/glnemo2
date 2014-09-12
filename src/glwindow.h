@@ -93,6 +93,11 @@ public slots:
    void  rebuildGrid(bool ugl=true);
    void  updateGrid(bool ugl=true);
    void  updateGL();
+   void forcePaintGL() {
+       makeCurrent();
+       paintGL();
+   }
+
    void  osdZoom(bool ugl=true);
    void setOsd(const GLObjectOsd::OsdKeys k,const QString text, bool show,bool b=true);
    void setOsd(const GLObjectOsd::OsdKeys k,const int value, bool show, bool b=true);
