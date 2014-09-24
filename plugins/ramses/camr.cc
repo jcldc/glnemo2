@@ -368,11 +368,24 @@ int CAmr::loadData(float * pos, float * vel, float * rho, float * rneib, float *
                     pos[3*cpt+2] = 0.0 ;
 #endif
 
+                  if (load_vel) {
+                    vel[3*cpt+0] = var[1*ngrida*twotondim+ind*ngrida+i];
+                    vel[3*cpt+1] = var[2*ngrida*twotondim+ind*ngrida+i];
+                    if (ndim>2) {
+                      vel[3*cpt+2] = var[3*ngrida*twotondim+ind*ngrida+i];
+                    } else {
+                      vel[3*cpt+2] = 0.0;
+                    }
+                  }
 #endif
                   rneib[cpt]   = dx*header.boxlen;
                   rho[cpt] = var[0*ngrida*twotondim+ind*ngrida+i];
 #if 1
-                  temp[cpt]= std::max(0.0,var[4*ngrida*twotondim+ind*ngrida+i]/rho[cpt]);
+                  if (ndim>2) {
+                    temp[cpt]= std::max(0.0,var[4*ngrida*twotondim+ind*ngrida+i]/rho[cpt]);
+                  } else {
+                    temp[cpt]= std::max(0.0,var[3*ngrida*twotondim+ind*ngrida+i]/rho[cpt]);
+                  }
                   //temp[cpt]= var[4*ngrida*twotondim+ind*ngrida+i]/rho[cpt];
 #else
                   float p=var[4*ngrida*twotondim+ind*ngrida+i]; // pressure
