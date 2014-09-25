@@ -131,6 +131,7 @@ private slots:
   void updateVel(const  int); // update velocity vector
   void updateIpvs(const int ipvs=-1) {
     p_data->setIpvs(ipvs);
+    gl_colorbar->update(&gpv,p_data->getPhysData(),store_options,mutex_data);
   }
   void leaveEvent ( QEvent * event ) {
       if (event) {;}
