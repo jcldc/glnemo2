@@ -125,12 +125,15 @@ int SnapshotRamses::nextFrame(const int * index_tab, const int nsel)
     }
     *part_data->nbody = nsel;
     
-    if (take_gas&&namr)          // there are gas particles requested
+    if (take_gas&&namr) {         // there are gas particles requested
       amr->loadData(part_data->pos,part_data->vel,part_data->rho->data, part_data->rneib->data,part_data->temp->data,
                     index_tab,nsel,load_vel);
+      std::cerr << "after amr->loadata\n";
+    }
     
-    if ((take_halo&&ndm) || (take_stars&&nstars)) // there are halo|stars particles requested
+    if ((take_halo&&ndm) || (take_stars&&nstars)) { // there are halo|stars particles requested
       part->loadData(take_halo,take_stars,part_data->pos,part_data->vel,index_tab,nsel,load_vel,namr);
+    }
     
     //part_data->computeMaxSize();
     // rescale particles
