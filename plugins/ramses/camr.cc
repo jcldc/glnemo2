@@ -335,7 +335,10 @@ int CAmr::loadData(float * pos, float * vel, float * rho, float * rneib, float *
 	    // compute cell center
             double px=xg[0*ngrida+i]+xc[0][ind]-xbound[0]; // x
             double py=xg[1*ngrida+i]+xc[1][ind]-xbound[1]; // y
-            double pz=xg[2*ngrida+i]+xc[2][ind]-xbound[2]; // z
+            double pz=0.0;
+            if (ndim>2) {
+              xg[2*ngrida+i]+xc[2][ind]-xbound[2]; // z
+            }
             bool ok_cell =       (
                 !(son[ind*ngrida+i]>0 && ilevel<lmax) && // cells is NOT refined
                 (ilevel>=lmin)                        &&
