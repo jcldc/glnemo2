@@ -379,8 +379,7 @@ int CAmr::loadData(float * pos, float * vel, float * rho, float * rneib, float *
                   }
 #endif
                   rneib[cpt]   = dx*header.boxlen;
-                  rho[cpt] = var[0*ngrida*twotondim+ind*ngrida+i];
-                  std::cerr << "AMR CPT = "<< cpt << "\n";
+                  rho[cpt] = var[0*ngrida*twotondim+ind*ngrida+i];                  
 #if 1
                   if (rho[cpt] != 0.0) {
                     if (ndim>2) {
