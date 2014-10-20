@@ -381,10 +381,14 @@ int CAmr::loadData(float * pos, float * vel, float * rho, float * rneib, float *
                   rneib[cpt]   = dx*header.boxlen;
                   rho[cpt] = var[0*ngrida*twotondim+ind*ngrida+i];
 #if 1
-                  if (ndim>2) {
-                    temp[cpt]= std::max(0.0,var[4*ngrida*twotondim+ind*ngrida+i]/rho[cpt]);
+                  if (rho[cpt] != 0.0) {
+                    if (ndim>2) {
+                      temp[cpt]= std::max(0.0,var[4*ngrida*twotondim+ind*ngrida+i]/rho[cpt]);
+                    } else {
+                      temp[cpt]= std::max(0.0,var[3*ngrida*twotondim+ind*ngrida+i]/rho[cpt]);
+                    }
                   } else {
-                    temp[cpt]= std::max(0.0,var[3*ngrida*twotondim+ind*ngrida+i]/rho[cpt]);
+                    temp[cpt]=0.0;
                   }
                   //temp[cpt]= var[4*ngrida*twotondim+ind*ngrida+i]/rho[cpt];
 #else
