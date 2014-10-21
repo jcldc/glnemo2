@@ -337,7 +337,7 @@ int CAmr::loadData(float * pos, float * vel, float * rho, float * rneib, float *
             double py=xg[1*ngrida+i]+xc[1][ind]-xbound[1]; // y
             double pz=0.0;
             if (ndim>2) {
-              xg[2*ngrida+i]+xc[2][ind]-xbound[2]; // z
+              pz=xg[2*ngrida+i]+xc[2][ind]-xbound[2]; // z
             }
             bool ok_cell =       (
                 !(son[ind*ngrida+i]>0 && ilevel<lmax) && // cells is NOT refined
