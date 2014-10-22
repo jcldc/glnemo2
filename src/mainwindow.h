@@ -20,6 +20,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QMutex>
+#include <QDropEvent>
 
 // project's includes
 
@@ -56,6 +57,9 @@ class MainWindow : public QMainWindow {
     MainWindow(std::string);
     void start(std::string);
     ~MainWindow();
+  protected:
+    void dropEvent(QDropEvent *ev);
+    void dragEnterEvent(QDragEnterEvent *ev);
   private slots:
     // action
     void actionFullScreen();
@@ -69,8 +73,8 @@ class MainWindow : public QMainWindow {
     void actionFormObjectControl();
     void actionFormOptions();
     void actionFormOptionsShowMovie();
-    void actionMenuFileOpen();
-	void actionMenuFileConnect();
+    void actionMenuFileOpen(QString myfile="");
+  void actionMenuFileConnect();
     bool actionMenuFileConnect2(std::string ip, int port, bool velocities, bool dencities, bool interactivSelect);
     void actionReset();
     void actionReload();

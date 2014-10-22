@@ -24,6 +24,7 @@
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QLayout>
+#include <QMimeData>
 #include <assert.h>
 #include <iomanip>
 #include <sstream>
@@ -43,6 +44,7 @@ namespace glnemo {
 // -----------------------------------------------------------------------------
 MainWindow::MainWindow(std::string _ver)
 {
+  setAcceptDrops(true); // grant drag n drop files
   user_select = NULL;
   version = _ver;
   mutex_data = new QMutex(QMutex::Recursive); // Recursive: a thread can lock a mutex more than
@@ -263,6 +265,26 @@ MainWindow::~MainWindow()
   if (user_select) delete user_select;
 
 }
+// -----------------------------------------------------------------------------
+// dropEvent
+// -----------------------------------------------------------------------------
+void MainWindow::dropEvent(QDropEvent *ev)
+{
+  QList<QUrl> urls = ev->mimeData()->urls();
+    foreach(QUrl url, urls)
+    {
+        qDebug()<<url.toLocalFile();  //url.toString();
+        actionMenuFileOpen(url.toLocalFile());
+    }
+}
+// -----------------------------------------------------------------------------
+// dragEnterEvent
+// -----------------------------------------------------------------------------
+void MainWindow::dragEnterEvent(QDragEnterEvent *ev)
+{
+    ev->accept();
+}
+
 // -----------------------------------------------------------------------------
 // create menus                                                                 
 // -----------------------------------------------------------------------------
@@ -1082,11 +1104,16 @@ void MainWindow::killPlayingEvent()
 // -----------------------------------------------------------------------------
 // actionMenuFileOpen()
 //------------------------------------------------------------------------------
-void MainWindow::actionMenuFileOpen()
+void MainWindow::actionMenuFileOpen(QString myfile)
 {
   static QString menudir("");
   killPlayingEvent();       // wait the end of loading thread
-  QString fileName = QFileDialog::getOpenFileName(this,tr("Select snapshot"),menudir);
+  QString fileName;
+  if (myfile=="") {
+    fileName=QFileDialog::getOpenFileName(this,tr("Select snapshot"),menudir);
+  } else {
+    fileName=myfile;
+  }
   if (!fileName.isEmpty()) {
     menudir = fileName;
     snapshot = fileName.toStdString();
