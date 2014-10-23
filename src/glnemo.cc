@@ -35,7 +35,7 @@
 
 #include "mainwindow.h"
 using namespace std;
-#define RELEASE_VERSION "1.8.0-dev-2014_Oct_22"
+#define RELEASE_VERSION "1.8.0-dev-2014_Oct_23"
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 // Import snapshot plugins
@@ -204,6 +204,8 @@ int main(int argc, char *argv[])
   main_win.setGeometry(x,y,wsize,hsize);
   // move to the center of the screen
   main_win.move(x,y);
+
+  QObject::connect(&app, SIGNAL(loadFile(const QString &)), &main_win, SLOT(actionMenuFileOpen(QString)));
 
   
   if (interact) {

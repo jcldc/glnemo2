@@ -270,12 +270,20 @@ MainWindow::~MainWindow()
 // -----------------------------------------------------------------------------
 void MainWindow::dropEvent(QDropEvent *ev)
 {
+  dndfile.remove(); // remove previous temporary file
+
+  if (dndfile.open()) {
+    std::cerr << "Temporary file :" << dndfile.fileName().toStdString() << "\n";
+  }
+  QTextStream out(&dndfile);
   QList<QUrl> urls = ev->mimeData()->urls();
-    foreach(QUrl url, urls)
-    {
-        qDebug()<<url.toLocalFile();  //url.toString();
-        actionMenuFileOpen(url.toLocalFile());
-    }
+  foreach(QUrl url, urls)    {
+    //qDebug()<<url.toLocalFile();  //url.toString();
+    out << url.toLocalFile() <<"\n";
+    //actionMenuFileOpen(url.toLocalFile());
+  }
+  dndfile.close();
+  actionMenuFileOpen(dndfile.fileName());
 }
 // -----------------------------------------------------------------------------
 // dragEnterEvent
@@ -1103,6 +1111,8 @@ void MainWindow::killPlayingEvent()
 }
 // -----------------------------------------------------------------------------
 // actionMenuFileOpen()
+// if myfile is empty, action comes from file menu open
+// if myfile is not empty, action comes from drag n drop
 //------------------------------------------------------------------------------
 void MainWindow::actionMenuFileOpen(QString myfile)
 {
