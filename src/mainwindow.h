@@ -65,7 +65,7 @@ protected:
     }
   };
 signals:
-  void loadFile(const QString &fileName);
+  void loadFile(const QString fileName);
 };
 
   // prototypes of class in glnemo namespace

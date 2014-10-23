@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
   // move to the center of the screen
   main_win.move(x,y);
 
-  QObject::connect(&app, SIGNAL(loadFile(const QString &)), &main_win, SLOT(actionMenuFileOpen(QString)));
+  QObject::connect(&app, SIGNAL(loadFile(const QString )), &main_win, SLOT(actionMenuFileOpen(QString )));
 
   
   if (interact) {
