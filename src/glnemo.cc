@@ -35,7 +35,7 @@
 
 #include "mainwindow.h"
 using namespace std;
-#define RELEASE_VERSION "1.8.0-dev-2014_Oct_23"
+#define RELEASE_VERSION "1.8.0-dev-2014_Oct_24"
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 // Import snapshot plugins
@@ -158,7 +158,7 @@ Q_IMPORT_PLUGIN(networkplugin);
 int main(int argc, char *argv[])
 {
   QApplication::setDesktopSettingsAware(true);
-  QApplication app(argc, argv);
+  glnemo::QMyApplication app(argc, argv);
   setlocale(LC_NUMERIC,"C"); // force numerics functions to use decimal point
 
   if ( !QGLFormat::hasOpenGL() ) {
