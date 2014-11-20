@@ -83,6 +83,7 @@ private:
     std::vector<std::string> vector_file;
     int current_file_index;
     bool getNextFile();
+    void prependDirPath();
 };
 
 }

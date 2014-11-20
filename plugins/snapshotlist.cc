@@ -35,6 +35,7 @@ SnapshotList::SnapshotList():SnapshotInterface()
   current_file_index=0;
   snapshot="";
   vector_file.clear();
+  go = NULL;
 }
 
 // ============================================================================
@@ -126,6 +127,18 @@ bool SnapshotList::isValidData()
   
 }
 // ============================================================================
+void SnapshotList::prependDirPath()
+{
+  unsigned int i=0;
+  while(i<snapshot.length() && snapshot[i]==' ') i++; // search first non blank
+  if (i<snapshot.length()
+      && snapshot[i]!='/'      // first char not a '/'
+      && snapshot[i]!='\\' ) { // first char not a '\'
+    snapshot = dirpath.toStdString() + snapshot;      // append to dirpath
+  }
+}
+
+// ============================================================================
 bool SnapshotList::openFile()
 {
   bool status;
@@ -152,9 +165,19 @@ bool SnapshotList::openFile()
 #if 1
       fi.seekg(0, std::ios::beg); // go back to the beginning
       vector_file.clear();
-
+      bool prepend_dir=false;
       if (getLine(true)) { // read the first file
         SnapshotInterface * test_data = plugins->getObject(snapshot);
+        if (! test_data ) {
+          // HERE WE TEST A SECOND TIME IF IT'S A list
+          // BY PREPENDING DIRPATH TO SNAPSOT
+          prependDirPath();
+
+          test_data = plugins->getObject(snapshot);
+          if (test_data) {
+            prepend_dir = true;
+          }
+        }
         if (test_data) { // it's a valid snaphot
           if (test_data->getInterfaceType()=="List") {
             std::vector<std::string> vf_son=test_data->getVectorFile();
@@ -165,9 +188,11 @@ bool SnapshotList::openFile()
           }
           bool stop=false;
           while (!stop && getLine(true)) {       // read all files
+            if (prepend_dir) {
+              prependDirPath();
+            }
             vector_file.push_back(snapshot); // feed up vector
           }
-
           delete test_data;
           status = true;
         }
@@ -181,6 +206,9 @@ bool SnapshotList::openFile()
         fi.close();
 #endif
     }
+  }
+  if (fi.good()) {
+    fi.close();
   }
   return status;
 }
@@ -220,11 +248,8 @@ bool SnapshotList::getLine(const bool force)
         }
         if (cpt > 0 ) {
           unsigned int i=0;
-          std::cerr << "0:SnapshotList::getLine snapshot=["<<snapshot<<"]\n";
-          while(i<snapshot.length() && snapshot[i]==' ') i++; // search first non blank
-          //if (i<snapshot.length() && snapshot[i]!='/')        // first char not a '/'
-          //  snapshot = dirpath.toStdString() + snapshot;      // append to dirpath
-          std::cerr << "1:SnapshotList::getLine snapshot=["<<snapshot<<"]\n";
+//          std::cerr << "0:SnapshotList::getLine snapshot=["<<snapshot<<"]\n";
+//          std::cerr << "1:SnapshotList::getLine snapshot=["<<snapshot<<"]\n";
           stop   = true; // we have a snapshot
           status = true; // so we can stop reading
         }
@@ -275,6 +300,7 @@ bool SnapshotList::getNextFile()
   frame.unlock();
   if (status) {
     setFileName(snapshot);
+
   }
   return status;
 }

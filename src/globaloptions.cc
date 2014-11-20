@@ -226,6 +226,7 @@ const GlobalOptions& GlobalOptions::operator=(const GlobalOptions &m)
   ortho_range = m.ortho_range;
   
   list_type = m.list_type;
+
     // SET default parameters
   MAX_PARTICLES_SIZE   = m.MAX_PARTICLES_SIZE;
   MAX_TEXTURE_SIZE     = m.MAX_TEXTURE_SIZE;
