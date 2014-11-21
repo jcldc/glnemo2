@@ -12,6 +12,7 @@
 // ============================================================================
 #include <QtGui> // Mandatory for plugins management
 #include <QDir>
+#include <QFile>
 #include <sstream>
 #include "snapshotlist.h"
 
@@ -167,17 +168,13 @@ bool SnapshotList::openFile()
       vector_file.clear();
       bool prepend_dir=false;
       if (getLine(true)) { // read the first file
-        SnapshotInterface * test_data = plugins->getObject(snapshot);
-        if (! test_data ) {
-          // HERE WE TEST A SECOND TIME IF IT'S A list
-          // BY PREPENDING DIRPATH TO SNAPSOT
-          prependDirPath();
-
-          test_data = plugins->getObject(snapshot);
-          if (test_data) {
-            prepend_dir = true;
-          }
+        QFile testf(snapshot.c_str());
+        if (! testf.exists()) { // snapshot does not exist
+          prependDirPath();     // prepend dir path
+          prepend_dir = true;
         }
+        SnapshotInterface * test_data = plugins->getObject(snapshot);
+
         if (test_data) { // it's a valid snaphot
           if (test_data->getInterfaceType()=="List") {
             std::vector<std::string> vf_son=test_data->getVectorFile();
@@ -206,9 +203,6 @@ bool SnapshotList::openFile()
         fi.close();
 #endif
     }
-  }
-  if (fi.good()) {
-    fi.close();
   }
   return status;
 }
@@ -274,6 +268,7 @@ bool SnapshotList::getNextFile()
     //assert(current_file_index< (int) vector_file.size());
     //snapshot = vector_file[current_file_index]; // get current snap
     if (play_forward) { // forward play
+      current_file_index=std::max(0,current_file_index);
       assert(current_file_index>=0);
       if (current_file_index < (int) vector_file.size()) {
         snapshot = vector_file[current_file_index]; // get current snap
@@ -283,9 +278,10 @@ bool SnapshotList::getNextFile()
       }
     }
     else {             // backward play
-      if (current_file_index>0) {
+      if (current_file_index>=0) {
         snapshot = vector_file[current_file_index]; // get current snap
         current_file_index--;
+        //current_file_index=std::max(0,current_file_index);
         status=true;
       }
     }
