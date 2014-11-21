@@ -142,7 +142,7 @@ void SnapshotList::prependDirPath()
 // ============================================================================
 bool SnapshotList::openFile()
 {
-  bool status;
+  bool status=false;
   QDir dir(QString(filename.c_str()));
   std::cerr << "SnapshotList::openFile()=["<<filename<<"]\n";
     // open file
