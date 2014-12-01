@@ -139,6 +139,21 @@ class FormOptions: public QDialog {
     void on_screen_size_activated(int index);
     void on_frame_png_clicked() { go->base_frame_ext = "png";}
     void on_frame_jpg_clicked() { go->base_frame_ext = "jpg";}
+    void on_custom_width_valueChanged(int value) {
+      go->frame_width = value;
+    }
+    void on_custom_height_valueChanged(int value) {
+      go->frame_height = value;
+    }
+    void on_radio_res_custom_clicked() {
+      go->frame_width  = form.custom_width->value();
+      go->frame_height = form.custom_height->value();
+    }
+    void on_radio_res_standard_clicked() {
+      go->frame_width   = windows_size[form.screen_size->currentIndex()][0];
+      go->frame_height  = windows_size[form.screen_size->currentIndex()][1];
+    }
+
     // OSD tab
     //
     void on_show_osd_checkb_clicked(bool b) {
