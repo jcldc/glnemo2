@@ -58,33 +58,28 @@ MESSAGE( STATUS "PROJECT_SOURCE_DIR: " ${PROJECT_SOURCE_DIR} )
 
 # Library's files
 FILE(GLOB lib_files 
-     plugins/nemolight/*.c 
-     plugins/*.cc
-     plugins/ftm/*.cc 
-     plugins/gadget/*.cc
-     plugins/network/*.cc
-     plugins/network/*.cpp
-     plugins/ramses/*.cc
-     utils/*.cc
-     3rdparty/pfntlib/*.cxx
+     "plugins/nemolight/*.c"
+     "plugins/*.cc"
+     "plugins/ftm/*.cc"
+     "plugins/gadget/*.cc"
+     "plugins/tipsy/*.cc"
+     "plugins/network/*.cc"
+     "plugins/network/*.cpp"
+     "plugins/ramses/*.cc"
+     "utils/*.cc"
+     "3rdparty/pfntlib/*.cxx"
     )
 
 # Find plugins qt headers
 FILE(GLOB hdrs1_files plugins/*.h plugins/ftm/*.h ..plugins/gadget/*.h 
-     plugins/network/*.h plugins/ramses/*.h
+     plugins/network/*.h plugins/ramses/*.h  plugins/tipsy/*.h 
      )
 
-# Tipsy not suported by  WIN32
-if (NOT WIN32) # tipsy is not supported by windows
-  
-  FILE(GLOB lib_files2 plugins/tipsy/*.cc )
-  SET(lib_files  ${lib_files} ${lib_files2})
-
-  FILE(GLOB hdrs1_files2 plugins/tipsy/*.h )
-  SET(hdrs1_files ${hdrs1_files} ${hdrs1_files2} )
-  #MESSAGE( STATUS "lib_files = " ${lib_files})
-  
-endif (NOT WIN32)
+# Tipsy is not suported by  WIN32
+if   (WIN32) 
+  list (REMOVE_ITEM lib_file  s ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.cc ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.cc)   
+  list (REMOVE_ITEM hdrs1_files ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.h  ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.h) 
+endif(WIN32)
 
 # Destination path for the lib
 SET(LIBRARY_OUTPUT_PATH LIB)
