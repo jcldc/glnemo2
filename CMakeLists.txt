@@ -77,7 +77,7 @@ FILE(GLOB hdrs1_files plugins/*.h plugins/ftm/*.h ..plugins/gadget/*.h
 
 # Tipsy is not suported by  WIN32
 if   (WIN32) 
-  list (REMOVE_ITEM lib_file  s ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.cc ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.cc)   
+  list (REMOVE_ITEM lib_files   ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.cc ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.cc)   
   list (REMOVE_ITEM hdrs1_files ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.h  ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.h) 
 endif(WIN32)
 
