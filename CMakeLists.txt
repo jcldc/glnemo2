@@ -65,15 +65,26 @@ FILE(GLOB lib_files
      plugins/network/*.cc
      plugins/network/*.cpp
      plugins/ramses/*.cc
-     plugins/tipsy/*.cc
      utils/*.cc
      3rdparty/pfntlib/*.cxx
     )
 
 # Find plugins qt headers
 FILE(GLOB hdrs1_files plugins/*.h plugins/ftm/*.h ..plugins/gadget/*.h 
-     plugins/network/*.h plugins/ramses/*.h plugins/tipsy/*.h
+     plugins/network/*.h plugins/ramses/*.h
      )
+
+# Tipsy not suported by  WIN32
+if (NOT WIN32) # tipsy is not supported by windows
+  
+  FILE(GLOB lib_files2 plugins/tipsy/*.cc )
+  SET(lib_files  ${lib_files} ${lib_files2})
+
+  FILE(GLOB hdrs1_files2 plugins/tipsy/*.h )
+  SET(hdrs1_files ${hdrs1_files} ${hdrs1_files2} )
+  #MESSAGE( STATUS "lib_files = " ${lib_files})
+  
+endif (NOT WIN32)
 
 # Destination path for the lib
 SET(LIBRARY_OUTPUT_PATH LIB)
@@ -155,6 +166,8 @@ ENDIF (NEMO_INSTALLED)
 
 INSTALL(PROGRAMS   ${PROJECT_BINARY_DIR}/${EXECUTABLE_OUTPUT_PATH}/glnemo2     DESTINATION bin)
 INSTALL(FILES  ${PROJECT_SOURCE_DIR}/man/man1/glnemo2.1 DESTINATION man/man1)
+
+MESSAGE( STATUS ">>>> CMAKE_SYSTEM_NAME = " ${CMAKE_SYSTEM_NAME})
 
 #
 set(VERSION "1.8.1-dev")
