@@ -22,6 +22,11 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 # Cpack Generator detection
 include(DetectCpackGenerator)
 
+if    (WIN32)
+   MESSAGE(STATUS "\n\n\n- - - WINDOWS  - - -\n\n\nWARNING : DO NOT FORGET TO RUN CMAKE LIKE THIS\n\n ")
+   MESSAGE(STATUS "cmake -G \"MinGW Makefiles\" .. -DCMAKE_PREFIX_PATH=c:\\QtSDK-x86_64\n\n\n")
+endif (WIN32)
+
 # check QTDIR5
 FILE(GLOB GLOB_TEMP_VAR1 $ENV{QTDIR5})
 IF(NOT GLOB_TEMP_VAR1)
@@ -99,6 +104,10 @@ ADD_DEFINITIONS(-DQT_OPENGL_LIB)
 ADD_DEFINITIONS(-DQT_GUI_LIB)
 ADD_DEFINITIONS(-DQT_CORE_LIB)
 ADD_DEFINITIONS(${QT_DEFINITIONS})
+if   (WIN32)
+  ADD_DEFINITIONS(-DUNICODE)
+endif(WIN32)
+
 # Add compiler flags for building executables (-fPIE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 # Make sure the compiler can find include files from our Hello library.
