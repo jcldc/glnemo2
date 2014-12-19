@@ -297,8 +297,20 @@ if(APPLE OR WIN32)
   set (QT_ADD_PLUGIN "")
   foreach (plugin ${LIST_PLUGIN})
     get_property(QT_GET_PLUGIN TARGET ${plugin} PROPERTY LOCATION_RELEASE) 
+    message( ${plugin} " : " ${QT_GET_PLUGIN})
+    get_filename_component(xx ${QT_GET_PLUGIN} DIRECTORY)
     list (APPEND QT_ADD_PLUGIN ${QT_GET_PLUGIN})
   endforeach()
+  
+  # See macdeployqt source code to find a hack :
+  # https://qt.gitorious.org/qt/qttools/source/4b711fec48c395ab4e486dd1a789309d4d488e9d:src/macdeployqt/shared/shared.cpp
+  # Ugly hack to add printerplugin support
+  
+  get_filename_component(xx ${QT_GET_PLUGIN} DIRECTORY)
+  get_filename_component(xx ${xx} DIRECTORY)
+  set (PrinterPlugin "${xx}/printsupport/libcocoaprintersupport.dylib")
+  message ("PrinterPlugin = " ${PrinterPlugin})
+  list (APPEND QT_ADD_PLUGIN ${PrinterPlugin})
   
   install_qt5_executable("${EXECUTABLE}" "${QT_ADD_PLUGIN}")
 endif()
