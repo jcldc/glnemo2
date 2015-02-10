@@ -4,12 +4,6 @@
 - fix and polish auto screenshot for custom resolution
 - linux/win/mac binaries package building via cmake
 
-* Thu Dec 11 2014 - 1.8.1-dev
-- improve drag and drop files support
-- fix regression #1594
-- fix and polish auto screenshot for custom resolution
-- auto RPM package generation
-
 * Tue Nov 4 2014 - 1.8.0
 - drag and drop files support
 - double click on file works on MacOSX

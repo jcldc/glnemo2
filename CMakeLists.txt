@@ -1,6 +1,6 @@
 #-*-cmake-*- 
 # ============================================================================
-# Copyright Jean-Charles LAMBERT - 2007-2014                                  
+# Copyright Jean-Charles LAMBERT - 2007-2015                                  
 # e-mail:   Jean-Charles.Lambert@lam.fr                                      
 # address:  Centre de donneeS Astrophysique de Marseille (CeSAM)                                          
 #           Laboratoire d'Astrophysique de Marseille                          
@@ -200,12 +200,11 @@ ELSE()
   set(CMAKE_INSTALL_PREFIX  "/usr")
 ENDIF () 
 
-
+MESSAGE(STATUS "CMAKE_INSTALL_PREFIX :" ${CMAKE_INSTALL_PREFIX} )
 set(PROJECT_VERSION_MAJOR "1")
 set(PROJECT_VERSION_MINOR "8")
 set(PROJECT_VERSION_PATCH "1")
-set(PROJECT_VERSION_EXTRA "-dev")
-set(PROJECT_VERSION_COUNT 1)
+set(PROJECT_VERSION_EXTRA "")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${PROJECT_VERSION_EXTRA}")
 
 
@@ -288,11 +287,11 @@ endif()
 # stripping
 if (NOT WIN32)
 	#SET(CPACK_STRIP_FILES {CMAKE_INSTALL_PREFIX}/bin/glnemo2)
-	SET(CPACK_STRIP_FILES "True")
-        SET(CPACK_SET_DESTDIR On)
+	#SET(CPACK_STRIP_FILES "True")
+	#SET(CPACK_SET_DESTDIR On)
         set(CMAKE_INSTALL_DO_STRIP TRUE)  
- 	SET(CPACK_INSTALL_PREFIX "/usr")	
-	SET(CMAKE_INSTALL_PREFIX ${CPACK_INSTALL_PREFIX})
+	#SET(CPACK_INSTALL_PREFIX "/usr")	
+	#SET(CMAKE_INSTALL_PREFIX ${CPACK_INSTALL_PREFIX})
 endif()
 
 # This must always be last!
