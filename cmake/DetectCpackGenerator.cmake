@@ -63,7 +63,7 @@ if(UNIX)
         set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON) 
 	set(MY_OS "Ubuntu")
         string(REGEX MATCH "buntu ([0-9]+\\.[0-9]+)" UBUNTU "${LINUX_ISSUE}")
-        set(LINUX_NAME "Ubuntu-${CMAKE_MATCH_1}")        
+        set(LINUX_NAME "ubuntu${CMAKE_MATCH_1}")        
         set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "DEB")
       endif(LINUX_ISSUE MATCHES "Ubuntu")
       # Debian case
