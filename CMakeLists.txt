@@ -221,7 +221,12 @@ message("${PROJECT_NAME} will be installed to ${CMAKE_INSTALL_PREFIX}")
 
 if (UNIX AND NOT APPLE)
   INSTALL(PROGRAMS   ${PROJECT_BINARY_DIR}/${EXECUTABLE_OUTPUT_PATH}/glnemo2   DESTINATION bin)
-  INSTALL(FILES  ${PROJECT_SOURCE_DIR}/man/man1/glnemo2.1 DESTINATION man/man1)
+  #INSTALL(CODE "execute_process(COMMAND ${CMAKE_STRIP} bin/glnemo2)") 
+  #INSTALL(CODE "execute_process(COMMAND ${CMAKE_STRIP} _CPack_Packages/${CPACK_TOPLEVEL_TAG}/${CPACK_GENERATOR}/${PACK_PACKAGE_FILE_NAME}/${CMAKE_INSTALL_PREFIX}/bin/glnemo2)")
+  #include(PostInstall)
+  if (NOT NEMO_INSTALLED)
+  	INSTALL(FILES  ${PROJECT_SOURCE_DIR}/man/man1/glnemo2.1 DESTINATION share/man/man1)
+  endif()
 endif ()
 
 if (APPLE)
