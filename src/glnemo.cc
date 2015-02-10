@@ -35,7 +35,7 @@
 
 #include "mainwindow.h"
 using namespace std;
-#define RELEASE_VERSION "1.8.1-dev-December-2014-1st"
+#define RELEASE_VERSION "1.8.1"
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 // Import snapshot plugins

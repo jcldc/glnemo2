@@ -1,3 +1,9 @@
+* Tue Feb 10 2015 - 1.8.1
+- improve drag and drop files support
+- fix regression #1594
+- fix and polish auto screenshot for custom resolution
+- linux/win/mac binaries package building via cmake
+
 * Thu Dec 11 2014 - 1.8.1-dev
 - improve drag and drop files support
 - fix regression #1594
