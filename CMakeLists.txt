@@ -1,4 +1,4 @@
-#-*-cmake-*- 
+﻿#-*-cmake-*- 
 # ============================================================================
 # Copyright Jean-Charles LAMBERT - 2007-2015                                  
 # e-mail:   Jean-Charles.Lambert@lam.fr                                      
@@ -305,7 +305,7 @@ if(APPLE)
   set(EXECUTABLE "${PROJECT_NAME}.app")
 endif()
 
-if(APPLE OR WIN32)
+if(APPLE)# OR WIN32)
   include(DeployQt5)
 
   #set(LIST_PLUGIN "Qt5::AccessibleFactory;Qt5::QJpegPlugin;Qt5::QICNSPlugin;Qt5::QCocoaPrinterSupportPlugin")
