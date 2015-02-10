@@ -51,6 +51,13 @@ if(UNIX)
         set(LINUX_NAME "FC${CMAKE_MATCH_1}")  
         set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "RPM")      
       endif(LINUX_ISSUE MATCHES "Fedora")
+      # Scientific case
+      if(LINUX_ISSUE MATCHES "Scientific")
+        set(MY_OS "Scientific")
+        string(REGEX MATCH "release ([0-9]+)" SCIENTIFIC "${LINUX_ISSUE}")
+        set(LINUX_NAME "el${CMAKE_MATCH_1}")
+        set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "RPM")
+      endif(LINUX_ISSUE MATCHES "Scientific")
       # Ubuntu case
       if(LINUX_ISSUE MATCHES "Ubuntu")
         set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON) 
