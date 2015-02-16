@@ -77,7 +77,7 @@ if(UNIX)
       # Open SuSE case
       if(LINUX_ISSUE MATCHES "SUSE")
 	set(MY_OS "Suse")
-        string(REGEX MATCH "SUSE  ([0-9]+\\.[0-9]+)" SUSE "${LINUX_ISSUE}")
+        string(REGEX MATCH "SUSE ([0-9]+\\.[0-9]+)" SUSE "${LINUX_ISSUE}")
         set(LINUX_NAME "opensuse${CMAKE_MATCH_1}")
         string(REPLACE "/" "_" LINUX_NAME ${LINUX_NAME})   
         set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "RPM")     
