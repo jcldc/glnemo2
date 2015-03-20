@@ -35,7 +35,7 @@
 
 #include "mainwindow.h"
 using namespace std;
-#define RELEASE_VERSION "1.8.1"
+#define RELEASE_VERSION "1.9.0-dev"
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 // Import snapshot plugins
@@ -102,11 +102,17 @@ Q_IMPORT_PLUGIN(networkplugin);
     "grid=t\n          Show grid                                        ",
     "nb_meshs=28\n     #meshs for the grid                              ",
     "mesh_size=1.0\n   grid's size of one mesh                          ",
+    "bg_color=#000000\n background color                                 ",
     "xyg=t\n           display a grid in XY plan                        ",
     "yzg=f\n           display a grid in YZ plan                        ",
     "xzg=f\n           display a grid in XZ plan                        ",
+    "xyg_color=#888d66\n XY grid color                                  ",
+    "yzg_color=#edff98\n YZ grid color                                  ",
+    "xzg_color=#a3c058\n XZ grid color                                  ",
     "cube=f\n          display a cube                                   ",
+    "cube_color=#00ff00\n cube color                                  ",
     "osd=t\n           Show On Screen Display                           ",
+    "osd_color=#ffff00\n OSD texture font color                           ",
     "osdtime=t\n       Show time on OSD                                 ",
     "osdnbody=t\n      Show nbody on OSD                                ",
     "osdzoom=t\n       Show zoom on OSD                                 ",
@@ -121,6 +127,7 @@ Q_IMPORT_PLUGIN(networkplugin);
     "odd=f\n           enable opaque disc display (coronograph)        ",
     "axis=t\n          display axis                                     ",
     "cb=t\n            display Color Bar (CB) on the screen             ",
+    "cbf_color=#a0a0a4\n       ColorBar font color                      ",
     "cblog=f\n         display real or log of the physical value on CB  ",
     "cbloc=3\n         CB location, 0:top 1:right 2:bottom 3:left       ",
     "cbdigits=1\n      CB #digits                                       ",

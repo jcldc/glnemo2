@@ -131,7 +131,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera 
   font = new fntTexFont(store_options->osd_font_name.toStdString().c_str());
   text.setFont(font);
   text.setPointSize(store_options->osd_font_size );
-  osd = new GLObjectOsd(wwidth,wheight,text,Qt::yellow);
+  osd = new GLObjectOsd(wwidth,wheight,text,store_options->osd_color);
   // colorbar
   gl_colorbar = new GLColorbar(store_options,true);
   

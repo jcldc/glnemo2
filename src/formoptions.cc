@@ -112,6 +112,7 @@ FormOptions::~FormOptions()
 // update                                                                 
 void FormOptions::update()
 {
+
   // Grid tabs
   form.show_grid_checkb->setChecked(go->show_grid);
   form.xy_checkb->setChecked(go->xy_grid);
@@ -137,6 +138,7 @@ void FormOptions::update()
   form.osd_proj->setChecked(go->osd_projection);
   form.spin_font_size->setValue(go->osd_font_size);
   form.title_name->setText(go->osd_title_name);
+
   
   // ColorBar tab
   form.gcb_enable->setChecked(go->gcb_enable);

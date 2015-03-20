@@ -252,14 +252,16 @@ class FormOptions: public QDialog {
     void on_gcb_font_color_clicked() {
       QPalette pal = form.gcb_font_color->palette();
       QColor color=QColorDialog::getColor(pal.color(QPalette::Button));
-      QString css=QString("background:rgb(%1,%2,%3)").
+      if (color.isValid()) {
+          QString css=QString("background:rgb(%1,%2,%3)").
                   arg(color.red()).
                   arg(color.green()).
-                  arg(color.blue());  
-      form.gcb_font_color->setStyleSheet(css); 
-      go->gcb_color = color;
-      emit update_gcb_font();
-      emit update_gl();
+                  arg(color.blue());
+          form.gcb_font_color->setStyleSheet(css);
+          go->gcb_color = color;
+          emit update_gcb_font();
+          emit update_gl();
+      }
     }
     
     
@@ -267,25 +269,29 @@ class FormOptions: public QDialog {
     void on_font_color_clicked() {
       QPalette pal = form.font_color->palette();
       QColor color=QColorDialog::getColor(pal.color(QPalette::Button));
-      QString css=QString("background:rgb(%1,%2,%3)").
+      if (color.isValid()) {
+          QString css=QString("background:rgb(%1,%2,%3)").
                   arg(color.red()).
                   arg(color.green()).
-                  arg(color.blue());  
-      form.font_color->setStyleSheet(css); 
-      go->osd_color = color;
-      emit update_osd_font();
+                  arg(color.blue());
+          form.font_color->setStyleSheet(css);
+          go->osd_color = color;
+          emit update_osd_font();
+      }
     }
     // change background color button
     void on_background_color_clicked() {
-      QPalette pal = form.font_color->palette();
+      QPalette pal = form.background_color->palette();
       QColor color=QColorDialog::getColor(pal.color(QPalette::Button));
-      QString css=QString("background:rgb(%1,%2,%3)").
+      if (color.isValid()) {
+          QString css=QString("background:rgb(%1,%2,%3)").
                   arg(color.red()).
                   arg(color.green()).
-                  arg(color.blue());  
-      form.background_color->setStyleSheet(css); 
-      go->background_color = color;
-      emit update_gl();
+                  arg(color.blue());
+          form.background_color->setStyleSheet(css);
+          go->background_color = color;
+          emit update_gl();
+      }
     }
     // change title
     void on_title_name_returnPressed() {
@@ -327,50 +333,58 @@ class FormOptions: public QDialog {
     void on_xy_grid_color_clicked() {
       QPalette pal = form.xy_grid_color->palette();
       QColor color=QColorDialog::getColor(pal.color(QPalette::Button));
-      QString css=QString("background:rgb(%1,%2,%3)").
+      if (color.isValid()) {
+          QString css=QString("background:rgb(%1,%2,%3)").
                   arg(color.red()).
                   arg(color.green()).
-                  arg(color.blue());  
-      form.xy_grid_color->setStyleSheet(css);
-      form.xy_grid_color->setPalette(pal);
-      go->col_x_grid = color;
-      emit update_grid();
+                  arg(color.blue());
+          form.xy_grid_color->setStyleSheet(css);
+          form.xy_grid_color->setPalette(pal);
+          go->col_x_grid = color;
+          emit update_grid();
+      }
     }
     // change yz grid color button
     void on_yz_grid_color_clicked() {
       QPalette pal = form.yz_grid_color->palette();
       QColor color=QColorDialog::getColor(pal.color(QPalette::Button));
-      QString css=QString("background:rgb(%1,%2,%3)").
+      if (color.isValid()) {
+          QString css=QString("background:rgb(%1,%2,%3)").
                   arg(color.red()).
                   arg(color.green()).
-                  arg(color.blue());  
-      form.yz_grid_color->setStyleSheet(css);
-      go->col_y_grid = color;
-      emit update_grid();
+                  arg(color.blue());
+          form.yz_grid_color->setStyleSheet(css);
+          go->col_y_grid = color;
+          emit update_grid();
+      }
     }
     // change xz grid color button
     void on_xz_grid_color_clicked() {
       QPalette pal = form.xz_grid_color->palette();
       QColor color=QColorDialog::getColor(pal.color(QPalette::Button));
-      QString css=QString("background:rgb(%1,%2,%3)").
+      if (color.isValid()) {
+          QString css=QString("background:rgb(%1,%2,%3)").
                   arg(color.red()).
                   arg(color.green()).
-                  arg(color.blue());  
-      form.xz_grid_color->setStyleSheet(css);  
-      go->col_z_grid = color;
-      emit update_grid();
+                  arg(color.blue());
+          form.xz_grid_color->setStyleSheet(css);
+          go->col_z_grid = color;
+          emit update_grid();
+      }
     }
     // change cube color button
     void on_cube_color_clicked() {
       QPalette pal = form.cube_color->palette();
       QColor color=QColorDialog::getColor(pal.color(QPalette::Button));
-      QString css=QString("background:rgb(%1,%2,%3)").
+      if (color.isValid()) {
+          QString css=QString("background:rgb(%1,%2,%3)").
                   arg(color.red()).
                   arg(color.green()).
-                  arg(color.blue());  
-      form.cube_color->setStyleSheet(css);  
-      go->col_cube = color;
-      emit update_grid();
+                  arg(color.blue());
+          form.cube_color->setStyleSheet(css);
+          go->col_cube = color;
+          emit update_grid();
+      }
     }
     
     // axis bottom

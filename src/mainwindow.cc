@@ -381,6 +381,7 @@ void MainWindow::createForms()
   // some init
   form_about->setVersion(QString(version.c_str()));
   form_o_c->init(mutex_data);
+
 }
 // -----------------------------------------------------------------------------
 // create docking windows                                                       
@@ -1086,7 +1087,17 @@ void MainWindow::parseNemoParameters()
   
   // ortho
   store_options->ortho_range = getdparam((char *) "ortho_range");
-  
+
+  // colors
+  store_options->osd_color  = QColor(getparam((char *) "osd_color"));
+  store_options->background_color = QColor(getparam((char *) "bg_color"));
+
+  store_options->gcb_color  = QColor(getparam((char *) "cbf_color"));
+  store_options->col_x_grid  = QColor(getparam((char *) "xyg_color"));
+  store_options->col_y_grid  = QColor(getparam((char *) "yzg_color"));
+  store_options->col_z_grid  = QColor(getparam((char *) "xzg_color"));
+  store_options->col_cube    = QColor(getparam((char *) "cube_color"));
+
   if (store_options->port) {;} // do nothing (remove compiler warning)
   
   //                         finish NEMO
