@@ -585,7 +585,7 @@ void FormObjectControl::updateObjectSettings( const int row)
                      form.vel_slide_size->maximum()/pobj->getVelSizeMax();
     form.vel_slide_size->setValue(x);
     form.vel_slide_alpha->setValue(pobj->getVelAlpha());
-    form.vel_spin->setValue((int) (pobj->getVelSizeMax()));
+    form.vel_spin->setValue((pobj->getVelSizeMax()));
     // -- Orbits TAB
     form.odisplay_check->setChecked(pobj->isOrbitsEnable());
     form.orecord_check->setChecked(pobj->isOrbitsRecording());
@@ -945,7 +945,7 @@ void FormObjectControl::on_vel_slide_alpha_valueChanged(int value)
 }
 // ============================================================================
 // on_vel_spin_valueChanged                                                    
-void FormObjectControl::on_vel_spin_valueChanged(int value)
+void FormObjectControl::on_vel_spin_valueChanged(double value)
 {
   //if (lock)
   if (go  && ! go->duplicate_mem) mutex_data->lock();

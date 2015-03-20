@@ -165,7 +165,7 @@ namespace glnemo {
     void on_vel_slide_size_valueChanged(int);
     void on_vel_slide_alpha_valueChanged(int);
     // on velocity spin box
-    void on_vel_spin_valueChanged(int);
+    void on_vel_spin_valueChanged(double);
 
     // -- Orbits Tab --
     void on_orecord_check_clicked(bool);
