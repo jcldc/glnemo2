@@ -36,7 +36,6 @@ SnapshotList::SnapshotList():SnapshotInterface()
   current_file_index=0;
   snapshot="";
   vector_file.clear();
-  go = NULL;
 }
 
 // ============================================================================

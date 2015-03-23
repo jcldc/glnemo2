@@ -85,7 +85,6 @@ ComponentRangeVector * SnapshotTipsy::getSnapshotRange()
 // initLoading()                                                               
 int SnapshotTipsy::initLoading(GlobalOptions * so)
 {
-  go = so;
   load_vel = so->vel_req;
   select_time = so->select_time;
   std::cerr << "select_time ="<<select_time<<"\n";
@@ -99,6 +98,7 @@ int SnapshotTipsy::nextFrame(const int * index_tab, const int nsel)
   int status=0;
   stv.clear();
   parseSelectTime();
+  load_vel = go->vel_req;
 
   if (go->select_part=="all" || (go->select_part.find("gas")!=std::string::npos))
     take_gas = true;

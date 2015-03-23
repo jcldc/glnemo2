@@ -264,8 +264,8 @@ void ParticlesObject::init(const ObjFrom _of, const std::string _name)
   gaz_glsl     = true;
   texture_index= 0;
   vel          =  false;
-  vel_size_max =  4.;
-  vel_size     =  1;
+  vel_size_max =  1.;
+  vel_size     =  0.2;
   vel_alpha    =  255;
   vel_factor   =  1.0;
   index_tab    =  NULL;

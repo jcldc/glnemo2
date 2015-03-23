@@ -65,6 +65,7 @@ class SnapshotInterface: public QObject
       //setPlayForward();
       play_forward = true;
       setJumpFrame();
+      go = NULL;
     }
     virtual ~SnapshotInterface() {};
     // ---------------------------------------------------
@@ -151,6 +152,7 @@ protected:
     float * pos, *vel;
     bool first;
     CSelectTimeVector stv;
+    GlobalOptions * go;
     void parseSelectTime();
     std::string parseString(std::string & next_string);
     inline bool diffTime(const float t,const float fuzz=0.000001) {

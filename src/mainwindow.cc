@@ -213,7 +213,7 @@ void MainWindow::start(std::string shot)
     else {
         if(actionMenuFileConnect2(ip, port, vel, false, false)) {
             crv = current_data->getSnapshotRange();
-            selectPart(select, true);
+            selectPart(select, true, vel);
         }
     }
   }
@@ -374,8 +374,8 @@ void MainWindow::createForms()
   // sig/slot
   connect(form_sshot,SIGNAL(screenshot(const int, const int)),
 	  this,SLOT(takeScreenshot(const int, const int)));
-  connect(form_spart,SIGNAL(selectPart(const std::string,const bool)),
-	  this,SLOT(selectPart(const std::string, const bool)));
+  connect(form_spart,SIGNAL(selectPart(const std::string,const bool, const bool)),
+      this,SLOT(selectPart(const std::string, const bool, const bool)));
   connect(form_options,SIGNAL(start_bench(const bool)),this,SLOT(startBench(const bool)));
   connect(form_connect, SIGNAL(newConnect(std::string, int, bool, bool, bool)), this, SLOT(actionMenuFileConnect2(std::string, int, bool, bool, bool)));
   // some init
@@ -747,10 +747,11 @@ void MainWindow::interactiveSelect(std::string _select, const bool first_snapsho
 // Slots connected to "select particles dialog box" to allow to load particles  
 // according to the user's selection.                                           
 // -----------------------------------------------------------------------------
-void MainWindow::selectPart(const std::string _select, const bool first_snapshot)
+void MainWindow::selectPart(const std::string _select, const bool first_snapshot, const bool load_vel)
 {
   select = _select;
   store_options->select_part = select;
+  store_options->vel_req = load_vel;
   if ((reload) && current_data) {// reload action requested
     //store_options->phys_max_glob = store_options->phys_min_glob = -1; // reset for colobar display
     current_data->close();     // close the current snapshot
@@ -996,6 +997,7 @@ void MainWindow::parseNemoParameters()
   keep_all                = getbparam((char *) "keep_all");
   store_options->vel_req  = getbparam((char *) "vel");
   store_options->show_vel = getbparam((char *) "disp_vel");
+  store_options->vel_vector_size = getdparam((char *) "vel_factor");
   store_options->blending = getbparam((char *) "blending");
   store_options->dbuffer  = getbparam((char *) "dbuffer");
   store_options->show_grid= getbparam((char *) "grid");

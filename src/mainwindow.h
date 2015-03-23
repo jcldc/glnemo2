@@ -132,7 +132,7 @@ class MainWindow : public QMainWindow {
     void pressedKeyMouse(const bool, const bool);
     void uploadNewFrame();
     void takeScreenshot(const int, const int, std::string name="");
-    void selectPart(const std::string, const bool);
+    void selectPart(const std::string, const bool, const bool);
     void startBench(const bool);
     void updateBenchFrame();
     void startAutoScreenshot();

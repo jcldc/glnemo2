@@ -84,6 +84,7 @@ Q_IMPORT_PLUGIN(networkplugin);
     "scale=1.\n        ramses rescaling factor                          ",
     "vel=f\n           load velocity coordinates                        ",
     "disp_vel=f\n      display velocity vectors                         ",
+    "vel_factor=1.0\n  velocity vectors multiplier factor               ",
     "blending=t\n      Activate blending colors                         ",
     "dbuffer=f\n       Activate OpenGL depth buffer                     ",
     "perspective=t\n   false means orthographic                         ",

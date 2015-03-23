@@ -149,6 +149,7 @@ ComponentRangeVector * SnapshotNemo::getSnapshotRange()
 // initLoading()                                                               
 int SnapshotNemo::initLoading(GlobalOptions * so)
 {
+  go = so; // copy global options
   load_vel = so->vel_req;
   select_part="all";
   select_time=so->select_time;
@@ -176,6 +177,8 @@ int SnapshotNemo::nextFrame(const int * index_tab, const int nsel)
                    select_time.c_str(),&part_data->nemobits);
   }
 #endif
+  assert(go != NULL);
+  load_vel = go->vel_req;
   if ( ! first_stream) { // Normal NEMO file
     npos=NULL; nvel=NULL; ntimu=NULL; nrho=NULL; nrneib=NULL;
     nnemobits = NULL; ;nnbody = NULL; nid=NULL;

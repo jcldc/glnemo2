@@ -150,6 +150,7 @@ ComponentRangeVector * SnapshotPhiGrape::getSnapshotRange()
 // initLoading()                                                               
 int SnapshotPhiGrape::initLoading(GlobalOptions * so)
 {
+  go = so;
   load_vel = so->vel_req;
   select_part="all";
   select_time=so->select_time;
@@ -275,6 +276,7 @@ int SnapshotPhiGrape::nextFrame(const int * index_tab, const int nsel)
   // if (p==endptr) means that there was NOT data to read
   
   int status=0;
+  load_vel = go->vel_req;
   if (valid) {
     BUFF = new char[size_buff];
     status=1;
