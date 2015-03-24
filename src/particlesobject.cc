@@ -97,6 +97,7 @@ const ParticlesObject& ParticlesObject::operator=(const ParticlesObject&m)
 // copyProperties                                                             
 void ParticlesObject::copyProperties(const ParticlesObject&m)
 {
+  sel_from_index_list = m.sel_from_index_list;
   first_init   = m.first_init;
   visible      = m.visible;
   part         = m.part;
@@ -233,6 +234,7 @@ ParticlesObject::~ParticlesObject()
 // init                                                                        
 void ParticlesObject::init(const ObjFrom _of, const std::string _name)
 {
+  sel_from_index_list = false;
   obj_from = _of;
   obj_name = _name;
   pos = nobj;
@@ -287,6 +289,7 @@ void ParticlesObject::init(const ObjFrom _of, const std::string _name)
 // buildIndexList                                                              
 void ParticlesObject:: buildIndexList(std::vector<int> & indexes)
 {
+  sel_from_index_list = true;
   npart = indexes.size();
   if (index_tab) {
     delete [] index_tab;

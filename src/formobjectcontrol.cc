@@ -460,16 +460,18 @@ void FormObjectControl::checkComboLine(const int row, const int col)
         if ( i_obj != -1) { // it's an existing object
           assert(i_obj < (int)pov->size());
           ParticlesObject * pobj = &(*pov)[i_obj];
-          pobj->npart = npart;
-          pobj->first = first;
-          pobj->last  = last;
-          pobj->step  = step;
-          pobj->buildIndexList();   // build object index list
-          current_object = row;
-          // parse all the objects to check if physic is present
-          //checkPhysic(); // uncomment this to activate physic rendering (2/sep/2011)
-          updateObjectSettings(row);// update form !!! CAUSE OF CRASH
-          emit objectUpdate();      // update OpenGL
+          if (! pobj->hasIndexesList()) { // only range allowed
+              pobj->npart = npart;
+              pobj->first = first;
+              pobj->last  = last;
+              pobj->step  = step;
+              pobj->buildIndexList();   // build object index list
+              current_object = row;
+              // parse all the objects to check if physic is present
+              //checkPhysic(); // uncomment this to activate physic rendering (2/sep/2011)
+              updateObjectSettings(row);// update form !!! CAUSE OF CRASH
+              emit objectUpdate();      // update OpenGL
+          }
         }
         else {              // it's a new object
           ParticlesObject * po = new ParticlesObject(); // new object                

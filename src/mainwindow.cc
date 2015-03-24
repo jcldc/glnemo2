@@ -1978,6 +1978,7 @@ void MainWindow::createObjFromIndexList()
         indexes.push_back(*i);
       }
     }
+#if 0
     ParticlesObject * po = new ParticlesObject(ParticlesObject::Range); // new object
     po->buildIndexList(indexes);
     pov.push_back(*po);
@@ -1987,6 +1988,17 @@ void MainWindow::createObjFromIndexList()
     form_o_c->update( current_data->part_data, &pov2,store_options,false); // update Form
     updateOsd();
     gl_window->update( current_data->part_data, &pov2,store_options,false);
+#else // JCL modification 2015 March 24
+    ParticlesObject * po = new ParticlesObject(ParticlesObject::Range); // new object
+    po->buildIndexList(indexes);
+    pov2.push_back(*po);
+    delete po;
+    //listObjects(pov);
+    //ParticlesObject::copyVVkeepProperties(pov,pov2,user_select->getNSel());
+    form_o_c->update( current_data->part_data, &pov2,store_options,false); // update Form
+    updateOsd();
+    gl_window->update( current_data->part_data, &pov2,store_options,false);
+#endif
   }
 }
 
