@@ -162,7 +162,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   } else {
       if (zsort) {
         zsort = false;
-        sortByDensity(); // we have to resort by density
+        //!!!sortByDensity(); // we have to resort by density
       }
   }
   checkGlError("GLObjectParticles::displayVboShader -> Beginning");
@@ -1107,21 +1107,25 @@ void GLObjectParticles::sortByDepth()
   // get ModelView Matrix
   glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel);
   nind_sorted=0;
-  for (int i=0; i < po->npart; i+=po->step) {
-    int index=po->index_tab[i];
-    if (part_data->rho->data[index] >= PHYS_MIN && part_data->rho->data[index] <= PHYS_MAX) {
-    float
-        x=part_data->pos[index*3  ],
-        y=part_data->pos[index*3+1],
-        z=part_data->pos[index*3+2];
-         // compute point coordinates according to model view via matrix
-    float mz=  MM(2,0)*x + MM(2,1)*y + MM(2,2)*z + MM(2,3);//*w;
-    vindex_sel[nind_sorted].value=mz;
-    vindex_sel[nind_sorted].i_point=i;
-    vindex_sel[nind_sorted].index = index;
-    nind_sorted++;
-   }
-  }
+      if ( phys_select && phys_select->isValid()) {
+        PHYS_MIN = phys_select->getMin();
+        PHYS_MAX = phys_select->getMax();
+        for (int i=0; i < po->npart; i+=po->step) {
+            int index=po->index_tab[i];
+        if (part_data->rho->data[index] >= PHYS_MIN && part_data->rho->data[index] <= PHYS_MAX) {
+        float
+            x=part_data->pos[index*3  ],
+            y=part_data->pos[index*3+1],
+            z=part_data->pos[index*3+2];
+             // compute point coordinates according to model view via matrix
+        float mz=  MM(2,0)*x + MM(2,1)*y + MM(2,2)*z + MM(2,3);//*w;
+        vindex_sel[nind_sorted].value=mz;
+        vindex_sel[nind_sorted].i_point=i;
+        vindex_sel[nind_sorted].index = index;
+        nind_sorted++;
+       }
+      }
+      }
   // sort according to the Z Depth
   sort(vindex_sel.begin(),vindex_sel.begin()+nind_sorted,GLObjectIndexTab::compareLow);
   //nind_sorted = 0;

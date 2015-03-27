@@ -96,6 +96,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera 
   initializeGL();
   checkGLErrors("initializeGL");
   shader = NULL;
+  vel_shader = NULL;
   initShader();
   checkGLErrors("initShader");
   ////////
@@ -165,6 +166,7 @@ GLWindow::~GLWindow()
     glDeleteRenderbuffersEXT(1, &renderbuffer);
     glDeleteRenderbuffersEXT(1, &framebuffer);
     if (shader) delete shader;
+    if (vel_shader) delete vel_shader;
   }
   std::cerr << "Destructor GLWindow::~GLWindow()\n";
 }
@@ -574,9 +576,14 @@ void GLWindow::initShader()
     }
 
     if (GLSL_support ) {
+      // particles shader
       shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/particles.vert.cc",
                            GlobalOptions::RESPATH.toStdString()+"/shaders/particles.frag.cc");
       shader->init();
+      // velocity shader
+      vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert.cc",
+                               GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag.cc");
+      vel_shader->init();
     }
 
   }

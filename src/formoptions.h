@@ -76,6 +76,7 @@ class FormOptions: public QDialog {
     void on_obj_button_pressed()     { emit create_obj_selected(); }
     void on_sel_zoom_radio_pressed() { emit select_and_zoom(true);}
     void on_sel_only_radio_pressed() { emit select_and_zoom(false);}
+    void on_button_sel_all_part_pressed()    { emit select_all_part();}
     //                     
     // camera selection tab
     void on_cam_pts_display_clicked() { 
@@ -555,6 +556,7 @@ class FormOptions: public QDialog {
     void jump_frame(const int);
     void change_frame();
     void centering();
+    void select_all_part();
     // auto rotation
     void autoRotate(const int);
     

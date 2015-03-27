@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>894</width>
+    <width>790</width>
     <height>286</height>
    </rect>
   </property>
@@ -25,14 +25,14 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="options_dialog">
      <property name="currentIndex">
-      <number>4</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_i_select">
       <attribute name="title">
        <string>Interactive select</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
-       <item row="0" column="0">
+       <item row="0" column="0" rowspan="2" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_12">
          <item>
           <widget class="QGroupBox" name="groupBox">
@@ -951,7 +951,7 @@
          </item>
         </layout>
        </item>
-       <item row="0" column="1">
+       <item row="0" column="2">
         <layout class="QHBoxLayout" name="horizontalLayout_11">
          <item>
           <widget class="QLabel" name="label_2">
@@ -1403,36 +1403,14 @@
          </item>
         </layout>
        </item>
-       <item row="0" column="2">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="button_sel_all_part">
+         <property name="text">
+          <string>push to select all particles</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
+        </widget>
        </item>
-       <item row="1" column="0">
-        <spacer name="verticalSpacer_6">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::MinimumExpanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>42</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="1">
+       <item row="3" column="2">
         <spacer name="verticalSpacer_20">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -1448,13 +1426,68 @@
          </property>
         </spacer>
        </item>
+       <item row="1" column="2" colspan="2">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="1" colspan="3">
+        <spacer name="horizontalSpacer_19">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>661</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="0">
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::MinimumExpanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>42</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="3">
+        <spacer name="horizontalSpacer_20">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_5">
       <attribute name="title">
        <string>OpenGL</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_37">
+      <layout class="QGridLayout" name="gridLayout_23">
        <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_23">
          <property name="title">
@@ -1483,7 +1516,7 @@
          <property name="title">
           <string>3D axis</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_27">
+         <layout class="QGridLayout" name="gridLayout_37">
           <item row="0" column="0">
            <widget class="QCheckBox" name="show_3daxis">
             <property name="toolTip">
@@ -1499,7 +1532,7 @@
             <property name="title">
              <string>Location</string>
             </property>
-            <layout class="QGridLayout" name="gridLayout_23">
+            <layout class="QGridLayout" name="gridLayout_27">
              <item row="0" column="0">
               <widget class="QRadioButton" name="axis_bottom">
                <property name="toolTip">
@@ -1536,8 +1569,34 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="2" column="1" rowspan="2" colspan="2">
            <widget class="QDial" name="axis_dial"/>
+          </item>
+          <item row="3" column="0" rowspan="2">
+           <spacer name="verticalSpacer_29">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>53</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="4" column="2">
+           <spacer name="verticalSpacer_30">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>6</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>

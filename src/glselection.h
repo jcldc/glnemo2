@@ -42,7 +42,7 @@ public:
     void getMouse(QMouseEvent *);
     void display(const int, const int);
     void zoomOnArea(const int nobj, double mProj[16],double mModel[16],
-                    const int viewport[4]);
+                    const int viewport[4], const bool whole_screen=false);
     float X0() { return x0;}
     float X1() { return x1;}
     float Y0() { return y0;}

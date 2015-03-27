@@ -111,6 +111,8 @@ MainWindow::MainWindow(std::string _ver)
           form_options,SLOT(updateParticlesSelect(const int)));
   connect(form_options,SIGNAL(select_and_zoom(const bool)),
           gl_window->gl_select,SLOT(setZoom(bool)));
+  connect(form_options,SIGNAL(select_all_part()),
+          gl_window,SLOT(select_all_particles_on_screen()));
   connect(form_options,SIGNAL(save_selected()),this,SLOT(saveIndexList()));
   connect(form_options,SIGNAL(create_obj_selected()),this,SLOT(createObjFromIndexList()));
   // Camera
@@ -949,6 +951,8 @@ void MainWindow::setDefaultParamObject(ParticlesObjectVector & pov){
 
 
       pov[i].setVel(store_options->show_vel);
+      pov[i].setVelSizeMax(store_options->vel_vector_size);
+
       if (store_options->phys_min_glob!=-1) {
         pov[i].setMinPhys(store_options->phys_min_glob);
       }

@@ -116,9 +116,15 @@ void GLSelection::display(const int width, const int height)
 // according to the user selection, the selected area will be centered and     
 // zoomed in                                                                   
 void GLSelection::zoomOnArea(const int nobj, double mProj[16],double mModel[16],
-                             const int viewport[4])
+                             const int viewport[4],const bool whole_screen)
 {
-  if (nobj&&enable) {
+  if (nobj&&enable || nobj&&whole_screen) {
+    if (whole_screen) {
+        x0=viewport[0];
+        y0=viewport[1];
+        x1=viewport[2];
+        y1=viewport[3];
+    }
     // reordering square selection on X
     if (x1<x0) {
       float xx=x0;

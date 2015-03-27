@@ -97,6 +97,9 @@ public slots:
        makeCurrent();
        paintGL();
    }
+   void select_all_particles_on_screen() { // from gui, interactive select, press button select all particles
+       gl_select->zoomOnArea(pov->size(),mProj,mModel,viewport,true);
+   }
 
    void  osdZoom(bool ugl=true);
    void setOsd(const GLObjectOsd::OsdKeys k,const QString text, bool show,bool b=true);
@@ -246,7 +249,7 @@ private:
   // bench
   int nframe;
   // Shaders
-  CShader * shader;
+  CShader * shader, * vel_shader;
   void initShader();
   unsigned int m_vertexShader, m_pixelShader;
 

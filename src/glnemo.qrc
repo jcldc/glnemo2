@@ -67,5 +67,7 @@
         <file>../res/camera/path_01</file>
         <file>../res/shaders/particles.vert.cc</file>
         <file>../res/shaders/particles.frag.cc</file>
+        <file>../res/shaders/velocity.vert.cc</file>
+        <file>../res/shaders/velocity.frag.cc</file>
     </qresource>
 </RCC>

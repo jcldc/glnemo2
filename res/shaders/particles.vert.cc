@@ -64,7 +64,17 @@ void main()
   if (data_phys_valid==1) {
     col=computeColor();
   } else {
-    col = vec4(gl_Color.r,gl_Color.g,gl_Color.b,gl_Color.a);   
+    if (show_zneg==1) {
+      col = vec4(gl_Color.r,gl_Color.g,gl_Color.b,gl_Color.a);   
+    } else {
+      float a_alpha;
+      if (isVisible()) {
+	a_alpha = gl_Color.a;
+      } else {
+	a_alpha = 0.0;
+      }
+      col = vec4(gl_Color.r,gl_Color.g,gl_Color.b,a_alpha);   
+    }
   }
   
   // compute texture size
