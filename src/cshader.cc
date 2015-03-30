@@ -22,10 +22,11 @@ using namespace glnemo;
 using namespace std;
 // ============================================================================
 // constructor        
-CShader::CShader(std::string _vert_file, std::string _frag_file, bool _v)
+CShader::CShader(std::string _vert_file, std::string _frag_file,  std::string _geom_file, bool _v)
 {
   vert_file  = _vert_file;
   frag_file  = _frag_file;
+  geom_file  = _geom_file;
   verbose = _v;
 }
 
@@ -33,15 +34,17 @@ CShader::CShader(std::string _vert_file, std::string _frag_file, bool _v)
 // init      
 bool CShader::init()
 {
-  bool ret=false;
-  if (processVertex()) {
-    if(processPixel()) {
-      if (createProgram()) {
-        ret=true;
-      }
+    bool ret=false;
+    if (processVertex()) {
+        if(processPixel()) {
+            if (processGeom()) {
+                if (createProgram()) {
+                    ret=true;
+                }
+            }
+        }
     }
-  }
-  return ret;  
+    return ret;
 }
 // ============================================================================
 // start
@@ -182,30 +185,59 @@ bool CShader::processPixel()
   return ret;
 }
 // ============================================================================
+// processGeom()
+bool CShader::processGeom()
+{
+  bool ret=true;
+  // process PIXEL
+  std::string  geom_src = load(geom_file);
+  if (geom_file!= "" && geom_src.size()>0) {
+    m_geomShader = glCreateShaderObjectARB(GL_GEOMETRY_SHADER);
+    if (!m_geomShader) {
+      cerr << "Unable to create GEOMETRY SHADER.....\n";
+      exit(1);
+    }
+    const char * v =  geom_src.c_str();
+    glShaderSourceARB(m_geomShader, 1, &v , NULL);
+    std::cerr << "Compiling geometry shader\n";
+    GLint compile_status;
+    glCompileShaderARB(m_geomShader);
+    GLWindow::checkGLErrors("compile geometry Shader");
+    printLog(m_geomShader,"Compiling geometry shader");
+    glGetShaderiv(m_geomShader, GL_COMPILE_STATUS, &compile_status);
+    if(compile_status != GL_TRUE) {
+      cerr << "Unable to COMPILE GEOMETRY SHADER.....\n";
+      exit(1);
+    }
+  }
+  return ret;
+}
+// ============================================================================
 // load      
 std::string CShader::load(std::string filename)
 {
-  std::ifstream fi;
-  std::string src="";
-  
-  // Open file
-  QFile infile(filename.c_str());
-  if (!infile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    std::cerr << "CShader::load Unable to open file ["<<filename<<"] for reading, ...\n";
-    std::exit(1);
-  }
-  else {  
-    QTextStream in(&infile);
-    QString line;
-    do {
-      line = in.readLine();
-      if (!line.isNull()) {
-        src = src + "\n" + line.toStdString();
-      }
-    } while (!line.isNull());
-    infile.close();
-  }
-  return src;
+    std::ifstream fi;
+    std::string src="";
+    if (filename!="") {
+        // Open file
+        QFile infile(filename.c_str());
+        if (!infile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            std::cerr << "CShader::load Unable to open file ["<<filename<<"] for reading, ...\n";
+            std::exit(1);
+        }
+        else {
+            QTextStream in(&infile);
+            QString line;
+            do {
+                line = in.readLine();
+                if (!line.isNull()) {
+                    src = src + "\n" + line.toStdString();
+                }
+            } while (!line.isNull());
+            infile.close();
+        }
+    }
+    return src;
 }
 // ============================================================================
 // printLog      
