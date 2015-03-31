@@ -20,20 +20,22 @@
 // !!!!!Attribute variable CAN'T be modified (ex: gl_Color)!!!!!!
 //
 // ============================================================================
-uniform float alpha;           // alpha color factor
+#version 330 core
 
-attribute vec3 a_velocity; // velocity vector for each particles
+
+uniform float alpha;           // alpha color factor
+in vec3 position;
+in vec3 color;
+in vec3 a_velocity; // velocity vector for each particles
+out VS_OUT {
+    vec4 color;
+} vs_out;
+
 // ============================================================================
 void main()                                                            
 {           
-  vec4 col=vec4(0.0,0.0,0.0,0.0);
-  col = vec4(gl_Color.r,gl_Color.g,gl_Color.b,gl_Color.a);
-
-  gl_Position = ftransform();
-  gl_FrontColor =  vec4( col.x ,
-                         col.y ,
-                         col.z ,
-                         col.w * alpha);
+  gl_Position = vec4(position.x, position.y, position.z, 1.0f);
+  vs_out.color =  vec4( color.x ,color.y ,color.z , alpha);
 }
 
 // ============================================================================

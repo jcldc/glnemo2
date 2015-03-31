@@ -11,29 +11,49 @@
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
 //
-// Pixel shader to display velocity vectors
+// Geometry shader to display velocity vectors
 // 
-//
-// with ATI hardware, uniform variable MUST be used by output          
-// variables. That's why factor_size is used by gl_FrontColor    
 //
 // !!!!!Attribute variable CAN'T be modified (ex: gl_Color)!!!!!!
 //
 // ============================================================================
+#version 330 core
+
 uniform float alpha;           // alpha color factor
+uniform mat4 viewMatrix, projMatrix;
 
-attribute vec3 a_velocity; // velocity vector for each particles
+in vec3 a_velocity[]; // velocity vector for each particles
+
+layout (points) in;
+layout (line_strip, max_vertices = 2) out;
+
+in VS_OUT {
+    vec4 color;
+} gs_in[];
+
+out vec4 fColor;
 // ============================================================================
-void main()                                                            
+void buildVelocityVectors(vec4 position)
 {           
-  vec4 col=vec4(0.0,0.0,0.0,0.0);
-  col = vec4(gl_Color.r,gl_Color.g,gl_Color.b,gl_Color.a);
+    fColor = gs_in[0].color; // gs_in[0] since there's only one input vertex
 
-  gl_Position = ftransform();
-  gl_FrontColor =  vec4( col.x ,
-                         col.y ,
-                         col.z ,
-                         col.w * alpha);
+    // draw first point
+    gl_Position = projMatrix * viewMatrix * position; // at the vertex position
+    EmitVertex();
+
+
+    // draw second point
+    vec3 vel =  a_velocity[0];
+    gl_Position = projMatrix * viewMatrix * (position + vec4(vel,1.0)); // at vertex position + vel vector
+    EmitVertex();
+
+    EndPrimitive();
+}
+
+
+void main()
+{
+  buildVelocityVectors(gl_in[0].gl_Position);
 }
 
 // ============================================================================

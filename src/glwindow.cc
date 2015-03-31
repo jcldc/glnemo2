@@ -582,7 +582,8 @@ void GLWindow::initShader()
       shader->init();
       // velocity shader
       vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert.cc",
-                               GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag.cc");
+                               GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag.cc",
+                               GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.geom.cc");
       vel_shader->init();
     }
 
