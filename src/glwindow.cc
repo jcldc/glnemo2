@@ -564,6 +564,13 @@ void GLWindow::paintGL()
 void GLWindow::initShader()
 {
   if (store_options->init_glsl) {
+    const GLubyte* gl_version=glGetString ( GL_VERSION );
+    std::cerr << "OpenGL version : ["<< gl_version << "]\n";
+    int major = 0;
+    int minor = 0;
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+    std::cerr << "OpenGL :"<< major << "." << minor << "\n";
     GLSL_support = true;
     std::cerr << "begining init shader\n";
     int err=glewInit();
@@ -576,15 +583,23 @@ void GLWindow::initShader()
     }
 
     if (GLSL_support ) {
+      // check GLSL version supported
+      const GLubyte* glsl_version=glGetString ( GL_SHADING_LANGUAGE_VERSION );
+      std::cerr << "GLSL version supported : ["<< glsl_version << "]\n";
       // particles shader
       shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/particles.vert.cc",
                            GlobalOptions::RESPATH.toStdString()+"/shaders/particles.frag.cc");
       shader->init();
       // velocity shader
-      vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert.cc",
-                               GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag.cc",
-                               GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.geom.cc");
-      vel_shader->init();
+      if (1) {
+          vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert.cc",
+                                   GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag.cc",
+                                   GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.geom.cc");
+          if (!vel_shader->init() ) {
+              delete vel_shader;
+              vel_shader=NULL;
+          }
+      }
     }
 
   }
