@@ -96,9 +96,9 @@ class FormOptions: public QDialog {
     void on_cam_play_pressed();
     //                   
     // play selection tab
-    void on_play_pressed2(const int forcestop=-1);
+    void play_pressed2(const int forcestop=-1);
     void on_play_pressed() {
-      on_play_pressed2();
+      play_pressed2();
     }
 
     void on_com_clicked() { go->auto_com = form.com->isChecked();

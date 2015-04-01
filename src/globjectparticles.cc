@@ -81,6 +81,9 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
     glGenBuffersARB(1,&vbo_index);   // get Vertex Buffer Object
     glGenBuffersARB(1,&vbo_index2);
     glGenBuffersARB(1,&vbo_data);    
+    if (_part_data->vel) {
+        glGenBuffersARB(1,&vbo_vel);     // get Vertex Buffer Object
+    }
   }
   indexes_sorted = NULL;
   nind_sorted = 0;

@@ -586,6 +586,9 @@ void GLWindow::initShader()
       // check GLSL version supported
       const GLubyte* glsl_version=glGetString ( GL_SHADING_LANGUAGE_VERSION );
       std::cerr << "GLSL version supported : ["<< glsl_version << "]\n";
+      //GLuint glsl_num;
+      //glGetStringi(GL_SHADING_LANGUAGE_VERSION,glsl_num);
+      //std::cerr << "GLSL version NUM : ["<< glsl_num << "]\n";
       // particles shader
       shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/particles.vert.cc",
                            GlobalOptions::RESPATH.toStdString()+"/shaders/particles.frag.cc");

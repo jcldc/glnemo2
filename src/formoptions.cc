@@ -267,7 +267,7 @@ void FormOptions::on_frame_name_pressed()
   }
 }
 // ============================================================================
-void FormOptions::on_play_pressed2(const int forcestop)
+void FormOptions::play_pressed2(const int forcestop)
 {
   static bool play=false;
   switch (forcestop) {

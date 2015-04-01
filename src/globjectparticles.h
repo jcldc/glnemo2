@@ -83,6 +83,7 @@ class GLObjectParticles : public GLObject {
     void buildVboPos();
     void buildVboHsml();
     void buildVboPhysData();
+    //void buildVboVel();
     void display(const double * mModel, int);
     void setTexture(QString);
     void setTexture(const int);
@@ -120,7 +121,7 @@ class GLObjectParticles : public GLObject {
     void sendShaderColor(const int, const bool use_point);
 
     // vbo
-    GLuint vbo_pos, vbo_color , vbo_size, vbo_index, vbo_index2, vbo_data;
+    GLuint vbo_pos, vbo_color , vbo_size, vbo_index, vbo_index2, vbo_data, vbo_vel;
     int nvert_pos;
     // Rho
     GLObjectIndexTabVector vindex_sel,phys_itv,rho_itv;

@@ -130,7 +130,7 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_o_c,SIGNAL(reverseColorMap(bool)),colormap,SLOT(reverse(bool)));
   // options play tab
   connect(form_options,SIGNAL(playPressed()),this,SLOT(actionPlay()));
-  connect(this,SIGNAL(endOfSnapshot(const int)),form_options,SLOT(on_play_pressed2(const int)));
+  connect(this,SIGNAL(endOfSnapshot(const int)),form_options,SLOT(play_pressed2(const int)));
   connect(form_options,SIGNAL(change_frame()),this,SLOT(playOneFrame()));
   connect(form_options,SIGNAL(centering()),this,SLOT(actionCenterToCom()));
   // options auto rotate
@@ -538,7 +538,7 @@ void MainWindow::createActions()
   toggle_play_action->setShortcut(tr("p"));
   toggle_play_action->setStatusTip(tr("Play next snapshot"));
   //connect(toggle_play_action, SIGNAL( triggered() ), this, SLOT(actionPlay()) );
-  connect(toggle_play_action, SIGNAL( triggered() ), form_options, SLOT(on_play_pressed2()));
+  connect(toggle_play_action, SIGNAL( triggered() ), form_options, SLOT(play_pressed2()));
   // alternative play action with space bar
   toggle_play_action2 = new QAction(toggle_play_action);
   toggle_play_action2->setShortcut(QKeySequence(Qt::Key_Space));
