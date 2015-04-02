@@ -216,7 +216,7 @@ void GLWindow::update(ParticlesData   * _p_data,
   for (unsigned int i=0; i<pov->size() ;i++) {
     if (i>=gpv.size()) {
       GLObjectParticles * gp = new GLObjectParticles(p_data,&((*pov)[i]),
-                                                     store_options,&gtv,shader);
+                                                     store_options,&gtv,shader,vel_shader);
       //GLObjectParticles * gp = new GLObjectParticles(&p_data,pov[i],store_options);
       gpv.push_back(*gp);
       delete gp;

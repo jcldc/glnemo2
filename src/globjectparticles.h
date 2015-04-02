@@ -65,7 +65,7 @@ class GLObjectParticles : public GLObject {
     GLObjectParticles(const ParticlesData   *,
                       ParticlesObject *,
                       const GlobalOptions   *,
-		      GLTextureVector *, CShader *);
+              GLTextureVector *, CShader *, CShader *);
     ~GLObjectParticles();
     void update(const ParticlesData   *,
                 ParticlesObject *,
@@ -93,7 +93,7 @@ class GLObjectParticles : public GLObject {
     
   private:
     // shader
-    CShader * shader;
+    CShader * shader, * vel_shader;
     
     // manage min/max index for the physical quantity selected
     int min_index, max_index;

@@ -20,7 +20,7 @@
 #version 330 core
 
 uniform float alpha;           // alpha color factor
-uniform mat4 viewMatrix, projMatrix;
+//uniform mat4 modelviewMatrix, projMatrix;
 
 in vec3 a_velocity[]; // velocity vector for each particles
 
@@ -38,13 +38,15 @@ void buildVelocityVectors(vec4 position)
     fColor = gs_in[0].color; // gs_in[0] since there's only one input vertex
 
     // draw first point
-    gl_Position = projMatrix * viewMatrix * position; // at the vertex position
+    //gl_Position = projMatrix * modelviewMatrix * position; // at the vertex position
+    gl_Position = position; // at the vertex position
     EmitVertex();
 
 
     // draw second point
     vec3 vel =  a_velocity[0];
-    gl_Position = projMatrix * viewMatrix * (position + vec4(vel,1.0)); // at vertex position + vel vector
+    //gl_Position = projMatrix * modelviewMatrix * (position + vec4(vel,1.0)); // at vertex position + vel vector
+    gl_Position = (position + vec4(vel,1.0)); // at vertex position + vel vector
     EmitVertex();
 
     EndPrimitive();
