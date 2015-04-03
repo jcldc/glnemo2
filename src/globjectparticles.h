@@ -114,6 +114,7 @@ class GLObjectParticles : public GLObject {
     // method
     void displaySprites(const double *mModel);
     void displayVboShader(const int,const bool use_point=false);
+    void displayVboVelShader(const int,const bool use_point=false);
     void sortByDepth();
     void sortByDensity();
     void selectParticles();
