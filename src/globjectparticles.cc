@@ -130,6 +130,7 @@ void GLObjectParticles::display(const double * mModel, int win_height)
         GLObject::display(vel_dp_list);
       glDisable(GL_BLEND);
     }
+
     // display sprites
     if (po->isGazEnable() && texture) {
       if (GLWindow::GLSL_support && po->isGazGlsl()) {      
@@ -158,43 +159,25 @@ void GLObjectParticles::displayVboVelShader(const int win_height, const bool use
 
     int start=3*min_index*sizeof(float);
     int maxvert=max_index-min_index+1;
-    GLuint vao[2];
-    glGenVertexArrays(2, vao);
 
     // Velocity vectors with sahder
     int vpositions,vvelocities;
     if (po->isVelEnable() && part_data->vel && vel_shader) {
 
-        if ((go->render_mode == 0 ) ) { // Alpha blending accumulation
-          glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-          glEnable(GL_BLEND);
-          glDepthMask(GL_FALSE);
-          checkGlError("GLObjectParticles::displayVboShader -> Alpha blending accumulation");
-        }
-        else
-          if (go->render_mode == 1) {  // No Alpha bending accumulation
-            glDepthMask(GL_FALSE);
-            glDisable(GL_DEPTH_TEST);
-            //glEnable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            //glBlendFunc (GL_ONE, GL_ONE);
-            //glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE);
-            glEnable(GL_ALPHA_TEST);
-            glAlphaFunc(GL_GREATER, 0.00f);
-
-            if ((err = glGetError())) {
-              fprintf(stderr,">> 2 c error %x\n", (unsigned int)err);
-            }
-        }
-
         // start velocity shader
         vel_shader->start();
         // send color
-        float col[3] = { 0.0,0.5,1.};
+        float col[3];
+        QColor c=po->getColor();
+        col[0]=c.redF();
+        col[1]=c.greenF();
+        col[2]=c.blueF();
         vel_shader->sendUniformXfv("color",3,1, col ); // send color
         // send alpha channel color
-        vel_shader->sendUniformf("alpha", po->getVelAlpha()); // send alpha channel
+        vel_shader->sendUniformf("alpha", po->getVelAlpha()/255.); // send alpha channel
+        // send vel factor
+        vel_shader->sendUniformf("vel_factor", po->getVelSize()); // send alpha channel
+
         // send matrix
         GLfloat proj[16];
         glGetFloatv( GL_PROJECTION_MATRIX,proj);
@@ -203,29 +186,27 @@ void GLObjectParticles::displayVboVelShader(const int win_height, const bool use
         glGetFloatv( GL_MODELVIEW_MATRIX,mview);
         vel_shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
 
-        glBindVertexArray(vao[0]);
-
         // positions
-        vpositions=glGetAttribLocation(vel_shader->getProgramId(), "position");
-        glEnableVertexAttribArrayARB(vpositions);
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
-        start = min_index*sizeof(float);
+        vpositions=glGetAttribLocation(vel_shader->getProgramId(), "position");
+        glEnableVertexAttribArrayARB(vpositions);        
+        start = 3*min_index*sizeof(float);
         glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, 0, (void *) (start));
+#if 1
         // velocities
-        vvelocities=glGetAttribLocation(vel_shader->getProgramId(), "a_velocity");
-        glEnableVertexAttribArrayARB(vvelocities);
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel);
-        start = min_index*sizeof(float);
+        vvelocities=glGetAttribLocation(vel_shader->getProgramId(), "velocity");
+        glEnableVertexAttribArrayARB(vvelocities);        
+        start = 3*min_index*sizeof(float);
         glVertexAttribPointerARB(vvelocities,3,GL_FLOAT, 0, 0, (void *) (start));
-
-        glBindVertexArray(vao[0]);
+#endif
+        //glBindVertexArray(vao[0]);
         if (maxvert > 0 && maxvert<=nvert_pos) {
           //std::cerr << ">> rendering...\n";
           glDrawArrays(GL_POINTS, 0, maxvert);
+          //glDrawArrays(GL_LINES, 0, maxvert);
           //std::cerr << "<< rendering...\n";
         }
-
-
 
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
@@ -233,6 +214,8 @@ void GLObjectParticles::displayVboVelShader(const int win_height, const bool use
 
         glDisableVertexAttribArray(vpositions);
         glDisableVertexAttribArray(vvelocities);
+
+        //glDisableClientState(GL_VERTEX_ARRAY);
 
         glDisable(GL_POINT_SPRITE_ARB);
         glDisable(GL_BLEND);
@@ -363,40 +346,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
       //glVertexAttrib1f(a_sprite_size,go->texture_size);
     }
   }
-#if 0
-  // Velocity vectors with sahder
-  int vpositions,vvelocities;
-  if (po->isVelEnable() && part_data->vel && vel_shader) {
-      // start velocity shader
-      vel_shader->start();
-      // send color
-      float col[3] = { 0.0,0.5,1.};
-      vel_shader->sendUniformXfv("color",3,1, col ); // send color
-      // send alpha channel color
-      vel_shader->sendUniformf("alpha", po->getVelAlpha()); // send alpha channel
-      // send matrix
-      GLfloat proj[16];
-      glGetFloatv( GL_PROJECTION_MATRIX,proj);
-      vel_shader->sendUniformXfv("projMatrix",16,1,&proj[0]);
-      GLfloat mview[16];
-      glGetFloatv( GL_MODELVIEW_MATRIX,mview);
-      vel_shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
 
-      // positions
-      vpositions=glGetAttribLocation(vel_shader->getProgramId(), "position");
-      glEnableVertexAttribArrayARB(vpositions);
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
-      start = min_index*sizeof(float);
-      glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, 0, (void *) (start));
-      // velocities
-      vvelocities=glGetAttribLocation(vel_shader->getProgramId(), "a_velocity");
-      glEnableVertexAttribArrayARB(vvelocities);
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel);
-      start = min_index*sizeof(float);
-      glVertexAttribPointerARB(vvelocities,3,GL_FLOAT, 0, 0, (void *) (start));
-
-  }
-#endif
   // Draw points 
 #if GLDRAWARRAYS
 #if 0
@@ -448,13 +398,6 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
 
   // deactivate shaders programs
   shader->stop();
-#if 0
-  if (po->isVelEnable() && part_data->vel && vel_shader) {
-      vel_shader->stop();
-      glDisableVertexAttribArray(vpositions);
-      glDisableVertexAttribArray(vvelocities);
-  }
-#endif
 
   if (hasPhysic && ( go->render_mode == 1)) {
     //glDisableClientState(GL_NORMAL_ARRAY);

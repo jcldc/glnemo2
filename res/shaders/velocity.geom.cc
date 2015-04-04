@@ -20,11 +20,12 @@
 #version 330 core
 #extension GL_ARB_explicit_uniform_location : enable
 
-uniform float alpha;           // alpha color factor
+//uniform float alpha;           // alpha color factor
 uniform mat4 modelviewMatrix;
 uniform mat4 projMatrix;
 
-in vec3 a_velocity[]; // velocity vector for each particles
+in vec3 g_velocity[]; // velocity vector for each particles
+uniform float vel_factor;
 
 layout (points) in;
 layout (line_strip, max_vertices = 2) out;
@@ -46,9 +47,11 @@ void buildVelocityVectors(vec4 position)
 
 
     // draw second point
-    vec3 vel =  a_velocity[0];
+    vec3 vel =  g_velocity[0];
+
     //gl_Position = projMatrix * modelviewMatrix * (position + vec4(vel,1.0)); // at vertex position + vel vector
-    gl_Position = projMatrix * modelviewMatrix * (position+vec4(0.2,0.2,0.2,1.0)); // at the vertex position
+    //vec4 newpos=position+vec4(vel,1.0*vel_factor);
+    gl_Position = projMatrix * modelviewMatrix * position+vec4(vel,1.0*vel_factor); // at the vertex position
     //gl_Position = (position + vec4(vel,1.0)); // at vertex position + vel vector
     EmitVertex();
 
