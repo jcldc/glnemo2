@@ -53,7 +53,7 @@ namespace glnemo {
 class QMyApplication : public QApplication {
   Q_OBJECT
 public:
-  QMyApplication(int argc, char *argv[]): QApplication(argc, argv) {}
+  QMyApplication(int &argc, char *argv[]): QApplication(argc, argv) {}
 protected:
   bool event(QEvent *event) {
     switch (event->type()) {

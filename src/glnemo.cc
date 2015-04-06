@@ -35,7 +35,7 @@
 
 #include "mainwindow.h"
 using namespace std;
-#define RELEASE_VERSION "1.9.0-dev"
+#define RELEASE_VERSION "1.9.0-dev-2015-april-06"
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 // Import snapshot plugins
@@ -161,7 +161,7 @@ Q_IMPORT_PLUGIN(networkplugin);
   };
   const char * usage="Interactive 3D OpenGL NBody simulation Snapshots rendering program";
 
-  // ============================================================================
+// ============================================================================
 //  The main program is here                                                   
 int main(int argc, char *argv[])
 {
@@ -214,7 +214,6 @@ int main(int argc, char *argv[])
   main_win.move(x,y);
 
   QObject::connect(&app, SIGNAL(loadFile(const QString )), &main_win, SLOT(actionMenuFileOpen(QString )));
-
   
   if (interact) {
     main_win.show();
