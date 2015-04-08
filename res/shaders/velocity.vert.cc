@@ -25,12 +25,12 @@
 
 uniform float alpha;           // alpha color factor
 uniform vec3 color;
-uniform float vel_factor;
+//uniform float vel_factor;
 
 in vec3 position;
 in vec3 velocity; // velocity vector for each particles
 
-out vec3 g_velocity;
+out vec4 g_velocity;
 
 out VS_OUT {
     vec4 color;
@@ -41,8 +41,8 @@ void main()
 {
   //color=vec3(0.0f,0.5f,1.0f);
   //alpha=1.0f;
-  gl_Position = vec4(position.x, position.y, position.z, 1.0f);
-  g_velocity = velocity*vel_factor;
+  gl_Position = vec4(position.x, position.y, position.z,  1.0f);
+  g_velocity = vec4(velocity.x,velocity.y,velocity.z, 1.0f);//*vel_factor;
   vs_out.color =  vec4( color.x ,color.y ,color.z , alpha);
 }
 

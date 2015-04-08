@@ -208,6 +208,7 @@ void GLObjectParticles::displayVboVelShader(const int win_height, const bool use
           //std::cerr << "<< rendering...\n";
         }
 
+
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
         vel_shader->stop();
@@ -632,9 +633,15 @@ void GLObjectParticles::buildVboPos()
 
     if (part_data->vel) {
         // fill vertices array sorted by density with particles velocities
+#if 0
+        vertices_vel.push_back(part_data->pos[index*3  ]+part_data->vel[index*3  ]*.1);
+        vertices_vel.push_back(part_data->pos[index*3+1]+part_data->vel[index*3+1]*.1);
+        vertices_vel.push_back(part_data->pos[index*3+2]+part_data->vel[index*3+2]*.1);
+#else
         vertices_vel.push_back(part_data->vel[index*3  ]);
         vertices_vel.push_back(part_data->vel[index*3+1]);
         vertices_vel.push_back(part_data->vel[index*3+2]);
+#endif
     }
   }
   if (BENCH) qDebug("Time elapsed to setup VBO arrays: %f s", tbloc.elapsed()/1000.);
@@ -672,7 +679,10 @@ void GLObjectParticles::buildVboPos()
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
   }
   if (BENCH) qDebug("Time elapsed to transfert VBO arrays to GPU: %f s", tbloc.elapsed()/1000.);
+  std::cerr << "VERTICES_POS size="<<vertices.size() << "\n";
+  std::cerr << "VERTICES_VEL size="<<vertices_vel.size() << "\n";
   vertices.clear();
+  vertices_vel.clear();
   if (BENCH) qDebug("Time elapsed to build VBO pos: %f s", tbench.elapsed()/1000.);
 }
 // ============================================================================

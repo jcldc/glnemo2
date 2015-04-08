@@ -13,8 +13,7 @@
 //
 // Geometry shader to display velocity vectors
 // 
-//
-// !!!!!Attribute variable CAN'T be modified (ex: gl_Color)!!!!!!
+// we draw velocity vector at the corresponding position
 //
 // ============================================================================
 #version 330 core
@@ -24,7 +23,7 @@
 uniform mat4 modelviewMatrix;
 uniform mat4 projMatrix;
 
-in vec3 g_velocity[]; // velocity vector for each particles
+in vec4 g_velocity[]; // velocity vector for each particles
 uniform float vel_factor;
 
 layout (points) in;
@@ -41,18 +40,20 @@ void buildVelocityVectors(vec4 position)
     fColor = gs_in[0].color; // gs_in[0] since there's only one input vertex
 
     // draw first point
-    gl_Position = projMatrix * modelviewMatrix * position; // at the vertex position
-    //gl_Position = position; // at the vertex position
+    mat4 mvp=projMatrix*modelviewMatrix;  // the model view projection matrix
+    gl_Position = mvp * position; // at the vertex position
     EmitVertex();
 
-
     // draw second point
-    vec3 vel =  g_velocity[0];
+    // which represent veolicty vector at the selected position
+    // pos+vel
 
-    //gl_Position = projMatrix * modelviewMatrix * (position + vec4(vel,1.0)); // at vertex position + vel vector
-    //vec4 newpos=position+vec4(vel,1.0*vel_factor);
-    gl_Position = projMatrix * modelviewMatrix * position+vec4(vel,1.0*vel_factor); // at the vertex position
-    //gl_Position = (position + vec4(vel,1.0)); // at vertex position + vel vector
+    vec4 vel =  g_velocity[0]*vel_factor;
+
+    // It's important to keep 4th vertex coordinates to 1.0, otherwise
+    // result is totally wrong !!!
+    gl_Position = mvp * vec4(position.xyz+vel.xyz,1.0f) ; // at vertex position + vel vector
+
     EmitVertex();
 
     EndPrimitive();
