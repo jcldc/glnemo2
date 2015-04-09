@@ -70,5 +70,7 @@
         <file>../res/shaders/velocity.vert.cc</file>
         <file>../res/shaders/velocity.geom.cc</file>
         <file>../res/shaders/velocity.frag.cc</file>
+        <file>../res/shaders/velocity.vert130.cc</file>
+        <file>../res/shaders/velocity.frag130.cc</file>
     </qresource>
 </RCC>

@@ -81,6 +81,7 @@ class GLObjectParticles : public GLObject {
     void buildVelDisplayList();
     void buildOrbitsDisplayList();
     void buildVboPos();
+    void buildVboVelFactor();
     void buildVboHsml();
     void buildVboPhysData();
     //void buildVboVel();
@@ -114,7 +115,8 @@ class GLObjectParticles : public GLObject {
     // method
     void displaySprites(const double *mModel);
     void displayVboShader(const int,const bool use_point=false);
-    void displayVboVelShader(const int,const bool use_point=false);
+    void displayVboVelShader330(const int,const bool use_point=false);
+    void displayVboVelShader130(const int,const bool use_point=false);
     void sortByDepth();
     void sortByDensity();
     void selectParticles();
@@ -122,7 +124,7 @@ class GLObjectParticles : public GLObject {
     void sendShaderColor(const int, const bool use_point);
 
     // vbo
-    GLuint vbo_pos, vbo_color , vbo_size, vbo_index, vbo_index2, vbo_data, vbo_vel;
+    GLuint vbo_pos, vbo_color , vbo_size, vbo_index, vbo_index2, vbo_data, vbo_vel, vbo_vel_factor;
     int nvert_pos;
     // Rho
     GLObjectIndexTabVector vindex_sel,phys_itv,rho_itv;

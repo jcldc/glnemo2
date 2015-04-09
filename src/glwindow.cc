@@ -595,9 +595,18 @@ void GLWindow::initShader()
       shader->init();
       // velocity shader
       if (1) {
+
+#if 0
+          // Geometry shader OpenGL 3.30 and above only
           vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert.cc",
                                    GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag.cc",
                                    GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.geom.cc");
+
+#else
+          vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert130.cc",
+                                   GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag130.cc");
+
+#endif
           if (!vel_shader->init() ) {
               delete vel_shader;
               vel_shader=NULL;
