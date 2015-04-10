@@ -25,16 +25,16 @@
 uniform mat4 modelviewMatrix;
 uniform mat4 projMatrix;
 
-//uniform vec3 color;
+uniform float vel_factor;
 
 in vec3 position;
-in vec3 vel_factor;
+in vec3 velocity;
 
 // ============================================================================
 void main()                                                            
 {
   //vec4 o_position = vec4(position.x* vel_factor,position.y* vel_factor,position.z* vel_factor, 1.0f);
-  vec4 o_position = vec4(position+vel_factor, 1.0);
+  vec4 o_position = vec4(position+velocity*vel_factor, 1.0);
   gl_Position = projMatrix*modelviewMatrix * o_position;
 
 }

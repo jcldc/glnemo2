@@ -923,8 +923,10 @@ void FormObjectControl::on_vel_slide_size_valueChanged(int value)
     assert(i_obj < (int)pov->size());
     ParticlesObject * pobj = &(*pov)[i_obj];
     pobj->setVelSize((float) value*((float) form.vel_spin->value()/float(form.vel_slide_size->maximum())));
-    if (EMIT) emit objectUpdateVel(i_obj);
-    if (EMIT) emit objectSettingsChanged();
+    if (form.vel_check->isChecked()) {
+        if (EMIT) emit objectUpdateVel(i_obj);
+        if (EMIT) emit objectSettingsChanged();
+    }
   }
   //if (lock)
   if (go  && ! go->duplicate_mem) mutex_data->unlock();
@@ -940,7 +942,9 @@ void FormObjectControl::on_vel_slide_alpha_valueChanged(int value)
     assert(i_obj < (int)pov->size());
     ParticlesObject * pobj = &(*pov)[i_obj];
     pobj->setVelAlpha(value);
-    if (EMIT) emit objectSettingsChanged();
+    if (form.vel_check->isChecked()) {
+        if (EMIT) emit objectSettingsChanged();
+    }
   }
   //if (lock)
   if (go  && ! go->duplicate_mem) mutex_data->unlock();
@@ -958,8 +962,10 @@ void FormObjectControl::on_vel_spin_valueChanged(double value)
     //go->vel_vector_size = form.vel_slide_size->value();
     pobj->setVelSizeMax(value);
     pobj->setVelSize((float) form.vel_slide_size->value()*((float) value/form.vel_slide_size->maximum()));
-    if (EMIT) emit objectUpdateVel(i_obj);
-    if (EMIT) emit objectSettingsChanged();
+    if (form.vel_check->isChecked()) {
+        if (EMIT) emit objectUpdateVel(i_obj);
+        if (EMIT) emit objectSettingsChanged();
+    }
   }
   //if (lock)
   if (go  && ! go->duplicate_mem) mutex_data->unlock();

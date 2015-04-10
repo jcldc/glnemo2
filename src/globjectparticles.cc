@@ -85,7 +85,7 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
     glGenBuffersARB(1,&vbo_data);    
     if (_part_data->vel) {
         glGenBuffersARB(1,&vbo_vel);     // get Vertex Buffer Object
-        glGenBuffersARB(1,&vbo_vel_factor);     // get Vertex Buffer Object
+        glGenBuffersARB(1,&vbo_vel_X2);     // get Vertex Buffer Object
     }
   }
   indexes_sorted = NULL;
@@ -249,6 +249,9 @@ void GLObjectParticles::displayVboVelShader130(const int win_height, const bool 
         // send alpha channel color
         vel_shader->sendUniformf("alpha", po->getVelAlpha()/255.); // send alpha channel
 
+        // send vel factor
+        vel_shader->sendUniformf("vel_factor", po->getVelSize()); // send alpha channel
+
         // send matrix
         GLfloat proj[16];
         glGetFloatv( GL_PROJECTION_MATRIX,proj);
@@ -258,8 +261,8 @@ void GLObjectParticles::displayVboVelShader130(const int win_height, const bool 
         vel_shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
 
         // send vel factor
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_factor);
-        int vvel_factor=glGetAttribLocation(vel_shader->getProgramId(), "vel_factor");
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_X2);
+        int vvel_factor=glGetAttribLocation(vel_shader->getProgramId(), "velocity");
         glEnableVertexAttribArrayARB(vvel_factor);
         start = 2*3*min_index*sizeof(float);
         stride= 0;
@@ -680,16 +683,18 @@ void GLObjectParticles::buildVboVelFactor()
             index = phys_itv[i].index; // we sort by physical value
           else                index = po->index_tab[i]; // no physic
         }
-        vel_factor.push_back(0.);                // position X .0
-        vel_factor.push_back(0.);                // position Y .0
-        vel_factor.push_back(0.);                // position Z .0
-        vel_factor.push_back(part_data->vel[index*3  ]* po->getVelSize()); // velocity X vel factor size
-        vel_factor.push_back(part_data->vel[index*3+1]* po->getVelSize()); // velocity Y vel factor size
-        vel_factor.push_back(part_data->vel[index*3+2]* po->getVelSize()); // velocity Z vel factor size
+        // store velocity one time with value 0.0
+        vel_factor.push_back(0.); // velocity X
+        vel_factor.push_back(0.); // velocity Y
+        vel_factor.push_back(0.); // velocity Z
+        // store velocity second time
+        vel_factor.push_back(part_data->vel[index*3  ]); // velocity X
+        vel_factor.push_back(part_data->vel[index*3+1]); // velocity Y
+        vel_factor.push_back(part_data->vel[index*3+2]); // velocity Z
     }
 
     // bind VBO buffer for sending data
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_factor);
+    glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_X2);
 
     std::cerr << "buildVbo vel_factor nvert = "<<vel_factor.size()<<"\n";
     std::cerr << "Velocity factor = " << vel_factor[1] << "\n";
@@ -840,13 +845,15 @@ void GLObjectParticles::buildVboPos()
 
       //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+      buildVboVelFactor();
   }
   if (BENCH) qDebug("Time elapsed to transfert VBO arrays to GPU: %f s", tbloc.elapsed()/1000.);
   std::cerr << "VERTICES_POS size="<<vertices.size() << "\n";
   std::cerr << "VERTICES_VEL size="<<vertices_vel.size() << "\n";
   vertices.clear();
   vertices_vel.clear();
-  buildVboVelFactor();
+
   if (BENCH) qDebug("Time elapsed to build VBO pos: %f s", tbench.elapsed()/1000.);
 }
 // ============================================================================
@@ -1097,7 +1104,7 @@ void GLObjectParticles::sendShaderColor(const int win_height, const bool use_poi
 void GLObjectParticles::updateVel()
 {
   //buildVelDisplayList();
-    buildVboVelFactor();
+  // buildVboVelFactor();
 }
 
 // ============================================================================

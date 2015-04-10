@@ -124,7 +124,7 @@ class GLObjectParticles : public GLObject {
     void sendShaderColor(const int, const bool use_point);
 
     // vbo
-    GLuint vbo_pos, vbo_color , vbo_size, vbo_index, vbo_index2, vbo_data, vbo_vel, vbo_vel_factor;
+    GLuint vbo_pos, vbo_color , vbo_size, vbo_index, vbo_index2, vbo_data, vbo_vel, vbo_vel_X2;
     int nvert_pos;
     // Rho
     GLObjectIndexTabVector vindex_sel,phys_itv,rho_itv;
