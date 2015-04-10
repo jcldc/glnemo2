@@ -261,9 +261,9 @@ void GLObjectParticles::displayVboVelShader130(const int win_height, const bool 
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_factor);
         int vvel_factor=glGetAttribLocation(vel_shader->getProgramId(), "vel_factor");
         glEnableVertexAttribArrayARB(vvel_factor);
-        start = 2*min_index*sizeof(float);
+        start = 2*3*min_index*sizeof(float);
         stride= 0;
-        glVertexAttribPointerARB(vvel_factor,1,GL_FLOAT, 0, stride, (void *) (start));
+        glVertexAttribPointerARB(vvel_factor,3,GL_FLOAT, 0, stride, (void *) (start));
 
         // positions and velocities (ending vector)
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
@@ -670,14 +670,29 @@ void GLObjectParticles::buildVboVelFactor()
     assert(part_data->vel != NULL);
     std::vector <GLfloat> vel_factor;
     for (int i=0; i < po->npart; i+=po->step) {
-      vel_factor.push_back(1.);                // position X 1.0
-      vel_factor.push_back(po->getVelSize()); // velocity X vel factor size
+        int index;
+        if (po->rhoSorted() &&
+            phys_select && phys_select->getType() != PhysicalData::rho && part_data->rho) {
+          index = rho_itv[i].index; // it's temperature/pressure, we sort by density
+        }
+        else {
+          if (phys_select && phys_select->isValid())
+            index = phys_itv[i].index; // we sort by physical value
+          else                index = po->index_tab[i]; // no physic
+        }
+        vel_factor.push_back(0.);                // position X .0
+        vel_factor.push_back(0.);                // position Y .0
+        vel_factor.push_back(0.);                // position Z .0
+        vel_factor.push_back(part_data->vel[index*3  ]* po->getVelSize()); // velocity X vel factor size
+        vel_factor.push_back(part_data->vel[index*3+1]* po->getVelSize()); // velocity Y vel factor size
+        vel_factor.push_back(part_data->vel[index*3+2]* po->getVelSize()); // velocity Z vel factor size
     }
 
     // bind VBO buffer for sending data
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_factor);
 
     std::cerr << "buildVbo vel_factor nvert = "<<vel_factor.size()<<"\n";
+    std::cerr << "Velocity factor = " << vel_factor[1] << "\n";
 
     // upload Positions (and Velocities) to VBO
     glBufferDataARB(GL_ARRAY_BUFFER_ARB, vel_factor.size() * sizeof(float), &vel_factor[0], GL_STATIC_DRAW_ARB);
@@ -778,9 +793,9 @@ void GLObjectParticles::buildVboPos()
 
     if (part_data->vel) {
         // fill vertices array sorted by density with particles velocities
-        vertices.push_back(part_data->pos[index*3  ]+part_data->vel[index*3  ]);
-        vertices.push_back(part_data->pos[index*3+1]+part_data->vel[index*3+1]);
-        vertices.push_back(part_data->pos[index*3+2]+part_data->vel[index*3+2]);
+        vertices.push_back(part_data->pos[index*3  ]);
+        vertices.push_back(part_data->pos[index*3+1]);
+        vertices.push_back(part_data->pos[index*3+2]);
         //nvert_pos++;
 
         vertices_vel.push_back(part_data->vel[index*3  ]);
@@ -1081,7 +1096,8 @@ void GLObjectParticles::sendShaderColor(const int win_height, const bool use_poi
 // update                                                                      
 void GLObjectParticles::updateVel()
 {
-  buildVelDisplayList();
+  //buildVelDisplayList();
+    buildVboVelFactor();
 }
 
 // ============================================================================
@@ -1115,7 +1131,7 @@ void GLObjectParticles::buildVelDisplayList()
   if (part_data->vel) {
     QTime tbench;
     tbench.restart();
-#if 0
+#if 1
     // display list
     glNewList( vel_dp_list, GL_COMPILE );
     glBegin(GL_LINES);
