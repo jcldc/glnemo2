@@ -29,7 +29,7 @@ if    (WIN32)
 endif ()
 if    (APPLE)
   MESSAGE(STATUS "\n\n\n- - - Mac OSX  - - -\n\n\nWARNING : DO NOT FORGET TO RUN CMAKE LIKE THIS\n\n ")
-  MESSAGE(STATUS "cmake .. -DCMAKE_PREFIX_PATH=/Users/jcl/Qt/5.3/clang_64/lib/cmake\n\n\n")
+  MESSAGE(STATUS "cmake .. -DCMAKE_PREFIX_PATH=/Users/jcl/Qt/5.4/clang_64/lib/cmake\n\n\n")
 endif ()
 # check QTDIR5
 FILE(GLOB GLOB_TEMP_VAR1 $ENV{QTDIR5})
@@ -202,9 +202,9 @@ ENDIF ()
 
 MESSAGE(STATUS "CMAKE_INSTALL_PREFIX :" ${CMAKE_INSTALL_PREFIX} )
 set(PROJECT_VERSION_MAJOR "1")
-set(PROJECT_VERSION_MINOR "8")
-set(PROJECT_VERSION_PATCH "1")
-set(PROJECT_VERSION_EXTRA "")
+set(PROJECT_VERSION_MINOR "9")
+set(PROJECT_VERSION_PATCH "0")
+set(PROJECT_VERSION_EXTRA "-dev")
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${PROJECT_VERSION_EXTRA}")
 
 
@@ -315,7 +315,8 @@ if(APPLE) # OR WIN32)
   # Qt5::QCocoaPrinterSupportPlugin.... but fails when I run cmake command...
   #
  
-  set(LIST_PLUGIN "Qt5::AccessibleFactory;Qt5::QJpegPlugin;Qt5::QICNSPlugin")
+  #set(LIST_PLUGIN "Qt5::AccessibleFactory;Qt5::QJpegPlugin;Qt5::QICNSPlugin")
+  set(LIST_PLUGIN "Qt5::QJpegPlugin;Qt5::QICNSPlugin")
   set (QT_ADD_PLUGIN "")
   foreach (plugin ${LIST_PLUGIN})
     get_property(QT_GET_PLUGIN TARGET ${plugin} PROPERTY LOCATION_RELEASE) 

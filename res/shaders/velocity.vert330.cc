@@ -1,10 +1,10 @@
 // ============================================================================
 // Copyright Jean-Charles LAMBERT - 2007-2015                                  
-// e-mail:   Jean-Charles.Lambert@lam.fr
+// e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert
-//           38, rue Frédéric Joliot-Curie
+//           Pôle de l'Etoile, site de Château-Gombert                         
+//           38, rue Frédéric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -20,24 +20,30 @@
 // !!!!!Attribute variable CAN'T be modified (ex: gl_Color)!!!!!!
 //
 // ============================================================================
+#version 330 core
 
-#version 120
 
-uniform mat4 modelviewMatrix;
-uniform mat4 projMatrix;
+uniform float alpha;           // alpha color factor
+uniform vec3 color;
+//uniform float vel_factor;
 
-uniform float vel_factor;
+in vec3 position;
+in vec3 velocity; // velocity vector for each particles
 
-attribute vec3 position;
-attribute vec3 velocity;
+out vec4 g_velocity;
+
+out VS_OUT {
+    vec4 color;
+} vs_out;
 
 // ============================================================================
 void main()                                                            
 {
-  //vec4 o_position = vec4(position.x* vel_factor,position.y* vel_factor,position.z* vel_factor, 1.0f);
-  vec4 o_position = vec4(position+velocity*vel_factor, 1.0);
-  gl_Position = projMatrix*modelviewMatrix * o_position;
-
+  //color=vec3(0.0f,0.5f,1.0f);
+  //alpha=1.0f;
+  gl_Position = vec4(position.x, position.y, position.z,  1.0f);
+  g_velocity = vec4(velocity.x,velocity.y,velocity.z, 1.0f);//*vel_factor;
+  vs_out.color =  vec4( color.x ,color.y ,color.z , alpha);
 }
 
 // ============================================================================
