@@ -53,7 +53,10 @@ GLObjectParticles::GLObjectParticles(GLTextureVector * _gtv ):GLObject()
     glGenBuffersARB(1,&vbo_pos);
     glGenBuffersARB(1,&vbo_data);
 //    glGenBuffersARB(1,&vbo_color);
+#if 0 // glsl 330
     glGenBuffersARB(1,&vbo_vel);     // get Vertex Buffer Object
+#endif
+    glGenBuffersARB(1,&vbo_vel_X2);     // get Vertex Buffer Object
     glGenBuffersARB(1,&vbo_size);
     glGenBuffersARB(1,&vbo_index);
     glGenBuffersARB(1,&vbo_index2);
@@ -72,7 +75,7 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
   shader     = _shader; // link shader program pointer (particles)
   vel_shader = _vel_shader; // link shader program pointer (velocities)
   dplist_index = glGenLists( 1 );    // get a new display list index
-  vel_dp_list  = glGenLists( 1 );    // get a new display vel list
+  //vel_dp_list  = glGenLists( 1 );    // get a new display vel list
   orb_dp_list  = glGenLists( 1 );    // get a new display orb list
   // reserve memory
   index_histo.reserve(nhisto);
@@ -84,7 +87,9 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
     glGenBuffersARB(1,&vbo_index2);
     glGenBuffersARB(1,&vbo_data);    
     if (_part_data->vel) {
+#if 0 // glsl 330
         glGenBuffersARB(1,&vbo_vel);     // get Vertex Buffer Object
+#endif
         glGenBuffersARB(1,&vbo_vel_X2);     // get Vertex Buffer Object
     }
   }
@@ -126,10 +131,11 @@ void GLObjectParticles::display(const double * mModel, int win_height)
       glEnable(GL_BLEND);
       GLObject::updateAlphaSlot(po->getVelAlpha());
       GLObject::setColor(po->getColor());
-      if (GLWindow::GLSL_support && vel_shader)
+      if (GLWindow::GLSL_support && vel_shader) {
           displayVboVelShader130(win_height,true);
-      else
-        GLObject::display(vel_dp_list);
+      }
+      //else
+      //  GLObject::display(vel_dp_list);
       glDisable(GL_BLEND);
     }
 
@@ -195,7 +201,7 @@ void GLObjectParticles::displayVboVelShader330(const int win_height, const bool 
         start = 2*3*min_index*sizeof(float);
         int stride=2*3*sizeof(GLfloat);
         glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
-#if 1
+#if 0 // glsl 330
         // velocities
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel);
         vvelocities=glGetAttribLocation(vel_shader->getProgramId(), "velocity");
@@ -217,8 +223,9 @@ void GLObjectParticles::displayVboVelShader330(const int win_height, const bool 
         vel_shader->stop();
 
         glDisableVertexAttribArray(vpositions);
+#if 0 // glsl 330
         glDisableVertexAttribArray(vvelocities);
-
+#endif
         //glDisableClientState(GL_VERTEX_ARRAY);
 
         glDisable(GL_POINT_SPRITE_ARB);
@@ -554,7 +561,8 @@ void GLObjectParticles::update( const ParticlesData   * _part_data,
   
   if (update_obj) { // force to rebuild VBO and display list
     if (!GLWindow::GLSL_support) buildDisplayList();
-    buildVelDisplayList();
+    if (!GLWindow::GLSL_support && part_data->vel)
+        buildVelDisplayList();
     if (po->isOrbitsRecording()) {
       po->addOrbits(part_data);
       buildOrbitsDisplayList();
@@ -719,7 +727,7 @@ void GLObjectParticles::buildVboPos()
   tbench.restart();
   nvert_pos=0;
   tbloc.restart();
-  
+
   std::vector <GLfloat> vertices, vertices_vel;
   vertices.reserve(((po->npart/po->step)+1)*3);
   if (part_data->vel) {
@@ -802,10 +810,11 @@ void GLObjectParticles::buildVboPos()
         vertices.push_back(part_data->pos[index*3+1]);
         vertices.push_back(part_data->pos[index*3+2]);
         //nvert_pos++;
-
+#if 0 // glsl 330
         vertices_vel.push_back(part_data->vel[index*3  ]);
         vertices_vel.push_back(part_data->vel[index*3+1]);
         vertices_vel.push_back(part_data->vel[index*3+2]);
+#endif
     }
   }
   if (BENCH) qDebug("Time elapsed to setup VBO arrays: %f s", tbloc.elapsed()/1000.);
@@ -834,6 +843,7 @@ void GLObjectParticles::buildVboPos()
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
   if (part_data->vel) {
+#if 0 // glsl 330
       // VELOCITIES
       // bind VBO buffer for sending data
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel);
@@ -845,7 +855,7 @@ void GLObjectParticles::buildVboPos()
 
       //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-
+#endif
       buildVboVelFactor();
   }
   if (BENCH) qDebug("Time elapsed to transfert VBO arrays to GPU: %f s", tbloc.elapsed()/1000.);
@@ -1138,7 +1148,7 @@ void GLObjectParticles::buildVelDisplayList()
   if (part_data->vel) {
     QTime tbench;
     tbench.restart();
-#if 1
+
     // display list
     glNewList( vel_dp_list, GL_COMPILE );
     glBegin(GL_LINES);
@@ -1162,9 +1172,8 @@ void GLObjectParticles::buildVelDisplayList()
     glEnd();
     glEndList();
     if (BENCH) qDebug("Time elapsed to build Vel Display list: %f s", tbench.elapsed()/1000.);
-#else
-    buildVboVelFactor();
-#endif
+
+
   }
 }
 // ============================================================================
