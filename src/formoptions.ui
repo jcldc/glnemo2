@@ -24,8 +24,11 @@
   <layout class="QGridLayout" name="gridLayout_33">
    <item row="0" column="0">
     <widget class="QTabWidget" name="options_dialog">
+     <property name="tabShape">
+      <enum>QTabWidget::Triangular</enum>
+     </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>7</number>
      </property>
      <widget class="QWidget" name="tab_i_select">
       <attribute name="title">

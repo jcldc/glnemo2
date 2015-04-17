@@ -297,14 +297,14 @@ int SnapshotPhiGrape::nextFrame(const int * index_tab, const int nsel)
       gzGetLine();
       int idx=index_tab[i];
       if (idx!=-1) { // it's a valid particle
-        long nn;
-        float v[3],dummy;
+        //long nn;
+        float v[3];//,dummy;
         float rho1,hsml;
         char *endptr;
         char * p = line;
-        nn     = strtol(p, &endptr, 10); // index
+        //nn     = strtol(p, &endptr, 10); // index
         p   = endptr;
-        dummy  = strtof(p, &endptr); // mass
+        //dummy  = strtof(p, &endptr); // mass
         p   = endptr;
         // pos
         for (int i=0;i<3;i++) {
@@ -355,6 +355,7 @@ int SnapshotPhiGrape::nextFrame(const int * index_tab, const int nsel)
       
     }
     if (part_data->rho) part_data->rho->computeMinMax();
+    part_data->computeVelNorm();
   }
   end_of_data = true;
   return status;

@@ -602,6 +602,7 @@ void FormObjectControl::updateObjectSettings( const int row)
       form.temp_phys_radio->setEnabled    (current_data->temp!=NULL    ?true:false);
       form.tempdens_phys_radio->setEnabled(current_data->temp!=NULL    ?true:false);
       form.pressure_phys_radio->setEnabled(current_data->pressure!=NULL?true:false);
+      form.velnorm_phys_radio->setEnabled(current_data->vel_norm!=NULL?true:false);
       setPhysicalTabName();
     }
     if (pobj->hasPhysic() && phys_select && phys_select->isValid()) {
@@ -1286,6 +1287,16 @@ void FormObjectControl::on_pressure_phys_radio_clicked()
   physicalSelected();
 }
 // ============================================================================
+// on_velnorm_phys_radio_pressed()
+void FormObjectControl::on_velnorm_phys_radio_clicked()
+{
+  mutex_data->lock();
+  current_data->setIpvs(PhysicalData::velnorm);
+  emit updateIpvs(PhysicalData::velnorm);
+  mutex_data->unlock();
+  physicalSelected();
+}
+// ============================================================================
 // physicalSelected()                                                      
 void FormObjectControl::physicalSelected()
 {
@@ -1344,7 +1355,11 @@ void FormObjectControl::setPhysicalTabName()
           case PhysicalData::pressure :
             form.objects_properties->setTabText(1,"Pressure");
             form.pressure_phys_radio->setChecked(true);
-            break;                        
+            break;
+          case PhysicalData::velnorm :
+            form.objects_properties->setTabText(1,"VelocityNorm");
+            form.velnorm_phys_radio->setChecked(true);
+            break;
           }
   }
 }

@@ -131,6 +131,8 @@ public:
     static bool temperature_exist;
     // pressure
     static bool pressure_exist;
+    // velocity norm
+    static bool velnorm_exist;
     // colormap
     int colormap;
     bool reverse_cmap; // reverse colormap
