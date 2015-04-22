@@ -102,7 +102,7 @@ class GLObjectParticles : public GLObject {
     std::vector <int> index_histo;// index_histo[100]; // store first part's index in the percentage
     // Data
     const ParticlesData * part_data;
-    ParticlesObject * po;
+    ParticlesObject * po; // address of the selected object
     const GlobalOptions * go;
     GLuint vel_dp_list, orb_dp_list;
     GLTexture * texture;

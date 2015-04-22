@@ -469,7 +469,11 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   // send vertex positions only
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
   glEnableClientState(GL_VERTEX_ARRAY);
-  start=2*3*min_index*sizeof(float);
+  if (part_data->vel) {
+    start=2*3*min_index*sizeof(float); // pos + vel
+  } else {
+    start=3*min_index*sizeof(float); // pos only
+  }
   //maxvert=max_index-min_index+1;
   //std::cerr << "min_index="<<min_index<<" max_index="<<max_index<<" maxvert="<<maxvert<<"\n";
   stride=0;
