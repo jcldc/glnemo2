@@ -21,9 +21,52 @@
 #include <QObject>
 #include <iostream>
 #include <vector>
+#include "particlesdata.h"
 
 //#include "particlesdata.h"
 namespace glnemo {
+
+  class PhysObject;
+
+  typedef std::vector <PhysObject> PhysObjectVector;
+  // ----------------------------------------------------------------------------
+  // class ObjectPhys to store per Physical Object properties
+  class PhysObject {
+    public:
+      PhysObject(const enum PhysicalData::PHYS _type,
+                 const float * _data,const int _npart, const int * _index_tab):type(_type){}
+      ~PhysObject() {}
+      bool hasPhyisc() {
+        return valid;
+      }
+      // real Physical value
+      void setMinPhys(const float _v) { min_phys = _v; }
+      void setMaxPhys(const float _v) { max_phys = _v; }
+      float getMinPhys()  const { return min_phys; }
+      float getMaxPhys()  const { return max_phys; }
+      // Percentage Physical Value
+      void setMinPercenPhys(const int _v) { min_percen_phys = _v; }
+      void setMaxPercenPhys(const int _v) { max_percen_phys = _v; }
+      int getMinPercenPhys()  const { return min_percen_phys; }
+      int getMaxPercenPhys()  const { return max_percen_phys; }
+
+      std::vector<int> * getSortedIndexes() { return &sorted_indexes; }
+
+    private:
+      const enum PhysicalData::PHYS type;
+      int npart;
+      float * data; // pointer to physical data
+      int * index_tab(); // index of object particles
+      std::vector<int> sorted_indexes; // store indes sorted
+
+      // data for object dialog box
+      int min_percen_phys, max_percen_phys;
+      float min_phys, max_phys;
+      // local color map
+      std::vector <float> cmap; // store color map
+      bool valid; // true if has physic
+
+  };
 
 class GLObject;
 class GLObjectParticles;

@@ -18,9 +18,12 @@
 #include <vector>
 #include <iostream>
 #include <QColor>
+#include "particlesdata.h"
 #include "orbits.h"
 
 namespace glnemo {
+
+
 class ParticlesObject;
 
 typedef std::vector <ParticlesObject> ParticlesObjectVector; 
