@@ -78,6 +78,7 @@ public:
     void sigScreenshot();
     void leaveEvent();
     void sigMouseXY(const int x, const int y);
+    void doneRendering();
 public slots:
    void  update(ParticlesData   * ,
                 ParticlesObjectVector * ,
@@ -93,6 +94,7 @@ public slots:
    void  rebuildGrid(bool ugl=true);
    void  updateGrid(bool ugl=true);
    void  updateGL();
+   void  updateOsdZrt(bool ugl=true);
    void forcePaintGL() {
        makeCurrent();
        paintGL();

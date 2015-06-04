@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>790</width>
-    <height>286</height>
+    <width>919</width>
+    <height>301</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>7</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tab_i_select">
       <attribute name="title">
@@ -1491,119 +1491,6 @@
        <string>OpenGL</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_23">
-       <item row="0" column="0">
-        <widget class="QGroupBox" name="groupBox_23">
-         <property name="title">
-          <string>Projection mode</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_35">
-          <item row="0" column="0">
-           <widget class="QRadioButton" name="radio_persp">
-            <property name="text">
-             <string>Perspective</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QRadioButton" name="radio_ortho">
-            <property name="text">
-             <string>Orthographic</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="1" rowspan="3">
-        <widget class="QGroupBox" name="groupBox_15">
-         <property name="title">
-          <string>3D axis</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_37">
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="show_3daxis">
-            <property name="toolTip">
-             <string>enable 3D axis display</string>
-            </property>
-            <property name="text">
-             <string>Enable</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" rowspan="2">
-           <widget class="QGroupBox" name="groupBox_18">
-            <property name="title">
-             <string>Location</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_27">
-             <item row="0" column="0">
-              <widget class="QRadioButton" name="axis_bottom">
-               <property name="toolTip">
-                <string>display 3d axis at the bottom right of the 3d view</string>
-               </property>
-               <property name="text">
-                <string>bottom right</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QRadioButton" name="axis_center">
-               <property name="toolTip">
-                <string>display 3d axis at the center of the 3d view</string>
-               </property>
-               <property name="text">
-                <string>center</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLabel" name="label_25">
-            <property name="text">
-             <string>size</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" rowspan="2" colspan="2">
-           <widget class="QDial" name="axis_dial"/>
-          </item>
-          <item row="3" column="0" rowspan="2">
-           <spacer name="verticalSpacer_29">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>53</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="4" column="2">
-           <spacer name="verticalSpacer_30">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>6</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="0" column="2" rowspan="2">
         <widget class="QGroupBox" name="groupBox_24">
          <property name="title">
@@ -1708,6 +1595,119 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_23">
+         <property name="title">
+          <string>Projection mode</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_35">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="radio_persp">
+            <property name="text">
+             <string>Perspective</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="radio_ortho">
+            <property name="text">
+             <string>Orthographic</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1" rowspan="3">
+        <widget class="QGroupBox" name="groupBox_15">
+         <property name="title">
+          <string>3D axis</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_37">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="show_3daxis">
+            <property name="toolTip">
+             <string>enable 3D axis display</string>
+            </property>
+            <property name="text">
+             <string>Enable</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" rowspan="2">
+           <widget class="QGroupBox" name="groupBox_18">
+            <property name="title">
+             <string>Location</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_27">
+             <item row="0" column="0">
+              <widget class="QRadioButton" name="axis_bottom">
+               <property name="toolTip">
+                <string>display 3d axis at the bottom right of the 3d view</string>
+               </property>
+               <property name="text">
+                <string>bottom right</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QRadioButton" name="axis_center">
+               <property name="toolTip">
+                <string>display 3d axis at the center of the 3d view</string>
+               </property>
+               <property name="text">
+                <string>center</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="label_25">
+            <property name="text">
+             <string>size</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" rowspan="3" colspan="2">
+           <widget class="QDial" name="axis_dial"/>
+          </item>
+          <item row="3" column="0" rowspan="2">
+           <spacer name="verticalSpacer_29">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>53</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="4" column="2">
+           <spacer name="verticalSpacer_30">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>6</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -2713,78 +2713,78 @@ p, li { white-space: pre-wrap; }
        <string>On screen display</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_30">
-       <item row="0" column="0">
-        <widget class="QCheckBox" name="show_osd_checkb">
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string>toggle on screen display</string>
-         </property>
-         <property name="text">
-          <string>Enable</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1" rowspan="3">
+       <item row="0" column="0" rowspan="3">
         <widget class="QGroupBox" name="groupBox_12">
          <property name="title">
           <string>Display</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_18">
-          <item row="0" column="0">
+         <layout class="QGridLayout" name="gridLayout_43">
+          <item row="0" column="0" colspan="2">
+           <widget class="QCheckBox" name="show_osd_checkb">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="toolTip">
+             <string>toggle on screen display</string>
+            </property>
+            <property name="text">
+             <string>Enable</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
            <widget class="QCheckBox" name="osd_time">
             <property name="text">
              <string>time</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="1" column="1">
            <widget class="QCheckBox" name="osd_title">
             <property name="text">
              <string>title</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="2" column="0">
            <widget class="QCheckBox" name="osd_nbody">
             <property name="text">
              <string>nbody</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="2" column="1">
            <widget class="QCheckBox" name="osd_datatype">
             <property name="text">
              <string>data type</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="3" column="0">
            <widget class="QCheckBox" name="osd_zoom">
             <property name="text">
              <string>zoom</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="3" column="1">
            <widget class="QCheckBox" name="osd_trans">
             <property name="text">
              <string>trans</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="4" column="0">
            <widget class="QCheckBox" name="osd_rot">
             <property name="text">
              <string>rot</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="4" column="1">
            <widget class="QCheckBox" name="osd_proj">
             <property name="text">
              <string>projection</string>
@@ -2794,7 +2794,142 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="0" column="2" rowspan="2" colspan="2">
+       <item row="0" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_17">
+         <item>
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Title name</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="title_name">
+           <property name="toolTip">
+            <string>Change title name</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="2" rowspan="3" colspan="2">
+        <widget class="QGroupBox" name="groupBox_26">
+         <property name="title">
+          <string>Set values</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_18">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_31">
+            <property name="text">
+             <string>zoom</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QDoubleSpinBox" name="zoom_dspin">
+            <property name="minimum">
+             <double>-100000.000000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>100000.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_32">
+            <property name="text">
+             <string>Rot</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_21">
+            <item>
+             <widget class="QDoubleSpinBox" name="rx_dspin">
+              <property name="minimum">
+               <double>-1000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="ry_dspin">
+              <property name="minimum">
+               <double>-1000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="rz_dspin">
+              <property name="minimum">
+               <double>-1000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_33">
+            <property name="text">
+             <string>trans</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_23">
+            <item>
+             <widget class="QDoubleSpinBox" name="tx_dspin">
+              <property name="decimals">
+               <number>3</number>
+              </property>
+              <property name="minimum">
+               <double>-50000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>50000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="ty_dspin">
+              <property name="decimals">
+               <number>3</number>
+              </property>
+              <property name="minimum">
+               <double>-50000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>50000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="tz_dspin">
+              <property name="decimals">
+               <number>3</number>
+              </property>
+              <property name="minimum">
+               <double>-50000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>50000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="1">
         <widget class="QGroupBox" name="groupBox_13">
          <property name="title">
           <string>font</string>
@@ -2824,19 +2959,25 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="0" column="4" rowspan="2">
+       <item row="1" column="4">
+        <spacer name="horizontalSpacer_21">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>110</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="1" rowspan="2">
         <widget class="QGroupBox" name="groupBox_14">
          <property name="title">
           <string>color</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_20">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_16">
-            <property name="text">
-             <string>font</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1">
            <widget class="QPushButton" name="font_color">
             <property name="palette">
@@ -3694,57 +3835,17 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>font</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" rowspan="2">
-        <spacer name="verticalSpacer_8">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::MinimumExpanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>127</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="5">
-        <spacer name="horizontalSpacer_8">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>235</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="3" colspan="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_17">
-         <item>
-          <widget class="QLabel" name="label_18">
-           <property name="text">
-            <string>Title name</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="title_name">
-           <property name="toolTip">
-            <string>Change title name</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="3" column="1">
+       <item row="3" column="0" rowspan="2">
         <spacer name="verticalSpacer_10">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -3761,22 +3862,19 @@ p, li { white-space: pre-wrap; }
         </spacer>
        </item>
        <item row="3" column="2">
-        <spacer name="verticalSpacer_9">
+        <spacer name="horizontalSpacer_8">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::MinimumExpanding</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>0</height>
+           <width>357</width>
+           <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
-       <item row="3" column="4">
+       <item row="3" column="3" rowspan="2">
         <spacer name="verticalSpacer_11">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -3787,7 +3885,20 @@ p, li { white-space: pre-wrap; }
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>0</height>
+           <height>73</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="4" column="1">
+        <spacer name="verticalSpacer_8">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>82</height>
           </size>
          </property>
         </spacer>

@@ -1307,8 +1307,8 @@ void FormObjectControl::physicalSelected()
     ParticlesObject * pobj = &(*pov)[i_obj];
     setPhysicalTabName();
     if (phys_select && phys_select->isValid()) {
-      form.dens_slide_min->setValue(0);
-      form.dens_slide_max->setValue(100);
+      form.dens_slide_min->setValue(0);      // here we should put current object value (from PhysObject), not   0
+      form.dens_slide_max->setValue(100);    // here we should put current object value (from PhysObject), not 100
       
       pobj->setMinPhys(phys_select->getMin());
       pobj->setMaxPhys(phys_select->getMax());

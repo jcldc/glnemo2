@@ -197,6 +197,35 @@ class FormOptions: public QDialog {
       go->osd_font_size = (float ) value;
       emit update_osd_font();
     }
+
+    void on_zoom_dspin_valueChanged(double value) {
+      go->zoom=(float) value;
+      if (EMIT) emit update_osd(true);
+    }
+    void on_rx_dspin_valueChanged(double value) {
+      go->xrot=(float) value;
+      if (EMIT) emit update_osd(true);
+    }
+    void on_ry_dspin_valueChanged(double value) {
+      go->yrot=(float) value;
+      if (EMIT) emit update_osd(true);
+    }
+    void on_rz_dspin_valueChanged(double value) {
+      go->zrot=(float) value;
+      if (EMIT) emit update_osd(true);
+    }
+    void on_tx_dspin_valueChanged(double value) {
+      go->xtrans=(float) value;
+      if (EMIT) emit update_osd(true);
+    }
+    void on_ty_dspin_valueChanged(double value) {
+      go->ytrans=(float) value;
+      if (EMIT) emit update_osd(true);
+    }
+    void on_tz_dspin_valueChanged(double value) {
+      go->ztrans=(float) value;
+      if (EMIT) emit update_osd(true);
+    }
     // ColorBar TAB
     void on_gcb_enable_clicked(bool b) {
       go->gcb_enable = b;

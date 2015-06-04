@@ -85,7 +85,8 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera 
   i_wmat = 2;
   
   connect(gl_select, SIGNAL(updateGL()), this, SLOT(updateGL()));
-  connect(gl_select, SIGNAL(updateZoom()), this, SLOT(osdZoom()));
+  //connect(gl_select, SIGNAL(updateZoom()), this, SLOT(osdZoom()));
+  connect(gl_select, SIGNAL(updateZoom()), this, SLOT(updateOsdZrt()));
   connect(this,SIGNAL(sigScreenshot()),parent,SLOT(startAutoScreenshot()));
   setFocus();
   wwidth=894;wheight=633;
@@ -559,6 +560,7 @@ void GLWindow::paintGL()
 
   nframe++; // count frames
   //glDrawPixels(gldata.width(), gldata.height(), GL_RGBA, GL_UNSIGNED_BYTE, gldata.bits());
+  emit doneRendering();
 }
 // ============================================================================
 void GLWindow::initShader()
@@ -1074,6 +1076,27 @@ void GLWindow::setTranslation( const int x, const int y, const int z )
   store_options->ztrans=zTrans;
   updateGL();
 }
+// -----------------------------------------------------------------------------
+// updateOsd()
+void GLWindow::updateOsdZrt(bool ugl)
+{
+  GlobalOptions * g = store_options;
+  setOsd(GLObjectOsd::Zoom,(const float) store_options->zoom,
+                    g->osd_zoom,false);
+  setOsd(GLObjectOsd::Rot,(const float) store_options->xrot,
+                    (const float) store_options->yrot,
+                    (const float) store_options->zrot, g->osd_rot,false);
+  setOsd(GLObjectOsd::Trans,(const float) store_options->xtrans,
+                    (const float) store_options->ytrans,
+                    (const float) store_options->ztrans,g->osd_trans,false);
+
+  osd->updateDisplay();
+  if (ugl) {
+   updateGL();
+  }
+
+}
+
 // ============================================================================
 // setup zoom according to a z value
 void GLWindow::setZoom(const int z)

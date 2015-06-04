@@ -112,6 +112,7 @@ FormOptions::~FormOptions()
 // update                                                                 
 void FormOptions::update()
 {
+  EMIT=false;
 
   // Grid tabs
   form.show_grid_checkb->setChecked(go->show_grid);
@@ -138,8 +139,14 @@ void FormOptions::update()
   form.osd_proj->setChecked(go->osd_projection);
   form.spin_font_size->setValue(go->osd_font_size);
   form.title_name->setText(go->osd_title_name);
+  form.zoom_dspin->setValue(go->zoom);
+  form.rx_dspin->setValue(go->xrot);
+  form.ry_dspin->setValue(go->yrot);
+  form.rz_dspin->setValue(go->zrot);
+  form.tx_dspin->setValue(go->xtrans);
+  form.ty_dspin->setValue(go->ytrans);
+  form.tz_dspin->setValue(go->ztrans);
 
-  
   // ColorBar tab
   form.gcb_enable->setChecked(go->gcb_enable);
   form.gcb_height->setValue(go->gcb_pheight*100.);
@@ -188,6 +195,8 @@ void FormOptions::update()
   form.cb_opaque_disc->setChecked(go->od_enable);
   form.od_radius_spin->setValue(go->od_radius);
   form.cb_coronograph->setChecked(go->od_display);
+
+  EMIT=true;
 }
 // ============================================================================
 // updateFrame                                                                 

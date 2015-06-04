@@ -87,6 +87,7 @@ MainWindow::MainWindow(std::string _ver)
           this,    SLOT(pressedKeyMouse(const bool, const bool)));
   connect(gl_window, SIGNAL(sigMouseXY(int,int)),
           form_o_c,SLOT(dens_slide_min_max(int,int)));
+  connect(gl_window,SIGNAL(doneRendering()),form_options,SLOT(update()));
   connect(form_o_c,SIGNAL(objectSettingsChanged()),gl_window,SLOT(updateGL()));
   connect(form_o_c,SIGNAL(objectUpdateVel(const int)),gl_window,SLOT(updateVel(const int)));
   connect(form_o_c,SIGNAL(objectUpdate()),gl_window,SLOT(update()));
