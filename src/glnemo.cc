@@ -35,7 +35,7 @@
 
 #include "mainwindow.h"
 using namespace std;
-#define RELEASE_VERSION "1.9.0-dev-2015-June-04"
+#define RELEASE_VERSION "1.9.0-dev-2015-June-05"
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 // Import snapshot plugins
@@ -97,9 +97,9 @@ Q_IMPORT_PLUGIN(networkplugin);
     "xrot=0.0\n        rotation angle on X axis                         ",
     "yrot=0.0\n        rotation angle on Y axis                         ",
     "zrot=0.0\n        rotation angle on Z axis                         ",
-    "xtrans=0.0\n      translation on X                                 ",
-    "ytrans=0.0\n      translation on Y                                 ",
-    "ztrans=0.0\n      translation on Z                                 ",
+    "xtrans=0.0\n      centering on X                                 ",
+    "ytrans=0.0\n      centering on Y                                 ",
+    "ztrans=0.0\n      centering on Z                                 ",
     "grid=t\n          Show grid                                        ",
     "nb_meshs=28\n     #meshs for the grid                              ",
     "mesh_size=1.0\n   grid's size of one mesh                          ",

@@ -215,15 +215,15 @@ class FormOptions: public QDialog {
       if (EMIT) emit update_osd(true);
     }
     void on_tx_dspin_valueChanged(double value) {
-      go->xtrans=(float) value;
+      go->xtrans=(float) -value;
       if (EMIT) emit update_osd(true);
     }
     void on_ty_dspin_valueChanged(double value) {
-      go->ytrans=(float) value;
+      go->ytrans=(float) -value;
       if (EMIT) emit update_osd(true);
     }
     void on_tz_dspin_valueChanged(double value) {
-      go->ztrans=(float) value;
+      go->ztrans=(float) -value;
       if (EMIT) emit update_osd(true);
     }
     // ColorBar TAB

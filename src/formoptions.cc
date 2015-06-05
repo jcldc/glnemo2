@@ -143,9 +143,9 @@ void FormOptions::update()
   form.rx_dspin->setValue(go->xrot);
   form.ry_dspin->setValue(go->yrot);
   form.rz_dspin->setValue(go->zrot);
-  form.tx_dspin->setValue(go->xtrans);
-  form.ty_dspin->setValue(go->ytrans);
-  form.tz_dspin->setValue(go->ztrans);
+  form.tx_dspin->setValue(-go->xtrans);
+  form.ty_dspin->setValue(-go->ytrans);
+  form.tz_dspin->setValue(-go->ztrans);
 
   // ColorBar tab
   form.gcb_enable->setChecked(go->gcb_enable);

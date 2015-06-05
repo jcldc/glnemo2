@@ -1068,7 +1068,7 @@ void GLWindow::setTranslation( const int x, const int y, const int z )
   GLfloat yTrans = (GLfloat)( y*store_options->zoom/(Viewport[3])); //Viewport[3]*ratio));
   GLfloat zTrans = (GLfloat)( z*store_options->zoom/(Viewport[2]));
   // display on HUD
-  osd->setText(GLObjectOsd::Trans,xTrans,yTrans,zTrans);
+  osd->setText(GLObjectOsd::Trans,-xTrans,-yTrans,-zTrans);
   osd->updateDisplay();
   // save
   store_options->xtrans=xTrans;
@@ -1086,9 +1086,9 @@ void GLWindow::updateOsdZrt(bool ugl)
   setOsd(GLObjectOsd::Rot,(const float) store_options->xrot,
                     (const float) store_options->yrot,
                     (const float) store_options->zrot, g->osd_rot,false);
-  setOsd(GLObjectOsd::Trans,(const float) store_options->xtrans,
-                    (const float) store_options->ytrans,
-                    (const float) store_options->ztrans,g->osd_trans,false);
+  setOsd(GLObjectOsd::Trans,(const float) -store_options->xtrans,
+                    (const float) -store_options->ytrans,
+                    (const float) -store_options->ztrans,g->osd_trans,false);
 
   osd->updateDisplay();
   if (ugl) {

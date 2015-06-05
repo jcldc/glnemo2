@@ -1049,9 +1049,9 @@ void MainWindow::parseNemoParameters()
   store_options->xrot     = getdparam((char *) "xrot");
   store_options->yrot     = getdparam((char *) "yrot");
   store_options->zrot     = getdparam((char *) "zrot");
-  store_options->xtrans   = getdparam((char *) "xtrans");
-  store_options->ytrans   = getdparam((char *) "ytrans");
-  store_options->ztrans   = getdparam((char *) "ztrans");
+  store_options->xtrans   = -1.*getdparam((char *) "xtrans");
+  store_options->ytrans   = -1.*getdparam((char *) "ytrans");
+  store_options->ztrans   = -1.*getdparam((char *) "ztrans");
   store_options->zoom     = getdparam((char *) "zoom");
   store_options->psize    = getdparam((char *) "psize");
   store_options->port     = getiparam((char *) "port");
@@ -1923,9 +1923,9 @@ void MainWindow::updateOsd(bool ugl)
     gl_window->setOsd(GLObjectOsd::Rot,(const float) store_options->xrot,
                       (const float) store_options->yrot,
                       (const float) store_options->zrot, g->osd_rot,false);
-    gl_window->setOsd(GLObjectOsd::Trans,(const float) store_options->xtrans,
-                      (const float) store_options->ytrans,
-                      (const float) store_options->ztrans,g->osd_trans,false);
+    gl_window->setOsd(GLObjectOsd::Trans,(const float) -store_options->xtrans,
+                      (const float) -store_options->ytrans,
+                      (const float) -store_options->ztrans,g->osd_trans,false);
   }
   if (ugl) {
     gl_window->updateGL();
