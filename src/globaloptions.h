@@ -62,7 +62,7 @@ public:
     bool cam_display_spline;
     bool cam_play;
     // from Scene Orientation TAB
-    float zoom,zoomo;
+    double zoom,zoomo;
     float xrot,yrot,zrot;
     float urot,vrot,wrot;
     float ixrot,iyrot,izrot;

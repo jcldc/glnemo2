@@ -208,9 +208,9 @@ void GLSelection::zoomOnArea(const int nobj, double mProj[16],double mModel[16],
 	//std::cerr << "center of mass:" << com[0] << " " << com[1] << " " << com[2] <<"\n";
         //std::cerr << "zoom in=" << store_options->zoom << "\n";
         // save information
-        float zoom1 =store_options->zoom; // zoom value
-        float zoomo1=store_options->zoomo; // zoom value
-        float ortho1=store_options->ortho_range; // zoom value
+        double zoom1 =store_options->zoom; // zoom value
+        double zoomo1=store_options->zoomo; // zoom value
+        double ortho1=store_options->ortho_range; // zoom value
         trans_in.set(store_options->xtrans,store_options->ytrans,store_options->ztrans);
         if (zoom) {// best ZOOM on particles inside selected area 
            // centering on COM
@@ -224,11 +224,11 @@ void GLSelection::zoomOnArea(const int nobj, double mProj[16],double mModel[16],
            // BUT for orthographic, best zoom is set to ortho_range
            Tools3D::bestZoomFromList(mProj,mModel,viewport,&list, part_data, store_options);
            if (anim_zoom) {
-            float zoom2 =store_options->zoom; // new zoom value            
+            double zoom2 =store_options->zoom; // new zoom value
             // perspective zoom offset
-            zoom_dynamic =(zoom2-zoom1)/float(total_frame); // animation zoom value offset
+            zoom_dynamic =(zoom2-zoom1)/double(total_frame); // animation zoom value offset
             // orthoraphic zoom offset
-            zoomo_dynamic=(store_options->ortho_range-ortho1*zoomo1)/float(total_frame); 
+            zoomo_dynamic=(store_options->ortho_range-ortho1*zoomo1)/double(total_frame);
             //std::cerr << "ortho0 =" << store_options->ortho_range << " ortho1="<< ortho1 << "\n";
             //std::cerr << "zoomo_dynmaic = "<< zoomo_dynamic << " zoomo1="<<zoomo1<<"\n";
             // set initial Center
@@ -258,7 +258,7 @@ void GLSelection::playZoomAnim()
 {
   frame_counter++;                                       // one more frame         
   if (frame_counter<=total_frame) {                      // frame exist            
-    float off = float(frame_counter)/float(total_frame); // new displacement offset
+    double off = double(frame_counter)/double(total_frame); // new displacement offset
     store_options->zoom  += zoom_dynamic;                 // new zoom               
     //store_options->zoomo += zoomo_dynamic;                 // new zoom   
     store_options->ortho_range += zoomo_dynamic;

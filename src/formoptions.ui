@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>790</width>
-    <height>286</height>
+    <width>811</width>
+    <height>293</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2767,6 +2767,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="0" column="1">
            <widget class="QDoubleSpinBox" name="zoom_dspin">
+            <property name="decimals">
+             <number>8</number>
+            </property>
             <property name="minimum">
              <double>-100000.000000000000000</double>
             </property>

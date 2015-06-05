@@ -198,9 +198,11 @@ class FormOptions: public QDialog {
       emit update_osd_font();
     }
 
-    void on_zoom_dspin_valueChanged(double value) {
-      go->zoom=(float) value;
-      if (EMIT) emit update_osd(true);
+    void on_zoom_dspin_valueChanged(double value) {      
+      if (EMIT) {
+          go->zoom=value;
+          emit update_osd(true);
+      }
     }
     void on_rx_dspin_valueChanged(double value) {
       go->xrot=(float) value;
