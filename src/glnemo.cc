@@ -32,10 +32,12 @@
 // Nemo stuffs
 #define _vectmath_h // put this statement to avoid conflict with C++ vector class
 #include <nemo.h>
-
+#include <string>
 #include "mainwindow.h"
+
+#include "version.h"
+
 using namespace std;
-#define RELEASE_VERSION "1.9.0-dev-2015-June-05"
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 // Import snapshot plugins
@@ -62,6 +64,12 @@ Q_IMPORT_PLUGIN(listplugin);
 Q_IMPORT_PLUGIN(networkplugin);
 #endif
 
+std::string release=std::string(GLNEMO2_MAJOR)+"."+
+                    std::string(GLNEMO2_MINOR)+"."+
+                    std::string(GLNEMO2_PATCH)+
+                    std::string(GLNEMO2_EXTRA);
+
+std::string VERSION = "VERSION="+release+"\n    "+__DATE__+"  - JCL  compiled at <"+ __TIME__ +">      ";
 // ============================================================================
 // NEMO parameters                                                             
   const char * defv[] = {  
@@ -156,7 +164,7 @@ Q_IMPORT_PLUGIN(networkplugin);
     "shot_ext=jpg\n    Screenshot's extension jpg|png                    ",
     "smooth_gui=t\n    if true it allows a smoother interactivity with  ",
     "                   the GUI, but it **double** the memory usage. \n",
-    "VERSION=" RELEASE_VERSION "\n    " __DATE__ "  - JCL  compiled at <" __TIME__ ">      ",
+    VERSION.c_str(),
     NULL
   };
   const char * usage="Interactive 3D OpenGL NBody simulation Snapshots rendering program";
@@ -204,7 +212,7 @@ int main(int argc, char *argv[])
 //    splash.show();
 //    app.processEvents();
 //  }
-  glnemo::MainWindow main_win(RELEASE_VERSION); // main window object
+  glnemo::MainWindow main_win(release); // main window object
 
   // compute window size
   const int x=((desktop->width()  - wsize)/2);

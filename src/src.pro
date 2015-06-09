@@ -49,7 +49,8 @@ HEADERS += mainwindow.h \
     formhelp.h \
     cshader.h \
     glcolorbar.h \
-    glaxesobject.h
+    glaxesobject.h \
+    version.h
 SOURCES += glnemo.cc \
     mainwindow.cc \
     glwindow.cc \
