@@ -477,6 +477,21 @@ void GLWindow::paintGL()
     cube->display();
     glDisable(GL_BLEND);
   }
+
+  // sphere display
+  if (0) {
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    GLUquadricObj *quadric=gluNewQuadric();
+    gluQuadricDrawStyle(quadric,GLU_LINE);
+    gluQuadricNormals(quadric, GLU_SMOOTH);
+    GLdouble radius=GLdouble(store_options->mesh_length*store_options->nb_meshs/2.0);
+    GLint subdivisions=16;
+    gluSphere(quadric, radius, subdivisions,subdivisions);
+    gluDeleteQuadric(quadric);
+    glDisable(GL_BLEND);
+
+  }
   // camera display path and control points
   camera->display();
 

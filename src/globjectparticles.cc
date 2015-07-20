@@ -1087,7 +1087,7 @@ void GLObjectParticles::sendShaderColor(const int win_height, const bool use_poi
       // highest density points were not displayed !!! I fixed this issue
       // by adding 1% more values on max data
       float moremax=(po->getMaxPhys()-po->getMinPhys())/100.0;
-      //std::cerr <<"moremax : " << moremax << "\n";
+      //std::cerr <<"moremax : " << moremax << " data_min_phys=<<"<<log(po->getMinPhys())<<" data_phys_max="<< log(po->getMaxPhys()+moremax)<<"\n";
       shader->sendUniformf("data_phys_min",log(po->getMinPhys()));
       shader->sendUniformf("data_phys_max",log(po->getMaxPhys()+moremax));
     }

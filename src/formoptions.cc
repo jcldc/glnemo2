@@ -99,7 +99,10 @@ FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):
   form.gcb_font_color->setStyleSheet(css);
   
   // ----- auto screnshots tab
+  //form.radio_res_standard->clicked(true);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
   form.radio_res_standard->clicked(true);
+#endif
 
   update();
 }
