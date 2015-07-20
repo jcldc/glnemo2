@@ -179,10 +179,10 @@ void GLWindow::updateGL()
   if ( !store_options->duplicate_mem) {
     mutex_data->lock();
     if (store_options->new_frame) update();
-    else QGLWidget::updateGL();
+    else QGLWidget::update();
     mutex_data->unlock();
   }
-  else QGLWidget::updateGL();
+  else QGLWidget::update();
 }
 //QMutex mutex1;
 
