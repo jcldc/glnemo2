@@ -100,7 +100,7 @@ public slots:
        paintGL();
    }
    void select_all_particles_on_screen() { // from gui, interactive select, press button select all particles
-       gl_select->zoomOnArea(pov->size(),mProj,mModel,viewport,true);
+       gl_select->selectOnArea(pov->size(),mProj,mModel,viewport,true);
    }
 
    void  osdZoom(bool ugl=true);

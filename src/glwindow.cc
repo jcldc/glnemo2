@@ -345,7 +345,7 @@ void GLWindow::initLight()
 long int CPT=0;
 void GLWindow::paintGL()
 {
-  CPT++;
+  CPT++; 
   //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
   if (store_options->auto_gl_screenshot) {
     store_options->auto_gl_screenshot = false;
@@ -558,7 +558,10 @@ void GLWindow::paintGL()
   if (store_options->axes_enable)
     axes->display(mScreen, mScene, wwidth,wheight,
                   store_options->axes_loc,store_options->axes_psize, store_options->perspective);
-  
+
+  // reset viewport to the windows size because axes object modidy it
+  glViewport(0, 0,  wwidth, wheight);
+
   if (fbo && GLWindow::GLSL_support) {
     fbo = false;
     //imgFBO = grabFrameBuffer();
@@ -801,8 +804,10 @@ void GLWindow::mouseReleaseEvent( QMouseEvent *e )
 #endif
   if (is_shift_pressed) {
     if ( !store_options->duplicate_mem) mutex_data->lock();
+    //JCL 07/21/2015 setPerspectiveMatrix(); // toggle to perspective matrix mode
+    gl_select->selectOnArea(pov->size(),mProj,mModel,viewport);
     setPerspectiveMatrix(); // toggle to perspective matrix mode
-    gl_select->zoomOnArea(pov->size(),mProj,mModel,viewport);
+    gl_select->zoomOnArea(mProj,mModel,viewport);
     osd->setText(GLObjectOsd::Zoom,(const float) store_options->zoom);
     osd->updateDisplay();
     if ( !store_options->duplicate_mem) mutex_data->unlock();
@@ -1239,6 +1244,7 @@ void GLWindow::bestZoomFit()
 
   setPerspectiveMatrix(); // toggle to perspective matric mode
 
+
   Tools3D::bestZoomFromObject(mProj,mModel,
                               viewport, pov, p_data, store_options);
     
@@ -1246,7 +1252,7 @@ void GLWindow::bestZoomFit()
   ortho_left  =-store_options->ortho_range;
   ortho_top   = store_options->ortho_range;
   ortho_bottom=-store_options->ortho_range;
-  store_options->zoomo = 1.;
+  //store_options->zoomo = 1.;
   
   osdZoom();
   if ( !store_options->duplicate_mem) mutex_data->unlock();

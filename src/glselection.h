@@ -41,8 +41,10 @@ public:
     void setEnable(bool _b) { enable=_b;    }
     void getMouse(QMouseEvent *);
     void display(const int, const int);
-    void zoomOnArea(const int nobj, double mProj[16],double mModel[16],
+    void selectOnArea(const int nobj, double mProj[16],double mModel[16],
                     const int viewport[4], const bool whole_screen=false);
+    void zoomOnArea(double mProj[16],double mModel[16],
+                    const int viewport[4]);
     float X0() { return x0;}
     float X1() { return x1;}
     float Y0() { return y0;}
@@ -72,6 +74,9 @@ private:
   double zoom_dynamic, zoomo_dynamic;
   int total_frame, frame_counter;
   QMutex * mutex_data;
+  int in_area;
+  double com[3];
+  const ParticlesData * part_data;
   // METHOD
    
 };
