@@ -88,6 +88,7 @@ int SnapshotTipsy::initLoading(GlobalOptions * so)
   load_vel = so->vel_req;
   select_time = so->select_time;
   std::cerr << "select_time ="<<select_time<<"\n";
+  go = so;
   
   return 1;
 }
@@ -179,7 +180,7 @@ int SnapshotTipsy::close()
 // endendOfDataMessage()                                                       
 QString SnapshotTipsy::endOfDataMessage()
 {
-  QString message=tr("Gadget Snapshot [")+QString(filename.c_str())+tr("] end of snapshot reached!");
+  QString message=tr("Tipsy Snapshot [")+QString(filename.c_str())+tr("] end of snapshot reached!");
   return message;
 }
 }

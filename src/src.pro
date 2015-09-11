@@ -181,10 +181,12 @@ win32 {
 unix {
     LIBS += -lz
     LIBS += -lGLU
+    LIBS += -lCCfits
 }
 macx {
     LIBS += -lz
     LIBS -= -lGLU
+    LIBS += -lCCfits
 }
 POST_TARGETDEPS += \
     ../3rdparty/pfntlib/lib/$$ARCH/$$COMPILEMODE/libpfntlib.a \

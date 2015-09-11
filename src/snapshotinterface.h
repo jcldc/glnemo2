@@ -110,7 +110,9 @@ class SnapshotInterface: public QObject
             return false;
     }
 
-
+    void setCrv(ComponentRangeVector _crv) {
+        crv = _crv;
+    }
     ParticlesData * part_data;
     int nbody_first;
     float time_first;

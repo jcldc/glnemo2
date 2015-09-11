@@ -49,6 +49,7 @@ Q_IMPORT_PLUGIN(SnapshotRamses)
 #ifndef _WIN32
 Q_IMPORT_PLUGIN(SnapshotTipsy) // WIN32 has no native XDR support requested by TIPSY
 #endif
+Q_IMPORT_PLUGIN(SnapshotFits)
 Q_IMPORT_PLUGIN(SnapshotList)
 Q_IMPORT_PLUGIN(SnapshotNetwork)
 #else // QT4
@@ -60,6 +61,7 @@ Q_IMPORT_PLUGIN(ramsesplugin);
 #ifndef _WIN32
 Q_IMPORT_PLUGIN(tipsyplugin); // WIN32 has no native XDR support requested by TIPSY
 #endif
+Q_IMPORT_PLUGIN(fitsplugin);
 Q_IMPORT_PLUGIN(listplugin);
 Q_IMPORT_PLUGIN(networkplugin);
 #endif
