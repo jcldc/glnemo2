@@ -41,7 +41,7 @@ SnapshotFits::~SnapshotFits()
   if (part_data) delete part_data;
   if (valid) close();
   if (valid) {
-      //delete pInfile;
+      delete pInfile;
 
   }
   //if (fits_io) delete fits_io;
@@ -106,6 +106,12 @@ ComponentRangeVector * SnapshotFits::getSnapshotRange()
       // MUST BE SET from CLI or GUI
       float dmin = std::numeric_limits<float>::min();
       float dmax = std::numeric_limits<float>::max();
+      if (go->phys_min_glob!=-1) {
+          dmin = go->phys_min_glob;
+      }
+      if (go->phys_max_glob!=-1) {
+          dmax = go->phys_max_glob;
+      }
       int   zmin = std::numeric_limits<int>::min();
       int   zmax = std::numeric_limits<int>::max();
 
@@ -207,12 +213,19 @@ int SnapshotFits::nextFrame(const int * index_tab, const int nsel)
     // MUST BE SET from CLI or GUI
     float dmin = std::numeric_limits<float>::min();
     float dmax = std::numeric_limits<float>::max();
+    if (go->phys_min_glob!=-1) {
+        dmin = go->phys_min_glob;
+    }
+    if (go->phys_max_glob!=-1) {
+        dmax = go->phys_max_glob;
+    }
     int   zmin = std::numeric_limits<int>::min();
     int   zmax = std::numeric_limits<int>::max();
 
     // Load data and fill up arrays
     long nan=0;
     int valid_nbody=0;
+    int cpt=0;
     for (unsigned long i=0; i<contents.size(); i++) {
 
         if (std::isfinite(contents[i]) && contents[i]>=dmin && contents[i]<=dmax) {
@@ -220,18 +233,22 @@ int SnapshotFits::nextFrame(const int * index_tab, const int nsel)
             long z_i=int(i/(ax*ay)); // current Z plane
             assert(z_i<=az);
             if (z_i>=zmin && z_i<=zmax) { // inside Z selection
-                long nxy=i-z_i*(ax*ay);// #pixels (x/y) of the latest Z plane
-                long y_i=int(nxy/ax);  // current Y coordinate
-                assert(y_i<ay);
-                long x_i=nxy-(y_i*ax); // current X coordinate
-                assert(z_i<=az);
-                part_data->pos[valid_nbody*3+0] = x_i*1.0;
-                part_data->pos[valid_nbody*3+1] = y_i*1.0;
-                part_data->pos[valid_nbody*3+2] = z_i*1.0;
-                part_data->rho->data[valid_nbody]     = contents[i];
-                part_data->rneib->data[valid_nbody]   = 0.8;
-                part_data->id.push_back(valid_nbody);
-                valid_nbody++;
+                if (index_tab[cpt]!=-1) {
+                    long nxy=i-z_i*(ax*ay);// #pixels (x/y) of the latest Z plane
+                    long y_i=int(nxy/ax);  // current Y coordinate
+                    assert(y_i<ay);
+                    long x_i=nxy-(y_i*ax); // current X coordinate
+                    assert(z_i<=az);
+                    part_data->pos[valid_nbody*3+0] = x_i*1.0;
+                    part_data->pos[valid_nbody*3+1] = y_i*1.0;
+                    part_data->pos[valid_nbody*3+2] = z_i*1.0;
+                    part_data->rho->data[valid_nbody]     = contents[i];
+                    part_data->rneib->data[valid_nbody]   = 1.0;
+                    part_data->id.push_back(valid_nbody);
+                    valid_nbody++;
+                }
+                cpt++;
+                assert(valid_nbody<=nsel);
             }
             //std::cerr << x_i << " " << y_i << " " << z_i << " " << contents[i] << "\n";
         } else { // NAN or INF
