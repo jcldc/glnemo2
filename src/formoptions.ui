@@ -2802,6 +2802,9 @@ p, li { white-space: pre-wrap; }
            <layout class="QHBoxLayout" name="horizontalLayout_21">
             <item>
              <widget class="QDoubleSpinBox" name="rx_dspin">
+              <property name="decimals">
+               <number>6</number>
+              </property>
               <property name="minimum">
                <double>-1000.000000000000000</double>
               </property>
@@ -2812,6 +2815,9 @@ p, li { white-space: pre-wrap; }
             </item>
             <item>
              <widget class="QDoubleSpinBox" name="ry_dspin">
+              <property name="decimals">
+               <number>6</number>
+              </property>
               <property name="minimum">
                <double>-1000.000000000000000</double>
               </property>
@@ -2822,6 +2828,9 @@ p, li { white-space: pre-wrap; }
             </item>
             <item>
              <widget class="QDoubleSpinBox" name="rz_dspin">
+              <property name="decimals">
+               <number>6</number>
+              </property>
               <property name="minimum">
                <double>-1000.000000000000000</double>
               </property>
@@ -2844,7 +2853,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QDoubleSpinBox" name="tx_dspin">
               <property name="decimals">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="minimum">
                <double>-50000.000000000000000</double>
@@ -2857,7 +2866,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QDoubleSpinBox" name="ty_dspin">
               <property name="decimals">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="minimum">
                <double>-50000.000000000000000</double>
@@ -2870,7 +2879,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QDoubleSpinBox" name="tz_dspin">
               <property name="decimals">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="minimum">
                <double>-50000.000000000000000</double>
