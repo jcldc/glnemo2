@@ -755,6 +755,7 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
   select = _select;
   store_options->select_part = select;
   store_options->vel_req = load_vel;
+
   if ((reload) && current_data) {// reload action requested
     //store_options->phys_max_glob = store_options->phys_min_glob = -1; // reset for colobar display
     current_data->close();     // close the current snapshot
@@ -770,10 +771,16 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
     actionReset();             // reset view if menu file open
   }
 
+
   current_data->setSelectPart(select);
   std::cerr << "MainWindow::selectPart store_options->select_time = " << store_options->select_time << "\n";
+  QApplication::setOverrideCursor(QCursor(Qt::BusyCursor));
+  status_bar->showMessage("Loading, please wait....");
   loadNewData(select,store_options->select_time,  // load data
 	      keep_all,true,first_snapshot);
+  status_bar->showMessage("Ready");
+  QApplication::restoreOverrideCursor();
+
 }
 // -----------------------------------------------------------------------------
 // loadNewData                                                                  
@@ -1971,6 +1978,8 @@ void MainWindow::updateBenchFrame()
 // createObjFromIndexList()                                                                
 void MainWindow::createObjFromIndexList()
 {
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  status_bar->showMessage("Building object, please wait...");
   std::vector <int> * list = gl_window->gl_select->getList();
   if (list->size()) { //&& current_data->part_data->id.size()>0) {
     std::vector <int> indexes;
@@ -2005,6 +2014,8 @@ void MainWindow::createObjFromIndexList()
     gl_window->update( current_data->part_data, &pov2,store_options,false);
 #endif
   }
+  QApplication::restoreOverrideCursor();
+  status_bar->showMessage("Ready");
 }
 
 // -----------------------------------------------------------------------------
