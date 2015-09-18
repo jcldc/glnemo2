@@ -774,7 +774,7 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
 
   current_data->setSelectPart(select);
   std::cerr << "MainWindow::selectPart store_options->select_time = " << store_options->select_time << "\n";
-  QApplication::setOverrideCursor(QCursor(Qt::BusyCursor));
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   status_bar->showMessage("Loading, please wait....");
   loadNewData(select,store_options->select_time,  // load data
 	      keep_all,true,first_snapshot);
