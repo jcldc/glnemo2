@@ -143,6 +143,7 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_options,SIGNAL(update_grid()),gl_window,SLOT(updateGrid()));
   connect(form_options,SIGNAL(rebuild_grid()),gl_window,SLOT(rebuildGrid()));
   // options osd tab
+  connect(form_options,SIGNAL(update_osd(bool)),gl_window,SLOT(resetMatrix()));
   connect(form_options,SIGNAL(update_osd(bool)),this,SLOT(updateOsd(bool)));
   connect(form_options,SIGNAL(update_osd_font()),gl_window,SLOT(changeOsdFont()));
   connect(form_options,SIGNAL(update_gl()),gl_window,SLOT(updateGL()));
@@ -769,6 +770,9 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
     //ComponentRange::list(&current_data->crv_first);
   } else {
     actionReset();             // reset view if menu file open
+    pov.clear();
+    pov2.clear();
+    gl_window->gpvClear(); // clear list of object
   }
 
 
@@ -1915,25 +1919,23 @@ void MainWindow::updateOsd(bool ugl)
     std::string title = g->osd_title_name.toStdString();
     if (title=="") {
       title = current_data->getFileName();
-    }
-    
-    
-    
+    }           
     gl_window->setOsd(GLObjectOsd::Title,
                       QString(title.c_str()),
                       g->osd_title,false);
     gl_window->setOsd(GLObjectOsd::Getdata,
                       QString((current_data->getInterfaceType()).c_str()),
                       g->osd_data_type,false);
-    gl_window->setOsd(GLObjectOsd::Zoom,(const float) store_options->zoom,
-                      g->osd_zoom,false);
-    gl_window->setOsd(GLObjectOsd::Rot,(const float) store_options->xrot,
-                      (const float) store_options->yrot,
-                      (const float) store_options->zrot, g->osd_rot,false);
-    gl_window->setOsd(GLObjectOsd::Trans,(const float) -store_options->xtrans,
-                      (const float) -store_options->ytrans,
-                      (const float) -store_options->ztrans,g->osd_trans,false);
+
   }
+  gl_window->setOsd(GLObjectOsd::Zoom,(const float) store_options->zoom,
+                    g->osd_zoom,false);
+  gl_window->setOsd(GLObjectOsd::Rot,(const float) store_options->xrot,
+                    (const float) store_options->yrot,
+                    (const float) store_options->zrot, g->osd_rot,false);
+  gl_window->setOsd(GLObjectOsd::Trans,(const float) -store_options->xtrans,
+                    (const float) -store_options->ytrans,
+                    (const float) -store_options->ztrans,g->osd_trans,false);
   if (ugl) {
     gl_window->updateGL();
   }

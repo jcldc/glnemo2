@@ -717,7 +717,7 @@ void GLObjectParticles::buildVboVelFactor()
     //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
-    if (BENCH) qDebug("Time elapsed to build and transfert VBO vel_factor to GPU: %f s", tbloc.elapsed()/1000.);
+    if (BENCH) qWarning("Time elapsed to build and transfert VBO vel_factor to GPU: %f s", tbloc.elapsed()/1000.);
     vel_factor.clear();
 
 }
@@ -771,7 +771,7 @@ void GLObjectParticles::buildVboPos()
     vindex_sel.push_back(myz);
 #endif
   }
-  if (BENCH) qDebug("Time elapsed to setup PHYSICAL arrays: %f s", tbloc.elapsed()/1000.);
+  if (BENCH) qWarning("Time elapsed to setup PHYSICAL arrays: %f s", tbloc.elapsed()/1000.);
   
 #ifdef _OPENMP
   int ntask=omp_get_max_threads(); // return number of task requested
@@ -786,7 +786,7 @@ void GLObjectParticles::buildVboPos()
   } else {
     sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
   }
-  if (BENCH) qDebug("Time elapsed to SORT PHYSICAL arrays: %f s", tbloc.elapsed()/1000.);
+  if (BENCH) qWarning("Time elapsed to SORT PHYSICAL arrays: %f s", tbloc.elapsed()/1000.);
   //sort(rho.begin(),rho.end(),GLObjectIndexTab::compareHigh);
 #endif
   // select vertices
@@ -821,13 +821,13 @@ void GLObjectParticles::buildVboPos()
 #endif
     }
   }
-  if (BENCH) qDebug("Time elapsed to setup VBO arrays: %f s", tbloc.elapsed()/1000.);
+  if (BENCH) qWarning("Time elapsed to setup VBO arrays: %f s", tbloc.elapsed()/1000.);
   // build first particle index in the histo
   min_index=0; max_index=nvert_pos-1;
 
   tbloc.restart();
   buildIndexHisto();  
-  if (BENCH) qDebug("Time elapsed to build indexes histo : %f s", tbloc.elapsed()/1000.);
+  if (BENCH) qWarning("Time elapsed to build indexes histo : %f s", tbloc.elapsed()/1000.);
 
   tbloc.restart();
   // POSITIONS
@@ -862,13 +862,13 @@ void GLObjectParticles::buildVboPos()
 #endif
       buildVboVelFactor();
   }
-  if (BENCH) qDebug("Time elapsed to transfert VBO arrays to GPU: %f s", tbloc.elapsed()/1000.);
+  if (BENCH) qWarning("Time elapsed to transfert VBO arrays to GPU: %f s", tbloc.elapsed()/1000.);
   std::cerr << "VERTICES_POS size="<<vertices.size() << "\n";
   std::cerr << "VERTICES_VEL size="<<vertices_vel.size() << "\n";
   vertices.clear();
   vertices_vel.clear();
 
-  if (BENCH) qDebug("Time elapsed to build VBO pos: %f s", tbench.elapsed()/1000.);
+  if (BENCH) qWarning("Time elapsed to build VBO pos: %f s", tbench.elapsed()/1000.);
 }
 // ============================================================================
 // buildVboHsml                                                             
@@ -917,7 +917,7 @@ void GLObjectParticles::buildVboHsml()
   std::cerr << "buildVboHsml ="<<hsml_value.size()<<"\n";
 
   hsml_value.clear();
-  if (BENCH) qDebug("Time elapsed to build VBO Hsml: %f s", tbench.elapsed()/1000.);
+  if (BENCH) qWarning("Time elapsed to build VBO Hsml: %f s", tbench.elapsed()/1000.);
 }
 // ============================================================================
 // buildVboData                                                                
@@ -965,7 +965,7 @@ void GLObjectParticles::buildVboPhysData()
   std::cerr << "Phys_data size="<<phys_data.size()<<"\n";
   phys_data.clear();
   //delete [] phys_data;
-  if (BENCH) qDebug("Time elapsed to build VBO data: %f s", tbench.elapsed()/1000.);
+  if (BENCH) qWarning("Time elapsed to build VBO data: %f s", tbench.elapsed()/1000.);
 }
 // ============================================================================
 //
@@ -1143,7 +1143,7 @@ void GLObjectParticles::buildDisplayList()
   }
   glEnd();
   glEndList();
-  if (BENCH) qDebug("Time elapsed to build Pos Display list: %f s", tbench.elapsed()/1000.);
+  if (BENCH) qWarning("Time elapsed to build Pos Display list: %f s", tbench.elapsed()/1000.);
 }
 // ============================================================================
 // buildDisplayList                                                            
@@ -1175,7 +1175,7 @@ void GLObjectParticles::buildVelDisplayList()
     }
     glEnd();
     glEndList();
-    if (BENCH) qDebug("Time elapsed to build Vel Display list: %f s", tbench.elapsed()/1000.);
+    if (BENCH) qWarning("Time elapsed to build Vel Display list: %f s", tbench.elapsed()/1000.);
 
 
   }
