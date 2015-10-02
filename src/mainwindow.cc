@@ -770,11 +770,11 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
     //ComponentRange::list(&current_data->crv_first);
   } else {
     actionReset();             // reset view if menu file open
-    pov.clear();
-    pov2.clear();
-    gl_window->gpvClear(); // clear list of object
   }
 
+  pov.clear();
+  pov2.clear();
+  gl_window->gpvClear(); // clear list of object
 
   current_data->setSelectPart(select);
   std::cerr << "MainWindow::selectPart store_options->select_time = " << store_options->select_time << "\n";
