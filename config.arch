@@ -13,7 +13,8 @@ win32 {
         ARCH     = win32
         NEMOLIB = ../plugins/nemolight/lib/$$ARCH/$$COMPILEMODE
         NEMOINC = ../plugins/nemolight/inc
-        QMAKE_CFLAGS +=
+        QMAKE_CFLAGS   += -fopenmp -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+        QMAKE_CXXFLAGS += -fopenmp
 }
 # specific Unix config
 unix {
@@ -22,8 +23,8 @@ unix {
         #NEMOINC = $(NEMOINC)
         NEMOLIB = ../plugins/nemolight/lib/$$ARCH/$$COMPILEMODE
         NEMOINC = ../plugins/nemolight/inc
-        QMAKE_CFLAGS += -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -g
-        QMAKE_CXXFLAGS_DEBUG += -g
+        QMAKE_CFLAGS += -fopenmp -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -g
+        QMAKE_CXXFLAGS_DEBUG += -g -fopenmp
 }
 # specific Mac Os X config
 macx {

@@ -175,13 +175,15 @@ LIBS += \
     -ltipsy \
     -lutils
 win32 {
-    LIBS += -lzlib
+    #LIBS += -lzlib
     LIBS += -lopengl32
+    LIBS += -lCCfits -lcfitsio -lgomp -lpthread
 }
 unix {
     LIBS += -lz
     LIBS += -lGLU
     LIBS += -lCCfits
+    LIBS += -lgomp
 }
 macx {
     LIBS += -lz
