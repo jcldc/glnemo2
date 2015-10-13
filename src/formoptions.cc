@@ -123,8 +123,10 @@ void FormOptions::update()
   form.xz_checkb->setChecked(go->xz_grid);
   form.yz_checkb->setChecked(go->yz_grid);
   
-  form.mesh_length_spin->setValue(go->mesh_length);
-  form.mesh_nb_spin->setValue(go->nb_meshs);
+  if (! form.mesh_length_spin->hasFocus())
+    form.mesh_length_spin->setValue(go->mesh_length);
+  if (! form.mesh_nb_spin->hasFocus() )
+    form.mesh_nb_spin->setValue(go->nb_meshs);
   form.cube_checkb->setChecked(go->show_cube);
 
   // Play tab
@@ -140,28 +142,41 @@ void FormOptions::update()
   form.osd_zoom->setChecked(go->osd_zoom);
   form.osd_rot->setChecked(go->osd_rot);
   form.osd_proj->setChecked(go->osd_projection);
-  form.spin_font_size->setValue(go->osd_font_size);
+  if (! form.spin_font_size->hasFocus())
+    form.spin_font_size->setValue(go->osd_font_size);
   form.title_name->setText(go->osd_title_name);
-  form.zoom_dspin->setValue(go->zoom);
-  form.rx_dspin->setValue(go->xrot);
-  form.ry_dspin->setValue(go->yrot);
-  form.rz_dspin->setValue(go->zrot);
-  form.tx_dspin->setValue(-go->xtrans);
-  form.ty_dspin->setValue(-go->ytrans);
-  form.tz_dspin->setValue(-go->ztrans);
+  if (! form.zoom_dspin->hasFocus())
+    form.zoom_dspin->setValue(go->zoom);
+  if (! form.rx_dspin->hasFocus())
+    form.rx_dspin->setValue(go->xrot);
+  if (! form.ry_dspin->hasFocus())
+    form.ry_dspin->setValue(go->yrot);
+  if (! form.rz_dspin->hasFocus())
+    form.rz_dspin->setValue(go->zrot);
+  if (! form.tx_dspin->hasFocus())
+    form.tx_dspin->setValue(-go->xtrans);
+  if (! form.ty_dspin->hasFocus())
+    form.ty_dspin->setValue(-go->ytrans);
+  if (! form.tz_dspin->hasFocus())
+    form.tz_dspin->setValue(-go->ztrans);
 
   // ColorBar tab
   form.gcb_enable->setChecked(go->gcb_enable);
-  form.gcb_height->setValue(go->gcb_pheight*100.);
-  form.gcb_width->setValue(go->gcb_pwidth*100.);
+  if (! form.gcb_height->hasFocus() )
+    form.gcb_height->setValue(go->gcb_pheight*100.);
+  if (! form.gcb_width->hasFocus())
+    form.gcb_width->setValue(go->gcb_pwidth*100.);
   form.gcb_log->setChecked(go->gcb_logmode);
   if (go->gcb_orientation==0) form.gcb_radio_north->setChecked(true);
   if (go->gcb_orientation==1) form.gcb_radio_est->setChecked(true);
   if (go->gcb_orientation==2) form.gcb_radio_south->setChecked(true);
   if (go->gcb_orientation==3) form.gcb_radio_west->setChecked(true);
-  form.gcb_spin_digit->setValue(go->gcb_ndigits);
-  form.gcb_spin_font_size->setValue(go->gcb_font_size);
-  form.gcb_spin_offset->setValue(go->gcb_offset);
+  if (! form.gcb_spin_digit->hasFocus())
+    form.gcb_spin_digit->setValue(go->gcb_ndigits);
+  if (! form.gcb_spin_font_size->hasFocus())
+    form.gcb_spin_font_size->setValue(go->gcb_font_size);
+  if (! form.gcb_spin_offset->hasFocus())
+    form.gcb_spin_offset->setValue(go->gcb_offset);
 
   // rotation/axis tab
   form.show_3daxis->setChecked(go->axes_enable);
@@ -196,7 +211,8 @@ void FormOptions::update()
   
   // opaque disc
   form.cb_opaque_disc->setChecked(go->od_enable);
-  form.od_radius_spin->setValue(go->od_radius);
+  if (! form.od_radius_spin->hasFocus())
+    form.od_radius_spin->setValue(go->od_radius);
   form.cb_coronograph->setChecked(go->od_display);
 
   EMIT=true;

@@ -436,8 +436,8 @@ void GLWindow::paintGL()
     glGetDoublev (GL_MODELVIEW_MATRIX, mScene); // set to Identity
     reset_scene_rotation=false;
     last_urot = last_vrot = last_wrot = 0.0;
-  }
-  
+  }  
+
   glLoadIdentity (); // reset OGL rotations
   // set camera
   if ( store_options->perspective) {
