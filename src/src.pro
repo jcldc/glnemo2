@@ -101,16 +101,15 @@ CONFIG(debug, debug|release) {
     TARGET = ../bin/$$ARCH/$$COMPILEMODE/glnemo2
     win32 { 
         DESTDIR = ../bin/$$COMPILEMODE/$$ARCH
-        TARGET = glnemo2
+        TARGET = $$WEXE
     }
     unix:
 }
-
-else { 
+else {
     TARGET = ../bin/$$ARCH/$$COMPILEMODE/glnemo2
-    win32 { 
+    win32 {
         DESTDIR = ../bin/$$COMPILEMODE/$$ARCH
-        TARGET = glnemo2
+        TARGET = $$WEXE
     }
 }
 TEMPLATE = app
