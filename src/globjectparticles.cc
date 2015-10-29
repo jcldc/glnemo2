@@ -468,7 +468,12 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   //glDisableClientState(GL_VERTEX_ARRAY);
   // send vertex positions only
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
-  glEnableClientState(GL_VERTEX_ARRAY);
+  int vpositions=glGetAttribLocation(shader->getProgramId(), "position");
+  if (vpositions == -1) {
+    std::cerr << "glGetAttribLocation(shader->getProgramId(), \"positions\") fails......\n";
+    std::exit(1);
+  }
+  glEnableVertexAttribArrayARB(vpositions);
   if (part_data->vel) {
     start=2*3*min_index*sizeof(float); // pos + vel
   } else {
@@ -480,8 +485,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   if (part_data->vel) {
       stride=2*3*sizeof(GLfloat);
   }
-  glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) stride, (void *) start);
-
+  glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
   if (maxvert > 0 && maxvert<=nvert_pos) {
     //std::cerr << ">> rendering...\n";
     glDrawArrays(GL_POINTS, 0, maxvert);
@@ -537,7 +541,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
     //glDisableClientState(GL_COLOR_ARRAY);
     
   }
-  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableVertexAttribArray(vpositions);
   glDisable(GL_POINT_SPRITE_ARB);
   glDisable(GL_BLEND);
   glDepthMask(GL_TRUE);
@@ -845,6 +849,7 @@ void GLObjectParticles::buildVboPos()
 
   //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+if (BENCH) qWarning("Transfert Speed (POS) VBO arrays to GPU: %f MB/s", factor * nvert_pos * 3 * sizeof(float)/1024/1024/(tbloc.elapsed()/1000.));
 
   if (part_data->vel) {
 #if 0 // glsl 330
@@ -1007,6 +1012,14 @@ void GLObjectParticles::sendShaderColor(const int win_height, const bool use_poi
     //po->setMinPhys(phys_select->getMin());
   }
   
+  // send matrix
+  GLfloat proj[16];
+  glGetFloatv( GL_PROJECTION_MATRIX,proj);
+  shader->sendUniformXfv("projMatrix",16,1,&proj[0]);
+  GLfloat mview[16];
+  glGetFloatv( GL_MODELVIEW_MATRIX,mview);
+  shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
+
   float alpha;
   if (use_point) alpha=po->getPartAlpha()/255.;
   else alpha=po->getGazAlpha()/255.;

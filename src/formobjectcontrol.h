@@ -167,6 +167,11 @@ namespace glnemo {
     // on velocity spin box
     void on_vel_spin_valueChanged(double);
 
+    // -- Stretching Tab --
+    void on_z_stretch_slide_valueChanged(int);
+    void on_z_stretch_jit_cb_clicked(bool);
+    void on_z_stretch_max_spin_valueChanged(double);
+
     // -- Orbits Tab --
     void on_orecord_check_clicked(bool);
     void on_odisplay_check_clicked(bool);

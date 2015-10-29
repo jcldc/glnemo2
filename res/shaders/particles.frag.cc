@@ -15,6 +15,8 @@
 // 
 // ============================================================================
 
+#version 120
+
 uniform sampler2D splatTexture;                                        
 varying float to_discard;
 

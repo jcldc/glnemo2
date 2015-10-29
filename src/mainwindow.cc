@@ -49,8 +49,11 @@ MainWindow::MainWindow(std::string _ver)
   version = _ver;
   mutex_data = new QMutex(QMutex::Recursive); // Recursive: a thread can lock a mutex more than
                                               // once time, but mustunlock it as much as it    
-                                              // has been locked                               
-   
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+  // application name + release
+  QGuiApplication::setApplicationDisplayName(QString(version.c_str()));
+#endif
   // set Windows color
 //  QPalette mp;
 //  mp.setColor(QPalette::Window,QColor(224,212,247));
@@ -613,11 +616,12 @@ void MainWindow::createActions()
   addAction(dynamic_cmap_action);
 
   // Z sorting
+#if 0 // deactivated
   zsorting_action = new QAction(this);
   zsorting_action->setShortcut(tr("Z"));
   connect( zsorting_action, SIGNAL( triggered() ), this, SLOT( actionZSorting() ) );
   addAction(zsorting_action);
-
+#endif
   // Toggle rotation screen
   toggle_rotation_screen_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/3daxis.png"),tr("Toggle rotation mode around axes screen/world"),this);
   toggle_rotation_screen_action->setShortcut(tr("Ctrl+L"));

@@ -20,6 +20,16 @@
 // !!!!!Attribute variable CAN'T be modified (ex: gl_Color)!!!!!!
 //
 // ============================================================================
+
+#version 120
+
+// Matrix
+uniform mat4 modelviewMatrix;
+uniform mat4 projMatrix;
+
+// vertex position
+attribute vec3 position;
+
 // texture
 uniform float alpha;           // alpha color factor                   
 uniform float factor_size;     // texture size factor                  
@@ -78,22 +88,22 @@ void main()
   }
   
   // compute texture size
-  vec4 vert = gl_Vertex;
+  vec4 vert = vec4(position,1.0);
   if (use_point==1) { // use point = same size whatever the distance from observer
     float pointSize =  a_sprite_size/a_sprite_size*factor_size;
     gl_PointSize = max(2., pointSize*1.);
   } 
   else {           // use texture, size change according to the distance
     float pointSize =  a_sprite_size*factor_size;
-    vec3 pos_eye = vec3 (gl_ModelViewMatrix * vert);                  
+    vec3 pos_eye = vec3 ( modelviewMatrix * vert);
     if (perspective==1) {
       gl_PointSize = max(0.0000001, pointSize / (1.0 - pos_eye.z));
     } else {
       gl_PointSize = max(0.0000001, pointSize - pos_eye.z + pos_eye.z);
     }
   }
-  gl_TexCoord[0] = gl_MultiTexCoord0;                                
-  gl_Position = ftransform();
+  gl_TexCoord[0] = gl_MultiTexCoord0;
+  gl_Position = projMatrix*modelviewMatrix * vec4(vert.xyz,1.0);
 //  if (1==0) {
 //    gl_FrontColor =  vec4( gl_Color.r+col.x +float(factor_size)*0. + float(use_point)*0.,          
 //                           gl_Color.g+col.y                                             ,         

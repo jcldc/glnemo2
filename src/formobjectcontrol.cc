@@ -1363,4 +1363,27 @@ void FormObjectControl::setPhysicalTabName()
           }
   }
 }
+// ============================================================================
+// -- Stretching Tab --
+//
+
+// ============================================================================
+//
+void FormObjectControl::on_z_stretch_slide_valueChanged(int)
+{
+
+}
+// ============================================================================
+//
+void FormObjectControl::on_z_stretch_jit_cb_clicked(bool)
+{
+
+}
+// ============================================================================
+//
+void FormObjectControl::on_z_stretch_max_spin_valueChanged(double)
+{
+
+}
+
 }

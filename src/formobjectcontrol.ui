@@ -29,7 +29,7 @@
    <iconset>
     <normaloff>../../../../../../../../../../../../../../home/jcl/.designer/backup</normaloff>../../../../../../../../../../../../../../home/jcl/.designer/backup</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout_9">
+  <layout class="QGridLayout" name="gridLayout_14">
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="sizePolicy">
@@ -674,7 +674,7 @@ p, li { white-space: pre-wrap; }
          <enum>QTabWidget::Triangular</enum>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="tab_particles">
          <attribute name="title">
@@ -1410,6 +1410,66 @@ Physical value can be:
              </item>
             </layout>
            </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab">
+         <attribute name="title">
+          <string>Stretching</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_13">
+          <item row="0" column="0">
+           <widget class="QGroupBox" name="groupBox_8">
+            <property name="title">
+             <string>Z axis</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_9">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_9">
+               <property name="text">
+                <string>Factor max</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QDoubleSpinBox" name="z_strecth_max_spin">
+               <property name="minimum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="value">
+                <double>2.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="2">
+              <widget class="QSlider" name="z_stretch_slide">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" colspan="2">
+              <widget class="QCheckBox" name="z_stretch_jit_cb">
+               <property name="text">
+                <string>jittering particles</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>357</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
