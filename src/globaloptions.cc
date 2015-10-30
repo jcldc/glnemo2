@@ -91,6 +91,10 @@ GlobalOptions::GlobalOptions()
   osd_font_name = RESPATH+"/fonts/AvantGarde-Demi.txf";
   osd_title_name= "";
   osd_font_size = 13.;
+  // from stretching TAB
+  z_stretch_jit = false;
+  z_stretch_max = 4.0;
+  z_stretch_value = 1.0;
   // from experimental TAB
   show_poly=false;
   texture_size=1.;
@@ -294,6 +298,10 @@ const GlobalOptions& GlobalOptions::operator=(const GlobalOptions &m)
   cam_mode           = m.cam_mode;
   cam_display_spline = m.cam_display_spline;
   cam_play           = m.cam_play;
+  // from stretching TAB
+  z_stretch_jit      = m.z_stretch_jit;
+  z_stretch_max      = m.z_stretch_max;
+  z_stretch_value    = m.z_stretch_value;
   // from experimental TAB
   show_poly=m.show_poly;
   texture_size=m.texture_size;

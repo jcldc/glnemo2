@@ -109,6 +109,7 @@ FormObjectControl::FormObjectControl(QWidget *parent):QDialog(parent)
   } else {
     form.gaz_glsl_check->setChecked(true);
   }
+
   //connect(combobox,SIGNAL(my_editTextChanged(const QString&, const int, const int)),
   //      this,SLOT(updateRange(const QString&, const int, const int)));
   go = NULL;
@@ -254,6 +255,12 @@ void FormObjectControl::update(ParticlesData   * _p_data,
   ///!!!!updateObjectSettings(0);
   ///MODIFICATION April,15 2011 
   updateObjectSettings(last_row); 
+  EMIT=false;
+  // stretch tab
+  form.z_stretch_jit_cb->setChecked(go->z_stretch_jit);
+  form.z_stretch_max_spin->setValue((double) go->z_stretch_value);
+  form.z_stretch_slide->setValue((int) go->z_stretch_value*100/go->z_stretch_max);
+  EMIT=true;
   ///MODIFICATION April,15 2011 
   form.range_table->setCurrentCell(current_object,1);
   // set active row
@@ -1369,21 +1376,25 @@ void FormObjectControl::setPhysicalTabName()
 
 // ============================================================================
 //
-void FormObjectControl::on_z_stretch_slide_valueChanged(int)
+void FormObjectControl::on_z_stretch_slide_valueChanged(int value)
 {
+  go->z_stretch_value = value*go->z_stretch_max/100.0;
+  if (EMIT) emit objectSettingsChanged();
 
 }
 // ============================================================================
 //
-void FormObjectControl::on_z_stretch_jit_cb_clicked(bool)
+void FormObjectControl::on_z_stretch_jit_cb_clicked(bool b)
 {
-
+  go->z_stretch_jit = b;
+  if (EMIT) emit objectSettingsChanged();
 }
 // ============================================================================
 //
-void FormObjectControl::on_z_stretch_max_spin_valueChanged(double)
+void FormObjectControl::on_z_stretch_max_spin_valueChanged(double value)
 {
-
+  go->z_stretch_max = value;
+  if (EMIT) emit objectSettingsChanged();
 }
 
 }

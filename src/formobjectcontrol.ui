@@ -1432,7 +1432,10 @@ Physical value can be:
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QDoubleSpinBox" name="z_strecth_max_spin">
+              <widget class="QDoubleSpinBox" name="z_stretch_max_spin">
+               <property name="decimals">
+                <number>2</number>
+               </property>
                <property name="minimum">
                 <double>1.000000000000000</double>
                </property>
@@ -1443,6 +1446,9 @@ Physical value can be:
              </item>
              <item row="1" column="0" colspan="2">
               <widget class="QSlider" name="z_stretch_slide">
+               <property name="maximum">
+                <number>100</number>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>

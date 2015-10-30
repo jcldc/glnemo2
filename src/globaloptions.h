@@ -88,6 +88,11 @@ public:
     bool octree_enable;
     bool octree_display;
     int octree_level;
+    // fron stretching TAB
+    float z_stretch_value;
+    float z_stretch_max;
+    bool  z_stretch_jit;
+
     // from rotation/axis tab
     // axes
     bool  axes_enable;
