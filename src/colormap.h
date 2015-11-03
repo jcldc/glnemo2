@@ -30,9 +30,9 @@ class Colormap: public QObject {
    ~Colormap();
     int load(const int);
     int load();
-    void getRGB(std::vector <float> * r,std::vector <float> * g,std::vector <float> *b) {
-      r=&R; g=&G; b=&B;
-    }
+//    void getRGB(std::vector <float> * r,std::vector <float> * g,std::vector <float> *b) {
+//      r=&R; g=&G; b=&B;
+//    }
     int getIndexMap() { return cmap; }
   public slots:
     int next();

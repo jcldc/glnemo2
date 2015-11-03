@@ -123,7 +123,7 @@ void GLSelection::selectOnArea(const int nobj, double mProj[16],double mModel[16
   com[2] = 0.;  // Center Of Mass
   in_area=0;
 
-  if (nobj&&enable || nobj&&whole_screen) {
+  if ((nobj&&enable) || (nobj&&whole_screen)) {
     if (whole_screen) {
         x0=viewport[0];
         y0=viewport[1];

@@ -132,7 +132,7 @@ void GLObjectParticles::display(const double * mModel, int win_height)
       GLObject::updateAlphaSlot(po->getVelAlpha());
       GLObject::setColor(po->getColor());
       if (GLWindow::GLSL_support && vel_shader) {
-          displayVboVelShader130(win_height,true);
+          displayVboVelShader130();
       }
       //else
       //  GLObject::display(vel_dp_list);
@@ -160,16 +160,16 @@ void GLObjectParticles::display(const double * mModel, int win_height)
 }
 // ============================================================================
 // displayVboVelShader()
-void GLObjectParticles::displayVboVelShader330(const int win_height, const bool use_point)
+void GLObjectParticles::displayVboVelShader330()
 {
-    static bool zsort=false;
-    int err;
+    //static bool zsort=false;
+    //int err;
 
     int start=3*min_index*sizeof(float);
     int maxvert=max_index-min_index+1;
 
     // Velocity vectors with sahder
-    int vpositions,vvelocities;
+    int vpositions;//vvelocities;
     if (po->isVelEnable() && part_data->vel && vel_shader) {
 
         // start velocity shader
@@ -237,7 +237,7 @@ void GLObjectParticles::displayVboVelShader330(const int win_height, const bool 
 }
 // ============================================================================
 // displayVboVelShader()
-void GLObjectParticles::displayVboVelShader130(const int win_height, const bool use_point)
+void GLObjectParticles::displayVboVelShader130()
 {
 
     // Velocity vectors with shader
@@ -380,7 +380,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   shader->start();
   
   // process shader color variables
-  sendShaderColor(win_height,use_point);  
+  sendShaderData(win_height,use_point);
   
   glActiveTextureARB(GL_TEXTURE0_ARB);
   texture->glBindTexture();  // bind texture
@@ -1001,7 +1001,7 @@ void GLObjectParticles::updateColormap()
 }
 // ============================================================================
 // sendShaderColor();
-void GLObjectParticles::sendShaderColor(const int win_height, const bool use_point)
+void GLObjectParticles::sendShaderData(const int win_height, const bool use_point)
 {  
   static bool first=true;
   bool physic=(phys_select && phys_select->isValid())?true:false;
@@ -1020,6 +1020,12 @@ void GLObjectParticles::sendShaderColor(const int win_height, const bool use_poi
   glGetFloatv( GL_MODELVIEW_MATRIX,mview);
   shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
 
+  // send z_stretch_value
+  shader->sendUniformf("z_stretch_value",(float) go->z_stretch_value);
+
+  // send z_stretch_jit
+
+  // send alpha color channel
   float alpha;
   if (use_point) alpha=po->getPartAlpha()/255.;
   else alpha=po->getGazAlpha()/255.;

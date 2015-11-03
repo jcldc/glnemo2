@@ -215,13 +215,14 @@ void GLColorbar::drawBox()
 void GLColorbar::drawColor()
 {
   if (go && phys_select && phys_select->isValid()) {
-    int large_box,long_box;
+    //int large_box,long_box;
+    int long_box;
     if (go->gcb_orientation==1 || go->gcb_orientation==3) {  // Est or West
       long_box=x[3][1]-x[0][1];// -2 pixels
-      large_box=x[2][0]-x[3][0];
+      //large_box=x[2][0]-x[3][0];
     } else {                     // South or North
       long_box=x[3][0]-x[0][0];// -2 pixels
-      large_box=x[0][1]-x[1][1];
+      //large_box=x[0][1]-x[1][1];
 
     }
     int ncolors=go->R->size();

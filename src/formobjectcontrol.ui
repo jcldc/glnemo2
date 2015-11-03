@@ -674,7 +674,7 @@ p, li { white-space: pre-wrap; }
          <enum>QTabWidget::Triangular</enum>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab_particles">
          <attribute name="title">
@@ -1636,12 +1636,12 @@ Physical value can be:
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>88</x>
-     <y>594</y>
+     <x>111</x>
+     <y>472</y>
     </hint>
     <hint type="destinationlabel">
-     <x>191</x>
-     <y>604</y>
+     <x>131</x>
+     <y>472</y>
     </hint>
    </hints>
   </connection>
@@ -1652,12 +1652,12 @@ Physical value can be:
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>115</x>
-     <y>561</y>
+     <x>131</x>
+     <y>472</y>
     </hint>
     <hint type="destinationlabel">
-     <x>192</x>
-     <y>572</y>
+     <x>131</x>
+     <y>472</y>
     </hint>
    </hints>
   </connection>
@@ -1668,12 +1668,12 @@ Physical value can be:
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>197</x>
-     <y>569</y>
+     <x>131</x>
+     <y>472</y>
     </hint>
     <hint type="destinationlabel">
-     <x>101</x>
-     <y>558</y>
+     <x>124</x>
+     <y>472</y>
     </hint>
    </hints>
   </connection>
@@ -1684,12 +1684,28 @@ Physical value can be:
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>161</x>
-     <y>588</y>
+     <x>131</x>
+     <y>472</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>593</y>
+     <x>131</x>
+     <y>472</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>z_stretch_max_spin</sender>
+   <signal>valueChanged(QString)</signal>
+   <receiver>z_stretch_slide</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>246</x>
+     <y>470</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>107</x>
+     <y>497</y>
     </hint>
    </hints>
   </connection>

@@ -54,6 +54,9 @@ uniform int coronograph;
 uniform float viewport[4];
 uniform float radius;
 
+// stretching
+uniform float z_stretch_value;
+
 // attribute values for all the vertex
 attribute float a_sprite_size; // a different value for each particles 
 attribute float a_phys_data;   // physical data value for each particles
@@ -86,9 +89,9 @@ void main()
       col = vec4(gl_Color.r,gl_Color.g,gl_Color.b,a_alpha);   
     }
   }
-  
+
   // compute texture size
-  vec4 vert = vec4(position,1.0);
+  vec4 vert = vec4(position.xy,position.z * z_stretch_value,1.0);
   if (use_point==1) { // use point = same size whatever the distance from observer
     float pointSize =  a_sprite_size/a_sprite_size*factor_size;
     gl_PointSize = max(2., pointSize*1.);

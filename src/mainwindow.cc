@@ -1489,8 +1489,9 @@ void MainWindow::takeScreenshot(const int width, const int height,  std::string 
             size  = sizegl;
         }
         gl_window->resizeOsd(size.width(),size.height());
-
+#if 0
         QRect geom = gl_window->geometry(); // save the current geometry of the GL's window
+#endif
         std::cerr << "MainWindow::takeScreenshot call resizen";
         gl_window->resize(size.width(),size.height());
         // !!! activate the following line if you want to see OSD

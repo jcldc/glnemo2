@@ -206,7 +206,7 @@ void Tools3D::bestZoomFromList(double * mProj,double * mModel,
     
     float mid_screenx = (viewport[2]-viewport[0])/2.;
     float mid_screeny = (viewport[3]-viewport[1])/2.;
-    float coo[3];
+    //float coo[3];
     double absxmax=0.;//fabs(std::numeric_limits<double>::min());
     double absymax=0.;//fabs(std::numeric_limits<double>::min());
     // loop on all the objects
@@ -269,7 +269,7 @@ void Tools3D::bestZoomFromList(double * mProj,double * mModel,
             float new_zoomx=-Mmz + (-Ppx+A*Ppw)/(MP(0,2)-A*MP(3,2));
             if (new_zoomx < best_zoom) {
               best_zoom = new_zoomx;
-              coo[0] = x; coo[1] = y; coo[2] = z;
+              //coo[0] = x; coo[1] = y; coo[2] = z;
             }
           }
           // proceed from bottom to mid-side of the screen
@@ -289,7 +289,7 @@ void Tools3D::bestZoomFromList(double * mProj,double * mModel,
             float new_zoomy=-Mmz + (-Ppy+A*Ppw)/(MP(1,2)-A*MP(3,2));
             if (new_zoomy < best_zoom) {
               best_zoom = new_zoomy;
-              coo[0] = x; coo[1] = y; coo[2] = z;
+              //coo[0] = x; coo[1] = y; coo[2] = z;
             }
           }
     }

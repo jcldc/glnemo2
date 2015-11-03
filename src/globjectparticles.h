@@ -33,8 +33,10 @@ namespace glnemo {
   // class ObjectPhys to store per Physical Object properties
   class PhysObject {
     public:
-      PhysObject(const enum PhysicalData::PHYS _type,
-                 const float * _data,const int _npart, const int * _index_tab):type(_type){}
+//      PhysObject(const enum PhysicalData::PHYS _type,
+//                 const float * _data,const int _npart, const int * _index_tab):type(_type){}
+      PhysObject(const enum PhysicalData::PHYS _type
+                 ):type(_type){}
       ~PhysObject() {}
       bool hasPhyisc() {
         return valid;
@@ -158,13 +160,13 @@ class GLObjectParticles : public GLObject {
     // method
     void displaySprites(const double *mModel);
     void displayVboShader(const int,const bool use_point=false);
-    void displayVboVelShader330(const int,const bool use_point=false);
-    void displayVboVelShader130(const int,const bool use_point=false);
+    void displayVboVelShader330();
+    void displayVboVelShader130();
     void sortByDepth();
     void sortByDensity();
     void selectParticles();
     void buildIndexHisto();    
-    void sendShaderColor(const int, const bool use_point);
+    void sendShaderData(const int, const bool use_point);
 
     // vbo
     GLuint vbo_pos, vbo_color , vbo_size, vbo_index, vbo_index2, vbo_data, vbo_vel, vbo_vel_X2;

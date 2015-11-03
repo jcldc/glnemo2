@@ -93,7 +93,7 @@ GlobalOptions::GlobalOptions()
   osd_font_size = 13.;
   // from stretching TAB
   z_stretch_jit = false;
-  z_stretch_max = 4.0;
+  z_stretch_max = 1.0;
   z_stretch_value = 1.0;
   // from experimental TAB
   show_poly=false;
