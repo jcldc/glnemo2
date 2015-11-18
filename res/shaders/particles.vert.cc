@@ -181,7 +181,7 @@ bool isVisible()
 {
    bool ret=false;
    // transformation from the camera
-   vec3 pos_eye = vec3 (gl_ModelViewMatrix * gl_Vertex);
+   vec3 pos_eye = vec3 (gl_ModelViewMatrix * vec4(position,1.0));
 
    if ((pos_eye.z-zoom)>0.0) { // particles front of the disc
        if (coronograph==1)
@@ -191,7 +191,7 @@ bool isVisible()
    } else {
        if (radius > 0.) {
          // world vertex
-         vec4 vert = gl_Vertex;               // particles
+         vec4 vert = vec4(position,1.0);               // particles
          vec4 vori = vec4(0.    , 0., 0., 0.);  // center 0,0,0
          vec4 disc = vec4(radius, 0., 0., 0.);  // disc radius
 
