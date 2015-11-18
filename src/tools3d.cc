@@ -78,7 +78,7 @@ void Tools3D::bestZoomFromObject(double * mProj,double * mModel,
           float
           x=part_data->pos[jndex*3  ]+store_options->xtrans,
           y=part_data->pos[jndex*3+1]+store_options->ytrans,
-          z=part_data->pos[jndex*3+2]+store_options->ztrans,
+          z=part_data->pos[jndex*3+2]*store_options->z_stretch_value+store_options->ztrans,
           w=1.;
           // do the product Mmodel X point = mxyzw
           float mx = MM(0,0)*x + MM(0,1)*y + MM(0,2)*z + MM(0,3)*w;
@@ -216,7 +216,7 @@ void Tools3D::bestZoomFromList(double * mProj,double * mModel,
           float
           x=part_data->pos[jndex*3  ]+store_options->xtrans,
           y=part_data->pos[jndex*3+1]+store_options->ytrans,
-          z=part_data->pos[jndex*3+2]+store_options->ztrans,
+          z=part_data->pos[jndex*3+2]*store_options->z_stretch_value+store_options->ztrans,
           w=1.;
           // ---- compute the projection on the selected point --------
           // do the product Mmodel X point = mxyzw

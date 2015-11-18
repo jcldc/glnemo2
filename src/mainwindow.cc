@@ -1363,7 +1363,7 @@ void MainWindow::actionCenterToCom(const bool ugl)
             rho_fac = part_data->rho->data[jndex];
           com[0] +=(part_data->pos[jndex*3  ]*rho_fac);
           com[1] +=(part_data->pos[jndex*3+1]*rho_fac);
-          com[2] +=(part_data->pos[jndex*3+2]*rho_fac);
+          com[2] +=(part_data->pos[jndex*3+2]*store_options->z_stretch_value*rho_fac);
           weight += rho_fac;
         }
       }

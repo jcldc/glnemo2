@@ -164,7 +164,7 @@ void GLSelection::selectOnArea(const int nobj, double mProj[16],double mModel[16
           float
           x=part_data->pos[jndex*3  ]+store_options->xtrans,
           y=part_data->pos[jndex*3+1]+store_options->ytrans,
-          z=part_data->pos[jndex*3+2]+store_options->ztrans;
+          z=part_data->pos[jndex*3+2]*store_options->z_stretch_value+store_options->ztrans;
 
           // compute the projection on the selected point
           Vec3D v3d=t3d.projPoint(x,y,z);
