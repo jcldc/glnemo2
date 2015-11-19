@@ -1380,6 +1380,7 @@ void FormObjectControl::on_z_stretch_slide_valueChanged(int value)
 {
   if (go) {
     go->z_stretch_value = value*go->z_stretch_max/100.0;
+    //go->ztrans -= (go->z_stretch_value/2.0);
     if (EMIT) emit objectSettingsChanged();
   }
 
@@ -1400,6 +1401,7 @@ void FormObjectControl::on_z_stretch_max_spin_valueChanged(double value)
   if (go) {
     go->z_stretch_max = value;
     go->z_stretch_value = form.z_stretch_slide->value()*go->z_stretch_max/100.0;
+    //go->ztrans -= (go->z_stretch_value/2.0);
     if (EMIT) emit objectSettingsChanged();
   }
 }

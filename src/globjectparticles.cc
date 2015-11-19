@@ -1024,6 +1024,7 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
   shader->sendUniformf("z_stretch_value",(float) go->z_stretch_value);
 
   // send z_stretch_jit
+  shader->sendUniformi("z_stretch_jit",(int) go->z_stretch_jit);
 
   // send alpha color channel
   float alpha;
