@@ -95,12 +95,13 @@ void main()
     }
   }
 
-  // compute texture size
+  // compute vertex Z value
   vec4 vert = vec4(position.xy,position.z * z_stretch_value,1.0);
   if (z_stretch_jit==1) { // random value requested
     vert.z = vert.z + z_stretch_value * snoise(position);
   }
 
+  // compute texture size
   if (use_point==1) { // use point = same size whatever the distance from observer
     float pointSize =  a_sprite_size/a_sprite_size*factor_size;
     gl_PointSize = max(2., pointSize*1.);
