@@ -1379,8 +1379,12 @@ void FormObjectControl::setPhysicalTabName()
 void FormObjectControl::on_z_stretch_slide_valueChanged(int value)
 {
   if (go) {
+    double ztransref;
+    if (go->z_stretch_value!=0.0)
+      ztransref=go->ztrans/go->z_stretch_value;
     go->z_stretch_value = value*go->z_stretch_max/100.0;
-    //go->ztrans -= (go->z_stretch_value/2.0);
+    if (go->z_stretch_value!=0.0)
+      go->ztrans=ztransref*go->z_stretch_value; // compute the new translation to keep centered on it
     if (EMIT) emit objectSettingsChanged();
   }
 
@@ -1399,9 +1403,13 @@ void FormObjectControl::on_z_stretch_jit_cb_clicked(bool b)
 void FormObjectControl::on_z_stretch_max_spin_valueChanged(double value)
 {
   if (go) {
+    double ztransref;
+    if (go->z_stretch_value!=0.0)
+      ztransref=go->ztrans/go->z_stretch_value;
     go->z_stretch_max = value;
     go->z_stretch_value = form.z_stretch_slide->value()*go->z_stretch_max/100.0;
-    //go->ztrans -= (go->z_stretch_value/2.0);
+    if (go->z_stretch_value!=0.0)
+      go->ztrans=ztransref*go->z_stretch_value; // compute the new translation to keep centered on it
     if (EMIT) emit objectSettingsChanged();
   }
 }
