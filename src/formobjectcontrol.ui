@@ -674,7 +674,7 @@ p, li { white-space: pre-wrap; }
          <enum>QTabWidget::Triangular</enum>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="tab_particles">
          <attribute name="title">
@@ -1446,6 +1446,9 @@ Physical value can be:
              </item>
              <item row="1" column="0" colspan="2">
               <widget class="QSlider" name="z_stretch_slide">
+               <property name="minimum">
+                <number>0</number>
+               </property>
                <property name="maximum">
                 <number>100</number>
                </property>

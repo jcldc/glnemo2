@@ -1379,9 +1379,17 @@ void FormObjectControl::setPhysicalTabName()
 void FormObjectControl::on_z_stretch_slide_valueChanged(int value)
 {
   if (go) {
+    static double zsave=1.0;
     double ztransref;
-    if (go->z_stretch_value!=0.0)
+
+    if (value>=1 && go->z_stretch_value!=0.0) {
+      zsave=go->ztrans/go->z_stretch_value;
+    }
+    if (value>=1 && go->z_stretch_value==0.0) {
+      ztransref=zsave;
+    } else {
       ztransref=go->ztrans/go->z_stretch_value;
+    }
     go->z_stretch_value = value*go->z_stretch_max/100.0;
     if (go->z_stretch_value!=0.0)
       go->ztrans=ztransref*go->z_stretch_value; // compute the new translation to keep centered on it
