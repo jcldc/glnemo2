@@ -71,7 +71,7 @@ vec4 computeColor();
 bool isVisible();
 
 // basic noise
-float mod289(float x);
+//float mod289(float x);
 vec4 mod289(vec4 x);
 vec4 perm(vec4 x);
 float noise(vec3 p);
@@ -247,10 +247,10 @@ bool isVisible()
 }
 
 // ---- N O I S E -----
-float mod289(float x)
-{
-   return x - floor(x * (1.0 / 289.0)) * 289.0;
-}
+//float mod289(float x)
+//{
+//   return x - floor(x * (1.0 / 289.0)) * 289.0;
+//}
 vec4 mod289(vec4 x)
 {
   return x - floor(x * (1.0 / 289.0)) * 289.0;
