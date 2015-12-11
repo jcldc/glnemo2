@@ -162,7 +162,8 @@ vec4 computeColor() {
     col.x = colormap[cindex].x;    // red
     col.y = colormap[cindex].y;    // green
     col.z = colormap[cindex].z;    // blue
-    vec4 vert = gl_Vertex;
+    //vec4 vert = gl_Vertex;
+    vec4 vert = vec4(position,1.0);
     if (show_zneg==1) {
       if (log_rho>0.0)
         col.w = pow(log_rho,powalpha); // alpha
