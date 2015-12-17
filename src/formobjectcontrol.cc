@@ -1379,7 +1379,7 @@ void FormObjectControl::setPhysicalTabName()
 void FormObjectControl::on_z_stretch_slide_valueChanged(int value)
 {
   if (go) {
-    static double zsave=1.0;
+    static double zsave=0.0;
     double ztransref;
 
     if (value>=1 && go->z_stretch_value!=0.0) {
@@ -1411,7 +1411,7 @@ void FormObjectControl::on_z_stretch_jit_cb_clicked(bool b)
 void FormObjectControl::on_z_stretch_max_spin_valueChanged(double value)
 {
   if (go) {
-    double ztransref;
+    double ztransref=0.0;
     if (go->z_stretch_value!=0.0)
       ztransref=go->ztrans/go->z_stretch_value;
     go->z_stretch_max = value;
