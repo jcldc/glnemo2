@@ -129,6 +129,7 @@ QMAKE_LIBDIR = \
     ../plugins/ftm/lib/$$ARCH/$$COMPILEMODE \
     ../plugins/ramses/lib/$$ARCH/$$COMPILEMODE \
     ../plugins/gadget/lib/$$ARCH/$$COMPILEMODE \
+    ../plugins/gadgeth5/lib/$$ARCH/$$COMPILEMODE \
     ../plugins/zlib/lib/$$ARCH/$$COMPILEMODE \
     ../plugins/tipsy/lib/$$ARCH/$$COMPILEMODE \
     ../plugins/network/lib/$$ARCH/$$COMPILEMODE
@@ -156,6 +157,7 @@ INCLUDEPATH += \
     ../plugins/ftm \
     ../plugins/nemolight \
     ../plugins/gadget \
+    ../plugins/gadgeth5 \
     ../plugins/zlib \
     ../plugins/network \
     ../plugins/tipsy \
@@ -169,6 +171,7 @@ LIBS += \
     -lftm \
     -lnemo \
     -lgadget \
+    -lgadgeth5 \
     -lramses \
     -lnetwork \
     -ltipsy \
@@ -183,6 +186,7 @@ unix {
     LIBS += -lGLU
     LIBS += -lCCfits
     LIBS += -lgomp
+    LIBS +=
 }
 macx {
     LIBS += -lz

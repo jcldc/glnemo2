@@ -168,16 +168,17 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
           ok=true;
           bytes_counter=0;
           len1 = readFRecord();
+          checkFileVsArray(len1,sizeof(float),npart_total_local*3);
           pc_new=pc;
           for(int k=0;k<6;k++) {
             for(int n=0;n<header.npart[k];n++) {
               int idx=index2[npartOffset[k]+n];
               if (idx != -1) {
-                ioData((char *) &pos[3*idx], sizeof(float), 3,READ);
+                ioData((char *) &pos[3*idx], sizeof(float), 3);
               } else {
                 //skipData(sizeof(float)*3);
                 float tmp3[3];
-                ioData((char *) tmp3, sizeof(float), 3,READ);
+                ioData((char *) tmp3, sizeof(float), 3);
               }
             }
           }
@@ -191,16 +192,17 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
           if (load_vel || version==1) {
             bytes_counter=0;
             len1 = readFRecord();
+            checkFileVsArray(len1,sizeof(float),npart_total_local*3);
             pc_new=pc;          
             for(int k=0;k<6;k++)
               for(int n=0;n<header.npart[k];n++){
                 int idx=index2[npartOffset[k]+n];   
                 if (idx != -1 && load_vel) {
-                    ioData((char *) &vel[3*idx], sizeof(float), 3,READ);                  
+                    ioData((char *) &vel[3*idx], sizeof(float), 3);
                 } else {
                   //skipData(sizeof(float)*3);
                   float tmp3[3];
-                  ioData((char *) tmp3, sizeof(float), 3,READ);
+                  ioData((char *) tmp3, sizeof(float), 3);
                 }
               }
             len2 = readFRecord();
@@ -217,20 +219,21 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
           ok=true;
           bytes_counter=0;
           len1 = readFRecord();
+          checkFileVsArray(len1,sizeof(float),npart_total_local);
           for(int k=0;k<6;k++)
             for(int n=0;n<header.npart[k];n++){
               int idx=index2[npartOffset[k]+n];
               if (idx != -1) {
                 int tmp;
-                ioData((char *) &tmp   , sizeof(int), 1,READ);
-                //ioData((char *) &(id[idx]), sizeof(int), 1,READ); 
+                ioData((char *) &tmp   , sizeof(int), 1);
+                //ioData((char *) &(id[idx]), sizeof(int), 1);
                 //std::cerr << "vector size ="<<id->size() <<"\n";
                 id->at(idx)=tmp;
                 //std::cerr << "id["<<idx<<"]="<<id->at(idx)<<"\n";
               } else {
                 //skipData(sizeof(float)*3);
                 int tmp;
-                ioData((char *) &tmp   , sizeof(int), 1,READ);
+                ioData((char *) &tmp   , sizeof(int), 1);
               }
             }
           len2 = readFRecord();
@@ -254,15 +257,16 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
           ok=true;
           bytes_counter=0;
           len1 = readFRecord();
+          checkFileVsArray(len1,sizeof(float),header.npart[0]);
 	  // getting NE for gas only
           pc_new=pc;
           for(int n=0;n<header.npart[0];n++){
             int idx=index2[npartOffset[0]+n];
             if (idx != -1) {              
-              ioData((char *) &intenerg[idx], sizeof(float), 1,READ);              
+              ioData((char *) &intenerg[idx], sizeof(float), 1);
             } else {              
               float tmp;
-              ioData((char *) &tmp, sizeof(float), 1,READ);              
+              ioData((char *) &tmp, sizeof(float), 1);
             }            
           }
           len2 = readFRecord();
@@ -275,6 +279,7 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
           ok=true;
           bytes_counter=0;
           len1 = readFRecord();
+          checkFileVsArray(len1,sizeof(float),header.npart[0]);
 	  // getting NE for gas only
           pc_new=pc;
           int ic=0;
@@ -285,10 +290,10 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
               s_gas = std::min(s_gas,ic);
               e_gas = std::max(e_gas,ic+1);
               ic++;
-              ioData((char *) &temp[idx], sizeof(float), 1,READ);              
+              ioData((char *) &temp[idx], sizeof(float), 1);
             } else {              
               float tmp;
-              ioData((char *) &tmp, sizeof(float), 1,READ);              
+              ioData((char *) &tmp, sizeof(float), 1);
             }            
           }
           len2 = readFRecord();
@@ -300,6 +305,7 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
           ok=true;
           bytes_counter=0;
           len1 = readFRecord();
+          checkFileVsArray(len1,sizeof(float),header.npart[0]);
           // getting RHO for gas only
           pc_new=pc;
           int ic=0;
@@ -310,10 +316,10 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
               s_gas = std::min(s_gas,ic);
               e_gas = std::max(e_gas,ic+1);
               ic++;
-              ioData((char *) &rho[idx], sizeof(float), 1,READ);              
+              ioData((char *) &rho[idx], sizeof(float), 1);
             } else {              
               float tmp;
-              ioData((char *) &tmp, sizeof(float), 1,READ);              
+              ioData((char *) &tmp, sizeof(float), 1);
             }            
           } 
           len2 = readFRecord();
@@ -325,6 +331,7 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
           ok=true;
           bytes_counter=0;
           len1 = readFRecord();
+          checkFileVsArray(len1,sizeof(float),header.npart[0]);
 	  // getting HSML for gas only
           pc_new=pc;
           int ic=0;
@@ -335,10 +342,10 @@ int GadgetIO::read(std::vector <int> * id, float * pos, float * vel, float * rho
               s_gas = std::min(s_gas,ic);
               e_gas = std::max(e_gas,ic+1);
               ic++;
-              ioData((char *) &rneib[idx], sizeof(float), 1,READ);              
+              ioData((char *) &rneib[idx], sizeof(float), 1);
             } else {              
               float tmp;
-              ioData((char *) &tmp, sizeof(float), 1,READ);              
+              ioData((char *) &tmp, sizeof(float), 1);
             }            
           } 
           len2 = readFRecord();
@@ -407,20 +414,20 @@ int GadgetIO::readHeader(const int id)
   readBlockName();
   bytes_counter=0;
   len1 = readFRecord();
-  ioData((char *)  header.npart         , sizeof(int   ),  6, READ);
-  ioData((char *)  header.mass          , sizeof(double),  6, READ);
-  ioData((char *) &header.time          , sizeof(double),  1, READ);
-  ioData((char *) &header.redshift      , sizeof(double),  1, READ);
-  ioData((char *) &header.flag_sfr      , sizeof(int   ),  1, READ);
-  ioData((char *) &header.flag_feedback , sizeof(int   ),  1, READ);
-  ioData((char *)  header.npartTotal    , sizeof(int   ),  6, READ);
-  ioData((char *) &header.flag_cooling  , sizeof(int   ),  1, READ);
-  ioData((char *) &header.num_files     , sizeof(int   ),  1, READ);
-  ioData((char *) &header.BoxSize       , sizeof(double),  1, READ);
-  ioData((char *) &header.Omega0        , sizeof(double),  1, READ);
-  ioData((char *) &header.OmegaLambda   , sizeof(double),  1, READ);
-  ioData((char *) &header.HubbleParam   , sizeof(double),  1, READ);
-  ioData((char *)  header.fill          , sizeof(char  ), 96, READ);
+  ioData((char *)  header.npart         , sizeof(int   ),  6);
+  ioData((char *)  header.mass          , sizeof(double),  6);
+  ioData((char *) &header.time          , sizeof(double),  1);
+  ioData((char *) &header.redshift      , sizeof(double),  1);
+  ioData((char *) &header.flag_sfr      , sizeof(int   ),  1);
+  ioData((char *) &header.flag_feedback , sizeof(int   ),  1);
+  ioData((char *)  header.npartTotal    , sizeof(int   ),  6);
+  ioData((char *) &header.flag_cooling  , sizeof(int   ),  1);
+  ioData((char *) &header.num_files     , sizeof(int   ),  1);
+  ioData((char *) &header.BoxSize       , sizeof(double),  1);
+  ioData((char *) &header.Omega0        , sizeof(double),  1);
+  ioData((char *) &header.OmegaLambda   , sizeof(double),  1);
+  ioData((char *) &header.HubbleParam   , sizeof(double),  1);
+  ioData((char *)  header.fill          , sizeof(char  ), 96);
   len2 = readFRecord();
   std::cerr << "len1="<<len1<< " len2="<<len2<< " bytes_counter="<<bytes_counter<<"\n";
   if (in.bad() || len1!=len2 || len1!=bytes_counter)
@@ -428,7 +435,11 @@ int GadgetIO::readHeader(const int id)
   if (id==0) {                         // first time
     tframe = header.time;
     npartTotal = 0;
-    for(int k=0; k<6; k++)  npartTotal += header.npartTotal[k];  // count particles
+    npart_total_local = 0;
+    for(int k=0; k<6; k++)  {
+      npartTotal += header.npartTotal[k];  // count particles
+      npart_total_local += header.npart[k];  // count local total particles
+    }
     for(int k=0; k<6; k++) {
       if(header.mass[k]==0) {
         ntot_withmasses+= header.npartTotal[k]; // count particles with mass on file
@@ -447,9 +458,10 @@ bool GadgetIO::readBlockName()
   if (version == 2 ) { // gadget2 file format
     int dummy;
     char name[9];
-    ioData((char *) &dummy, sizeof(int),  1, READ); // read
-    ioData((char *) name  , sizeof(char), 8, READ); // read
-    ioData((char *) &dummy, sizeof(int),  1, READ); // read
+    array_vs_file_size = 0;
+    ioData((char *) &dummy, sizeof(int),  1); // read
+    ioData((char *) name  , sizeof(char), 8); // read
+    ioData((char *) &dummy, sizeof(int),  1); // read
     int i=0; while ((isupper(name[i])||isdigit(name[i]))&& i<4) i++;
     name[i]='\0';
     block_name=name;
@@ -468,7 +480,8 @@ bool GadgetIO::guessVersion()
   // try to read 32bits length fortran record
   int dummy;
   swap = false; // no swapping
-  ioData((char *) &dummy, sizeof(int), 1, READ); // read
+  array_vs_file_size = 0;
+  ioData((char *) &dummy, sizeof(int), 1); // read
   std::cerr << "GadgetIO::guessVersion dummy = "<<dummy<<"\n";
   if( dummy != 256  && dummy != 8  ) {           // unknow number
     swap = true;                                 // need bytes swapping
@@ -489,50 +502,64 @@ bool GadgetIO::guessVersion()
 // ============================================================================
 // ioData:                                                                     
 // perform IO (Read,Write) operation on Data                                   
-int GadgetIO::ioData(char * ptr,const size_t size_bytes,const int items,const ioop op)
+int GadgetIO::ioData(char * ptr,const size_t size_bytes,const int items)
 {
-  char * pp;
-  bytes_counter += (size_bytes*items);
-  switch (op) {
+  if (array_vs_file_size==0) { // no conversion, same floating format
+    bytes_counter += (size_bytes*items);
 
-  case READ :
     // get data from file
     in.read(ptr,size_bytes*items);
     //assert(in.good());
     if (! in.good()) return 0;
+
     // We SWAP data
-    if (swap && (size_bytes != C_HAR)) { // swapping requested
+    if (swap && (size_bytes != CHAR)) { // swapping requested
       for (int i=0; i<items; i++) {
-	swapBytes(ptr,size_bytes);
-	ptr += size_bytes;
+        swapBytes(ptr,size_bytes);
+        ptr += size_bytes;
       }
     }
-    break;
+  } else if (array_vs_file_size==1) {
+    bytes_counter += (size_bytes*2*items);
+    // data bigger on file (double) than array(float)
+    // we must use a temporary variable
+    double tmp;
+    for (int i=0; i<items; i++) {
+      in.read((char *) &tmp,sizeof(double)); // read one double from file
+      if (swap && (size_bytes != CHAR)) { // swapping requested
+        swapBytes((char *) &tmp,sizeof(double));
+      }
+      float tofloat=(float) tmp; // cast to float
+      memcpy(ptr+sizeof(float)*i,(char*)&tofloat,sizeof(float)); // copy back to array
 
-  case WRITE :
-    // We must SWAP data first
-    if (swap && (size_bytes != C_HAR)) { // swapping requested
-      pp = ptr;
-      for (int i=0; i<items; i++) {
-	swapBytes(ptr,size_bytes);
-	ptr += size_bytes;
-      }
-      ptr = pp;
     }
-    // Save Data to file
-    out.write(ptr,size_bytes*items);
-    assert(out.good());
-    
-    // We have to unswap the data now
-    if (swap && (size_bytes != C_HAR)) { // swapping requested
-      for (int i=0; i<items; i++) {
-	swapBytes(ptr,size_bytes);
-	ptr += size_bytes;
-      }
-    }
-    break;
-  } // end of switch (op) ....
+  }else {
+    assert(array_vs_file_size==2);
+    long int size_bytes_file = (size_bytes>>1);
+    // data bigger on array (double) than file (float)
+    // we use the destination array to store all read data
+    bytes_counter += (size_bytes_file*items);
 
+    // get data from file
+    in.read(ptr+(size_bytes_file*items),size_bytes_file*items);
+    //assert(in.good());
+    if (! in.good()) return 0;
+
+    // convert float read to double array
+
+    for (int i=0; i<items; i++) {
+      float  * value = (float * ) (ptr+(size_bytes_file*items)+i*sizeof(float));
+      if (swap && (size_bytes != CHAR)) { // swapping requested
+        swapBytes((char *) value,sizeof(float));
+      }
+      double tmp=(double) *value;
+      char * p=(char *) &tmp;
+      for (unsigned int j=0; j<size_bytes; j++) {
+        ptr[size_bytes*i+j]=p[j];
+      }
+    }
+
+  }
   return 1;
 }
 // ============================================================================

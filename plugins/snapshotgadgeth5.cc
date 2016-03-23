@@ -10,15 +10,23 @@
 // ============================================================================
 // See the complete license in LICENSE and/or "http://www.cecill.info".
 // ============================================================================
-/**
-        @author Jean-Charles Lambert <Jean-Charles.Lambert@lam.fr>
- */
-#ifndef VERSION_H
-#define VERSION_H
+#include <QtGui> // Mandatory for plugins management
+#include <sstream>
+#include "snapshotgadgeth5.h"
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+Q_PLUGIN_METADATA(IID "fr.glnemo2.gadgetH5Plugin")
+#endif
 
-#define GLNEMO2_MAJOR "1"
-#define GLNEMO2_MINOR "10"
-#define GLNEMO2_PATCH "0"
-#define GLNEMO2_EXTRA "-dev-Mar-21-2016"
+namespace glnemo {
 
-#endif // VERSION_H
+// ============================================================================
+// Constructor
+SnapshotGadgetH5::SnapshotGadgetH5()
+{
+
+}
+// ============================================================================
+// Destructor
+}
+// ============================================================================
+

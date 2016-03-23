@@ -63,6 +63,9 @@ find_package(Qt5Network)
 find_package(Qt5PrintSupport)
 find_package(Qt5Gui)
 
+# HDF5 support
+FIND_PACKAGE(HDF5 COMPONENTS CXX REQUIRED)
+
 # find OpenGL package
 find_package(OpenGL REQUIRED)
 
@@ -79,6 +82,7 @@ FILE(GLOB lib_files
   "plugins/*.cc"
   "plugins/ftm/*.cc"
   "plugins/gadget/*.cc"
+  "plugins/gadgeth5/*.cc"
   "plugins/tipsy/*.cc"
   "plugins/network/*.cc"
   "plugins/network/*.cpp"
@@ -88,7 +92,7 @@ FILE(GLOB lib_files
   )
 
 # Find plugins qt headers
-FILE(GLOB hdrs1_files plugins/*.h plugins/ftm/*.h ..plugins/gadget/*.h 
+FILE(GLOB hdrs1_files plugins/*.h plugins/ftm/*.h plugins/gadget/*.h plugins/gadgeth5/*.h
   plugins/network/*.h plugins/ramses/*.h  plugins/tipsy/*.h 
   )
 
@@ -102,7 +106,7 @@ endif()
 SET(LIBRARY_OUTPUT_PATH LIB)
 
 # compilation options
-add_definitions(-Wall -O2 -D_GLIBCXX_PARALLEL -ggdb)
+
 ADD_DEFINITIONS(-DQT_PLUGIN)
 ADD_DEFINITIONS(-DQT_STATICPLUGIN)
 ADD_DEFINITIONS(-DQT_OPENGL_LIB)
@@ -125,6 +129,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 include_directories (${PROJECT_SOURCE_DIR}/plugins ${PROJECT_SOURCE_DIR}/plugins/nemolight/inc ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/plugins/ftm ${PROJECT_SOURCE_DIR}/plugins/gadget ${PROJECT_SOURCE_DIR}/plugins/tipsy ${PROJECT_SOURCE_DIR}/src/glew ${PROJECT_SOURCE_DIR}/plugins/network ${PROJECT_SOURCE_DIR}/plugins/ramses ${PROJECT_SOURCE_DIR}/plugins/zlib ${PROJECT_SOURCE_DIR}/3rdparty/pfntlib ${PROJECT_SOURCE_DIR}/utils)
 include_directories (${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS} {Qt5PrintSupport_INCLUDE_DIRS})
 include_directories(/usr/include/CCfits /usr/include/cfitsio /usr/local/include/CCfits)
+include_directories(${HDF5_INCLUDE_DIR})
 
 if (APPLE)
   include_directories(/usr/include/malloc /usr/X11/include)
@@ -189,7 +194,7 @@ set (GOMP "gomp")
 if (APPLE)
   set (GOMP "")
 endif()
-target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio)
+target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${HDF5_CXX_LIBRARIES_LIST} )
 
 qt5_use_modules(glnemo2 Gui Widgets Core OpenGL Network PrintSupport)
 

@@ -27,8 +27,6 @@ namespace gadget {
 
 int compare( const void * elem1, const void * elem2 );
 
-enum ioop { READ,WRITE };
-
 typedef struct io_header_1
 {
   int      npart[6];
@@ -56,7 +54,7 @@ enum DATA_TYPE {
   INT   =4,
   FLOAT =4,
   DOUBLE=8,
-  C_HAR  =1
+  CHAR  =1
 };
 
 const int NB_DATA_HEADER = 14;
@@ -74,7 +72,7 @@ const t_data_type_header dth[NB_DATA_HEADER] = {
   {DOUBLE   ,1}, // double   Omega0;
   {DOUBLE   ,1}, // double   OmegaLambda;
   {DOUBLE   ,1}, // double   HubbleParam; 
-  {C_HAR     ,96} // char     fill[256- 6*4- 6*8- 2*8- 2*4- 6*4- 2*4 - 4*8];
+  {CHAR     ,96} // char     fill[256- 6*4- 6*8- 2*8- 2*4- 6*4- 2*4 - 4*8];
 };
 
 typedef struct particle_data 
@@ -129,7 +127,7 @@ private:
   float * mass, * pos, * vel, * intenerg,  * intenergp,* tempp, * rhop;
   float tframe;
   t_io_header_1 header;
-  int npartTotal, npart, ntot_withmasses;
+  int npartTotal, npart, ntot_withmasses, npart_total_local;
   bool isLittleEndian();
   bool swap;
   glnemo::ComponentRangeVector  crv;
@@ -144,10 +142,27 @@ private:
   bool readBlockName();
   std::string block_name;
   int readHeader(const int);
-  int ioData(char * ptr,const size_t size_bytes,const  int items,const ioop op);
+  int ioData(char * ptr,const size_t size_bytes,const  int items);
   bool guessVersion();
   int version;
-
+  // detect float/double size
+  int array_vs_file_size; // array vs file 0:same  1:smaler(half) 2:bigger(double)
+  inline void checkFileVsArray(const int bytes_to_read, const int size_data, const int npart) {
+    int bytes_array = size_data * npart;
+    if (bytes_array == bytes_to_read) {
+      array_vs_file_size = 0; // same size
+    } else
+      if (bytes_array < bytes_to_read) {
+        array_vs_file_size = 1; // file data type bigger than array data size
+        //assert(2*bytes_array == bytes_to_read);
+      } else {
+        array_vs_file_size = 2; // file data type smaller than array data size
+        //assert(bytes_to_read*2 == bytes_array);
+      }
+//    if (this->verbose) {
+//      std::cerr << "file_vs_array_size ="<<array_vs_file_size<<" bytes_to_read="<<bytes_to_read<<" bytes_array ="<<bytes_array<<"\n";
+//    }
+  }
   // extra variable to guess if the user has selected gas particles
   // if yes we'll have to do unit conversion for temperature and rho
   bool use_gas;

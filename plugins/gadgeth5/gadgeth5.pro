@@ -6,7 +6,7 @@ include(../../config.arch)
 
 OBJECTS_DIR = .obj/$${ARCH}/$$COMPILEMODE
 DESTDIR = lib/$${ARCH}/$$COMPILEMODE
-TARGET = gadget
+TARGET = gadgeth5
 
 CONFIG += $$GLOBAL warn_on \
           lib  \
@@ -17,9 +17,11 @@ TEMPLATE = lib
 
 INCLUDEPATH += ../../src
 
-HEADERS += gadgetio.h
+HEADERS +=  \
+    gadgeth5.h
 
-SOURCES += gadgetio.cc
+SOURCES +=  \
+    gadgeth5.cc
 
 INCLUDEPATH += ../../src
 

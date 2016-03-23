@@ -22,7 +22,8 @@ Q_PLUGIN_METADATA(IID "fr.glnemo2.fitsPlugin")
 
 namespace glnemo {
 using namespace CCfits;
-
+// ============================================================================
+// Constructor
 SnapshotFits::SnapshotFits():SnapshotInterface()
 {
   valid=false;

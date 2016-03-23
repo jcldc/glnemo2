@@ -25,7 +25,74 @@ HEADERS += snapshotnemo.h \
     snapshotphigrape.h \
     snapshotnetwork.h \
     snapshottipsy.h \
-    snapshotfits.h
+    snapshotfits.h \
+    snapshotgadgeth5.h \
+    ftm/ftmio.h \
+    gadget/gadgetio.h \
+    gadgeth5/gadgeth5.h \
+    nemolight/inc/snapshot/barebody.h \
+    nemolight/inc/snapshot/body.h \
+    nemolight/inc/snapshot/mybody.h \
+    nemolight/inc/snapshot/snapshot.h \
+    nemolight/inc/snapshot/sphbody.h \
+    nemolight/inc/snapshot/stdbody.h \
+    nemolight/inc/snapshot/units.h \
+    nemolight/inc/command.h \
+    nemolight/inc/config.h \
+    nemolight/inc/cpgplot.h \
+    nemolight/inc/extstring.h \
+    nemolight/inc/filefn.h \
+    nemolight/inc/filesecret.h \
+    nemolight/inc/filestruct.h \
+    nemolight/inc/getparam.h \
+    nemolight/inc/gipsyc.h \
+    nemolight/inc/history.h \
+    nemolight/inc/mathfns.h \
+    nemolight/inc/maxsizes.h \
+    nemolight/inc/memio.h \
+    nemolight/inc/nemo.h \
+    nemolight/inc/options.h \
+    nemolight/inc/snode.h \
+    nemolight/inc/stdinc.h \
+    nemolight/inc/story.h \
+    nemolight/inc/storyio.h \
+    nemolight/inc/storyq.h \
+    nemolight/inc/strlib.h \
+    nemolight/inc/table.h \
+    nemolight/inc/vectmath.h \
+    nemolight/inc/version.h \
+    nemolight/check_file.h \
+    nemolight/flags_data.h \
+    nemolight/get_data_wrapper.h \
+    nemolight/history_data.h \
+    nemolight/history_data_f.h \
+    nemolight/io_get_put.h \
+    nemolight/io_get_put_f.h \
+    nemolight/io_init.h \
+    nemolight/io_nemo.h \
+    nemolight/io_nemo_data.h \
+    nemolight/io_nemo_data_f.h \
+    nemolight/io_nemo_f.h \
+    nemolight/io_nemo_tools.h \
+    nemolight/maxio.h \
+    nemolight/parameters.h \
+    network/global.h \
+    network/readreseau.h \
+    network/sendreseau.h \
+    network/serveur.h \
+    ramses/camr.h \
+    ramses/cpart.h \
+    tipsy/tipsyio.h \
+    zlib/crc32.h \
+    zlib/deflate.h \
+    zlib/inffast.h \
+    zlib/inffixed.h \
+    zlib/inflate.h \
+    zlib/inftrees.h \
+    zlib/trees.h \
+    zlib/zconf.h \
+    zlib/zlib.h \
+    zlib/zutil.h
 
 SOURCES += snapshotnemo.cc \
     snapshotftm.cc \
@@ -35,13 +102,95 @@ SOURCES += snapshotnemo.cc \
     snapshotphigrape.cc \
     snapshotnetwork.cc \
     snapshottipsy.cc \
-    snapshotfits.cc
+    snapshotfits.cc \
+    snapshotgadgeth5.cc \
+    ftm/ftmio.cc \
+    gadget/gadgetio.cc \
+    gadgeth5/gadgeth5.cc \
+    network/global.cpp \
+    network/readreseau.cpp \
+    network/sendreseau.cpp \
+    network/serveur.cc \
+    ramses/camr.cc \
+    ramses/cpart.cc \
+    tipsy/tipsyio.cc \
+    ftm/smart_dmp.c \
+    nemolight/inc/snapshot/get_snap-old.c \
+    nemolight/inc/snapshot/get_snap-ran.c \
+    nemolight/inc/snapshot/get_snap.c \
+    nemolight/inc/snapshot/get_snapshot.c \
+    nemolight/inc/snapshot/myget_snap.c \
+    nemolight/inc/snapshot/myput_snap.c \
+    nemolight/inc/snapshot/put_snap-old.c \
+    nemolight/inc/snapshot/put_snap-ran.c \
+    nemolight/inc/snapshot/put_snap.c \
+    nemolight/inc/snapshot/put_snapshot.c \
+    nemolight/allocate.c \
+    nemolight/bswap.c \
+    nemolight/burststring.c \
+    nemolight/check_file.c \
+    nemolight/command.c \
+    nemolight/convert.c \
+    nemolight/cvsid.c \
+    nemolight/date_id.c \
+    nemolight/defv.c \
+    nemolight/dprintf.c \
+    nemolight/dummy.c \
+    nemolight/endian.c \
+    nemolight/error.c \
+    nemolight/extstring.c \
+    nemolight/file_size.c \
+    nemolight/filefn.c \
+    nemolight/filesecret.c \
+    nemolight/get_data_wrapper.c \
+    nemolight/getparam.c \
+    nemolight/herinp.c \
+    nemolight/history.c \
+    nemolight/ieeehalfprecision.c \
+    nemolight/io_get_put.c \
+    nemolight/io_get_put_f.c \
+    nemolight/io_init.c \
+    nemolight/io_nemo.c \
+    nemolight/io_nemo_f.c \
+    nemolight/io_nemo_tools.c \
+    nemolight/kprintf.c \
+    nemolight/main.c \
+    nemolight/memio.c \
+    nemolight/mstropen.c \
+    nemolight/nemo_g77.c \
+    nemolight/nemoinp.c \
+    nemolight/nemomain.c \
+    nemolight/outdefv.c \
+    nemolight/parameters.c \
+    nemolight/ran3.c \
+    nemolight/scanopt.c \
+    nemolight/setfblank.c \
+    nemolight/strlib.c \
+    nemolight/stropen.c \
+    nemolight/test.c \
+    nemolight/usage.c \
+    nemolight/within.c \
+    nemolight/writeparam.c \
+    nemolight/xrandom.c \
+    zlib/adler32.c \
+    zlib/compress.c \
+    zlib/crc32.c \
+    zlib/deflate.c \
+    zlib/gzio.c \
+    zlib/infback.c \
+    zlib/inffast.c \
+    zlib/inflate.c \
+    zlib/inftrees.c \
+    zlib/trees.c \
+    zlib/uncompr.c \
+    zlib/zutil.c
 
 
 # CONFIG -= release
 DESTDIR = lib/$${ARCH}/$$COMPILEMODE
 INCLUDEPATH += ftm \
     gadget \
+    gadgeth5 \
     ramses \
     network \
     tipsy \
@@ -56,6 +205,7 @@ DEPENDPATH += \
     ../src \
     ftm \
     gadget \
+    gadgeth5 \
     ramses \
     network \
     tipsy
@@ -68,6 +218,7 @@ OTHER_FILES += \
     networkPlugin.json \
     phigrapePlugin.json \
     gadgetPlugin.json \
+    gadgetH5Plugin.json \
     ramsesPlugin.json \
     ftmPlugin.json \
     tipsyPlugin.json \
