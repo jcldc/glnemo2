@@ -65,7 +65,6 @@ find_package(Qt5Gui)
 
 # HDF5 support
 FIND_PACKAGE(HDF5 COMPONENTS CXX REQUIRED)
-
 # find OpenGL package
 find_package(OpenGL REQUIRED)
 
@@ -129,7 +128,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 include_directories (${PROJECT_SOURCE_DIR}/plugins ${PROJECT_SOURCE_DIR}/plugins/nemolight/inc ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/plugins/ftm ${PROJECT_SOURCE_DIR}/plugins/gadget ${PROJECT_SOURCE_DIR}/plugins/tipsy ${PROJECT_SOURCE_DIR}/src/glew ${PROJECT_SOURCE_DIR}/plugins/network ${PROJECT_SOURCE_DIR}/plugins/ramses ${PROJECT_SOURCE_DIR}/plugins/zlib ${PROJECT_SOURCE_DIR}/3rdparty/pfntlib ${PROJECT_SOURCE_DIR}/utils)
 include_directories (${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS} {Qt5PrintSupport_INCLUDE_DIRS})
 include_directories(/usr/include/CCfits /usr/include/cfitsio /usr/local/include/CCfits)
-include_directories(${HDF5_INCLUDE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 ${HDF5_INCLUDE_DIR})
 
 if (APPLE)
   include_directories(/usr/include/malloc /usr/X11/include)
@@ -194,7 +193,8 @@ set (GOMP "gomp")
 if (APPLE)
   set (GOMP "")
 endif()
-target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${HDF5_CXX_LIBRARIES_LIST} )
+#target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${HDF5_CXX_LIBRARIES_LIST} )
+target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${HDF5_CXX_LIBRARIES} )
 
 qt5_use_modules(glnemo2 Gui Widgets Core OpenGL Network PrintSupport)
 

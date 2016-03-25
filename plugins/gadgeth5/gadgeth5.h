@@ -21,7 +21,7 @@ using namespace H5;
 #endif
 
 
-namespace uns {
+namespace glnemo {
 // HDF5 gadget header
 typedef struct h5_header {
   std::vector<double> MassTable; //[6]; "
@@ -54,8 +54,10 @@ public:
   t_h5_header getHeader() { return header; }
 
   // reading
-  template <class U> std::vector<U> getDataset(std::string dset_name, U );
-  template <class U> std::vector<U> getAttribute(std::string attr_name);
+  template <class U>
+  std::vector<U> getDataset(std::string dset_name, U );
+  template <class U>
+  std::vector<U> getAttribute(std::string attr_name);
   int getNpartTotal() { return npart_total; }
 
 private:

@@ -32,8 +32,8 @@ public:
     ~UserSelection();
     bool setSelection(const std::string,const ComponentRangeVector *,
                       ParticlesObjectVector *);
-    const int * getIndexesTab() const { return indexes; };
-    int         getNSel()       const { return nsel   ; };
+    const int * getIndexesTab() const { return indexes; }
+    int         getNSel()       const { return nsel   ; }
 private:
   
   std::string select;           // input range (console | GUI)

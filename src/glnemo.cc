@@ -44,6 +44,7 @@ using namespace std;
 Q_IMPORT_PLUGIN(SnapshotNemo)
 Q_IMPORT_PLUGIN(SnapshotFtm)
 Q_IMPORT_PLUGIN(SnapshotGadget)
+Q_IMPORT_PLUGIN(SnapshotGadgetH5)
 Q_IMPORT_PLUGIN(SnapshotPhiGrape)
 Q_IMPORT_PLUGIN(SnapshotRamses)
 #ifndef _WIN32

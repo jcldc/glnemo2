@@ -16,7 +16,7 @@
 #include <iostream>
 #include <assert.h>
 
-namespace uns {
+namespace glnemo {
 
 // ============================================================================
 // Constructor
@@ -201,6 +201,8 @@ template <class U> std::vector<U> GH5<T>::getDataset(std::string dset_name, U du
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // Templates instantiation MUST be declared **AFTER** templates declaration
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+template std::vector<float> GH5<float>::getDataset(std::string dset_name, float dummy);
+template std::vector<int  > GH5<float>::getDataset(std::string dset_name, int dummy);
 template class GH5<float>;
 
 } // end of namespace

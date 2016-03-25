@@ -175,7 +175,8 @@ LIBS += \
     -lramses \
     -lnetwork \
     -ltipsy \
-    -lutils
+    -lutils \
+    -lhdf5_cpp -lhdf5
 win32 {
     #LIBS += -lzlib
     LIBS += -lopengl32

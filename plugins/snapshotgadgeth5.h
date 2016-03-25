@@ -19,6 +19,8 @@
 #include <QObject>
 #include "snapshotinterface.h"
 #include "globaloptions.h"
+#include "gadgeth5.h"
+
 namespace glnemo {
 
 class SnapshotGadgetH5: public SnapshotInterface{
@@ -45,6 +47,12 @@ public:
 
 private:
   bool valid;
+  GH5<float> * myH5;
+  void storeComponents();
+  template <class U>
+  bool loadCommonDataset(std::string tag,U * data);
+  template <class U>
+  bool loadDataset(std::string tag,U * data);
 };
 }
 #endif // CSNAPSHOTGADGETH5_H
