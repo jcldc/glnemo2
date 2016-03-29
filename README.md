@@ -23,7 +23,7 @@ Currently, glnemo2 reads:
 Glnemo2 uses a plugin mechanism to load data, so it's easy to add a new file reader.
 It uses the latest OpenGL technology like, shaders (glsl), vertex buffer object, frame buffer object, and takes in account the power of your graphic card to accelerate the rendering. Millions of particles can be rendered, in real time, with a fast GPU.
 
-Glnemo2 runs fine on Linux, Windows(using minGW compiler), and MaxOSX, thanks to the QT4 API.
+Glnemo2 runs fine on Linux, Windows(using minGW compiler), and MaxOSX, thanks to the QT5 API.
 
 0. how to compile and install glnemo2, see **INSTALL**.
  
