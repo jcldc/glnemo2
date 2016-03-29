@@ -1,4 +1,4 @@
-* Fri Mar 25 1016 - 1.10.0
+* Fri Mar 25 2016 - 1.10.0
 - (new) particles can be stretch along Z direction (useful for FITS 3D)
 - (new) add gadget2 double file support
 - (new) add gadget3 (hdf5) file support
