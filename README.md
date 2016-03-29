@@ -1,21 +1,22 @@
                              
                              --  Glnemo2 --
                                  
-                Copyright © Jean-Charles LAMBERT 2007-2015
+                Copyright Â© Jean-Charles LAMBERT 2007-2015
                  http://projets.lam.fr/projects/glnemo2
  
                        Jean-Charles.Lambert_AT_lam_DOT_fr
                          Dynamique des Galaxies
-              Centre de donnéS Astrophysique de Marseille (CeSAM)
+              Centre de donnÃ©S Astrophysique de Marseille (CeSAM)
                   Laboratoire d'Astrophysique de Marseille
                            (CNRS U.M.R 7326)
-                 Pôle de l'Étoile Site de Château-Gombert
-                       38, rue Frédéric Joliot-Curie
+                 PÃ´le de l'Ã‰toile Site de ChÃ¢teau-Gombert
+                       38, rue FrÃ©dÃ©ric Joliot-Curie
                           13388 Marseille cedex 13
                                   FRANCE
 
                       
-                      
+# Introduction
+
 **Glnemo2** is an interactive 3D visualization program which displays particles positions of the different components (gas, stars, disk, dark mater halo, bulge) of an N-body snapshot. It's a very useful tool for everybody running N-body simulations from isolated galaxies to cosmological simulations. It can show quickly a lot of information about data by revealing shapes, dense areas, formation of structures such as spirals arms, bars, peanuts or clumps of galaxies. Glnemo2 has been designed to meet the requirements of the user, with simplicity in mind, easy to install, easy to use with an interactive and responsive graphical user interface (based on Nokia QT 5.X API) , powerful with a fast 3D engine (OPenGL and GLSL), and generic with the possibility to load different kinds of input files.
 
 
@@ -48,9 +49,10 @@ Glnemo2 runs fine on Linux, Windows(using minGW compiler), and MaxOSX, thanks to
  
 2. test purpose files: see **snapshot/README**
 
+# Webpage
  Glnemo2 has a dedicated web site : http://projets.lam.fr/projects/glnemo2
 
- *License* :
+# License
 
 Glnemo2 is governed by the CeCILL2  license under French law and
 abiding by the rules of distribution of free software.  You can  use, 
