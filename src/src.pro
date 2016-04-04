@@ -185,7 +185,7 @@ win32 {
 unix {
     LIBS += -lz
     LIBS += -lGLU
-    LIBS += -lCCfits
+    LIBS += -lCCfits -lcfitsio
     LIBS += -lgomp
     LIBS +=
 }
