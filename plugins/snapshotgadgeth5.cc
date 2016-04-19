@@ -63,7 +63,7 @@ bool SnapshotGadgetH5::isValidData()
      * handle the errors appropriately
      */
     Exception::dontPrint();
-    myH5 = new GH5<float>(filename,H5F_ACC_RDONLY);
+    myH5 = new GH5<float>(filename,H5F_ACC_RDONLY,true);
     valid=true;
   }
   catch (...) {
@@ -178,35 +178,58 @@ bool SnapshotGadgetH5::loadCommonDataset(std::string tag,U * data)
   mystruct ms[6]={ "gas",0,"halo",1,"disk",2,"bulge",3,"stars",4,"bndry",5};
 
   bool ok=false;
+  int npartOffset[6];
+
+  // compute offset in case of multiple gadget file
+  npartOffset[0] = 0;
+  for (int i=1;i<=5;i++) {
+    npartOffset[i] = npartOffset[i-1]+myH5->getHeader().NumPart_Total[i-1];
+    std::cerr
+        << "npartOffset["<<i<<"]="<<npartOffset[i]<<" npartOffset["<<i-1<<"]="
+        <<npartOffset[i-1]<<" header.npartTotal["<<i-1<<"]="<<myH5->getHeader().NumPart_Total[i-1]<<"\n";
+  }
 
   int offset=0;
-  for (int i=0; i<6; i++) {
-    if (go->select_part=="all" || (go->select_part.find(ms[i].comp)!=std::string::npos)) {
-      bool ok=false;
-      for (unsigned int j=0; j < crv.size(); j++) {
-        if (crv[j].type==ms[i].comp) {
-          ok=true;
-          break;
-        }
-      }
-      if (ok) {
-        std::ostringstream myid;
-        myid << ms[i].index;
-        std::string dataset="/PartType"+myid.str()+"/"+tag;
-        if (1)  std::cerr << dataset << "\n";
-        try {
-          U dummy=(U) 1;
-          std::vector<U> vec=myH5->getDataset(dataset,dummy);
-          memcpy(data+offset,&vec[0],vec.size()*sizeof(U));
-          offset+=vec.size();
-          ok=true;
-        }
-        catch (...) {
-          if (1) {
-            std::cerr << "WARNING !!! : error while reading Dataset["
-                      << dataset << "]\n";
+
+  for (int ifile=0; ifile<myH5->getHeader().NumFilesPerSnapshot; ifile++) {
+    if (myH5->getHeader().NumFilesPerSnapshot>1) {
+      // create file name
+      std::size_t f1= filename.find(".hdf5");
+      std::size_t f2= filename.find_last_of(".",f1-1);
+      std::ostringstream stm;
+      stm << "." << ifile << ".hdf5";
+      std::string myfile=filename.substr(0,f2);
+      myfile = myfile + stm.str();
+      std::cerr << "myfile = " << myfile << "\n";
+    }
+    for (int i=0; i<6; i++) {
+      if (go->select_part=="all" || (go->select_part.find(ms[i].comp)!=std::string::npos)) {
+        bool ok=false;
+        for (unsigned int j=0; j < crv.size(); j++) {
+          if (crv[j].type==ms[i].comp) {
+            ok=true;
+            break;
           }
-          throw -1;
+        }
+        if (ok) {
+          std::ostringstream myid;
+          myid << ms[i].index;
+          std::string dataset="/PartType"+myid.str()+"/"+tag;
+          if (1)  std::cerr << dataset << "\n";
+          try {
+            U dummy=(U) 1;
+            std::vector<U> vec=myH5->getDataset(dataset,dummy);
+            memcpy(data+offset,&vec[0],vec.size()*sizeof(U));
+            offset+=vec.size();
+            ok=true;
+          }
+          catch (...) {
+            if (1) {
+              std::cerr << "WARNING !!! : error while reading Dataset["
+                        << dataset << "]\n";
+            }
+            throw -1;
+          }
         }
       }
     }

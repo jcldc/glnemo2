@@ -34,7 +34,7 @@ typedef struct h5_header {
   int      Flag_Sfr;
   int      Flag_StellarAge;
   int      flag_feedback;
-  std::vector<int> NumPart_Total;//[6];
+  std::vector<unsigned int> NumPart_Total;//[6];
   std::vector<int> NumPart_Total_HighWord;//[6];
   std::vector<int> NumPart_ThisFile;//[6];
   int      NumFilesPerSnapshot;

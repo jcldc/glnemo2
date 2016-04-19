@@ -54,25 +54,25 @@ void GH5<T>::readHeaderAttributes()
 {
   header.MassTable = getAttribute<double>("MassTable");
   assert(header.MassTable.size()==6);
-  header.Time      = (double ) getAttribute<double>("Time")[0];
+
+  //header.Time      = (double ) getAttribute<double>("Time")[0];
   header.Redshift  = (double ) getAttribute<double>("Redshift")[0];
   header.BoxSize   = (double ) getAttribute<double>("BoxSize")[0];
   header.Omega0    = (double ) getAttribute<double>("Omega0")[0];
   header.OmegaLambda = (double ) getAttribute<double>("OmegaLambda")[0];
   header.HubbleParam = (double ) getAttribute<double>("HubbleParam")[0];
-
+#if 0
   header.Flag_Cooling = (int) getAttribute<int>("Flag_Cooling")[0];
   header.Flag_DoublePrecision = (int) getAttribute<int>("Flag_DoublePrecision")[0];
   header.Flag_IC_Info = (int) getAttribute<int>("Flag_IC_Info")[0];
   header.Flag_Metals = (int) getAttribute<int>("Flag_Metals")[0];
   header.Flag_Sfr = (int) getAttribute<int>("Flag_Sfr")[0];
   header.Flag_StellarAge = (int) getAttribute<int>("Flag_StellarAge")[0];
+#endif
   header.NumFilesPerSnapshot = (int) getAttribute<int>("NumFilesPerSnapshot")[0];
-
   header.NumPart_ThisFile = getAttribute<int>("NumPart_ThisFile");
-  header.NumPart_Total = getAttribute<int>("NumPart_Total");
+  header.NumPart_Total = getAttribute<unsigned int>("NumPart_Total");
   header.NumPart_Total_HighWord = getAttribute<int>("NumPart_Total_HighWord");
-
   // compute npart_total
   npart_total=0;
   for(int k=0; k<6; k++)  {
@@ -120,7 +120,24 @@ template <class U> std::vector<U> GH5<T>::getAttribute(std::string attr_name)
   std::vector<U>  vret(nbelements==0?1:nbelements);
   if (verbose)
     std::cerr << "nb elements = " << nbelements << "\n";
-  attr.read(atype,&vret[0]);
+  DataType mem_type;
+  switch (atype.getClass()) {
+  case H5T_INTEGER :
+    mem_type = PredType::NATIVE_INT;//H5T_NATIVE_INT;
+    break;
+  case H5T_FLOAT   :
+    if (sizeof(U)==sizeof(double)) {
+      mem_type = PredType::NATIVE_DOUBLE;//H5T_NATIVE_DOUBLE;
+    } else {
+      mem_type = PredType::NATIVE_FLOAT ;//H5T_NATIVE_FLOAT;
+    }
+    break;
+   default :
+    std::cerr << "We should not be here.....\n";
+    assert(0);
+  }
+
+  attr.read(mem_type,&vret[0]);
   aspace.close();
   //atype.close();
   attr.close();

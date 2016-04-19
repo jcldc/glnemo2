@@ -200,6 +200,7 @@ POST_TARGETDEPS += \
     ../plugins/lib/$$ARCH/$$COMPILEMODE/libsnapshot.a \
     ../plugins/ftm/lib/$$ARCH/$$COMPILEMODE/libftm.a \
     ../plugins/gadget/lib/$$ARCH/$$COMPILEMODE/libgadget.a \
+    ../plugins/gadgeth5/lib/$$ARCH/$$COMPILEMODE/libgadgeth5.a \
     ../plugins/ramses/lib/$$ARCH/$$COMPILEMODE/libramses.a \
     ../plugins/network/lib/$$ARCH/$$COMPILEMODE/libnetwork.a \
     ../plugins/zlib/lib/$$ARCH/$$COMPILEMODE/libzlib.a \
