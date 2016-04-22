@@ -15,7 +15,7 @@
 #include "gadgeth5.h"
 #include <iostream>
 #include <assert.h>
-
+#include <exception>
 namespace glnemo {
 
 // ============================================================================
@@ -55,20 +55,24 @@ void GH5<T>::readHeaderAttributes()
   header.MassTable = getAttribute<double>("MassTable");
   assert(header.MassTable.size()==6);
 
-  //header.Time      = (double ) getAttribute<double>("Time")[0];
-  header.Redshift  = (double ) getAttribute<double>("Redshift")[0];
-  header.BoxSize   = (double ) getAttribute<double>("BoxSize")[0];
-  header.Omega0    = (double ) getAttribute<double>("Omega0")[0];
-  header.OmegaLambda = (double ) getAttribute<double>("OmegaLambda")[0];
-  header.HubbleParam = (double ) getAttribute<double>("HubbleParam")[0];
-#if 0
-  header.Flag_Cooling = (int) getAttribute<int>("Flag_Cooling")[0];
-  header.Flag_DoublePrecision = (int) getAttribute<int>("Flag_DoublePrecision")[0];
-  header.Flag_IC_Info = (int) getAttribute<int>("Flag_IC_Info")[0];
-  header.Flag_Metals = (int) getAttribute<int>("Flag_Metals")[0];
-  header.Flag_Sfr = (int) getAttribute<int>("Flag_Sfr")[0];
-  header.Flag_StellarAge = (int) getAttribute<int>("Flag_StellarAge")[0];
-#endif
+  try {
+    header.Time      = (double ) getAttribute<double>("Time")[0];
+    header.Redshift  = (double ) getAttribute<double>("Redshift")[0];
+    header.BoxSize   = (double ) getAttribute<double>("BoxSize")[0];
+    header.Omega0    = (double ) getAttribute<double>("Omega0")[0];
+    header.OmegaLambda = (double ) getAttribute<double>("OmegaLambda")[0];
+    header.HubbleParam = (double ) getAttribute<double>("HubbleParam")[0];
+
+    header.Flag_Cooling = (int) getAttribute<int>("Flag_Cooling")[0];
+    header.Flag_DoublePrecision = (int) getAttribute<int>("Flag_DoublePrecision")[0];
+    header.Flag_IC_Info = (int) getAttribute<int>("Flag_IC_Info")[0];
+    header.Flag_Metals = (int) getAttribute<int>("Flag_Metals")[0];
+    header.Flag_Sfr = (int) getAttribute<int>("Flag_Sfr")[0];
+    header.Flag_StellarAge = (int) getAttribute<int>("Flag_StellarAge")[0];
+  } catch (...) {
+    std::cerr << "WARNING:readHeaderAttributes error loading some attributes\n"  ;
+  }
+
   header.NumFilesPerSnapshot = (int) getAttribute<int>("NumFilesPerSnapshot")[0];
   header.NumPart_ThisFile = getAttribute<int>("NumPart_ThisFile");
   header.NumPart_Total = getAttribute<unsigned int>("NumPart_Total");
@@ -91,58 +95,65 @@ template <class U> std::vector<U> GH5<T>::getAttribute(std::string attr_name)
     std::cerr << "= = = = = = = = = = = = = = = = = =\n";
     std::cerr << "Read Attribute ["<<attr_name<< "]\n";
   }
-  Group     grp  = myfile->openGroup("Header"  );
-  Attribute attr = grp.openAttribute(attr_name);
-  DataType  atype = attr.getDataType();
-  DataSpace aspace= attr.getSpace();
+  try {
+    Group     grp  = myfile->openGroup("Header"  );
+    Attribute attr = grp.openAttribute(attr_name);
+    DataType  atype = attr.getDataType();
+    DataSpace aspace= attr.getSpace();
 
-  if (verbose) {
-    std::cerr << "size          = "<< atype.getSize() << "\n";
-    std::cerr << "storage space =" << attr.getStorageSize() << "\n";
-    std::cerr << "mem data size =" << attr.getInMemDataSize() << "\n";
-  }
-
-  int arank = aspace.getSimpleExtentNdims();
-  hsize_t adims_out[arank];
-  aspace.getSimpleExtentDims( adims_out, NULL);
-  if (verbose) {
-    std::cerr << "rank " << arank << ", dimensions " ;
-  }
-  int nbelements=0;
-  for (int i=0; i<arank; i++) {
     if (verbose) {
-      std::cerr << (unsigned long)(adims_out[i]);
-      if (i<arank-1) std::cerr << " x " ;
-      else  std::cerr << "\n";
+      std::cerr << "size          = "<< atype.getSize() << "\n";
+      std::cerr << "storage space =" << attr.getStorageSize() << "\n";
+      std::cerr << "mem data size =" << attr.getInMemDataSize() << "\n";
     }
-    nbelements += adims_out[i];
-  }
-  std::vector<U>  vret(nbelements==0?1:nbelements);
-  if (verbose)
-    std::cerr << "nb elements = " << nbelements << "\n";
-  DataType mem_type;
-  switch (atype.getClass()) {
-  case H5T_INTEGER :
-    mem_type = PredType::NATIVE_INT;//H5T_NATIVE_INT;
-    break;
-  case H5T_FLOAT   :
-    if (sizeof(U)==sizeof(double)) {
-      mem_type = PredType::NATIVE_DOUBLE;//H5T_NATIVE_DOUBLE;
-    } else {
-      mem_type = PredType::NATIVE_FLOAT ;//H5T_NATIVE_FLOAT;
-    }
-    break;
-   default :
-    std::cerr << "We should not be here.....\n";
-    assert(0);
-  }
 
-  attr.read(mem_type,&vret[0]);
-  aspace.close();
-  //atype.close();
-  attr.close();
-  grp.close();
-  return vret;
+    int arank = aspace.getSimpleExtentNdims();
+    hsize_t adims_out[arank];
+    aspace.getSimpleExtentDims( adims_out, NULL);
+    if (verbose) {
+      std::cerr << "rank " << arank << ", dimensions " ;
+    }
+    int nbelements=0;
+    for (int i=0; i<arank; i++) {
+      if (verbose) {
+        std::cerr << (unsigned long)(adims_out[i]);
+        if (i<arank-1) std::cerr << " x " ;
+        else  std::cerr << "\n";
+      }
+      nbelements += adims_out[i];
+    }
+    std::vector<U>  vret(nbelements==0?1:nbelements);
+    if (verbose)
+      std::cerr << "nb elements = " << nbelements << "\n";
+    DataType mem_type;
+    switch (atype.getClass()) {
+    case H5T_INTEGER :
+      mem_type = PredType::NATIVE_INT;//H5T_NATIVE_INT;
+      break;
+    case H5T_FLOAT   :
+      if (sizeof(U)==sizeof(double)) {
+        mem_type = PredType::NATIVE_DOUBLE;//H5T_NATIVE_DOUBLE;
+      } else {
+        mem_type = PredType::NATIVE_FLOAT ;//H5T_NATIVE_FLOAT;
+      }
+      break;
+    default :
+      std::cerr << "We should not be here.....\n";
+      assert(0);
+    }
+
+    attr.read(mem_type,&vret[0]);
+    aspace.close();
+    //atype.close();
+    attr.close();
+    grp.close();
+    return vret;
+  } catch (Exception &e) {
+    std::cerr << "WARNING getAttribute, unable to load ["<<attr_name<<"]\n";
+    throw(e);
+  }
+  std::vector<U> x(-1);
+  return x;
 }
 // ============================================================================
 // getDataset

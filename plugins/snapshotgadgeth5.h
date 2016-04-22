@@ -50,9 +50,9 @@ private:
   GH5<float> * myH5;
   void storeComponents();
   template <class U>
-  bool loadCommonDataset(std::string tag,U * data);
+  bool loadCommonDataset(std::string tag,U * data, const int dim);
   template <class U>
-  bool loadDataset(std::string tag,U * data);
+  bool loadDataset(std::string tag,U * data, const int comp_id, const int dim);
 };
 }
 #endif // CSNAPSHOTGADGETH5_H
