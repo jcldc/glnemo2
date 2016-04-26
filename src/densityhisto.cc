@@ -76,6 +76,7 @@ void DensityHisto::drawDensity(const std::vector <int> _density_histo) //_densit
   //memcpy(density_histo,_density_histo,sizeof(int)*100);
   density_histo = _density_histo;
   // compute maxhisto
+  maxhisto=0;
   for (int i=0; i<nhisto; i++) {
     maxhisto=std::max(maxhisto,density_histo[i]);
   }

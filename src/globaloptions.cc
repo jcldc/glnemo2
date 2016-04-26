@@ -62,7 +62,7 @@ GlobalOptions::GlobalOptions()
   zoomo=1.0;
   xrot=yrot=xrot=0.0;     // x y z SCREEN rotation
   urot=vrot=wrot=0.0;     // x y z SCENE/Object rotation
-  ixrot=iyrot=ixrot=1.;   // x y z increment screen rotation
+  ixrot=iyrot=izrot=1.;   // x y z increment screen rotation
   iurot=ivrot=iwrot=1.;   // x y z increment scene/object rotation
   xbrot=ybrot=zbrot=false;// x y z screen control rotation
   ubrot=vbrot=wbrot=false;// x y z world  control rotation

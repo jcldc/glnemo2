@@ -60,6 +60,7 @@ const ParticlesData& ParticlesData::operator=(const ParticlesData& m)
     }
     *nbody = *m.nbody;
     // Ids
+    id.clear();
     id = m.id;
     
     // positions "pos"

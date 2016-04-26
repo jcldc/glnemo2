@@ -185,6 +185,9 @@ int SnapshotGadgetH5::nextFrame(const int * index_tab, const int nsel)
     }
     if (! part_data->timu ) part_data->timu = new float;
     *part_data->timu = (float) myH5->getHeader().Time;
+    end_of_data=true; // only one frame from an gadget snapshot
+  } else {
+    end_of_data=true;
   }
   return status;
 }
@@ -376,7 +379,7 @@ int SnapshotGadgetH5::close()
 // endendOfDataMessage()
 QString SnapshotGadgetH5::endOfDataMessage()
 {
-  QString message=tr("Tipsy Snapshot [")+QString(filename.c_str())+tr("] end of snapshot reached!");
+  QString message=tr("Gadget3 Snapshot [")+QString(filename.c_str())+tr("] end of snapshot reached!");
   return message;
 }
 } // end of namespace

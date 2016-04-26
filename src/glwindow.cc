@@ -169,6 +169,8 @@ GLWindow::~GLWindow()
     if (shader) delete shader;
     if (vel_shader) delete vel_shader;
   }
+//  if (p_data)
+//    delete p_data;
   std::cerr << "Destructor GLWindow::~GLWindow()\n";
 }
 #define COPY 0

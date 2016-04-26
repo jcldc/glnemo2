@@ -282,6 +282,7 @@ void ParticlesObject::init(const ObjFrom _of, const std::string _name)
   min_percen_phys=0;
   max_percen_phys=99;
   has_physic = false;
+  rho_sorted = false;
   setColor();
 
 }

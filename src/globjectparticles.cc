@@ -106,6 +106,11 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
 // desstructor                                                                 
 GLObjectParticles::~GLObjectParticles()
 {
+  std::cerr << "inside GLObjectParticles::~GLObjectParticles()\n";
+
+  if (nind_sorted) {
+    delete  [] indexes_sorted;
+  }
 }
 // ============================================================================
 // update                                                                      
