@@ -180,8 +180,10 @@ void GLWindow::updateGL()
 {
   if ( !store_options->duplicate_mem) {
     mutex_data->lock();
-    if (store_options->new_frame) update();
-    else QGLWidget::update();
+    if (store_options->new_frame)
+      update();
+    else
+      QGLWidget::update();
     mutex_data->unlock();
   }
   else QGLWidget::update();

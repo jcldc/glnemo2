@@ -1,9 +1,12 @@
-* Fri Mar 30 2016 - 1.10.0
-- (new) particles can be stretch along Z direction (useful for FITS 3D)
+* Tue  Apr 28 2016 - 1.10.0
+- (new) particles can be stretch along Z direction (useful for 3D FITS)
 - (new) add gadget2 double file support
 - (new) add gadget3 (hdf5) file support
+- (new) automatic linux binaries building via Docker
+- (new) automatic windows binaries building via cross compilation (MXE)
 - set application name title with release version
 - fix a regression on auto sreenshots with GL events
+- fix memory leak when reloading snapshot
 
 * Tue Oct 14 2015 - 1.9.0
 - experimental FITS files plugin reader

@@ -64,6 +64,7 @@ GLObjectParticles::GLObjectParticles(GLTextureVector * _gtv ):GLObject()
   indexes_sorted = NULL;
   nind_sorted = 0;
   hasPhysic = false;
+  phys_select=NULL;
 }
 // ============================================================================
 // constructor                                                                 
@@ -100,6 +101,7 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
   assert(gtv->size()>0);
   setTexture(0);
   hasPhysic = false;
+  phys_select=NULL;
   update(_part_data,_po,_go);
 }
 // ============================================================================

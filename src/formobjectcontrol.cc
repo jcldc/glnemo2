@@ -1210,6 +1210,7 @@ void FormObjectControl::setNewPhys(bool update_glob)
       go->phys_max_glob = pobj->getMaxPhys();
     }
   }
+  if (go  && ! go->duplicate_mem) mutex_data->unlock();
 }
 // ============================================================================
 // on_dens_apply_button_clicked()                                              
