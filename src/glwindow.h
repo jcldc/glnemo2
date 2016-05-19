@@ -149,7 +149,8 @@ private slots:
   void rotateAroundU() { rotateAroundAxis(3);}
   void rotateAroundV() { rotateAroundAxis(4);}
   void rotateAroundW() { rotateAroundAxis(5);}
-  void resetMatrix() {
+  void resetMatrix(const bool b=true) {
+    if (b) {
       resetMatScreen();
       resetMatScene();
       //reset_screen_rotation = true;
@@ -159,6 +160,7 @@ private slots:
       y_mouse=store_options->xrot;
       x_mouse=store_options->yrot;
       z_mouse=store_options->zrot;
+    }
   }
   void translateX()    { translateAlongAxis(0); }
   void translateY()    { translateAlongAxis(1); }

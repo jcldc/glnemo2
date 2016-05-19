@@ -201,32 +201,51 @@ class FormOptions: public QDialog {
     void on_zoom_dspin_valueChanged(double value) {      
       if (EMIT) {
           go->zoom=value;
+          emit osd_reset_matrix(true);
           emit update_osd(true);
       }
     }
     void on_rx_dspin_valueChanged(double value) {
-      go->xrot=(float) value;
-      if (EMIT) emit update_osd(true);
+      go->xrot=(float) value;      
+      if (EMIT) {
+        emit osd_reset_matrix(true);
+        emit update_osd(true);
+      }
     }
     void on_ry_dspin_valueChanged(double value) {
       go->yrot=(float) value;
-      if (EMIT) emit update_osd(true);
+      if (EMIT) {
+        emit osd_reset_matrix(true);
+        emit update_osd(true);
+      }
     }
     void on_rz_dspin_valueChanged(double value) {
       go->zrot=(float) value;
-      if (EMIT) emit update_osd(true);
+      if (EMIT) {
+        emit osd_reset_matrix(true);
+        emit update_osd(true);
+      }
     }
     void on_tx_dspin_valueChanged(double value) {
       go->xtrans=(float) -value;
-      if (EMIT) emit update_osd(true);
+      if (EMIT) {
+        emit osd_reset_matrix(true);
+        emit update_osd(true);
+      }
     }
     void on_ty_dspin_valueChanged(double value) {
       go->ytrans=(float) -value;
-      if (EMIT) emit update_osd(true);
+      if (EMIT) {
+        emit osd_reset_matrix(true);
+        emit update_osd(true);
+      }
     }
     void on_tz_dspin_valueChanged(double value) {
       go->ztrans=(float) -value;
-      if (EMIT) emit update_osd(true);
+      if (EMIT) {
+        emit osd_reset_matrix(true);
+        emit update_osd(true);
+      }
     }
     // ColorBar TAB
     void on_gcb_enable_clicked(bool b) {
@@ -581,6 +600,7 @@ class FormOptions: public QDialog {
     void rebuild_grid();
     void update_osd(bool b);
     void update_osd_font();
+    void osd_reset_matrix(bool);
     void update_gcb_font();
     void update_gl();
     void play_forward(const bool);

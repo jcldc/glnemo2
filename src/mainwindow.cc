@@ -147,7 +147,7 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_options,SIGNAL(update_grid()),gl_window,SLOT(updateGrid()));
   connect(form_options,SIGNAL(rebuild_grid()),gl_window,SLOT(rebuildGrid()));
   // options osd tab
-  connect(form_options,SIGNAL(update_osd(bool)),gl_window,SLOT(resetMatrix()));
+  connect(form_options,SIGNAL(osd_reset_matrix(bool)),gl_window,SLOT(resetMatrix(bool)));
   connect(form_options,SIGNAL(update_osd(bool)),this,SLOT(updateOsd(bool)));
   connect(form_options,SIGNAL(update_osd_font()),gl_window,SLOT(changeOsdFont()));
   connect(form_options,SIGNAL(update_gl()),gl_window,SLOT(updateGL()));
