@@ -1,4 +1,7 @@
-
+# cmake
+build
+*.autosave
+*.user
 
 # tilda
 *~
