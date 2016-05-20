@@ -506,7 +506,13 @@ void GLWindow::paintGL()
   // move the scene
   glTranslatef( store_options->xtrans, store_options->ytrans, store_options->ztrans);
   glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel2);  
-  
+  for (int i=0;i<4;i++) {
+    for (int j=0;j<4;j++) {
+      std::cerr << mModel2[i*4+j] << " ";
+    }
+    std::cerr << "\n";
+  }
+  std::cerr << "\n----------\n";
   // nice points display
   glEnable(GL_POINT_SMOOTH);
   
