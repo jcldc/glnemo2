@@ -509,6 +509,10 @@ void GLWindow::paintGL()
   for (int i=0;i<4;i++) {
     for (int j=0;j<4;j++) {
       std::cerr << mModel2[i*4+j] << " ";
+      // 0 4 8  12
+      // 1 5 9  13
+      // 2 6 10 14
+      // 3 7 11 15       3: xtrans 7: ytrans  11: zoom & ztrans
     }
     std::cerr << "\n";
   }
