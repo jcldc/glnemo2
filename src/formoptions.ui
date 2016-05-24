@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>811</width>
+    <width>863</width>
     <height>293</height>
    </rect>
   </property>
@@ -28,7 +28,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>8</number>
      </property>
      <widget class="QWidget" name="tab_i_select">
       <attribute name="title">
@@ -7671,10 +7671,10 @@ p, li { white-space: pre-wrap; }
       <attribute name="title">
        <string>Camera</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_41">
+      <layout class="QGridLayout" name="gridLayout_44">
        <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
-         <item>
+        <layout class="QGridLayout" name="gridLayout_41">
+         <item row="0" column="0">
           <widget class="QGroupBox" name="groupBox_3">
            <property name="title">
             <string>Camera path file</string>
@@ -7693,7 +7693,7 @@ p, li { white-space: pre-wrap; }
            </layout>
           </widget>
          </item>
-         <item>
+         <item row="0" column="1">
           <widget class="QGroupBox" name="groupBox_5">
            <property name="title">
             <string>Spline</string>
@@ -7744,7 +7744,7 @@ p, li { white-space: pre-wrap; }
            </layout>
           </widget>
          </item>
-         <item>
+         <item row="0" column="2">
           <widget class="QGroupBox" name="groupBox_4">
            <property name="title">
             <string>Display</string>
@@ -7773,7 +7773,7 @@ p, li { white-space: pre-wrap; }
            </layout>
           </widget>
          </item>
-         <item>
+         <item row="0" column="3">
           <widget class="QPushButton" name="cam_play">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -8207,6 +8207,25 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="text">
             <string>Start</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QPushButton" name="cam_reset">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>80</width>
+             <height>55</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>RESET</string>
            </property>
           </widget>
          </item>
@@ -9123,6 +9142,118 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>sel_zoom_radio</tabstop>
+  <tabstop>sel_only_radio</tabstop>
+  <tabstop>save_button</tabstop>
+  <tabstop>obj_button</tabstop>
+  <tabstop>options_dialog</tabstop>
+  <tabstop>nsel_edit</tabstop>
+  <tabstop>button_sel_all_part</tabstop>
+  <tabstop>radio_persp</tabstop>
+  <tabstop>radio_ortho</tabstop>
+  <tabstop>show_3daxis</tabstop>
+  <tabstop>axis_bottom</tabstop>
+  <tabstop>axis_center</tabstop>
+  <tabstop>axis_dial</tabstop>
+  <tabstop>cb_opaque_disc</tabstop>
+  <tabstop>od_radius_spin</tabstop>
+  <tabstop>cb_coronograph</tabstop>
+  <tabstop>play</tabstop>
+  <tabstop>forward_radio</tabstop>
+  <tabstop>backward_radio</tabstop>
+  <tabstop>frame_slide</tabstop>
+  <tabstop>frame_spin</tabstop>
+  <tabstop>frame_dial</tabstop>
+  <tabstop>frame_max</tabstop>
+  <tabstop>com</tabstop>
+  <tabstop>cod</tabstop>
+  <tabstop>fps</tabstop>
+  <tabstop>status_line</tabstop>
+  <tabstop>show_grid_checkb</tabstop>
+  <tabstop>mesh_length_spin</tabstop>
+  <tabstop>mesh_nb_spin</tabstop>
+  <tabstop>xy_checkb</tabstop>
+  <tabstop>xy_grid_color</tabstop>
+  <tabstop>yz_checkb</tabstop>
+  <tabstop>yz_grid_color</tabstop>
+  <tabstop>xz_checkb</tabstop>
+  <tabstop>xz_grid_color</tabstop>
+  <tabstop>cube_checkb</tabstop>
+  <tabstop>cube_color</tabstop>
+  <tabstop>show_osd_checkb</tabstop>
+  <tabstop>osd_time</tabstop>
+  <tabstop>osd_title</tabstop>
+  <tabstop>osd_nbody</tabstop>
+  <tabstop>osd_datatype</tabstop>
+  <tabstop>osd_zoom</tabstop>
+  <tabstop>osd_trans</tabstop>
+  <tabstop>osd_rot</tabstop>
+  <tabstop>osd_proj</tabstop>
+  <tabstop>osd_combo_font</tabstop>
+  <tabstop>spin_font_size</tabstop>
+  <tabstop>title_name</tabstop>
+  <tabstop>zoom_dspin</tabstop>
+  <tabstop>rx_dspin</tabstop>
+  <tabstop>ry_dspin</tabstop>
+  <tabstop>rz_dspin</tabstop>
+  <tabstop>tx_dspin</tabstop>
+  <tabstop>ty_dspin</tabstop>
+  <tabstop>tz_dspin</tabstop>
+  <tabstop>font_color</tabstop>
+  <tabstop>background_color</tabstop>
+  <tabstop>rot_screen</tabstop>
+  <tabstop>rot_world</tabstop>
+  <tabstop>xsrotate</tabstop>
+  <tabstop>xsreverse</tabstop>
+  <tabstop>ysrotate</tabstop>
+  <tabstop>ysreverse</tabstop>
+  <tabstop>zsrotate</tabstop>
+  <tabstop>zsreverse</tabstop>
+  <tabstop>uwrotate</tabstop>
+  <tabstop>uwreverse</tabstop>
+  <tabstop>vwrotate</tabstop>
+  <tabstop>vwreverse</tabstop>
+  <tabstop>wwrotate</tabstop>
+  <tabstop>wwreverse</tabstop>
+  <tabstop>gcb_enable</tabstop>
+  <tabstop>gcb_font</tabstop>
+  <tabstop>gcb_spin_font_size</tabstop>
+  <tabstop>gcb_font_color</tabstop>
+  <tabstop>gcb_width</tabstop>
+  <tabstop>gcb_height</tabstop>
+  <tabstop>gcb_spin_offset</tabstop>
+  <tabstop>gcb_log</tabstop>
+  <tabstop>gcb_spin_digit</tabstop>
+  <tabstop>gcb_radio_north</tabstop>
+  <tabstop>gcb_radio_west</tabstop>
+  <tabstop>gcb_radio_est</tabstop>
+  <tabstop>gcb_radio_south</tabstop>
+  <tabstop>radio_res_custom</tabstop>
+  <tabstop>radio_res_standard</tabstop>
+  <tabstop>frame_png</tabstop>
+  <tabstop>frame_jpg</tabstop>
+  <tabstop>screen_size</tabstop>
+  <tabstop>custom_width</tabstop>
+  <tabstop>custom_height</tabstop>
+  <tabstop>frame_name</tabstop>
+  <tabstop>frame_name_text</tabstop>
+  <tabstop>reset</tabstop>
+  <tabstop>auto_save_gl</tabstop>
+  <tabstop>auto_save</tabstop>
+  <tabstop>cam_load_but</tabstop>
+  <tabstop>cam_load_select</tabstop>
+  <tabstop>spline_points</tabstop>
+  <tabstop>spline_scale</tabstop>
+  <tabstop>cam_pts_display</tabstop>
+  <tabstop>cam_path_display</tabstop>
+  <tabstop>cam_play</tabstop>
+  <tabstop>unlimit_radio</tabstop>
+  <tabstop>limit_radio</tabstop>
+  <tabstop>time_box</tabstop>
+  <tabstop>bench_button</tabstop>
+  <tabstop>cam_reset</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

@@ -62,6 +62,7 @@ class FormOptions: public QDialog {
     static int windows_size[][2];
     QMutex * mutex_data;
     bool EMIT;
+    bool playing_camera;
   private slots:
     void leaveEvent ( QEvent * event ) {
       if (event) {;}
@@ -94,6 +95,7 @@ class FormOptions: public QDialog {
       emit setSplineParam(form.spline_points->value(),v);
     }
     void on_cam_play_pressed();
+    void on_cam_reset_pressed();
     //                   
     // play selection tab
     void play_pressed2(const int forcestop=-1);
@@ -608,6 +610,7 @@ class FormOptions: public QDialog {
     void change_frame();
     void centering();
     void select_all_part();
+    void cam_reset();
     // auto rotation
     void autoRotate(const int);
     

@@ -127,7 +127,6 @@ public slots:
 
    void resetFrame() { nframe=0; }
    int getFrame() { return nframe;}
-
 protected:
   void	initializeGL();
   void	paintGL();
@@ -247,6 +246,22 @@ private:
   void setViewPort() {
     glGetIntegerv(GL_VIEWPORT,viewport);
   }
+
+  void printMatrix( GLdouble * matrix, std::string text="" ) {
+    std::cerr << text << "\n";
+    for (int i=0;i<4;i++) {
+      for (int j=0;j<4;j++) {
+        std::cerr << matrix[i*4+j] << " ";
+        // 0 4 8  12
+        // 1 5 9  13
+        // 2 6 10 14
+        // 3 7 11 15       3: xtrans 7: ytrans  11: zoom & ztrans
+      }
+      std::cerr << "\n";
+    }
+    std::cerr << "\n----------\n";
+  }
+
   void setPerspectiveMatrix();
   // OSD
   GLObjectOsd * osd;

@@ -47,6 +47,7 @@ namespace glnemo {
     void setCamDisplay(const bool , const bool, const bool ugl=true);  // toggle camera display
     void startStopPlay();
     void display();      
+    void reset();
     
   signals:
     void updateGL();
@@ -59,7 +60,7 @@ namespace glnemo {
         ex, ey, ez,
         cx, cy, cz,
         ux, uy, uz;
-    
+    Vec3D rv;
     CRSpline * spline;
     // playing timer
     QTimer * play_timer;

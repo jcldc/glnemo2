@@ -46,6 +46,8 @@ FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):
   connect(form.frame_slide,SIGNAL(sliderReleased()),this,SLOT(unLockFrame()));
   connect(form.frame_dial ,SIGNAL(sliderPressed()) ,this,SLOT(lockFrame()));
   connect(form.frame_dial ,SIGNAL(sliderReleased()),this,SLOT(unLockFrame()));
+  // camera tab
+  playing_camera=false;
   // frame spin box
   form.frame_spin->setKeyboardTracking(false);
   form.frame_spin->setButtonSymbols(QAbstractSpinBox::PlusMinus);
@@ -273,16 +275,24 @@ void FormOptions::updateParticlesSelect(const int nbody)
 // ============================================================================
 void FormOptions::on_cam_play_pressed()
 {
-  static bool playing=false;
-  if (playing) {
+  //static bool playing=false;
+  if (playing_camera) {
     form.cam_play->setText("Start");
   } 
   else {
     form.cam_play->setText("Stop");
   }
   emit startStopPlay();
-  playing = !playing;
+  playing_camera = !playing_camera;
 }
+// ============================================================================
+void FormOptions::on_cam_reset_pressed()
+{
+  emit cam_reset();
+  form.cam_play->setText("Start");
+  playing_camera=false;
+}
+
 // ============================================================================
 // TAB PLAY OPTIONS                                                            
 // ============================================================================

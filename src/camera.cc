@@ -23,17 +23,10 @@ namespace glnemo {
   // constructor                                                                 
   Camera::Camera()
   {  
-    ex=ey=ez=0.0;     // eyes
-    cx=cy=cz=0.0;     // center 
-    ux=uz=0.0;uy=1.0; // up vectors
-    
     spline = new CRSpline();
-    display_ctrl = false; // toggle display ctrl  
-    display_path = false; // toggle display path  
-    play         = false; // toggle animation     
     play_timer   = new QTimer(this);
     connect(play_timer,SIGNAL(timeout()),this,SLOT(playGL())); // update GL at every timeout()
-    index_frame  = 0;
+    reset();
   }
   // ============================================================================
   // destructor                                                                 
@@ -43,7 +36,24 @@ namespace glnemo {
     glDeleteLists( dplist_index, 1 );
   }
   // ============================================================================
-  // destructor                                                                 
+  // reset
+  void Camera::reset()
+  {
+    play_timer->stop();
+    ex=ey=ez=0.0;     // eyes
+    cx=cy=cz=0.0;     // center
+    ux=uz=0.0;uy=1.0; // up vectors
+
+    display_ctrl = false; // toggle display ctrl
+    display_path = false; // toggle display path
+    play         = false; // toggle animation
+    index_frame  = 0;
+    Vec3D zero(0.,0.,0.);
+    rv=zero;
+
+  }
+  // ============================================================================
+  // init
   void Camera::init(std::string filename, const int _p, const float _s)
   {
     npoints = _p; // #interpolated points
@@ -58,6 +68,12 @@ namespace glnemo {
   void Camera::setEye(const float x, const float y, const float z)
   {
     ex=x;ey=y;ez=z;
+    if (!play && (rv.x!=0. || rv.y!=0. || rv.z!=0)) {
+      ex=rv.x;
+      ey=rv.y;
+      uz=ez;
+      ez=rv.z;
+    }
   }
   // ============================================================================
   //  setCenter                                                                  
@@ -84,7 +100,7 @@ namespace glnemo {
       index_frame = index_frame%npoints;
       //std::cerr << "frame : "<< index_frame << "\n";
       float  t=(float)index_frame / (float)npoints;
-      Vec3D rv = spline->GetInterpolatedSplinePoint(t)*scale;   
+      rv = spline->GetInterpolatedSplinePoint(t)*scale;
       gluLookAt(rv.x, rv.y, rv.z,
                 cx, cy, cz,
                 ux, uy, ez); // ez, why ????!!!!!!
