@@ -1,4 +1,8 @@
-
+# qt creator / cmake
+build/
+*.pro.user
+*-debug/
+*.autosave
 
 # tilda
 *~
