@@ -28,7 +28,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>8</number>
+      <number>7</number>
      </property>
      <widget class="QWidget" name="tab_i_select">
       <attribute name="title">
@@ -1604,6 +1604,9 @@
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
+              <property name="decimals">
+               <number>5</number>
+              </property>
               <property name="maximum">
                <double>999999999.000000000000000</double>
               </property>
@@ -2436,7 +2439,7 @@ exist. You must check COM also.</string>
              <string>Grid's size mesh</string>
             </property>
             <property name="decimals">
-             <number>4</number>
+             <number>8</number>
             </property>
             <property name="maximum">
              <double>9999.000000000000000</double>
@@ -2803,7 +2806,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QDoubleSpinBox" name="rx_dspin">
               <property name="decimals">
-               <number>6</number>
+               <number>8</number>
               </property>
               <property name="minimum">
                <double>-1000.000000000000000</double>
@@ -2816,7 +2819,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QDoubleSpinBox" name="ry_dspin">
               <property name="decimals">
-               <number>6</number>
+               <number>8</number>
               </property>
               <property name="minimum">
                <double>-1000.000000000000000</double>
@@ -2829,7 +2832,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QDoubleSpinBox" name="rz_dspin">
               <property name="decimals">
-               <number>6</number>
+               <number>8</number>
               </property>
               <property name="minimum">
                <double>-1000.000000000000000</double>
@@ -2853,7 +2856,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QDoubleSpinBox" name="tx_dspin">
               <property name="decimals">
-               <number>6</number>
+               <number>8</number>
               </property>
               <property name="minimum">
                <double>-50000.000000000000000</double>
@@ -2866,7 +2869,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QDoubleSpinBox" name="ty_dspin">
               <property name="decimals">
-               <number>6</number>
+               <number>8</number>
               </property>
               <property name="minimum">
                <double>-50000.000000000000000</double>
@@ -2879,7 +2882,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QDoubleSpinBox" name="tz_dspin">
               <property name="decimals">
-               <number>6</number>
+               <number>8</number>
               </property>
               <property name="minimum">
                <double>-50000.000000000000000</double>

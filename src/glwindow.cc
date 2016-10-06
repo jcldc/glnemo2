@@ -712,6 +712,9 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
 //    glGetDoublev(GL_PROJECTION_MATRIX, (GLdouble *) mp);
 //    for (int i=0;i<16;i++) std::cerr << "// "<< mp[i];
 //    std::cerr << "\n";
+    const GLfloat zNear = 0.0005, zFar = (GLfloat) DOF, fov = 45.0;
+    store_options->mat4_proj = glm::mat4();
+    store_options->mat4_proj = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
   }
   else {
     computeOrthoFactor();    
@@ -1101,6 +1104,8 @@ void GLWindow::setTranslation( const int x, const int y, const int z )
   store_options->xtrans=xTrans;
   store_options->ytrans=yTrans;
   store_options->ztrans=zTrans;
+  store_options->mat4_model = glm::mat4();
+  store_options->mat4_model = glm::translate(store_options->mat4_model,glm::vec3(xTrans,yTrans,zTrans));
   updateGL();
 }
 // -----------------------------------------------------------------------------

@@ -21,8 +21,9 @@
 namespace glnemo {
   // ============================================================================
   // constructor                                                                 
-  Camera::Camera()
+  Camera::Camera(GlobalOptions *so)
   {  
+    store_options = so;
     spline = new CRSpline();
     play_timer   = new QTimer(this);
     connect(play_timer,SIGNAL(timeout()),this,SLOT(playGL())); // update GL at every timeout()
