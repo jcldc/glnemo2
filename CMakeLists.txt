@@ -129,7 +129,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 include_directories (${PROJECT_SOURCE_DIR}/plugins ${PROJECT_SOURCE_DIR}/plugins/nemolight/inc ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/plugins/ftm ${PROJECT_SOURCE_DIR}/plugins/gadget ${PROJECT_SOURCE_DIR}/plugins/tipsy ${PROJECT_SOURCE_DIR}/src/glew ${PROJECT_SOURCE_DIR}/plugins/network ${PROJECT_SOURCE_DIR}/plugins/ramses ${PROJECT_SOURCE_DIR}/plugins/zlib ${PROJECT_SOURCE_DIR}/3rdparty/pfntlib ${PROJECT_SOURCE_DIR}/utils)
 include_directories (${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS} {Qt5PrintSupport_INCLUDE_DIRS})
 include_directories(/usr/include/CCfits /usr/include/cfitsio /usr/local/include/CCfits)
-include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 ${HDF5_INCLUDE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 ${HDF5_INCLUDE_DIRS})
 
 if (APPLE)
   include_directories(/usr/include/malloc /usr/X11/include)
