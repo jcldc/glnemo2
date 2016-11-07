@@ -105,8 +105,8 @@ ComponentRangeVector * SnapshotFits::getSnapshotRange()
       std::cerr << "#axis ="<<image->axes() << std::endl;
       std::cerr << "NBODY = " << contents.size() << "\n";
       // MUST BE SET from CLI or GUI
-      float dmin = std::numeric_limits<float>::min();
-      float dmax = std::numeric_limits<float>::max();
+      double dmin = std::numeric_limits<double>::min();
+      double dmax = std::numeric_limits<double>::max();
       if (go->phys_min_glob!=-1) {
           //dmin = go->phys_min_glob;
       }
@@ -212,8 +212,8 @@ int SnapshotFits::nextFrame(const int * index_tab, const int nsel)
     }
 
     // MUST BE SET from CLI or GUI
-    float dmin = std::numeric_limits<float>::min();
-    float dmax = std::numeric_limits<float>::max();
+    double dmin = std::numeric_limits<double>::min();
+    double dmax = std::numeric_limits<double>::max();
     if (go->phys_min_glob!=-1) {
         //dmin = go->phys_min_glob;
     }
