@@ -136,6 +136,7 @@ public:
     bool new_frame;
     // memory
     bool duplicate_mem;
+    long int max_nbody;
     // density
     bool  phys_local;
     float phys_max_glob;
@@ -172,6 +173,8 @@ public:
     bool od_enable;
     bool od_display;
     float od_radius;
+    // multiple file reading
+    bool mult_file;
 };
 
 }

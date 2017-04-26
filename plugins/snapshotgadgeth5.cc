@@ -16,7 +16,6 @@
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 Q_PLUGIN_METADATA(IID "fr.glnemo2.gadgetH5Plugin")
 #endif
-
 namespace glnemo {
 
 // ============================================================================
@@ -234,8 +233,9 @@ bool SnapshotGadgetH5::loadCommonDataset(std::string tag,U * data, const int dim
 
   GH5<float> * dataH5=NULL;
 
-  for (int ifile=0; ifile<myH5->getHeader().NumFilesPerSnapshot; ifile++) {
-    if (myH5->getHeader().NumFilesPerSnapshot>1) {
+  int max_file_to_load=(go->mult_file==true?myH5->getHeader().NumFilesPerSnapshot:1);
+  for (int ifile=0; ifile<max_file_to_load; ifile++) {
+    if (go->mult_file && myH5->getHeader().NumFilesPerSnapshot>1) {
       // create file name
       std::size_t f1= filename.find(".hdf5"); // search ".hdf5"
       std::size_t f2= filename.find_last_of(".",f1-1); // search last "."
@@ -306,8 +306,9 @@ bool SnapshotGadgetH5::loadDataset(std::string dataset, U  * data, const int com
     if (1)  std::cerr << dataset << "\n";
     GH5<float> * dataH5=NULL;
     unsigned int offset=0;
-    for (int ifile=0; ifile<myH5->getHeader().NumFilesPerSnapshot; ifile++) {
-      if (myH5->getHeader().NumFilesPerSnapshot>1) {
+    int max_file_to_load=(go->mult_file==true?myH5->getHeader().NumFilesPerSnapshot:1);
+    for (int ifile=0; ifile<max_file_to_load; ifile++) {
+      if (go->mult_file && myH5->getHeader().NumFilesPerSnapshot>1) {
         // create file name
         std::size_t f1= filename.find(".hdf5"); // search ".hdf5"
         std::size_t f2= filename.find_last_of(".",f1-1); // search last "."

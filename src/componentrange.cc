@@ -13,6 +13,7 @@
 #include "componentrange.h"
 #include <sstream>
 #include <iostream>
+#include <cmath>
 #include "assert.h"
 namespace glnemo {
 
@@ -74,12 +75,27 @@ int ComponentRange::getIndexMatchType(const ComponentRangeVector * crv, const st
 // ============================================================================
 void ComponentRange::list(const ComponentRangeVector * crv)
 {
-  for (unsigned int i=0; i<crv->size(); i++) {
-    std::cerr << "-----------------------------------------------------------\n";
-    std::cerr << "Component #"<<i<<"\n";
-    std::cerr << "type  :"<<(*crv)[i].type<<"\n";
-    std::cerr << "range :"<<(*crv)[i].range<<"\n";
-    std::cerr << "nbody :"<<(*crv)[i].n<<"\n";
+  if (crv) {
+    for (unsigned int i=0; i<crv->size(); i++) {
+      std::cerr << "-----------------------------------------------------------\n";
+      std::cerr << "Component #"<<i<<"\n";
+      std::cerr << "type  :"<<(*crv)[i].type<<"\n";
+      std::cerr << "range :"<<(*crv)[i].range<<"\n";
+      std::cerr << "nbody :"<<(*crv)[i].n<<"\n";
+    }
+  }
+}
+// ============================================================================
+// resize CRV if user wants to use a reduced number of bodies
+void ComponentRange::resizeMaxNbody(ComponentRangeVector * crv, const int max_nbody)
+{
+  if (crv && max_nbody && (*crv)[0].n>max_nbody) {
+    for (unsigned int i=0; i<crv->size(); i++) {
+      (*crv)[i].n     = ceil(((*crv)[i].n)/max_nbody);
+      (*crv)[i].first = floor((*crv)[i].first / max_nbody);
+      (*crv)[i].last  = floor((*crv)[i].last  / max_nbody);
+      (*crv)[i].buildRange();
+    }
   }
 }
 } // namespace

@@ -65,7 +65,7 @@ void GH5<T>::readHeaderAttributes()
 
     header.Flag_Cooling = (int) getAttribute<int>("Flag_Cooling")[0];
     header.Flag_DoublePrecision = (int) getAttribute<int>("Flag_DoublePrecision")[0];
-    header.Flag_IC_Info = (int) getAttribute<int>("Flag_IC_Info")[0];
+    //header.Flag_IC_Info = (int) getAttribute<int>("Flag_IC_Info")[0];
     header.Flag_Metals = (int) getAttribute<int>("Flag_Metals")[0];
     header.Flag_Sfr = (int) getAttribute<int>("Flag_Sfr")[0];
     header.Flag_StellarAge = (int) getAttribute<int>("Flag_StellarAge")[0];

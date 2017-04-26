@@ -17,13 +17,15 @@
 #define GLNEMOFORMSELECTPART_H
 #include "ui_formselectpart.h"
 #include "snapshotinterface.h"
+#include "globaloptions.h"
+
 namespace glnemo {
 
 
 class FormSelectPart: public QDialog {
   Q_OBJECT
   public:
-    FormSelectPart(QWidget *parent = 0);
+    FormSelectPart(GlobalOptions * , QWidget *parent = 0);
 
     ~FormSelectPart();
   void update(SnapshotInterface *,ComponentRangeVector *, const std::string, const bool first_snapshot=false);
@@ -38,7 +40,12 @@ class FormSelectPart: public QDialog {
     void on_stars_check_clicked() { updateSelect(); }
     void on_bndry_check_clicked() { updateSelect(); }
     void on_load_vel_check_clicked()    { load_vel = form.load_vel_check->isChecked(); }
+    void on_load_multiple_files_check_clicked() { go->mult_file = form.load_multiple_files_check->isChecked();}
     void on_manual_range_textChanged(QString s) { updateSelect(); s="";}
+    void on_max_bodies_spin_valueChanged(int value) {
+      go->max_nbody = value;
+    }
+
     void on_button_box_accepted() {
       accept();
       emit selectPart(form.final_select->text().toStdString(), first_snapshot, load_vel);
@@ -49,6 +56,7 @@ class FormSelectPart: public QDialog {
     Ui::FormSelectPart form;
     ComponentRangeVector * crv;
     SnapshotInterface * current_data;
+    GlobalOptions * go;
     bool load_vel;
     void reset(bool range=true);
     void updateSelect();

@@ -16,11 +16,15 @@ namespace glnemo {
 
 // ============================================================================
 // Constructor                                                                 
-FormSelectPart::FormSelectPart(QWidget *parent)
+FormSelectPart::FormSelectPart(GlobalOptions * _go, QWidget *parent)
 {
   if (parent) {;}  // remove compiler warning
   form.setupUi(this);
   load_vel = false;
+  go = _go;
+  form.max_bodies_spin->setValue(go->max_nbody);
+  form.load_vel_check->setChecked(go->vel_req);
+  form.load_multiple_files_check->setChecked(go->mult_file);
 }
 
 // ============================================================================

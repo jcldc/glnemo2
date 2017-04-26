@@ -105,6 +105,8 @@ std::string VERSION = "VERSION="+release+"\n    "+__DATE__+"  - JCL  compiled at
     "glsl=t\n          try to initialyze GLSL engine                    ",
     "ortho_range=6.0\n xy range if orthographic projection              ",
     "zoom=-14\n        zoom value                                       ",
+    "max_nbody=0\n     max nbody to load (0 means all)                  ",
+    "mult_file=t\n     multiple file reading                            ",
     "xrot=0.0\n        rotation angle on X axis                         ",
     "yrot=0.0\n        rotation angle on Y axis                         ",
     "zrot=0.0\n        rotation angle on Z axis                         ",

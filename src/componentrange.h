@@ -34,6 +34,7 @@ public:
   void setType(std::string _type) { type = _type; };
   static int getIndexMatchType(const ComponentRangeVector * crv, const std::string type);
   static void list(const ComponentRangeVector * crv);
+  static void resizeMaxNbody(ComponentRangeVector * crv, const int max_nbody);
    std::string range,   // "0:99999"
                type;    // "all", "halo", "disk", "bulge", "gas", "other"....
    int first,last,n;

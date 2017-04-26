@@ -18,6 +18,7 @@
 #include "userselection.h"
 #include <algorithm>
 #include "assert.h"
+
 namespace glnemo {
 
 // ============================================================================
@@ -58,7 +59,7 @@ bool UserSelection::setSelection(std::string _sel,
   }
   assert(crv);                   // must not be NULL
   assert((*crv)[0].type=="all"); // first entry must be "all"    
-  nbody = (*crv)[0].n;           // #bodies max in the snapshot  
+  nbody = (*crv)[0].n;           // #bodies max in the snapshot
   if (indexes) 
      delete [] indexes;
   if (pov->size()) { // copy previous objects

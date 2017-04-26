@@ -222,6 +222,7 @@ void MainWindow::start(std::string shot)
     else {
         if(actionMenuFileConnect2(ip, port, vel, false, false)) {
             crv = current_data->getSnapshotRange();
+            //ComponentRange::resizeMaxNbody(crv,store_options->max_nbody);
             selectPart(select, true, vel);
         }
     }
@@ -376,7 +377,7 @@ void MainWindow::createForms()
   form_about  = new FormAbout(this);
   form_help   = new FormHelp(this);
   form_sshot  = new FormScreenshot(this);
-  form_spart  = new FormSelectPart(this);
+  form_spart  = new FormSelectPart(store_options,this);
   form_o_c    = new FormObjectControl(this);
   form_options= new FormOptions(store_options,mutex_data,this);
   form_connect = new FormConnect(this);
@@ -741,7 +742,9 @@ void MainWindow::interactiveSelect(std::string _select, const bool first_snapsho
   if (current_data) {
     if (!reload) {
       if (first_snapshot) current_data->setJumpFrame(0);
+      ComponentRange::list(crv);
       crv = current_data->getSnapshotRange();
+      //ComponentRange::resizeMaxNbody(crv,store_options->max_nbody);
     } else {
       current_data->setJumpFrame(0);
       form_options->setPlaySettings(current_data->getNumberFrames(), 0);
@@ -772,6 +775,7 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
     //connect(current_data,SIGNAL(stringStatus(QString)),status_bar, SLOT(showMessage(QString)));
     current_data->initLoading(store_options);
     crv = current_data->getSnapshotRange();    
+    //ComponentRange::resizeMaxNbody(crv,store_options->max_nbody);
     ComponentRange::list(crv);
     //ComponentRange::list(&current_data->crv_first);
   } else {
@@ -809,7 +813,10 @@ void MainWindow::loadNewData(const std::string select,
     if (!interact) current_data->initLoading(store_options);
     // get snapshot component ranges
     //ComponentRangeVector * crv = current_data->getSnapshotRange();
-    if (!interact) crv = current_data->getSnapshotRange();
+    if (!interact) {
+      crv = current_data->getSnapshotRange();
+      //ComponentRange::resizeMaxNbody(crv,store_options->max_nbody);
+    }
     //crv = current_data->getSnapshotRange();
     assert(crv);
     assert(crv->size());
@@ -1107,9 +1114,10 @@ void MainWindow::parseNemoParameters()
   store_options->auto_texture_size  =getbparam((char *) "auto_ts");
   store_options->texture_size       =getdparam((char *) "texture_s");
   store_options->texture_alpha      =getdparam((char *) "texture_a");
-  
+  // memory
   store_options->duplicate_mem = getbparam((char *) "smooth_gui");
-  
+  store_options->max_nbody = getiparam((char *) "max_nbody");
+  store_options->mult_file = getbparam((char *) "mult_file");
   // ortho
   store_options->ortho_range = getdparam((char *) "ortho_range");
 

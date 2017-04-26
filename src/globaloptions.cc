@@ -132,6 +132,7 @@ GlobalOptions::GlobalOptions()
   // memory
   duplicate_mem = true;
   octree_enable = false;
+  max_nbody=0;  // 0 mens all nbody
   // density
   phys_local = true;
   phys_min_glob = -1.;
@@ -165,6 +166,8 @@ GlobalOptions::GlobalOptions()
   od_enable = false;
   od_display= false;
   od_radius = 0.0;
+  // mulitple file reading
+  mult_file = true;
 }
 // ============================================================================
 // destructor                                                                  
@@ -338,6 +341,7 @@ const GlobalOptions& GlobalOptions::operator=(const GlobalOptions &m)
   cod = m.cod;
   // memory
   duplicate_mem = m.duplicate_mem;
+  max_nbody = m.max_nbody;
   // physical value
   phys_local = m.phys_local;
   phys_max_glob = m.phys_max_glob;
@@ -380,6 +384,8 @@ const GlobalOptions& GlobalOptions::operator=(const GlobalOptions &m)
   mat4_proj = m.mat4_proj;
   mat4_model= m.mat4_model;
   mat4_view = m.mat4_view;
+  // multiple file reading
+  mult_file = m.mult_file;
   return *this;
 }
 // ============================================================================
