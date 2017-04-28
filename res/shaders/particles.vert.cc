@@ -99,7 +99,9 @@ void main()
   }
 
   // compute vertex Z value
-  vec4 vert = vec4(position.xy,position.z * z_stretch_value,1.0);
+  //vec4 vert = gl_Vertex; //vec4(position.xy,position.z * z_stretch_value,1.0);
+  vec4 vert = vec4(gl_Vertex.xy,gl_Vertex.z * z_stretch_value,1.0);
+
   if (z_stretch_jit==1) { // random value requested
     vert.z = vert.z + z_stretch_value * noise(position);
   }
@@ -163,7 +165,7 @@ vec4 computeColor() {
     col.y = colormap[cindex].y;    // green
     col.z = colormap[cindex].z;    // blue
     //vec4 vert = gl_Vertex;
-    vec4 vert = vec4(position,1.0);
+    vec4 vert = gl_Vertex;//vec4(position,1.0);
     if (show_zneg==1) {
       if (log_rho>0.0)
         col.w = pow(log_rho,powalpha); // alpha
@@ -194,7 +196,9 @@ vec4 computeColor() {
 bool isVisible()
 {
    bool ret=false;
-   vec4 vert = vec4(position.xy,position.z * z_stretch_value,1.0);
+   //vec4 vert = vec4(position.xy,position.z * z_stretch_value,1.0);
+   vec4 vert = vec4(gl_Vertex.xy,gl_Vertex.z * z_stretch_value,1.0);
+
    if (z_stretch_jit==1) { // random value requested
      vert.z = vert.z + z_stretch_value * noise(position);
    }

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>372</width>
+    <width>408</width>
     <height>940</height>
    </rect>
   </property>
@@ -1438,6 +1438,9 @@ Physical value can be:
                </property>
                <property name="minimum">
                 <double>1.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>1000.000000000000000</double>
                </property>
                <property name="value">
                 <double>2.000000000000000</double>

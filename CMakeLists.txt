@@ -29,7 +29,7 @@ if    (WIN32)
 endif ()
 if    (APPLE)
   MESSAGE(STATUS "\n\n\n- - - Mac OSX  - - -\n\n\nWARNING : DO NOT FORGET TO RUN CMAKE LIKE THIS\n\n ")
-  MESSAGE(STATUS "cmake .. -DCMAKE_PREFIX_PATH=/Users/jcl/Qt/5.4/clang_64/lib/cmake\n\n\n")
+  MESSAGE(STATUS "cmake .. -DCMAKE_PREFIX_PATH=/Users/jcl/Qt/5.8/clang_64/lib/cmake\n\n\n")
 endif ()
 # check QTDIR5
 FILE(GLOB GLOB_TEMP_VAR1 $ENV{QTDIR5})
@@ -122,13 +122,14 @@ if (NOT APPLE)
 endif()
 
 ADD_DEFINITIONS(-fPIC)
+set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 # Add compiler flags for building executables (-fPIE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 # Make sure the compiler can find include files from our Hello library.
 include_directories (${PROJECT_SOURCE_DIR}/plugins ${PROJECT_SOURCE_DIR}/plugins/nemolight/inc ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/plugins/ftm ${PROJECT_SOURCE_DIR}/plugins/gadget ${PROJECT_SOURCE_DIR}/plugins/tipsy ${PROJECT_SOURCE_DIR}/src/glew ${PROJECT_SOURCE_DIR}/plugins/network ${PROJECT_SOURCE_DIR}/plugins/ramses ${PROJECT_SOURCE_DIR}/plugins/zlib ${PROJECT_SOURCE_DIR}/3rdparty/pfntlib ${PROJECT_SOURCE_DIR}/utils)
 include_directories (${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS} {Qt5PrintSupport_INCLUDE_DIRS})
-include_directories(/usr/include/CCfits /usr/include/cfitsio /usr/local/include/CCfits)
+include_directories(/usr/include/CCfits /opt/local/include /opt/local/include/CCfits  /usr/include/cfitsio /usr/local/include/CCfits)
 include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 ${HDF5_INCLUDE_DIR})
 
 if (APPLE)
@@ -147,7 +148,7 @@ add_library (uns STATIC ${moc1_src} ${lib_files})
 # -----------------------
 
 # Make sure the linker can find the Hello library once it is built.
-link_directories (${CMAKE_BINARY_DIR}/LIB /usr/local/lib )
+link_directories (${CMAKE_BINARY_DIR}/LIB /opt/local/lib /usr/local/lib )
 
 # Glew file
 set (glew src/glew/glew.c) 
@@ -264,7 +265,7 @@ if (UNIX AND NOT APPLE)
 endif ()
 
 if (APPLE)
-  INSTALL(PROGRAMS  ${PROJECT_BINARY_DIR}/glnemo2.app   DESTINATION   . )
+  #INSTALL(PROGRAMS  ${PROJECT_BINARY_DIR}/glnemo2.app   DESTINATION   . )
 endif()
 
 if(APPLE)
