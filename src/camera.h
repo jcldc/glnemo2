@@ -19,6 +19,8 @@
 
 #include "catmull_rom_spline.h"
 #include "globject.h"
+#include "globaloptions.h"
+
 
 namespace glnemo {
 
@@ -28,7 +30,7 @@ namespace glnemo {
   class Camera: public GLObject{
     Q_OBJECT
   public:
-    Camera();
+    Camera(GlobalOptions * so);
     ~Camera();
     // init
     void init(std::string filename="", const int _p=2000, const float _s=1.0); // MUST BE CALLED AFTER MAKECURRENT()
@@ -56,6 +58,7 @@ namespace glnemo {
     void playGL() { emit updateGL();}
 
   private:
+    GlobalOptions * store_options;
     float
         ex, ey, ez,
         cx, cy, cz,

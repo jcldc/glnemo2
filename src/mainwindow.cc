@@ -67,7 +67,7 @@ MainWindow::MainWindow(std::string _ver)
   parseNemoParameters();
 
   // Camera
-  camera = new  Camera();  
+  camera = new  Camera(store_options);
   // ------- openGL object ---------
   gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera);
   camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/path_01");

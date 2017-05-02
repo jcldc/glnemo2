@@ -27,6 +27,10 @@ namespace glnemo {
 GlobalOptions::GlobalOptions()
 {
   list_type = false;
+  // OpenGL matrix
+  mat4_model = glm::mat4();
+  mat4_view  = glm::mat4();
+  mat4_proj  = glm::mat4();
   // Network stuff
   network_host = "127.0.0.1";
   network_port = 4000;
@@ -372,6 +376,10 @@ const GlobalOptions& GlobalOptions::operator=(const GlobalOptions &m)
   od_enable  = m.od_enable;
   od_display = m.od_display;
   od_radius  = m.od_radius;
+  // OpenGL matrix
+  mat4_proj = m.mat4_proj;
+  mat4_model= m.mat4_model;
+  mat4_view = m.mat4_view;
   return *this;
 }
 // ============================================================================

@@ -18,6 +18,13 @@
 
 #include <QColor>
 #include <vector>
+
+// GLM Mathematics
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 namespace glnemo {
  
 class GlobalOptions{
@@ -25,6 +32,8 @@ public:
     GlobalOptions();
     ~GlobalOptions();
     const GlobalOptions& operator=(const GlobalOptions& m);
+    // OpenGL matrix
+    glm::mat4 mat4_proj, mat4_model, mat4_view;
 	// Network stuff
 	std::string  network_host;
 	int  network_port;
