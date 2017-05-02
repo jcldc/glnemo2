@@ -86,15 +86,15 @@ void main()
     col=computeColor();
   } else {
     if (show_zneg==1) {
-      col = vec4(gl_Color.r,gl_Color.g,gl_Color.b,gl_Color.a);   
+      col = vec4(gl_Color.r,gl_Color.g,gl_Color.b,gl_Color.a);
     } else {
       float a_alpha;
       if (isVisible()) {
-	a_alpha = gl_Color.a;
+        a_alpha = gl_Color.a;
       } else {
-	a_alpha = 0.0;
+        a_alpha = 0.0;
       }
-      col = vec4(gl_Color.r,gl_Color.g,gl_Color.b,a_alpha);   
+      col = vec4(gl_Color.r,gl_Color.g,gl_Color.b,a_alpha);
     }
   }
 
