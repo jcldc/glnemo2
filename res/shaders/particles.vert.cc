@@ -77,11 +77,14 @@ bool isVisible();
 vec4 mod289(vec4 x);
 vec4 perm(vec4 x);
 float noise(vec3 p);
+// color
+varying vec4 col;
 
 // ============================================================================
 void main()                                                            
 {           
-  vec4 col=vec4(0.0,0.0,0.0,0.0);
+  //vec4 col=vec4(0.0,0.0,0.0,0.0);
+  col=vec4(0.0,0.0,0.0,0.0);
   to_discard=0.0;
   // compute color
   if (data_phys_valid==1) {
@@ -101,7 +104,7 @@ void main()
   }
 
   // compute vertex Z value
-  //vec4 vert = gl_Vertex; //vec4(position.xy,position.z * z_stretch_value,1.0);
+  //vec4 vert = vec4(position.xy,position.z * z_stretch_value,1.0);
   vec4 vert = vec4(gl_Vertex.xy,gl_Vertex.z * z_stretch_value,1.0);
 
   if (z_stretch_jit==1) { // random value requested
