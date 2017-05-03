@@ -19,12 +19,14 @@
 
 uniform sampler2D splatTexture;                                        
 varying float to_discard;
+varying vec4 col;
 
 void main()                                                            
 {           
   if (to_discard==0.0) {
-    vec4 color = gl_Color * texture2D(splatTexture, gl_TexCoord[0].st);
-    gl_FragColor = color ;
+    //vec4 color = gl_Color * texture2D(splatTexture, gl_TexCoord[0].st);
+    //vec4 color = col * texture2D(splatTexture, gl_TexCoord[0].st);
+    gl_FragColor = gl_Color * texture2D(splatTexture, gl_TexCoord[0].st);//color ;
   } else {
     discard;
   }

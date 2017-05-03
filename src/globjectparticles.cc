@@ -149,6 +149,7 @@ void GLObjectParticles::display(const double * mModel, int win_height)
     // display sprites
     if (po->isGazEnable() && texture) {
       if (GLWindow::GLSL_support && po->isGazGlsl()) {      
+        GLObject::setColor(po->getColor());
         displayVboShader(win_height,false);      
       }
       else displaySprites(mModel); 
@@ -484,7 +485,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   //glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
   //glDisableClientState(GL_VERTEX_ARRAY);
   // send vertex positions only
-
+  glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
   int vpositions=glGetAttribLocation(shader->getProgramId(), "position");
   if (vpositions == -1) {
     std::cerr << "glGetAttribLocation(shader->getProgramId(), \"positions\") fails......\n";
@@ -502,7 +503,6 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   if (part_data->vel) {
       stride=2*3*sizeof(GLfloat);
   }
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
   glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) stride, (void *) start);

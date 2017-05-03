@@ -134,9 +134,10 @@ void main()
 //                           gl_Color.b+col.z                                             ,         
 //                           (gl_Color.a+col.w) * alpha);
 //  } else {
-    gl_FrontColor =  vec4( col.x ,          
-                           col.y ,         
-                           col.z ,         
+
+    gl_FrontColor =  vec4( col.x ,
+                           col.y ,
+                           col.z ,
                            col.w * alpha);
   //}
 }

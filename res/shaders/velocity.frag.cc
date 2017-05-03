@@ -18,11 +18,11 @@
 #version 120
 
 uniform float alpha;           // alpha color factor
-//uniform vec3 color;
-varying vec4 col;
+uniform vec3 color;
+
 
 void main()
 {
-    gl_FragColor = vec4(col.xyz, alpha);
+    gl_FragColor = vec4(color.xyz, alpha);
 }
 // ============================================================================
