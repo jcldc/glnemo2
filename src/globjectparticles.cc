@@ -139,7 +139,8 @@ void GLObjectParticles::display(const double * mModel, int win_height)
       GLObject::updateAlphaSlot(po->getVelAlpha());
       GLObject::setColor(po->getColor());
       if (GLWindow::GLSL_support && vel_shader) {
-          displayVboVelShader130();
+        glDisable (GL_LINE_SMOOTH);
+        displayVboVelShader130();
       }
       //else
       //  GLObject::display(vel_dp_list);
@@ -286,32 +287,42 @@ void GLObjectParticles::displayVboVelShader130()
         vel_shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
 
         // send vel factor
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_X2);
         int vvel_factor=glGetAttribLocation(vel_shader->getProgramId(), "velocity");
+        if ( vvel_factor == -1) {
+          std::cerr << "Error occured when getting \"vvel_factor\" attribute\n";
+          exit(1);
+        }
         glEnableVertexAttribArrayARB(vvel_factor);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_X2);
         start = 2*3*min_index*sizeof(float);
         stride= 0;
         glVertexAttribPointerARB(vvel_factor,3,GL_FLOAT, 0, stride, (void *) (start));
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
         // positions and velocities (ending vector)
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
         int vpositions=glGetAttribLocation(vel_shader->getProgramId(), "position");
+        if ( vpositions == -1) {
+          std::cerr << "Error occured when getting \"vpositions\" attribute\n";
+          exit(1);
+        }
         glEnableVertexAttribArrayARB(vpositions);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
         start = 2*3*min_index*sizeof(float);
         stride=0;
         glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
-
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
         int maxvert=max_index-min_index+1;
 
         if (maxvert > 0 && maxvert<=nvert_pos) {
           //std::cerr << ">> rendering...\n";
           glDrawArrays(GL_LINES, 0, maxvert*2);
+          //glDrawArrays(GL_LINES, 0, maxvert*2);
           //glDrawArrays(GL_LINES, 0, maxvert);
           //std::cerr << "<< rendering...\n";
         }
 
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+        //glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
         vel_shader->stop();
 
@@ -426,7 +437,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   // get attribute location for phys data
   int a_phys_data = glGetAttribLocation(shader->getProgramId(), "a_phys_data");
   glVertexAttrib1f(a_phys_data,1.0);
-  if ( a_sprite_size == -1) {
+  if ( a_phys_data == -1) {
     std::cerr << "Error occured when getting \"a_phys_data\" attribute\n";
     exit(1);
   }
@@ -486,12 +497,14 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   //glDisableClientState(GL_VERTEX_ARRAY);
   // send vertex positions only
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
+#if 0 // deactivate positions
   int vpositions=glGetAttribLocation(shader->getProgramId(), "position");
   if (vpositions == -1) {
     std::cerr << "glGetAttribLocation(shader->getProgramId(), \"positions\") fails......\n";
     std::exit(1);
   }
   glEnableVertexAttribArrayARB(vpositions);
+#endif
   if (part_data->vel) {
     start=2*3*min_index*sizeof(float); // pos + vel
   } else {
@@ -503,7 +516,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   if (part_data->vel) {
       stride=2*3*sizeof(GLfloat);
   }
-  glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
+  //glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) stride, (void *) start);
   if (maxvert > 0 && maxvert<=nvert_pos) {
@@ -548,7 +561,6 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
 #endif
   //glDrawArrays(GL_POINTS, 0, nvert_pos);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-  glDisableClientState(GL_VERTEX_ARRAY);
 
   // deactivate shaders programs
   shader->stop();
@@ -562,7 +574,8 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
     //glDisableClientState(GL_COLOR_ARRAY);
     
   }
-  glDisableVertexAttribArray(vpositions);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  //glDisableVertexAttribArray(vpositions);
   glDisable(GL_POINT_SPRITE_ARB);
   glDisable(GL_BLEND);
   glDepthMask(GL_TRUE);

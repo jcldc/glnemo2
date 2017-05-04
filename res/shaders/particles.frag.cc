@@ -19,7 +19,6 @@
 
 uniform sampler2D splatTexture;                                        
 varying float to_discard;
-varying vec4 col;
 
 void main()                                                            
 {           

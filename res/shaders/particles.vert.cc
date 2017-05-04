@@ -30,7 +30,7 @@ uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 
 // vertex position
-attribute vec3 position;
+//attribute vec3 position;
 
 // texture
 uniform float alpha;           // alpha color factor                   
@@ -108,7 +108,7 @@ void main()
   vec4 vert = vec4(gl_Vertex.xy,gl_Vertex.z * z_stretch_value,1.0);
 
   if (z_stretch_jit==1) { // random value requested
-    vert.z = vert.z + z_stretch_value * noise(position);
+    vert.z = vert.z + z_stretch_value * noise(gl_Vertex.xyz);//position);
   }
 
   // compute texture size
@@ -130,11 +130,10 @@ void main()
   //gl_Position = projMatrix*viewMatrix*modelMatrix * vec4(vert.xyz,1.0);
 //  if (1==0) {
 //    gl_FrontColor =  vec4( gl_Color.r+col.x +float(factor_size)*0. + float(use_point)*0.,          
-//                           gl_Color.g+col.y                                             ,         
+//                           gl_Color.g+col.y                                             ,
 //                           gl_Color.b+col.z                                             ,         
 //                           (gl_Color.a+col.w) * alpha);
 //  } else {
-
     gl_FrontColor =  vec4( col.x ,
                            col.y ,
                            col.z ,
@@ -207,7 +206,7 @@ bool isVisible()
    vec4 vert = vec4(gl_Vertex.xy,gl_Vertex.z * z_stretch_value,1.0);
 
    if (z_stretch_jit==1) { // random value requested
-     vert.z = vert.z + z_stretch_value * noise(position);
+     vert.z = vert.z + z_stretch_value * noise(gl_Vertex.xyz);//position);
    }
    // transformation from the camera
    vec3 pos_eye = vec3 (gl_ModelViewMatrix * vert);
