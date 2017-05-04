@@ -30,7 +30,6 @@
 #include <omp.h>
 #endif
 
-
 #define OLDRENDER 0
 #define BENCH 1
 #define GLDRAWARRAYS 1
@@ -82,7 +81,6 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
   index_histo.reserve(nhisto);
   if (GLWindow::GLSL_support) {
     glGenBuffersARB(1,&vbo_pos);     // get Vertex Buffer Object
-//    glGenBuffersARB(1,&vbo_color);   // get Vertex Buffer Object
     glGenBuffersARB(1,&vbo_size);    // get Vertex Buffer Object
     glGenBuffersARB(1,&vbo_index);   // get Vertex Buffer Object
     glGenBuffersARB(1,&vbo_index2);
@@ -230,10 +228,7 @@ void GLObjectParticles::displayVboVelShader330()
           //glDrawArrays(GL_LINES, 0, maxvert);
           //std::cerr << "<< rendering...\n";
         }
-
-
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-
         vel_shader->stop();
 
         glDisableVertexAttribArray(vpositions);
@@ -247,7 +242,6 @@ void GLObjectParticles::displayVboVelShader330()
         glDepthMask(GL_TRUE);
         glEnable(GL_DEPTH_TEST);
     }
-
 }
 // ============================================================================
 // displayVboVelShader()
@@ -335,9 +329,7 @@ void GLObjectParticles::displayVboVelShader130()
         glDepthMask(GL_TRUE);
         glEnable(GL_DEPTH_TEST);
     }
-
 }
-
 // ============================================================================
 // displayVboShader()                                                            
 void GLObjectParticles::displayVboShader(const int win_height, const bool use_point)
@@ -414,18 +406,6 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   glActiveTextureARB(GL_TEXTURE0_ARB);
   texture->glBindTexture();  // bind texture
   
-//  // Send vertex object positions
-//  glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
-//  glEnableClientState(GL_VERTEX_ARRAY);
-//  int start=2*3*min_index*sizeof(float);
-//  int maxvert=max_index-min_index+1;
-//  //std::cerr << "min_index="<<min_index<<" max_index="<<max_index<<" maxvert="<<maxvert<<"\n";
-//  GLsizei stride=0;
-//  if (part_data->vel) {
-//      stride=3*sizeof(GLfloat);
-//  }
-//  glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) stride, (void *) start);
-
   // get attribute location for sprite size
   int a_sprite_size = glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
   glVertexAttrib1f(a_sprite_size,1.0);
@@ -466,35 +446,10 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   }
 
   // Draw points 
-#if GLDRAWARRAYS
-#if 0
-  std::cerr << " hasPhysic ? =" << hasPhysic <<"\n";
-  std::cerr << " min_index = " <<min_index << "  max_index = " << max_index << "\n";
-  std::cerr <<"maxvert="<<maxvert<< " #part="<<max_index-min_index+1<< " nvert_pos ="<<nvert_pos<<"\n";
-#endif
-
   int start,maxvert;
   GLsizei  stride;
   maxvert=max_index-min_index+1;
-#if 0
-  // Send vertex object positions and velocities for drawing vectors
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
-  glEnableClientState(GL_VERTEX_ARRAY);
-  start=2*3*min_index*sizeof(float);
-  //std::cerr << "min_index="<<min_index<<" max_index="<<max_index<<" maxvert="<<maxvert<<"\n";
-  stride=0;
-  glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) stride, (void *) start);
 
-
-  if (maxvert > 0 && maxvert<=nvert_pos) {
-    //std::cerr << ">> rendering...\n";
-    //glDrawArrays(GL_POINTS, 0, maxvert);
-    glDrawArrays(GL_LINES, 0, maxvert*2);
-    //std::cerr << "<< rendering...\n";
-  }
-#endif
-  //glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-  //glDisableClientState(GL_VERTEX_ARRAY);
   // send vertex positions only
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
 #if 0 // deactivate positions
@@ -520,45 +475,9 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) stride, (void *) start);
   if (maxvert > 0 && maxvert<=nvert_pos) {
-    //std::cerr << ">> rendering...\n";
     glDrawArrays(GL_POINTS, 0, maxvert);
-    //glDrawArrays(GL_LINES, 0, maxvert);
-    //std::cerr << "<< rendering...\n";
   }
 
-#else
-#if 1
-
-  // marche pas....
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,vbo_index);
-  glDrawElements(GL_POINTS,nind_sorted,GL_UNSIGNED_INT,0);
-  // marche pas....
-
-  //glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,vbo_index);
-  //glDrawRangeElements(GL_POINTS,0,nind_sorted,nind_sorted,GL_UNSIGNED_INT,0);
-
-
-  // >>> works alone
-  //glDrawElements(GL_POINTS,nind_sorted,GL_UNSIGNED_INT, indexes_sorted);
-  // <<< works alone
-#else
-  //glEnableClientState(GL_VERTEX_ARRAY);
-  int a,b;
-  //glGetIntegerv(GL_MAX_ELEMENTS_VERTICES,&a);
-  //glGetIntegerv(GL_MAX_ELEMENTS_INDICES,&b);
-  //std::cerr << "Max vert=" << a << "\n";
-  //std::cerr << "Max inde=" << b << "\n";
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,vbo_index);
-  glDrawElements(GL_POINTS,-1+nind_sorted/2,GL_UNSIGNED_INT,0);
-
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,vbo_index2);
-  glDrawElements(GL_POINTS,-1+nind_sorted/2,GL_UNSIGNED_INT,0);
-
-  //glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-  //glDrawRangeElements(GL_POINTS,0,nind_sorted,nind_sorted,GL_UNSIGNED_INT,0);
-//glDrawRangeElements(GL_POINTS,0,index_max-index_min,index_max-index_min,GL_UNSIGNED_INT,0);
-#endif
-#endif
   //glDrawArrays(GL_POINTS, 0, nvert_pos);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
