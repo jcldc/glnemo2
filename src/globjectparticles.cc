@@ -251,7 +251,7 @@ void GLObjectParticles::displayVboVelShader130()
     // Velocity vectors with shader
     if (po->isVelEnable() && part_data->vel && vel_shader) {
 
-        int start,stride;
+        GLint start,stride;
         // start velocity shader
         vel_shader->start();
         // send color
@@ -290,7 +290,7 @@ void GLObjectParticles::displayVboVelShader130()
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_X2);
         start = 2*3*min_index*sizeof(float);
         stride= 0;
-        glVertexAttribPointerARB(vvel_factor,3,GL_FLOAT, 0, stride, (void *) (start));
+        glVertexAttribPointerARB(vvel_factor,3,GL_FLOAT, 0, stride, (GLvoid *) (start));
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
         // positions and velocities (ending vector)

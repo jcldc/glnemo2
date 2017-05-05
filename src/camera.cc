@@ -120,22 +120,28 @@ namespace glnemo {
         
     QTextStream in(&infile);
     QString line;
-    do {
-      line = in.readLine();
-      if (!line.isNull()) {
-        //std::cerr << "line :" << line.toStdString() <<"\n";
-        std::istringstream ss(line.toStdString());
-        float x,y,z;
-        ss >> x;
-        ss >> y;
-        ss >> z;
-        Vec3D v(x,y,z);
-        spline->AddSplinePoint(v);      
-      }
-    } while (!line.isNull());
+    bool valid=false;
+    line = in.readLine();
+    if (line=="#camera_path") { // it's a valid camera path file
+      valid=true;
+      do {
+        line = in.readLine();
+        if (!line.isNull()) {
+          //std::cerr << "line :" << line.toStdString() <<"\n";
+          std::istringstream ss(line.toStdString());
+          float x,y,z;
+          ss >> x;
+          ss >> y;
+          ss >> z;
+          Vec3D v(x,y,z);
+          spline->AddSplinePoint(v);
+        }
+      } while (!line.isNull());
+    }
     infile.close();
-    buildDisplayList();
-    return 1;
+    if (valid)
+      buildDisplayList();
+    return valid;
   }
   // ============================================================================
   //  buildDisplayList                                                           

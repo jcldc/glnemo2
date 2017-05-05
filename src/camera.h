@@ -47,6 +47,10 @@ namespace glnemo {
   public slots:
     void setSplineParam(const int ,const double, const bool ugl=true);  // set spline parameters
     void setCamDisplay(const bool , const bool, const bool ugl=true);  // toggle camera display
+    void loadPath(const std::string filename, const int p, const float s) {
+      init(filename,p,s);
+    }
+
     void startStopPlay();
     void display();      
     void reset();

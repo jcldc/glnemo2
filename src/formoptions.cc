@@ -12,7 +12,12 @@
 // ============================================================================
 #include "formoptions.h"
 #include <QFileDialog>
+#include <iomanip>
+#include <sstream>
 #include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
 namespace glnemo {
   int FormOptions::windows_size[13][2] = {
     {2560,1600},{1920,1200},{1920,1080},{1600,1200},
@@ -29,7 +34,7 @@ FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):
   start=false;
   limited_timer = new QTimer(this);
   connect(limited_timer, SIGNAL(timeout()), this, SLOT(stop_bench()));
-  
+
   // density tab
   go = _go;
   mutex_data = _mutex;
@@ -48,6 +53,22 @@ FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):
   connect(form.frame_dial ,SIGNAL(sliderReleased()),this,SLOT(unLockFrame()));
   // camera tab
   playing_camera=false;
+  bool stop=false;
+  int ipath=0;
+  // load camera path from ressource file
+  while (! stop && ipath<30) {
+    std::ostringstream digit;
+    digit << std::setfill('0')<< std::setw(2) << ipath;
+    std::string cam_path=GlobalOptions::RESPATH.toStdString() + "/camera/path_"+ digit.str();
+    QFileInfo ffile(QString(cam_path.c_str()));
+    if (ffile.exists()) {
+      form.cam_load_select->addItem(ffile.baseName());
+    }
+    ipath++;
+  }
+  // load camera file in text area
+  on_cam_load_select_activated(form.cam_load_select->itemText(0));
+
   // frame spin box
   form.frame_spin->setKeyboardTracking(false);
   form.frame_spin->setButtonSymbols(QAbstractSpinBox::PlusMinus);
@@ -291,6 +312,76 @@ void FormOptions::on_cam_reset_pressed()
   emit cam_reset();
   form.cam_play->setText("Start");
   playing_camera=false;
+  emit setCamDisplay(form.cam_pts_display->isChecked(),
+                     form.cam_path_display->isChecked());
+
+  emit update_gl();
+}
+// ============================================================================
+// when commit button is pressed, text is placed in a temporary file
+// and load as a camera path
+void FormOptions::on_cam_commit_button_pressed()
+{
+  tmp_cam_file.remove();
+  if (tmp_cam_file.open()) {
+
+  }
+  QTextStream out(&tmp_cam_file);
+  out << form.cam_text_edit->toPlainText();
+  tmp_cam_file.close();
+  emit loadCameraPath(tmp_cam_file.fileName().toStdString(),form.spline_points->value(),(float) form.spline_scale->value());
+  emit update_gl();
+}
+// ============================================================================
+void FormOptions::on_cam_load_button_pressed()
+{
+  QString fileName;
+  fileName=QFileDialog::getOpenFileName(this,tr("Select a camera path"));
+  if (!fileName.isEmpty()) {
+    emit loadCameraPath(fileName.toStdString(),form.spline_points->value(),(float) form.spline_scale->value());
+  }
+}
+// ============================================================================
+// save camera file edited
+void FormOptions::on_cam_save_button_pressed()
+{
+  QString fileName= QFileDialog::getSaveFileName(this, tr("Save File"),"");
+  if (!fileName.isEmpty()) {
+    QFile file(fileName);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+      QTextStream out(&file);
+      out << form.cam_text_edit->toPlainText();
+      file.close();
+    }
+  }
+}
+// ============================================================================
+void FormOptions::on_cam_load_select_activated(const QString &text)
+{
+  QString select=text;
+  if (select[0]!=QChar('/')) { // path from ressource file only
+    select = GlobalOptions::RESPATH + "/camera/"+text;
+  }
+  //std::cerr << "camera path selected = "<<select.toStdString() << "\n";
+  if (displayCameraFile(select)) {
+    emit loadCameraPath(select.toStdString(),form.spline_points->value(),(float) form.spline_scale->value());
+  }
+}
+// ============================================================================
+bool FormOptions::displayCameraFile(const QString &infile)
+{
+  bool status=true;
+  QFile file(infile);  //
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    status=false;
+  } else {
+    QTextStream in(&file);
+
+    QString mytext=in.readAll();
+    form.cam_text_edit->clear(); // clear text
+    form.cam_text_edit->insertPlainText(mytext); // display camera path
+  }
+  return status;
 }
 
 // ============================================================================

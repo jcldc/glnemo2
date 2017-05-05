@@ -1224,7 +1224,7 @@ void GLWindow::setZoom(const float z)
 //    AND PERSPECTVE PROJECTION
 //
 //    we must force perspective projection to have
-//    te good prjection and modelview matrix
+//    the good projection and modelview matrix
 void GLWindow::setPerspectiveMatrix()
 {
   glMatrixMode(GL_PROJECTION);
