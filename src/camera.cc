@@ -314,20 +314,23 @@ namespace glnemo {
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_path);
       glEnableClientState(GL_VERTEX_ARRAY);
       glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) 0, (void *) 0);
-      glDrawArrays(GL_LINE_STRIP, 0, npoints);//spline->GetNumPoints());
+      glDrawArrays(GL_LINE_STRIP, 0, npoints);
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
     }
+    //glDisable(GL_DEPTH_TEST);
+
+    //glEnable (GL_BLEND);
 
     if (display_ctrl) {
       // setup point sprites
       glEnable(GL_POINT_SPRITE_ARB);
       glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
-
+      glEnable(GL_POINT_SMOOTH);
 
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_ctrl);
       glEnableClientState(GL_VERTEX_ARRAY);
       glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) 0, (void *) 0);
-      glDrawArrays(GL_POINTS, 0, spline->GetNumPoints());//spline->GetNumPoints());
+      glDrawArrays(GL_POINTS, 0, spline->GetNumPoints());
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
     }
 
