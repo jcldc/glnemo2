@@ -309,6 +309,7 @@ void GLObjectParticles::displayVboVelShader130()
         int maxvert=max_index-min_index+1;
 
         if (maxvert > 0 && maxvert<=nvert_pos) {
+          glLineWidth (1.0);
           //std::cerr << ">> rendering...\n";
           glDrawArrays(GL_LINES, 0, maxvert*2);
           //glDrawArrays(GL_LINES, 0, maxvert*2);

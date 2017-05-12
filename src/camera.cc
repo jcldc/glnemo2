@@ -318,9 +318,6 @@ namespace glnemo {
       glDrawArrays(GL_LINE_STRIP, 0, npoints);
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
     }
-    //glDisable(GL_DEPTH_TEST);
-
-    //glEnable (GL_BLEND);
 
     if (display_ctrl) {
       // setup point sprites
