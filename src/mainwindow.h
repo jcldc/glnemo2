@@ -25,7 +25,7 @@
 #include <QApplication>
 
 // project's includes
-
+#include "camera.h"
 #include "globaloptions.h"
 #include "particlesobject.h"
 #include "loadingthread.h"
@@ -39,7 +39,7 @@
 #include "componentrange.h"
 #include "userselection.h"
 #include "colormap.h"
-#include "camera.h"
+
 
 // prototypes
 class QAction;

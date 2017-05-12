@@ -102,6 +102,9 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera 
   checkGLErrors("initShader");
   ////////
   
+  // camera
+  camera->loadShader();
+
   // grid
   GLGridObject::nsquare = store_options->nb_meshs;
   GLGridObject::square_size = store_options->mesh_length;
@@ -499,7 +502,7 @@ void GLWindow::paintGL()
 
   }
   // camera display path and control points
-  camera->display();
+  camera->display(wheight);
 
   setModelMatrix(); // save ModelView  Matrix
   setProjMatrix();  // save Projection Matrix
