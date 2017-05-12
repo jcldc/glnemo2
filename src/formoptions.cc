@@ -338,7 +338,20 @@ void FormOptions::on_cam_load_button_pressed()
   QString fileName;
   fileName=QFileDialog::getOpenFileName(this,tr("Select a camera path"));
   if (!fileName.isEmpty()) {
+
     emit loadCameraPath(fileName.toStdString(),form.spline_points->value(),(float) form.spline_scale->value());
+
+    QFile infile(fileName);
+    if (infile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+      QTextStream in(&infile);
+      QString line;
+      bool valid=false;
+      line = in.readLine();
+      if (line=="#camera_path") { // it's a valid camera path file
+        infile.close();
+        displayCameraFile(fileName);
+      }
+    }
   }
 }
 // ============================================================================
