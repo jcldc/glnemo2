@@ -55,6 +55,7 @@ namespace glnemo {
   {
     if (GLWindow::GLSL_support) {
       glGenBuffersARB(1,&vbo_path);
+      glGenBuffersARB(1,&vbo_ctrl);
       // particles shader
       shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/camera.vert.cc",
                            GlobalOptions::RESPATH.toStdString()+"/shaders/camera.frag.cc");
