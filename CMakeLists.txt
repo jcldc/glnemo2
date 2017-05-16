@@ -232,7 +232,7 @@ if (EXISTS "${PROJECT_SOURCE_DIR}/src/version.h") # detect version from "version
   set(PROJECT_VERSION_PATCH ${CMAKE_MATCH_1})
 
   # GLNEMO2_EXTRA
-  string(REGEX MATCH "GLNEMO2_EXTRA \"([a-zA-Z0-9.-]+)\"" XXXX "${CURRENT_VERSION_H}")
+  string(REGEX MATCH "GLNEMO2_EXTRA \"([_a-zA-Z0-9.-]+)\"" XXXX "${CURRENT_VERSION_H}")
   set(PROJECT_VERSION_EXTRA ${CMAKE_MATCH_1})
   
   # PROJECT_VERSION
