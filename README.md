@@ -46,7 +46,7 @@ license as circulated by CEA, CNRS and INRIA at the following URL
 # © Copyright
                              --  Glnemo2 --
                                  
-                Copyright © Jean-Charles LAMBERT 2007-2016
+                Copyright © Jean-Charles LAMBERT 2007-2017
                  http://projets.lam.fr/projects/glnemo2
  
                        Jean-Charles.Lambert_AT_lam_DOT_fr
