@@ -28,7 +28,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>9</number>
+      <number>8</number>
      </property>
      <widget class="QWidget" name="tab_i_select">
       <attribute name="title">
@@ -7742,6 +7742,9 @@ p, li { white-space: pre-wrap; }
               <widget class="QSpinBox" name="spline_points">
                <property name="toolTip">
                 <string>Number of interpolated points to build the spline</string>
+               </property>
+               <property name="minimum">
+                <number>1</number>
                </property>
                <property name="maximum">
                 <number>50000</number>
