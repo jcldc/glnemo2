@@ -105,6 +105,12 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera 
   // camera
   camera->loadShader();
 
+  // filaments
+  filaments = new GLFilaments(store_options);
+  filaments->loadShader();
+  std::string ff="/home/jcl/Downloads/cosmicweb/G15_19p8_fofgt6_s3Mpc_nb5_dtfe_SD0_S3_K1.a.segs";
+  filaments->load(ff);
+
   // grid
   GLGridObject::nsquare = store_options->nb_meshs;
   GLGridObject::square_size = store_options->mesh_length;

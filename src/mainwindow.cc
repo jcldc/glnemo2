@@ -73,7 +73,8 @@ MainWindow::MainWindow(std::string _ver)
   camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/path_01");
   // colormap object
   colormap  = new Colormap(store_options);
-  
+  // FILAMENTS
+
   // ----- build GUI ------------
   createForms();
   createDockWindows();

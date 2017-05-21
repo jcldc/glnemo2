@@ -50,7 +50,8 @@ HEADERS += mainwindow.h \
     cshader.h \
     glcolorbar.h \
     glaxesobject.h \
-    version.h
+    version.h \
+    glfilaments.h
 SOURCES += glnemo.cc \
     mainwindow.cc \
     glwindow.cc \
@@ -91,7 +92,8 @@ SOURCES += glnemo.cc \
     formhelp.cc \
     cshader.cc \
     glcolorbar.cc \
-    glaxesobject.cc
+    glaxesobject.cc \
+    glfilaments.cpp
 RESOURCES = glnemo.qrc
 CONFIG += $$GLOBAL \
     warn_on \

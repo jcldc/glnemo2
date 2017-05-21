@@ -30,6 +30,7 @@
 #include "glcolorbar.h"
 #include "glaxesobject.h"
 #include "camera.h"
+#include "glfilaments.h"
 
 
 class fntTexFont;
@@ -183,6 +184,8 @@ private:
   GLCubeObject * cube;
   // axes
   GLAxesObject * axes;
+  // filaments
+  GLFilaments * filaments;
   // Vectors
   GLObjectParticlesVector gpv;
   ParticlesObjectVector * pov;
