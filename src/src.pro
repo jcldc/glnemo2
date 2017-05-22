@@ -179,8 +179,10 @@ LIBS += \
     -lhdf5_cpp -lhdf5
 win32 {
     #LIBS += -lzlib
+    LIBS += -lglu32
     LIBS += -lopengl32
     LIBS += -lCCfits -lcfitsio -lgomp -lpthread
+    LIBS -= -lz
 }
 unix {
     LIBS += -lz
