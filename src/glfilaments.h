@@ -53,8 +53,10 @@ private:
     int win_height;
     // color
     QColor mycolor;
+    // vertex
+    std::vector<GLfloat> vertex;
 private slots:
-
+    void updateVbo();
 
 
 public slots:

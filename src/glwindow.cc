@@ -108,7 +108,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera 
   // filaments
   filaments = new GLFilaments(store_options);
   filaments->loadShader();
-  std::string ff="/home/jcl/Downloads/cosmicweb/G15_19p8_fofgt6_s3Mpc_nb5_dtfe_SD0_S3_K1.a.segs";
+  std::string ff="/home/jcl/Download/G15_19p8_fofgt6_s3Mpc_nb5_dtfe_SD0_S3_K1.a.segs";
   filaments->load(ff);
 
   // grid
@@ -558,6 +558,9 @@ void GLWindow::paintGL()
 
     //mutex_data->unlock();
   }
+
+  // filaments
+  filaments->display(wheight);
   
   // octree
   if (store_options->octree_display || 1) {

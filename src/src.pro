@@ -93,7 +93,7 @@ SOURCES += glnemo.cc \
     cshader.cc \
     glcolorbar.cc \
     glaxesobject.cc \
-    glfilaments.cpp
+    glfilaments.cc
 RESOURCES = glnemo.qrc
 CONFIG += $$GLOBAL \
     warn_on \
