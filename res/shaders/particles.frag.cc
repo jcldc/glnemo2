@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2016                                  
+// Copyright Jean-Charles LAMBERT - 2007-2017                                  
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -23,8 +23,9 @@ varying float to_discard;
 void main()                                                            
 {           
   if (to_discard==0.0) {
-    vec4 color = gl_Color * texture2D(splatTexture, gl_TexCoord[0].st);
-    gl_FragColor = color ;
+    //vec4 color = gl_Color * texture2D(splatTexture, gl_TexCoord[0].st);
+    //vec4 color = col * texture2D(splatTexture, gl_TexCoord[0].st);
+    gl_FragColor = gl_Color * texture2D(splatTexture, gl_TexCoord[0].st);//color ;
   } else {
     discard;
   }

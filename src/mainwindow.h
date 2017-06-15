@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2016                                  
+// Copyright Jean-Charles LAMBERT - 2007-2017                                  
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -25,7 +25,7 @@
 #include <QApplication>
 
 // project's includes
-
+#include "camera.h"
 #include "globaloptions.h"
 #include "particlesobject.h"
 #include "loadingthread.h"
@@ -39,7 +39,7 @@
 #include "componentrange.h"
 #include "userselection.h"
 #include "colormap.h"
-#include "camera.h"
+
 
 // prototypes
 class QAction;

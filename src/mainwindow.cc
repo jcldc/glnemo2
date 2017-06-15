@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2016                                  
+// Copyright Jean-Charles LAMBERT - 2007-2017                                  
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -98,6 +98,7 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_o_c,SIGNAL(textureObjectChanged(const int, const int)),
           gl_window,SLOT(setTextureObject(const int, const int)));
   connect(form_options,SIGNAL(cam_reset()), camera,SLOT(reset()));
+  connect(form_options,SIGNAL(loadCameraPath(std::string,const int, const float)),camera,SLOT(loadPath(std::string, const int, const float)));
   connect(form_o_c,SIGNAL(changeBoundaryPhys(const int, const bool)),
           gl_window,SLOT(updateBoundaryPhys(const int, const bool)));
   connect(form_o_c,SIGNAL(gazAlphaObjectChanged(const int)),

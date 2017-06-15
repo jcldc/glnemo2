@@ -3,22 +3,24 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
 //           Laboratoire d'Astrophysique de Marseille
-//           PÙle de l'Etoile, site de Ch‚teau-Gombert
-//           38, rue FrÈdÈric Joliot-Curie
+//           P√¥le de l'Etoile, site de Ch√¢teau-Gombert
+//           38, rue Fr√©d√©ric Joliot-Curie
 //           13388 Marseille cedex 13 France
 //           CNRS U.M.R 7326
 // ============================================================================
 // See the complete license in LICENSE and/or "http://www.cecill.info".
 // ============================================================================
-/**
-        @author Jean-Charles Lambert <Jean-Charles.Lambert@lam.fr>
- */
-#ifndef VERSION_H
-#define VERSION_H
+//
+// Fragment shader for billboarding particles
+//
+// ============================================================================
 
-#define GLNEMO2_MAJOR "1"
-#define GLNEMO2_MINOR "10"
-#define GLNEMO2_PATCH "1"
-#define GLNEMO2_EXTRA "-devel_2017_may_17"
+#version 120
 
-#endif // VERSION_H
+uniform sampler2D splatTexture;
+
+void main()
+{
+    gl_FragColor = gl_Color * texture2D(splatTexture, gl_TexCoord[0].st);
+}
+// ============================================================================

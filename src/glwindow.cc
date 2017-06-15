@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2016                                  
+// Copyright Jean-Charles LAMBERT - 2007-2017                                  
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -102,6 +102,9 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera 
   checkGLErrors("initShader");
   ////////
   
+  // camera
+  camera->loadShader();
+
   // grid
   GLGridObject::nsquare = store_options->nb_meshs;
   GLGridObject::square_size = store_options->mesh_length;
@@ -499,7 +502,7 @@ void GLWindow::paintGL()
 
   }
   // camera display path and control points
-  camera->display();
+  camera->display(wheight);
 
   setModelMatrix(); // save ModelView  Matrix
   setProjMatrix();  // save Projection Matrix
@@ -1224,7 +1227,7 @@ void GLWindow::setZoom(const float z)
 //    AND PERSPECTVE PROJECTION
 //
 //    we must force perspective projection to have
-//    te good prjection and modelview matrix
+//    the good projection and modelview matrix
 void GLWindow::setPerspectiveMatrix()
 {
   glMatrixMode(GL_PROJECTION);

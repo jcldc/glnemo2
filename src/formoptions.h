@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2016                                  
+// Copyright Jean-Charles LAMBERT - 2007-2017                                  
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -18,6 +18,7 @@
 #include <QTime>
 #include <QTimer>
 #include <QColorDialog>
+#include <QTemporaryFile>
 #include <iostream>
 #include <QMutex>
 #include "ui_formoptions.h"
@@ -63,6 +64,7 @@ class FormOptions: public QDialog {
     QMutex * mutex_data;
     bool EMIT;
     bool playing_camera;
+    QTemporaryFile tmp_cam_file; // temporary camera file path
   private slots:
     void leaveEvent ( QEvent * event ) {
       if (event) {;}
@@ -96,6 +98,10 @@ class FormOptions: public QDialog {
     }
     void on_cam_play_pressed();
     void on_cam_reset_pressed();
+    void on_cam_load_button_pressed();
+    void on_cam_save_button_pressed();
+    void on_cam_commit_button_pressed();
+    void on_cam_load_select_activated(const QString &text);
     //                   
     // play selection tab
     void play_pressed2(const int forcestop=-1);
@@ -592,6 +598,9 @@ class FormOptions: public QDialog {
       emit update_gl();
     }
 
+  private:
+    bool displayCameraFile(const QString &file);
+
   signals:
     void start_bench(const bool);
     void select_and_zoom(const bool);
@@ -619,6 +628,7 @@ class FormOptions: public QDialog {
     void setCamDisplay(const bool, const bool);
     void setSplineParam(const int, const double);
     void startStopPlay();
+    void loadCameraPath(const std::string, const int , const float);
     //         
     // play tab
     void playPressed();

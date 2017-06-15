@@ -74,5 +74,9 @@
         <file>../res/shaders/velocity.frag.cc</file>
         <file>../res/shaders/velocity.vert130.cc</file>
         <file>../res/shaders/velocity.frag130.cc</file>
+        <file>../res/camera/path_02</file>
+        <file>../res/camera/path_03</file>
+        <file>../res/shaders/camera.vert.cc</file>
+        <file>../res/shaders/camera.frag.cc</file>
     </qresource>
 </RCC>

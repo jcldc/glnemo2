@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2016                                  
+// Copyright Jean-Charles LAMBERT - 2007-2017                                  
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -30,7 +30,7 @@ uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 
 // vertex position
-attribute vec3 position;
+//attribute vec3 position;
 
 // texture
 uniform float alpha;           // alpha color factor                   
@@ -77,11 +77,14 @@ bool isVisible();
 vec4 mod289(vec4 x);
 vec4 perm(vec4 x);
 float noise(vec3 p);
+// color
+varying vec4 col;
 
 // ============================================================================
 void main()                                                            
 {           
-  vec4 col=vec4(0.0,0.0,0.0,0.0);
+  //vec4 col=vec4(0.0,0.0,0.0,0.0);
+  col=vec4(0.0,0.0,0.0,0.0);
   to_discard=0.0;
   // compute color
   if (data_phys_valid==1) {
@@ -101,11 +104,11 @@ void main()
   }
 
   // compute vertex Z value
-  //vec4 vert = gl_Vertex; //vec4(position.xy,position.z * z_stretch_value,1.0);
+  //vec4 vert = vec4(position.xy,position.z * z_stretch_value,1.0);
   vec4 vert = vec4(gl_Vertex.xy,gl_Vertex.z * z_stretch_value,1.0);
 
   if (z_stretch_jit==1) { // random value requested
-    vert.z = vert.z + z_stretch_value * noise(position);
+    vert.z = vert.z + z_stretch_value * noise(gl_Vertex.xyz);//position);
   }
 
   // compute texture size
@@ -127,13 +130,13 @@ void main()
   //gl_Position = projMatrix*viewMatrix*modelMatrix * vec4(vert.xyz,1.0);
 //  if (1==0) {
 //    gl_FrontColor =  vec4( gl_Color.r+col.x +float(factor_size)*0. + float(use_point)*0.,          
-//                           gl_Color.g+col.y                                             ,         
+//                           gl_Color.g+col.y                                             ,
 //                           gl_Color.b+col.z                                             ,         
 //                           (gl_Color.a+col.w) * alpha);
 //  } else {
-    gl_FrontColor =  vec4( col.x ,          
-                           col.y ,         
-                           col.z ,         
+    gl_FrontColor =  vec4( col.x ,
+                           col.y ,
+                           col.z ,
                            col.w * alpha);
   //}
 }
@@ -203,7 +206,7 @@ bool isVisible()
    vec4 vert = vec4(gl_Vertex.xy,gl_Vertex.z * z_stretch_value,1.0);
 
    if (z_stretch_jit==1) { // random value requested
-     vert.z = vert.z + z_stretch_value * noise(position);
+     vert.z = vert.z + z_stretch_value * noise(gl_Vertex.xyz);//position);
    }
    // transformation from the camera
    vec3 pos_eye = vec3 (gl_ModelViewMatrix * vert);
