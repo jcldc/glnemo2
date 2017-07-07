@@ -1,0 +1,23 @@
+
+tar:
+	dir1="glnemo2/GIT"; dir="glnemo2";  cd $${dir1} ;tar czhvf ../glnemo2.tar.gz `ls $${dir}/cmake/*.cmake $${dir}/CMakeLists.txt $${dir}/res/colormaps/* $${dir}/res/shaders/*.cc $${dir}/res/camera/* $${dir}/DOC/$${dir}.1 $${dir}/{ChangeLog,README.md,INSTALL,TODO,LICENSE,MANUAL,Doxyfile,mmakefile} $${dir}/*.{csh,pro,kdevelop,arch} $${dir}/gyrfalcon/*.pro $${dir}/gyrfalcon/src/*.{c,cc,h,pro,cpp} $${dir}/utils/*.{ui,cc,h,pro,qrc} $${dir}/src/*.{ui,cc,h,pro,qrc} $${dir}/3rdparty/pfntlib/*.{c,cc,cxx,h,pro} $${dir}/src/glew/*.{c,cc,h,pro} $${dir}/src/glew/GL/*.{c,cc,h,pro} $${dir}/res/images/*.{xpm,png,jpg,icns} $${dir}/res/fonts/*.txf $${dir}/res/images/*.{xpm,png,jpg} $${dir}/res/textures/*.{xpm,png,jpg} $${dir}/plugins/*.{cc,h,pro,json} $${dir}/plugins/*/*.{c,cc,cpp,h,pro}  $${dir}/plugins/nemolight/*{.c,.h,.pro,inc/*{.c,.h,snapshot/*.{c,h}}}  $${dir}/snapshot/*.nemo $${dir}/templates/{cc,h} $${dir}/man/man1/glnemo2.1 $${dir}/manipulators/{ChangeLog,Makefile,README,src/*.{cc,h,qrc}}`
+        
+install :
+	/bin/cp -p glnemo ${NEMOBIN}/mrs/glnemo
+
+nemocvs:
+	rsync -Rcav build/CMakeLists.txt CMakeLists.txt cmake/*.cmake res/colormaps/* res/shaders/*.cc res/camera/* DOC/$${dir}.1 {ChangeLog,README,INSTALL,TODO,LICENSE,MANUAL,Doxyfile,mmakefile} *.{csh,pro,kdevelop,arch} gyrfalcon/*.pro gyrfalcon/src/*.{c,cc,h,pro,cpp} utils/*.{ui,cc,h,pro,qrc} src/*.{ui,cc,h,pro,qrc} 3rdparty/pfntlib/*.{c,cc,cxx,h,pro} src/glew/*.{c,cc,h,pro} src/glew/GL/*.{c,cc,h,pro} res/images/*.{xpm,png,jpg,icns} res/fonts/*.txf res/images/*.{xpm,png,jpg} res/textures/*.{xpm,png,jpg} plugins/*.{cc,h,pro,json} plugins/ramses/*.{c,cc,h,pro}  plugins/tipsy/*.{c,cc,h,pro} plugins/ftm/*.{c,cc,h,pro} plugins/network/*.{c,cc,h,pro,cpp} plugins/zlib/*.{c,cc,h,pro}  plugins/gadget/*.{c,cc,h,pro} plugins/nemolight/*{.c,.h,.pro,inc/*{.c,.h,snapshot/*.{c,h}}}  snapshot/*.nemo templates/{cc,h} man/man1/glnemo2.1 manipulators/{ChangeLog,Makefile,README,src/*.{cc,h,qrc}} ${NEMO}/usr/jcl/glnemo2
+
+fromouzo:
+	rsync -Ccuav -e "ssh -p 4666"  --exclude "glnemo2.kdev*" --exclude "src/.ui" --exclude "src/plugins/Makefile" --exclude "src/.resources" --exclude "src/*-debug" --exclude "bin/" --exclude "store/" --exclude ".moc" --exclude "*.csh" --exclude "src/Makefile" --exclude "Makefile" --exclude "*.csh" ouzo:/r5data/home/jcl/works/CVS_WORKS/glnemo2 /home/jcl/works
+
+fromouzoloc:
+	rsync -Ccuav --exclude "src/.ui" --exclude "bin/" --exclude "store/" --exclude  "src.ori/" --exclude ".moc" /r2data/home/jcl/works/CVS_WORKS/glnemo2 /home/jcl/works
+toouzo:
+	rsync -Ccuav -e "ssh -p 4666" --exclude "glnemo2.*" --exclude "src/.ui" --exclude "Makefile" --exclude "plugins/Makefile" --exclude "src/Makefile" --exclude "src/.resources" --exclude "src/*-debug" --exclude "bin/" --exclude "store/" --exclude ".moc" --exclude "*.csh" --exclude "src/Makefile" --exclude "plugins/ftm/Makefile" --exclude "plugins/nemolight/Makefile" --exclude "*.csh" --exclude "Makefile"  --exclude "images/textures" /home/jcl/works/glnemo2 ouzo:/r5data/home/jcl/works/CVS_WORKS
+testouzo:
+	rsync -nCcuav -e "ssh -p 4666" --exclude "glnemo2.*" --exclude "src/.ui" --exclude "Makefile" --exclude "plugins/Makefile" --exclude "src/Makefile" --exclude "plugins/ftm/Makefile" --exclude "plugins/nemolight/Makefile" --exclude "*.csh" --exclude "src/.resources" --exclude "src/*-debug" --exclude "bin/" --exclude "store/" --exclude ".moc" --exclude "images/textures" /home/jcl/works/glnemo2 ouzo:/r5data/home/jcl/works/CVS_WORKS
+
+changedate:
+	find . \( -name "*.cc" -o -name "*.h" -o -name "*.cpp" \) -exec sed -i "s/2013/2014/g" {} \;
+#
