@@ -20,6 +20,19 @@ project (glnemo2)
 # extra path for .cmake .files
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
+# load setup flags
+include(SetupFlags)
+
+# contains the full path to the top level directory of your build tree
+MESSAGE( STATUS "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
+
+# contains the full path to the root of your project source directory,
+# i.e. to the nearest directory where CMakeLists.txt contains the PROJECT() command
+MESSAGE( STATUS "PROJECT_SOURCE_DIR: " ${PROJECT_SOURCE_DIR} )
+
+MESSAGE( STATUS "CMAKE_BUILD_TYPE =" ${CMAKE_BUILD_TYPE} )
+MESSAGE( STATUS "CMAKE_CXX_FLAGS  =" ${CMAKE_CXX_FLAGS} )
+
 # Cpack Generator detection
 include(DetectCpackGenerator)
 
