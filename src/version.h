@@ -19,6 +19,6 @@
 #define GLNEMO2_MAJOR "1"
 #define GLNEMO2_MINOR "10"
 #define GLNEMO2_PATCH "1"
-#define GLNEMO2_EXTRA "_devel_2017_may_17"
+#define GLNEMO2_EXTRA "-devel-2017-may-17"
 
 #endif // VERSION_H
