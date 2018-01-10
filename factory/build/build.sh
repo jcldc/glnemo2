@@ -10,7 +10,7 @@ cd glnemo2
 mkdir build-docker
 cd build-docker
 cmake ..
-make -j 6
+make -j 8
 strip bin/glnemo2
 make package
 cp -p *.rpm *.deb /works/glnemo2
