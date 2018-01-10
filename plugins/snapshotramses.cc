@@ -214,11 +214,13 @@ int SnapshotRamses::initLoading(GlobalOptions * so)
   std::cerr << "SnapshotRamses::initLoading IN\n";
   float x[8];
   // boundary box
-  x[0]=x[2]=x[4]=std::numeric_limits<float>::min();
-  x[1]=x[3]=x[5]=std::numeric_limits<float>::max();
-  x[6]=(float )0; // level min
-  x[7]=0; // nlevelmax
- #if 0
+  if (so->xmin+so->xmax+so->ymin+so->ymax+so->zmin+so->zmax == 0.0) {
+    x[0]=x[2]=x[4]=std::numeric_limits<float>::min();
+    x[1]=x[3]=x[5]=std::numeric_limits<float>::max();
+    x[6]=(float )0; // level min
+    x[7]=0; // nlevelmax
+  } else {
+ #if 1
   x[0] = so->xmin;
   x[1] = so->xmax;
   x[2] = so->ymin;
@@ -228,6 +230,7 @@ int SnapshotRamses::initLoading(GlobalOptions * so)
   x[6] = so->lmin;
   x[7] = so->lmax;
 #endif
+  }
   amr->setBoundary(x);
   part->setBoundary(x);
   if (so->select_part=="" || so->select_part=="all" || (so->select_part.find("gas")!=std::string::npos))
