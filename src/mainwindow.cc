@@ -126,7 +126,11 @@ MainWindow::MainWindow(std::string _ver)
   connect(camera,SIGNAL(updateGL()),gl_window,SLOT(updateGL()));
   connect(form_options,SIGNAL(setCamDisplay(bool,bool)),camera,SLOT(setCamDisplay(bool,bool)));
   connect(form_options,SIGNAL(setSplineParam(int,double)),camera,SLOT(setSplineParam(int,double)));
-  connect(form_options,SIGNAL(startStopPlay()),camera,SLOT(startStopPlay()));
+  connect(form_options,SIGNAL(startStopPlay(const bool)),camera,SLOT(startStopPlay(const bool)));
+  connect(form_options,SIGNAL(sig_toggleSplineMode(const bool, const bool)),camera,SLOT(toggleSplineMode(const bool, const bool)));
+  connect(form_options,SIGNAL(sig_updateVectorUp(const int,const float,const bool)),camera,SLOT(updateVectorUp(const int,const float,const bool)));
+  connect(form_options,SIGNAL(sig_cam_display_loop(bool)),camera,SLOT(setCamDisplayLoop(bool)));
+  connect(camera,SIGNAL(sig_stop_play()), form_options,SLOT(on_cam_play_pressed()));
   // colormap
   connect(colormap,SIGNAL(newColorMap()),gl_window,SLOT(changeColorMap()));
   //connect(colormap,SIGNAL(newColorMap()),gl_window,SLOT(reverseColorMap()));

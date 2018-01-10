@@ -860,7 +860,7 @@ void GLObjectParticles::buildVboHsml()
       if (part_data->rneib->data[index] != -1) {
         hsml_value.push_back(2.0*part_data->rneib->data[index]);
       } else {
-        hsml_value.push_back(2.0);      
+        hsml_value.push_back(2.0);
       }
     }    
   }
