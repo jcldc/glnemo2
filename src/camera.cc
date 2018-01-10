@@ -24,6 +24,7 @@
 #include "glwindow.h"
 #include <GL/glu.h>
 
+
 namespace glnemo {
   // ============================================================================
   // constructor                                                                 
@@ -33,9 +34,12 @@ namespace glnemo {
     shader = NULL;
     store_options = so;
     spline = new CRSpline();
+    spline_mode = false;
     play_timer   = new QTimer(this);
     connect(play_timer,SIGNAL(timeout()),this,SLOT(playGL())); // update GL at every timeout()
     //checkGSLSupport(); // detect GSL support
+    up=glm::vec3(0.0,0.0,1.0);
+    play_loop=true;
     reset();
   }
   // ============================================================================
@@ -92,6 +96,7 @@ namespace glnemo {
     ex=ey=ez=0.0;     // eyes
     cx=cy=cz=0.0;     // center
     ux=uz=0.0;uy=1.0; // up vectors
+    last_up=glm::vec3(ux,uz,uz);
 
     display_ctrl = false; // toggle display ctrl
     display_path = false; // toggle display path
@@ -99,6 +104,8 @@ namespace glnemo {
     index_frame  = 0;
     Vec3D zero(0.,0.,0.);
     rv=zero;
+    spline_mode = false; // control view (spline or viewer)
+    //up=glm::vec3(ux,0.0,1.0);
 
   }
   // ============================================================================
@@ -140,7 +147,9 @@ namespace glnemo {
   //  moveTo                                                                     
   void Camera::moveTo()
   {
-    if (!play) {
+    //glm::vec3 up(ux,0.0,1.0);
+
+    if (!play && ! spline_mode) {
       gluLookAt(ex, ey, ez,
                 cx, cy, cz,
                 ux, uy, uz);
@@ -150,11 +159,50 @@ namespace glnemo {
       //std::cerr << "frame : "<< index_frame << "\n";
       float  t=(float)index_frame / (float)npoints;
       rv = spline->GetInterpolatedSplinePoint(t)*scale;
+
+
+#if 0 // camera crossed vect along path
+      if (index_frame < (npoints-1)) {
+        float  t=(float)(index_frame+1) / (float)npoints;
+        Vec3D rv2 = spline->GetInterpolatedSplinePoint(t)*scale;
+
+        Vec3D vdisp = rv2-rv; // displacement vector
+
+        Vec3D center(cx,cy,cz);
+        Vec3D veyes = center-rv; // point to center view direction vector
+
+        // compute up vector orthogonal to vdisp and veyes
+        up = glm::cross(glm::vec3(veyes.x,veyes.y,veyes.z),
+                        glm::vec3(vdisp.x,vdisp.y,vdisp.z));
+
+        up = glm::abs(up);
+        if (up.x==0. && up.y==0. && up.z==0.) {
+          up = glm::vec3(ux,0.0,1.0);
+        }
+        last_up = up;
+      } else {
+        up = last_up;
+      }
+#endif
       gluLookAt(rv.x, rv.y, rv.z,
                 cx, cy, cz,
-                ux, uy, ez); // ez, why ????!!!!!!
-      index_frame++;
+                up.x,up.y,up.z);
+                //ux, 0.0, 1.0);// ez); // ez, why ????!!!!!!
+      if (play) {
+        index_frame++;
+        if (!play_loop && index_frame >= npoints ) {
+          // we reach end of path
+          emit sig_stop_play(); // tell to formoption to stop playing
+        }
+      }
+      //std::cerr << "r : "<<rv.x<<" "<<rv.y<<" "<<rv.z<<"\n";
     }
+#if 0
+    std::cerr << "e : "<<ex<<" "<<ey<<" "<<ez<<"\n";
+    std::cerr << "c : "<<cx<<" "<<cy<<" "<<cz<<"\n";
+    std::cerr << "u : "<<ux<<" "<<uy<<" "<<uz<<"\n";
+    std::cerr << "up: "<<up.x<<" "<<up.y<<" "<<up.z<<"\n";
+#endif
   }
   // ============================================================================
   //  loadSplinePoints                                                           
@@ -205,7 +253,7 @@ namespace glnemo {
 
     // ---> interpolated points, aka PATH
     for (int i=0; i<npoints; i++) {
-      float  t=(float)i / (float)npoints;
+      float  t=(float)(i) / (float)npoints;
       Vec3D rv = spline->GetInterpolatedSplinePoint(t)*scale;
       vpos.push_back(rv.x);
       vpos.push_back(rv.y);
@@ -386,8 +434,9 @@ namespace glnemo {
   }
   // ============================================================================
   // startStopPlay                                                               
-  void Camera::startStopPlay()
+  void Camera::startStopPlay(const bool _b)
   {
+    play_loop = _b;
     if (!play) {
       play_timer->start(10);
     }

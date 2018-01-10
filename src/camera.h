@@ -23,6 +23,9 @@
 #include "globject.h"
 #include "globaloptions.h"
 #include "gltexture.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace glnemo {
 
@@ -53,14 +56,36 @@ namespace glnemo {
     void loadPath(const std::string filename, const int p, const float s) {
       init(filename,p,s);
     }
+    // toogle spline mode according camera user option
+    void toggleSplineMode(const bool _sm, const bool ugl=true) {
+      spline_mode=_sm;
+      if (!spline_mode) {
+        Vec3D zero(0.,0.,0.);
+        rv=zero;
+      }
+      if (ugl) { // updateGL required
+        emit updateGL();
+      }
+    }
+    void updateVectorUp(const int idx, const float value, const bool ugl=true) {
+      up[idx] = value;
+      if (ugl) { // updateGL required
+        emit updateGL();
+      }
+    }
+    //
+    void setCamDisplayLoop(const bool _v) {
+      play_loop = _v;
+    }
 
-    void startStopPlay();
+    void startStopPlay(const bool);
     void display(const int win_height);
     void reset();
     
   signals:
     void updateGL();
-    
+    void sig_stop_play();
+
   private slots:
     void playGL() { emit updateGL();}
 
@@ -96,6 +121,10 @@ namespace glnemo {
     int win_height;
     // color
     QColor mycolor;
+    // camera
+    glm::vec3 last_up, up; // camera up vector
+    bool spline_mode;
+    bool play_loop; // loop on play ?
     
   };
 }

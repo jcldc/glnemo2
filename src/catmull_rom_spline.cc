@@ -55,14 +55,20 @@ Vec3D CRSpline::GetInterpolatedSplinePoint(float t)
   int p = (int)(t / delta_t);
   // Compute local control point indices
 #define BOUNDS(pp) { if (pp < 0) pp = 0; else if (pp >= (int)vp.size()-1) pp = vp.size() - 1; }
-  int p0 = p - 1;     BOUNDS(p0);
-  int p1 = p;         BOUNDS(p1);
-  int p2 = p + 1;     BOUNDS(p2);
-  int p3 = p + 2;     BOUNDS(p3);
-  // Relative (local) time
-  float lt = (t - delta_t*(float)p) / delta_t;
-  // Interpolate
-  return CRSpline::Eq(lt, vp[p0], vp[p1], vp[p2], vp[p3]);
+
+  if ((p+1) <(int) vp.size()) {
+    int p0 = p - 1;     BOUNDS(p0);
+    int p1 = p;         BOUNDS(p1);
+    int p2 = p + 1;     BOUNDS(p2);
+    int p3 = p + 2;     BOUNDS(p3);
+    // Relative (local) time
+    float lt = (t - delta_t*(float)p) / delta_t;
+    // Interpolate
+    return CRSpline::Eq(lt, vp[p0], vp[p1], vp[p2], vp[p3]);
+  } else {
+    return vp[vp.size()-1];
+
+  }
 }
 
 int CRSpline::GetNumPoints()

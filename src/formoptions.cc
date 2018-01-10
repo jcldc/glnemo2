@@ -303,7 +303,7 @@ void FormOptions::on_cam_play_pressed()
   else {
     form.cam_play->setText("Stop");
   }
-  emit startStopPlay();
+  emit startStopPlay(form.loop_check_box->isChecked());
   playing_camera = !playing_camera;
 }
 // ============================================================================
@@ -312,9 +312,10 @@ void FormOptions::on_cam_reset_pressed()
   emit cam_reset();
   form.cam_play->setText("Start");
   playing_camera=false;
+  form.view_off_radio->setChecked(true);
+  //form.view_on_radio->clicked(false);
   emit setCamDisplay(form.cam_pts_display->isChecked(),
                      form.cam_path_display->isChecked());
-
   emit update_gl();
 }
 // ============================================================================

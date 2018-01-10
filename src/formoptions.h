@@ -96,12 +96,37 @@ class FormOptions: public QDialog {
     void on_spline_scale_valueChanged(double v) {
       emit setSplineParam(form.spline_points->value(),v);
     }
+    //   up vector
+    void on_xup_dspin_valueChanged(double v) {
+      emit sig_updateVectorUp(0,v,true);
+    }
+    void on_yup_dspin_valueChanged(double v) {
+      emit sig_updateVectorUp(1,v,true);
+    }
+    void on_zup_dspin_valueChanged(double v) {
+      emit sig_updateVectorUp(2,v,true);
+    }
+    //   loop check
+    void on_loop_check_box_clicked() {
+      emit sig_cam_display_loop(form.loop_check_box->isChecked());
+    }
+
     void on_cam_play_pressed();
     void on_cam_reset_pressed();
     void on_cam_load_button_pressed();
     void on_cam_save_button_pressed();
     void on_cam_commit_button_pressed();
     void on_cam_load_select_activated(const QString &text);
+    //   spline
+    void on_view_on_radio_clicked() {
+      emit sig_updateVectorUp(0,form.xup_dspin->value(),false);
+      emit sig_updateVectorUp(1,form.yup_dspin->value(),false);
+      emit sig_updateVectorUp(2,form.zup_dspin->value(),false);
+      emit sig_toggleSplineMode(true,true);
+    }
+    void on_view_off_radio_clicked() {
+      emit sig_toggleSplineMode(false,true);
+    }
     //                   
     // play selection tab
     void play_pressed2(const int forcestop=-1);
@@ -627,8 +652,11 @@ class FormOptions: public QDialog {
     // camera tab
     void setCamDisplay(const bool, const bool);
     void setSplineParam(const int, const double);
-    void startStopPlay();
+    void startStopPlay(const bool);
     void loadCameraPath(const std::string, const int , const float);
+    void sig_toggleSplineMode(const bool, const bool);
+    void sig_updateVectorUp(const int, const float, const bool);
+    void sig_cam_display_loop(const bool);
     //         
     // play tab
     void playPressed();
