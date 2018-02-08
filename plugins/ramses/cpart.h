@@ -59,7 +59,7 @@ private:
   int npart,nstar,ncpu,ndim,nbody,ndm;
   int ndm_box, nstar_box;
   std::string s_run_index;
-
+  bool exist_family;
   float xmin,xmax,ymin,ymax,zmin,zmax;
 
   CFortIO part;
