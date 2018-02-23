@@ -35,6 +35,7 @@ SnapshotPhiGrape::SnapshotPhiGrape():SnapshotInterface()
   full_nbody = 0;
   size_buff = 2048;
   BUFF = NULL;
+  file = NULL;
   sbuff="";
 }
 
@@ -119,7 +120,7 @@ bool SnapshotPhiGrape::detectHeader()
   ss.str(buff);
   ss >> n2;
 
-  if (n2 == n1+1 && full_nbody>0 && n1 >=0 && n2 >0) { // BINGO !! , it's a valid phiGRAPE file
+  if (n2 == n1+1 && full_nbody>0 && n1 >=0 && n2 >0 && (frame_number+1!=full_nbody)) { // BINGO !! , it's a valid phiGRAPE file
     ok = true;
     gzseek(file, fpos, SEEK_SET); // go back to the first record
   }
@@ -187,13 +188,18 @@ bool SnapshotPhiGrape::gzGetLine()
     status=getLine();   // get a line
   }
   if (!status) { // no line found or buffer is empty
-    if ((readBuffer()      // then  append a new buffer
-      && getLine())) { // and   get a new line
-      status= true;
-    }
-    else {
-      std::cerr << "SnapshotPhiGrape::gzGetLine can't find a new line \n";
-      throw 13;
+    try {
+      if ((readBuffer()      // then  append a new buffer
+           && getLine())) { // and   get a new line
+        status= true;
+      }
+      else {
+        std::cerr << "SnapshotPhiGrape::gzGetLine can't find a new line \n";
+        throw 13;
+      }
+    } catch (int &e) {
+      std::cerr << "WARNING not a Phigrape \n";
+      status=false;
     }
   }
   return status;
@@ -298,13 +304,13 @@ int SnapshotPhiGrape::nextFrame(const int * index_tab, const int nsel)
       int idx=index_tab[i];
       if (idx!=-1) { // it's a valid particle
         //long nn;
-        float v[3];//,dummy;
+        float v[3];
         float rho1,hsml;
         char *endptr;
         char * p = line;
-        //nn     = strtol(p, &endptr, 10); // index
+        strtol(p, &endptr, 10); // index
         p   = endptr;
-        //dummy  = strtof(p, &endptr); // mass
+        strtof(p, &endptr); // mass
         p   = endptr;
         // pos
         for (int i=0;i<3;i++) {
@@ -366,7 +372,10 @@ int SnapshotPhiGrape::nextFrame(const int * index_tab, const int nsel)
 int SnapshotPhiGrape::close()
 {
   int ret=0;
-  if (file) gzclose(file);
+  if (file) {
+    gzclose(file);
+    file=NULL;
+  }
   if (valid) {    
     end_of_data=false;
     valid = false;
