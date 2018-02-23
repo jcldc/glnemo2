@@ -34,6 +34,7 @@ SnapshotRamses::SnapshotRamses():SnapshotInterface()
   nstars=0;
   ndm=0;
   take_gas = take_halo = take_stars = false;
+  h3d = NULL;
 }
 
 // ============================================================================
@@ -46,7 +47,7 @@ SnapshotRamses::~SnapshotRamses()
   
   if (pos)   free ((float *) pos);
   if (vel)   free ((float *) vel);
-
+  if (h3d)   delete h3d;
   if (valid) close();
 }
 // ============================================================================
@@ -68,6 +69,8 @@ bool SnapshotRamses::isValidData()
   valid=false;
   part = new ramses::CPart(filename,2);
   amr  = new ramses::CAmr(filename);
+  h3d  = new ramses::CHilbert3D(filename);
+
   if (part->isValid() || amr->isValid()) {
     connect(amr, SIGNAL(stringStatus(const QString)),this,SLOT(slotStringStatus(QString)));    //SLOT(slotStringStatus(const Qstring)));
     connect(part,SIGNAL(stringStatus(const QString)),this,SLOT(slotStringStatus(QString)));
@@ -126,13 +129,13 @@ int SnapshotRamses::nextFrame(const int * index_tab, const int nsel)
     *part_data->nbody = nsel;
     
     if (take_gas&&namr) {         // there are gas particles requested
-      amr->loadData(part_data->pos,part_data->vel,part_data->rho->data, part_data->rneib->data,part_data->temp->data,
+      amr->loadData(*h3d,part_data->pos,part_data->vel,part_data->rho->data, part_data->rneib->data,part_data->temp->data,
                     index_tab,nsel,load_vel);
       std::cerr << "after amr->loadata\n";
     }
     
     if ((take_halo&&ndm) || (take_stars&&nstars)) { // there are halo|stars particles requested
-      part->loadData(take_halo,take_stars,part_data->pos,part_data->vel,index_tab,nsel,load_vel,namr);
+      part->loadData(*h3d,take_halo,take_stars,part_data->pos,part_data->vel,index_tab,nsel,load_vel,namr);
     }
     
     //part_data->computeMaxSize();
@@ -239,6 +242,14 @@ int SnapshotRamses::initLoading(GlobalOptions * so)
   x[7] = so->lmax;
   amr->setBoundary(x);
   part->setBoundary(x);
+
+  //ramses::CHilbert3D h3d(filename);
+  h3d->process(x[0],x[1],x[2],x[3],x[4],x[5]);
+  //std::vector<int> cpu_list=h3d.getCpuList();
+  h3d->printCpuList();
+  //std::exit(1);
+  //
+
   if (so->select_part=="" || so->select_part=="all" || (so->select_part.find("gas")!=std::string::npos))
     take_gas = true;
   if (so->select_part=="" || so->select_part=="all" || (so->select_part.find("halo")!=std::string::npos))
@@ -248,13 +259,13 @@ int SnapshotRamses::initLoading(GlobalOptions * so)
   
   if (take_gas && amr->isValid()) {
     take_gas = true;
-    namr=amr->loadData(); // count gas particles
+    namr=amr->loadData(*h3d); // count gas particles
   } else {
     namr=0;
   }
   
   if ((take_halo || take_stars) && part->isValid()) {
-    part->loadData(take_halo,take_stars);     // count dm+stars particles
+    part->loadData(*h3d,take_halo,take_stars);     // count dm+stars particles
     part->getNbody(&ndm,&nstars);
   } else {
     ndm=0; nstars=0;

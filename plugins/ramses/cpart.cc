@@ -96,7 +96,7 @@ int CPart::readHeader()
 }
 // ============================================================================
 // loadData
-int CPart::loadData(bool take_halo, bool take_stars,float * pos, float * vel,const int *index,
+int CPart::loadData(ramses::CHilbert3D &h3d, bool take_halo, bool take_stars,float * pos, float * vel,const int *index,
                     const int nsel, const bool load_vel, const int namr_box)
 {
   int cpt_dm=0;
@@ -116,10 +116,13 @@ int CPart::loadData(bool take_halo, bool take_stars,float * pos, float * vel,con
     //assert(nsel==nselect);
   }
   nbody=0;
-  
-  for (int i=0; i<ncpu; i++) {
+  std::vector<int> cpu_list=h3d.getCpuList();
+
+  for (int iicpu=0; iicpu<cpu_list.size(); iicpu++) {
     std::ostringstream osf;
-    osf << std::fixed << std::setw(5) << std::setfill('0') <<i+1;
+    int icpu=cpu_list[iicpu];
+    osf << std::fixed << std::setw(5) << std::setfill('0') <<icpu;
+    icpu--;
     std::string infile = indir + "/part_" + s_run_index + ".out" + osf.str();
     if (verbose) std::cerr << "reading file : " << infile << "\n";
     str_status = std::string("Loading file : " + infile).c_str();

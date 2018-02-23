@@ -193,7 +193,7 @@ int CAmr::readHeader()
 }
 // ============================================================================
 // loadData
-int CAmr::loadData(float * pos, float * vel, float * rho, float * rneib, float * temp,const int *index,
+int CAmr::loadData(ramses::CHilbert3D &h3d,float * pos, float * vel, float * rho, float * rneib, float * temp,const int *index,
                    const int nsel,   const bool load_vel)
 {
   int ngridfile  [nlevelmax][ncpu+nboundary];
@@ -210,10 +210,18 @@ int CAmr::loadData(float * pos, float * vel, float * rho, float * rneib, float *
   bool count_only=false;
 
   if (index==NULL)  count_only=true;
+
+  std::vector<int> cpu_list=h3d.getCpuList();
+
   // loop on all cpus/files
-  for (int icpu=0; icpu<ncpu; icpu++) {
+  //for (int icpu=0; icpu<ncpu; icpu++) {
+  for (int iicpu=0; iicpu<cpu_list.size(); iicpu++) {
+    int nread_cpu=0; // #particles read in cpu file
+    int icpu=cpu_list[iicpu];
     std::ostringstream osf;
-    osf << std::fixed << std::setw(5) << std::setfill('0') <<icpu+1;
+    //osf << std::fixed << std::setw(5) << std::setfill('0') <<icpu+1;
+    osf << std::fixed << std::setw(5) << std::setfill('0') <<icpu;
+    icpu--;
     infile = indir + "/amr_" + s_run_index + ".out" + osf.str();
     if (verbose) std::cerr << "CAmr::loadData infile-> ["<<infile << "]\n";
     str_status = std::string("Loading file : " + infile).c_str();
@@ -349,6 +357,7 @@ int CAmr::loadData(float * pos, float * vel, float * rho, float * rneib, float *
                 ((py-dx2)<=ymax)                      &&
                 (((ndim<3)||((pz-dx2)<=zmax) )));
             if (ok_cell) {
+              nread_cpu++;
               if (!count_only) {
                 int idx=index[nbody];
                 if (idx!=-1) { // it's a valide particle
@@ -431,7 +440,12 @@ int CAmr::loadData(float * pos, float * vel, float * rho, float * rneib, float *
     } // ilevel
     amr.close();    
     hydro.close();    
-  } //for (int icpu=0 .... 
+
+    if (!count_only) {
+      std::cerr << nread_cpu <<"\n";
+    }
+  } //for (int icpu=0 ....
+
   return nbody;
 }
 } // end of namespace ramses

@@ -23,6 +23,7 @@
 #include <vector>
 #include "cfortio.h"
 #include <QObject>
+#include "chilbert3d.h"
 
 namespace ramses {
 class CPart: public QObject {
@@ -40,7 +41,7 @@ public:
     
   }
   bool isValid();
-  int loadData(bool , bool, float * pos=NULL, float * vel=NULL,const int *index=NULL,
+  int loadData(ramses::CHilbert3D &h3d,bool , bool, float * pos=NULL, float * vel=NULL,const int *index=NULL,
                const int nsel=0,   const bool load_vel=false, const int namr_box=0);
   int getNbody(int * dm, int * stars)    { 
     *dm    = ndm_box;

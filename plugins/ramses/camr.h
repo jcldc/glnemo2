@@ -26,6 +26,7 @@
 #include <map>
 #include <climits>
 #include <cstdlib>
+#include "chilbert3d.h"
 
 namespace ramses {
 
@@ -57,7 +58,8 @@ public:
       lmin = std::min((int) x[6],lmax-1);                   
     }
     bool isValid();
-    int loadData(float * pos=NULL, float * vel=NULL, float * rho=NULL,
+    int loadData(ramses::CHilbert3D &h3d,
+                 float * pos=NULL, float * vel=NULL, float * rho=NULL,
                  float * rneib=NULL, float * temp=NULL,const int *index=NULL,
                  const int nsel=0,   const bool load_vel=false);
     int getNbody()    { return nbody;}
