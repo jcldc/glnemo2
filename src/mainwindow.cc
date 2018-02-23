@@ -2019,6 +2019,14 @@ void MainWindow::createObjFromIndexList()
     gl_window->update( current_data->part_data, &pov2,store_options,false);
 #else // JCL modification 2015 March 24
     ParticlesObject * po = new ParticlesObject(ParticlesObject::Range); // new object
+    float texture=current_data->part_data->getMaxSize()/300.;
+    if (texture>1) texture=1.0;
+    po->setRenderMode(0);
+    po->setGazSizeMax(texture);
+    po->setGazSize(texture);
+    po->setRenderMode(1);
+    po->setGazSizeMax(texture);
+    po->setGazSize(texture);
     po->buildIndexList(indexes);
     pov2.push_back(*po);
     delete po;
