@@ -752,7 +752,7 @@ void MainWindow::interactiveSelect(std::string _select, const bool first_snapsho
       form_options->setPlaySettings(current_data->getNumberFrames(), 0);
       emit endOfSnapshot(1);
     }
-    form_spart->update(current_data,&current_data->crv_first,_select, first_snapshot);
+    form_spart->update(store_options, current_data,&current_data->crv_first,_select, first_snapshot);
     form_spart->show();
     //ComponentRange::list(crv);
   }
@@ -768,6 +768,33 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
   store_options->select_part = select;
   store_options->vel_req = load_vel;
 
+  // we check if xyzmin/max have been changed from GUI selectpart
+  bool new_xyzm=false;
+  if (last_xyzm[0] != store_options->xmin) {
+    new_xyzm=true;
+    last_xyzm[0] = store_options->xmin;
+  }
+  if (last_xyzm[1] != store_options->xmax) {
+    new_xyzm=true;
+    last_xyzm[1] = store_options->xmax;
+  }
+  if (last_xyzm[2] != store_options->ymin) {
+    new_xyzm=true;
+    last_xyzm[2] = store_options->ymin;
+  }
+  if (last_xyzm[3] != store_options->ymax) {
+    new_xyzm=true;
+    last_xyzm[3] = store_options->ymax;
+  }
+  if (last_xyzm[4] != store_options->zmin) {
+    new_xyzm=true;
+    last_xyzm[4] = store_options->zmin;
+  }
+  if (last_xyzm[5] != store_options->zmax) {
+    new_xyzm=true;
+    last_xyzm[5] = store_options->zmax;
+  }
+
   if ((reload) && current_data) {// reload action requested
     //store_options->phys_max_glob = store_options->phys_min_glob = -1; // reset for colobar display
     current_data->close();     // close the current snapshot
@@ -781,12 +808,18 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
     //ComponentRange::list(&current_data->crv_first);
   } else {
     actionReset();             // reset view if menu file open
+    if (new_xyzm) { // xyz max have changed, we must rescan data
+      current_data->initLoading(store_options);
+      crv = current_data->getSnapshotRange();
+    }
+
   }
   if (!reload) {
     pov.clear();
     pov2.clear();
   }
-  //gl_window->gpvClear(); // clear list of object
+  gl_window->gpvClear(); // clear list of object
+
 
   current_data->setSelectPart(select);
   std::cerr << "MainWindow::selectPart store_options->select_time = " << store_options->select_time << "\n";
@@ -1081,11 +1114,17 @@ void MainWindow::parseNemoParameters()
   store_options->show_points= getbparam((char *) "point");
   store_options->show_poly= getbparam((char *) "texture");
   store_options->xmin     = getdparam((char *) "xmin");
+  last_xyzm[0] = store_options->xmin;
   store_options->xmax     = getdparam((char *) "xmax");
+  last_xyzm[1] = store_options->xmax;
   store_options->ymin     = getdparam((char *) "ymin");
+  last_xyzm[2] = store_options->ymin;
   store_options->ymax     = getdparam((char *) "ymax");
+  last_xyzm[3] = store_options->ymax;
   store_options->zmin     = getdparam((char *) "zmin");
+  last_xyzm[4] = store_options->zmin;
   store_options->zmax     = getdparam((char *) "zmax");
+  last_xyzm[5] = store_options->zmax;
   store_options->lmin     = getiparam((char *) "lmin");
   store_options->lmax     = getiparam((char *) "lmax");
   store_options->scale    = getdparam((char *) "scale");
@@ -2028,6 +2067,7 @@ void MainWindow::createObjFromIndexList()
     po->setGazSizeMax(texture);
     po->setGazSize(texture);
     po->buildIndexList(indexes);
+    po->setColor(Qt::yellow);
     pov2.push_back(*po);
     delete po;
     //listObjects(pov);

@@ -91,7 +91,15 @@ int SnapshotRamses::nextFrame(const int * index_tab, const int nsel)
   stv.clear();
   parseSelectTime();
   load_vel = go->vel_req;
-  
+
+#if 0
+  // set boundaries
+  float x[8];
+
+  setBoundaries(x); // we set boundaries again in case of interactive mode
+  h3d->process(x[0],x[1],x[2],x[3],x[4],x[5]);
+#endif
+
   if (go->select_part=="all" || (go->select_part.find("gas")!=std::string::npos))
     take_gas = true;
   else namr=0;
@@ -101,7 +109,17 @@ int SnapshotRamses::nextFrame(const int * index_tab, const int nsel)
   if (go->select_part=="all" || (go->select_part.find("stars")!=std::string::npos))
     take_stars = true;
   else nstars=0;
-  
+
+#if 0
+  // we must re count in case of interactive xyz min/max selection, sux...
+  if (take_gas) {
+    namr=amr->loadData(*h3d); // count gas particles
+  }
+  if ((take_halo) || (take_stars)) {
+    part->loadData(*h3d,take_halo,take_stars);     // count dm+stars particles
+    part->getNbody(&ndm,&nstars);
+  }
+#endif
   if (valid && checkRangeTime(0)) {
     status=1;
     if (nsel > *part_data->nbody) {
@@ -208,6 +226,39 @@ ComponentRangeVector * SnapshotRamses::getSnapshotRange()
   return &crv;
 }
 // ============================================================================
+// setBoundaries()
+void SnapshotRamses::setBoundaries(float x[])
+{
+  // boundary box
+  if (go->xmin==0.0 && go->xmax== 0.0) {
+    x[0]=std::numeric_limits<float>::min();
+    x[1]=std::numeric_limits<float>::max();
+  } else {
+    x[0] = go->xmin;
+    x[1] = go->xmax;
+  }
+  if (go->ymin==0.0 && go->ymax== 0.0) {
+    x[2]=std::numeric_limits<float>::min();
+    x[3]=std::numeric_limits<float>::max();
+  } else {
+    x[2] = go->ymin;
+    x[3] = go->ymax;
+  }
+  if (go->zmin==0.0 && go->zmax== 0.0) {
+    x[4]=std::numeric_limits<float>::min();
+    x[5]=std::numeric_limits<float>::max();
+  } else {
+    x[4] = go->zmin;
+    x[5] = go->zmax;
+  }
+  x[6] = go->lmin;
+  x[7] = go->lmax;
+  amr->setBoundary(x);
+  part->setBoundary(x);
+
+}
+
+// ============================================================================
 // initLoading()                                                               
 int SnapshotRamses::initLoading(GlobalOptions * so)
 {
@@ -215,33 +266,10 @@ int SnapshotRamses::initLoading(GlobalOptions * so)
   load_vel = so->vel_req;
   select_time = so->select_time;  
   std::cerr << "SnapshotRamses::initLoading IN\n";
+
+  // set boundaries
   float x[8];
-  // boundary box
-  if (so->xmin==0.0 && so->xmax== 0.0) {
-    x[0]=std::numeric_limits<float>::min();
-    x[1]=std::numeric_limits<float>::max();
-  } else {
-    x[0] = so->xmin;
-    x[1] = so->xmax;
-  }
-  if (so->ymin==0.0 && so->ymax== 0.0) {
-    x[2]=std::numeric_limits<float>::min();
-    x[3]=std::numeric_limits<float>::max();
-  } else {
-    x[2] = so->ymin;
-    x[3] = so->ymax;
-  }
-  if (so->zmin==0.0 && so->zmax== 0.0) {
-    x[4]=std::numeric_limits<float>::min();
-    x[5]=std::numeric_limits<float>::max();
-  } else {
-    x[4] = so->zmin;
-    x[5] = so->zmax;
-  }
-  x[6] = so->lmin;
-  x[7] = so->lmax;
-  amr->setBoundary(x);
-  part->setBoundary(x);
+  setBoundaries(x);
 
   //ramses::CHilbert3D h3d(filename);
   h3d->process(x[0],x[1],x[2],x[3],x[4],x[5]);

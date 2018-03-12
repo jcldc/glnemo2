@@ -30,10 +30,11 @@ FormSelectPart::~FormSelectPart()
 }
 // ============================================================================
 // update                                                                      
-void FormSelectPart::update(SnapshotInterface * _si,
+void FormSelectPart::update(GlobalOptions * _go,SnapshotInterface * _si,
                             ComponentRangeVector * _crv, 
                             const std::string previous_sel, const bool first)
 {
+  go = _go;
   current_data = _si;
   crv = _crv;
   std::cerr << " FormSelectPart::update ----->  \n";
@@ -90,6 +91,20 @@ void FormSelectPart::update(SnapshotInterface * _si,
     }
   }
   updateSelect();
+
+  if ((current_data->getInterfaceType()).find("Ramses")!=std::string::npos) {
+    // in case of ramses simulation activate boundaries FORM
+    form.ramses_xyz->setVisible(true);
+    form.xmin_spin->setValue(go->xmin);
+    form.xmax_spin->setValue(go->xmax);
+    form.ymin_spin->setValue(go->ymin);
+    form.ymax_spin->setValue(go->ymax);
+    form.zmin_spin->setValue(go->zmin);
+    form.zmax_spin->setValue(go->zmax);
+  } else {
+    // deactivate boundaries FORM
+    form.ramses_xyz->setVisible(false);
+  }
 }
 
 // ============================================================================
