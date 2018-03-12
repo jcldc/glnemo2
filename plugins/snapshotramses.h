@@ -19,6 +19,7 @@
 #include "snapshotinterface.h"
 #include "camr.h"
 #include "cpart.h"
+#include "chilbert3d.h"
 #include "globaloptions.h"
 
 namespace glnemo {
@@ -53,6 +54,7 @@ private:
     bool valid;
     int full_nbody;
     bool take_gas, take_halo, take_stars;
+    ramses::CHilbert3D * h3d;
 };
 
 }

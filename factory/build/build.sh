@@ -5,7 +5,11 @@
 #rm -rf build-docker
 #mkdir build-docker
 cd /tmp
-git clone https://gitlab.lam.fr/jclamber/glnemo2.git 
+# clone master
+# git clone https://gitlab.lam.fr/jclamber/glnemo2.git 
+
+# clone a branch
+git clone -b dev_1.11 https://gitlab.lam.fr/jclamber/glnemo2.git 
 cd glnemo2
 mkdir build-docker
 cd build-docker

@@ -17,5 +17,7 @@ INCLUDEPATH += \
 ../../utils
 
 # Input
-HEADERS += camr.h cpart.h
-SOURCES += camr.cc cpart.cc
+HEADERS += camr.h cpart.h \
+    chilbert3d.h
+SOURCES += camr.cc cpart.cc \
+    chilbert3d.cc

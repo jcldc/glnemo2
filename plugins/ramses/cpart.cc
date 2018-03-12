@@ -32,6 +32,7 @@ CPart::CPart(const std::string _indir, const int _select,const bool _v)
   indir = _indir;
   infile="";
   ndim=0;
+  exist_family=false;
 
   // keep filename untill last /
   int found=indir.find_last_of("/");
@@ -50,6 +51,15 @@ CPart::CPart(const std::string _indir, const int _select,const bool _v)
     std::cerr << "Run index = " << s_run_index << "\n";
     infile = indir + "/part_" + s_run_index + ".out00001";
     std::cerr << "infile =" << infile <<"\n";
+    // check if new ramses format with family
+    std::ifstream fi;
+    fi.open(std::string(indir+"/part_file_descriptor.txt").c_str());
+    if (fi.is_open()) {
+      exist_family=true;
+      fi.close();
+    } else {
+      exist_family=false;
+    }
   }
 }
 
@@ -86,7 +96,7 @@ int CPart::readHeader()
 }
 // ============================================================================
 // loadData
-int CPart::loadData(bool take_halo, bool take_stars,float * pos, float * vel,const int *index,
+int CPart::loadData(ramses::CHilbert3D &h3d, bool take_halo, bool take_stars,float * pos, float * vel,const int *index,
                     const int nsel, const bool load_vel, const int namr_box)
 {
   int cpt_dm=0;
@@ -106,10 +116,13 @@ int CPart::loadData(bool take_halo, bool take_stars,float * pos, float * vel,con
     //assert(nsel==nselect);
   }
   nbody=0;
-  
-  for (int i=0; i<ncpu; i++) {
+  std::vector<int> cpu_list=h3d.getCpuList();
+
+  for (int iicpu=0; iicpu<cpu_list.size(); iicpu++) {
     std::ostringstream osf;
-    osf << std::fixed << std::setw(5) << std::setfill('0') <<i+1;
+    int icpu=cpu_list[iicpu];
+    osf << std::fixed << std::setw(5) << std::setfill('0') <<icpu;
+    icpu--;
     std::string infile = indir + "/part_" + s_run_index + ".out" + osf.str();
     if (verbose) std::cerr << "reading file : " << infile << "\n";
     str_status = std::string("Loading file : " + infile).c_str();
@@ -149,20 +162,42 @@ int CPart::loadData(bool take_halo, bool take_stars,float * pos, float * vel,con
     
     double * age;
     if (nstar>0) { // there are stars
+      char * family=NULL;
+
       part.skipBlock(); // skip identity
       part.skipBlock(); // skip level
+      if (exist_family) {
+        family = new char[npart];
+        part.readDataBlock((char *) family); // read family
+        part.skipBlock(); // skip tag
+      }
       age = new double[npart];
       part.readDataBlock((char *) age);
       for (int k=0; k<npart; k++) {
-        if ((age[k]==0.&& (select==0 || select==2))  || // it's DM    && (DM    sel || DM + Stars sel)
-            (age[k]!=0.&& (select==1 || select==2))) {  // its' stars && (Stars sel || DM + Stars sel)
+        bool ok_stars=false, ok_dm=false;
+        if (exist_family) {
+          if (family[k]==2) { // stars
+            ok_stars=true;
+          }
+          if (family[k]==1) { // stars
+            ok_dm=true;
+          }
+        } else {
+          if (age[k]!=0.) { // stars
+            ok_stars=true;
+          } else {            // dm
+            ok_dm=true;
+          }
+        }
+        if ((ok_dm && (select==0 || select==2))  || // it's DM    && (DM    sel || DM + Stars sel)
+            (ok_stars && (select==1 || select==2))) {  // its' stars && (Stars sel || DM + Stars sel)
           if ((tmp[0][k]>=xmin && tmp[0][k]<=xmax) &&
               (tmp[1][k]>=ymin && tmp[1][k]<=ymax) &&
               ((ndim<3) ||(tmp[2][k]>=zmin && tmp[2][k]<=zmax))
               ) {
             
             if (count_only) {
-              if (age[k]==0) { // it's DM
+              if (ok_dm) { // it's DM
                 ndm_box++;
               } else {         // it's a star
                 nstar_box++;
@@ -172,7 +207,7 @@ int CPart::loadData(bool take_halo, bool take_stars,float * pos, float * vel,con
             else {
               int idx=666;//index[nbody];
               if (idx!=-1) { // it's a valid particle
-                if (take_halo && age[k]==0) { // DM selected and it's a  DM
+                if (take_halo && ok_dm) { // DM selected and it's a  DM
                   int cpt = namr_box+cpt_dm;
                   assert(cpt<(nselect+namr_box));
                   for (int l=0;l<ndim;l++) {
@@ -189,7 +224,7 @@ int CPart::loadData(bool take_halo, bool take_stars,float * pos, float * vel,con
                   }
                   cpt_dm++;
                 }
-                if (take_stars && age[k]!=0) { // STARS selected and it's a star
+                if (take_stars && ok_stars) { // STARS selected and it's a star
                   int cpt = namr_box+(take_halo?ndm_box:0)+cpt_star;
                   assert(cpt<(nselect+namr_box));
                   for (int l=0;l<ndim;l++) {
@@ -215,6 +250,7 @@ int CPart::loadData(bool take_halo, bool take_stars,float * pos, float * vel,con
       }
       // garbage
       delete [] age;
+      delete [] family;
     }
     else {  // there are no stars
       if (select==0 || select==2) { // DM sel|| DM + stars sel        

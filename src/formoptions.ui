@@ -7800,7 +7800,7 @@ p, li { white-space: pre-wrap; }
           <item row="1" column="0">
            <widget class="QComboBox" name="cam_load_select">
             <property name="toolTip">
-             <string>Default camera path</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Built in camera path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -8366,7 +8366,7 @@ p, li { white-space: pre-wrap; }
              </palette>
             </property>
             <property name="toolTip">
-             <string>Display scene along camera path</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Start/Stop display scene along camera path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="styleSheet">
              <string notr="true">background:red</string>
@@ -8824,6 +8824,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="2" column="0">
            <widget class="QCheckBox" name="loop_check_box">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If enable, camera display restarts &lt;/p&gt;&lt;p&gt;automatically from the beginning&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>loop</string>
             </property>
@@ -8860,6 +8863,9 @@ p, li { white-space: pre-wrap; }
                  </item>
                  <item row="0" column="1">
                   <widget class="QDoubleSpinBox" name="xup_dspin">
+                   <property name="toolTip">
+                    <string>Set X-up camera vector</string>
+                   </property>
                    <property name="minimum">
                     <double>-1.000000000000000</double>
                    </property>
@@ -8884,6 +8890,9 @@ p, li { white-space: pre-wrap; }
                  </item>
                  <item row="0" column="1">
                   <widget class="QDoubleSpinBox" name="yup_dspin">
+                   <property name="toolTip">
+                    <string>Set Y-up camera vector</string>
+                   </property>
                    <property name="minimum">
                     <double>-1.000000000000000</double>
                    </property>
@@ -8908,6 +8917,9 @@ p, li { white-space: pre-wrap; }
                  </item>
                  <item row="0" column="1">
                   <widget class="QDoubleSpinBox" name="zup_dspin">
+                   <property name="toolTip">
+                    <string>Set Z-up camera vector</string>
+                   </property>
                    <property name="minimum">
                     <double>-1.000000000000000</double>
                    </property>
@@ -8934,6 +8946,9 @@ p, li { white-space: pre-wrap; }
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Camera view mode:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;on&lt;/span&gt; : switch to camera view mode&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;off&lt;/span&gt; : switch to user view mode&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="title">
                <string>view mode</string>
