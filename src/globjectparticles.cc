@@ -906,7 +906,14 @@ void GLObjectParticles::buildVboPhysData()
       else                index = po->index_tab[i]; // no physic
     }
     if (phys_select && phys_select->isValid()) {
-      phys_data.push_back(phys_select->data[index]);
+      if (phys_select->data[index]!=-1) {
+        phys_data.push_back(phys_select->data[index]);
+      } else { // for object selected with mouse, and mixing particles
+               // with and without density (no rho=-1)
+               // we arbirary set value 50% (rho_max-rho_min)
+        const double v=phys_select->getMin()+0.5*(phys_select->getMax()-phys_select->getMin());
+        phys_data.push_back(v);
+      }
     } else {
       phys_data.push_back(0.0);      
     }

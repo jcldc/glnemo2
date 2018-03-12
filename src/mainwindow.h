@@ -265,7 +265,8 @@ class MainWindow : public QMainWindow {
     int total_frame;
     // divers stuff
     void initVariables();
-    
+    // save xyz min max
+    float last_xyzm[6];
     // timers
     void startTimers();
     // mouse and keys and zoom

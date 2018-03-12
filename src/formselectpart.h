@@ -17,6 +17,7 @@
 #define GLNEMOFORMSELECTPART_H
 #include "ui_formselectpart.h"
 #include "snapshotinterface.h"
+#include "globaloptions.h"
 namespace glnemo {
 
 
@@ -26,7 +27,7 @@ class FormSelectPart: public QDialog {
     FormSelectPart(QWidget *parent = 0);
 
     ~FormSelectPart();
-  void update(SnapshotInterface *,ComponentRangeVector *, const std::string, const bool first_snapshot=false);
+  void update(GlobalOptions * ,SnapshotInterface *,ComponentRangeVector *, const std::string, const bool first_snapshot=false);
   signals:
       void selectPart(const std::string, const bool, const bool);
   private slots:
@@ -37,6 +38,14 @@ class FormSelectPart: public QDialog {
     void on_bulge_check_clicked() { updateSelect(); }
     void on_stars_check_clicked() { updateSelect(); }
     void on_bndry_check_clicked() { updateSelect(); }
+    // xyz min/max modifications
+    void on_xmin_spin_valueChanged(double v) { go->xmin=v; }
+    void on_xmax_spin_valueChanged(double v) { go->xmax=v; }
+    void on_ymin_spin_valueChanged(double v) { go->ymin=v; }
+    void on_ymax_spin_valueChanged(double v) { go->ymax=v; }
+    void on_zmin_spin_valueChanged(double v) { go->zmin=v; }
+    void on_zmax_spin_valueChanged(double v) { go->zmax=v; }
+
     void on_load_vel_check_clicked()    { load_vel = form.load_vel_check->isChecked(); }
     void on_manual_range_textChanged(QString s) { updateSelect(); s="";}
     void on_button_box_accepted() {
@@ -49,6 +58,7 @@ class FormSelectPart: public QDialog {
     Ui::FormSelectPart form;
     ComponentRangeVector * crv;
     SnapshotInterface * current_data;
+    GlobalOptions * go;
     bool load_vel;
     void reset(bool range=true);
     void updateSelect();

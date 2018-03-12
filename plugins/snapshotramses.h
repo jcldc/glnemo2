@@ -55,6 +55,7 @@ private:
     int full_nbody;
     bool take_gas, take_halo, take_stars;
     ramses::CHilbert3D * h3d;
+    void setBoundaries(float x[8]);
 };
 
 }
