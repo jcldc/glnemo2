@@ -162,6 +162,7 @@ INCLUDEPATH += \
     ../plugins/network \
     ../plugins/tipsy \
     ../src \
+    /usr/include/hdf5/serial \
     $$NEMOLIB \
     $$NEMOINC \
     glew
@@ -176,7 +177,7 @@ LIBS += \
     -lnetwork \
     -ltipsy \
     -lutils \
-    -lhdf5_cpp -lhdf5
+    -L/usr/lib/x86_64-linux-gnu/hdf5/serial -lhdf5_cpp -lhdf5
 win32 {
     #LIBS += -lzlib
     #LIBS += -lz

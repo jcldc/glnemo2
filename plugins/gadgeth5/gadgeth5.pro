@@ -23,7 +23,7 @@ HEADERS +=  \
 SOURCES +=  \
     gadgeth5.cc
 
-INCLUDEPATH += ../../src
+INCLUDEPATH += ../../src /usr/include/hdf5/serial
 
 #DISTFILES += \
 #    ../gadgeth5plugin.json

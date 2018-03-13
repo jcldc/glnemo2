@@ -54,6 +54,7 @@ INCLUDEPATH += ftm \
     ../plugins \
     zlib \
     /usr/include/CCfits \
+    /usr/include/hdf5/serial \
     $$NEMOINC \
     $$NEMOLIB
 DEPENDPATH += \
