@@ -28,7 +28,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>8</number>
+      <number>6</number>
      </property>
      <widget class="QWidget" name="tab_i_select">
       <attribute name="title">

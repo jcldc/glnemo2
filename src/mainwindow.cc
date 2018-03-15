@@ -2057,16 +2057,23 @@ void MainWindow::createObjFromIndexList()
     updateOsd();
     gl_window->update( current_data->part_data, &pov2,store_options,false);
 #else // JCL modification 2015 March 24
-    ParticlesObject * po = new ParticlesObject(ParticlesObject::Range); // new object
+    ParticlesObject * po = new ParticlesObject(ParticlesObject::Range); // new object   
+    po->buildIndexList(indexes);
+    po->checkPhysic(current_data->part_data);
     float texture=current_data->part_data->getMaxSize()/300.;
-    if (texture>1) texture=1.0;
+    if (texture>1 || po->hasPhysic()) {
+      texture=1.0;
+    }
+
+    // accumulation blending mode
     po->setRenderMode(0);
-    po->setGazSizeMax(texture);
-    po->setGazSize(texture);
+    po->setGazSizeMax(store_options->texture_size);
+    po->setGazSize(store_options->texture_size);
+    // individual hsml
     po->setRenderMode(1);
     po->setGazSizeMax(texture);
     po->setGazSize(texture);
-    po->buildIndexList(indexes);
+
     po->setColor(Qt::yellow);
     pov2.push_back(*po);
     delete po;

@@ -213,6 +213,28 @@ void ParticlesObject::checkPhysic(ParticlesObjectVector& pov, ParticlesData   * 
   }
 }
 // ============================================================================
+// checkPhysic()
+void ParticlesObject::checkPhysic(ParticlesData * current_data )
+{
+  if (current_data) {
+    glnemo::PhysicalData * phys_select = current_data->getPhysData();
+
+    int nphys=0;
+    for (int i=0; i<npart; i++) {
+      int index=index_tab[i];
+      if (phys_select && phys_select->isValid()) {
+        if (phys_select->data[index] != -1) {
+          nphys++;
+        }
+      }
+    }
+    if (nphys>0 && nphys==npart) {
+      setPhysic(true);
+    }
+
+  }
+}
+// ============================================================================
 // destructor                                                                  
 ParticlesObject::~ParticlesObject()
 {
