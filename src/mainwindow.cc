@@ -893,7 +893,8 @@ void MainWindow::loadNewData(const std::string select,
           std::cerr << "Resampled Texture Size = "<< store_options->texture_size <<"\n";
         } else {
           if (store_options->auto_texture_size && store_options->rho_exist) {
-            store_options->texture_size = current_data->part_data->rneib->getMin()*2.;
+            //store_options->texture_size = current_data->part_data->rneib->getMin()*2.;
+            store_options->texture_size = current_data->part_data->getMaxSize()/300.;
             std::cerr << "Use HSMLx2 as Texture Size = "<< store_options->texture_size <<"\n";
             if (store_options->texture_size>1.0) store_options->texture_size=1.0;
           }
