@@ -764,6 +764,11 @@ void MainWindow::interactiveSelect(std::string _select, const bool first_snapsho
 // -----------------------------------------------------------------------------
 void MainWindow::selectPart(const std::string _select, const bool first_snapshot, const bool load_vel)
 {
+  bool force_first_snapshot=first_snapshot;
+  if (select != _select) {
+    //reload=false;
+    //force_first_snapshot=true;
+  }
   select = _select;
   store_options->select_part = select;
   store_options->vel_req = load_vel;
@@ -814,7 +819,7 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
     }
 
   }
-  if (!reload) {
+  if (true || !reload) { // WELL LATEST FIXES MUST BE CHECKED (MARCH,16th 2018)
     pov.clear();
     pov2.clear();
   }
@@ -826,7 +831,7 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   status_bar->showMessage("Loading, please wait....");
   loadNewData(select,store_options->select_time,  // load data
-	      keep_all,true,first_snapshot);
+          keep_all,true,force_first_snapshot);
   status_bar->showMessage("Ready");
   QApplication::restoreOverrideCursor();
 
@@ -883,7 +888,7 @@ void MainWindow::loadNewData(const std::string select,
         //std::cerr << "POV2 list after\n";
         //listObjects(pov2);
       }
-      if (first) {
+      if (first) { // || reload) {
         if (current_data)
           ParticlesObject::checkPhysic(pov2,current_data->part_data);
         if (store_options->auto_texture_size && !store_options->rho_exist) {
