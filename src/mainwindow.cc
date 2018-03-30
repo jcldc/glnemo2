@@ -70,7 +70,7 @@ MainWindow::MainWindow(std::string _ver)
   camera = new  Camera(store_options);
   // ------- openGL object ---------
   gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera);
-  camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/path_01");
+  camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
   // colormap object
   colormap  = new Colormap(store_options);
   
@@ -809,6 +809,7 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
     //connect(current_data,SIGNAL(stringStatus(QString)),status_bar, SLOT(showMessage(QString)));
     current_data->initLoading(store_options);
     crv = current_data->getSnapshotRange();    
+    force_first_snapshot=true;
     ComponentRange::list(crv);
     //ComponentRange::list(&current_data->crv_first);
   } else {

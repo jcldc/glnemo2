@@ -78,5 +78,12 @@
         <file>../res/camera/path_03</file>
         <file>../res/shaders/camera.vert.cc</file>
         <file>../res/shaders/camera.frag.cc</file>
+        <file>../res/camera/zoom+loop+rotate</file>
+        <file>../res/camera/spiral</file>
+        <file>../res/camera/snail</file>
+        <file>../res/camera/line+circle</file>
+        <file>../res/camera/filaments</file>
+        <file>../res/camera/circle</file>
+        <file>../res/camera/camera.list</file>
     </qresource>
 </RCC>
