@@ -1,4 +1,13 @@
-* Tue  Apr 28 2016 - 1.10.0
+* Wed Apr 04 2016 - 1.11.0
+- (new) support new RAMSES file format with particle families
+- (new) xyz/min max support for RAMSES (GUI and CLI)
+- (new) improve camera module
+- (new) improve velocity vectors rendering on nvidia GPU
+- better objects creation when particles range< 1
+- fix reset matrix when disable osd
+- phiGrape format supported again
+
+* Tue Apr 28 2016 - 1.10.0
 - (new) particles can be stretch along Z direction (useful for 3D FITS)
 - (new) add gadget2 double file support
 - (new) add gadget3 (hdf5) file support
