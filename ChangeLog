@@ -1,4 +1,4 @@
-* Wed Apr 04 2016 - 1.11.0
+* Wed Apr 04 2018 - 1.11.0
 - (new) support new RAMSES file format with particle families
 - (new) xyz/min max support for RAMSES (GUI and CLI)
 - (new) improve camera module
