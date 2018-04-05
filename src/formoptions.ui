@@ -24,11 +24,14 @@
   <layout class="QGridLayout" name="gridLayout_51">
    <item row="0" column="0">
     <widget class="QTabWidget" name="options_dialog">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This dialog box allows to add 3D points connected by a catmull rom spline where the camera will go through giving a nice and smooth animation.&lt;/p&gt;&lt;p&gt;Please note that when the camera go along the path, it always look at the center of the scene&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="tabShape">
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>6</number>
+      <number>8</number>
      </property>
      <widget class="QWidget" name="tab_i_select">
       <attribute name="title">
@@ -7735,7 +7738,7 @@ p, li { white-space: pre-wrap; }
           </size>
          </property>
          <property name="toolTip">
-          <string>Edit current camera path loaded or new path</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Edit current camera path loaded or add a camera new path&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- first line mandatory (&lt;span style=&quot; font-weight:600;&quot;&gt;#camera_path&lt;/span&gt;) to identify camera file format&lt;/p&gt;&lt;p&gt;- others lines :&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;x y z&lt;/span&gt; coordinates for camera point control&lt;/p&gt;&lt;p&gt;(you must click on &lt;span style=&quot; font-weight:600;&quot;&gt;&amp;quot;commit&amp;quot;&lt;/span&gt; button to validate entered coordinates)&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -8948,7 +8951,7 @@ p, li { white-space: pre-wrap; }
                </sizepolicy>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Camera view mode:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;on&lt;/span&gt; : switch to camera view mode&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;off&lt;/span&gt; : switch to user view mode&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Camera view mode:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;on&lt;/span&gt; : switch to camera view mode&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;off&lt;/span&gt; : switch to user view mode&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="title">
                <string>view mode</string>
