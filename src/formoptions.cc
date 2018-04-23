@@ -53,22 +53,29 @@ FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):
   connect(form.frame_dial ,SIGNAL(sliderReleased()),this,SLOT(unLockFrame()));
   // camera tab
   playing_camera=false;
-  bool stop=false;
-  int ipath=0;
   // load camera path from ressource file
-  while (! stop && ipath<30) {
-    std::ostringstream digit;
-    digit << std::setfill('0')<< std::setw(2) << ipath;
-    std::string cam_path=GlobalOptions::RESPATH.toStdString() + "/camera/path_"+ digit.str();
-    QFileInfo ffile(QString(cam_path.c_str()));
-    if (ffile.exists()) {
-      form.cam_load_select->addItem(ffile.baseName());
-    }
-    ipath++;
-  }
-  // load camera file in text area
-  on_cam_load_select_activated(form.cam_load_select->itemText(0));
+  // camera list from ressource file
+  std::string cam_list=GlobalOptions::RESPATH.toStdString() + "/camera/camera.list";
+  QFile infile(QString(cam_list.c_str()));
+  if (infile.open(QIODevice::ReadOnly| QIODevice::Text)) {
 
+    QTextStream in(&infile);
+    QString line;
+    do {
+      line = in.readLine();
+      if (!line.isNull()) {
+        // load camera path from ressource file
+        std::string cam_path=GlobalOptions::RESPATH.toStdString() + "/camera/"+ line.toStdString();
+        QFileInfo ffile(QString(cam_path.c_str()));
+        if (ffile.exists()) {
+          form.cam_load_select->addItem(ffile.baseName());
+        }
+      }
+    } while (!line.isNull());
+
+    // load camera file in text area
+    on_cam_load_select_activated(form.cam_load_select->itemText(0));
+  }
   // frame spin box
   form.frame_spin->setKeyboardTracking(false);
   form.frame_spin->setButtonSymbols(QAbstractSpinBox::PlusMinus);

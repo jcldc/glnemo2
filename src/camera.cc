@@ -222,7 +222,7 @@ namespace glnemo {
       valid=true;
       do {
         line = in.readLine();
-        if (!line.isNull()) {
+        if (!line.isNull() && !line.isEmpty()) {
           //std::cerr << "line :" << line.toStdString() <<"\n";
           std::istringstream ss(line.toStdString());
           float x,y,z;

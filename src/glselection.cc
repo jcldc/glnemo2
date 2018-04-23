@@ -151,8 +151,12 @@ void GLSelection::selectOnArea(const int nobj, double mProj[16],double mModel[16
     // selected area
     for (int i=0; i<nobj; i++) {
       const ParticlesObject * po = (*gpv)[i].getPartObj();        // object
-      float DMIN = po->getMinPhys();
-      float DMAX = po->getMaxPhys();
+      float DMIN = -1.;
+      float DMAX = -1.;
+      if (po->hasPhysic()) {
+        DMIN = po->getMinPhys();
+        DMAX = po->getMaxPhys();
+      }
 
       if (po->isVisible()) {                                   // is visible  
         part_data = (*gpv)[i].getPartData();// get its Data
