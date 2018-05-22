@@ -51,6 +51,13 @@ if(UNIX)
         set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "RPM")      
 	MESSAGE (STATUS "Mageia :" ${LINUX_NAME})
       endif(LINUX_ISSUE MATCHES "Mageia")
+      # Arch Linux
+      if(LINUX_ISSUE MATCHES "Arch")
+        set(MY_OS "Arch")
+        set(LINUX_NAME "arch")  
+        #set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "RPM")      
+        MESSAGE (STATUS "Arch Linux :" ${LINUX_NAME})
+      endif(LINUX_ISSUE MATCHES "Arch")
       # Fedora case
       if(LINUX_ISSUE MATCHES "Fedora")
 	set(MY_OS "Fedora")
