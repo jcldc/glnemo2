@@ -331,6 +331,17 @@ class FormOptions: public QDialog {
       emit update_gcb_font();
       emit update_gl();
     }
+    // change physical quantity value factor
+    void on_gcb_factor_valueChanged(double value) {
+      go->gcb_factor = value;
+      emit update_gl();
+    }
+    // legend name
+    void on_gcb_name_returnPressed() {
+      go->gcb_legend_name = form.gcb_name->text();
+      emit update_gl();
+    }
+
 
     // change colorbar font color button
     void on_gcb_font_color_clicked() {
