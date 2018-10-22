@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>915</width>
+    <width>906</width>
     <height>286</height>
    </rect>
   </property>
@@ -18,10 +18,9 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff/>
-   </iconset>
+    <normaloff>.</normaloff>.</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout_51">
+  <layout class="QGridLayout" name="gridLayout_53">
    <item row="0" column="0">
     <widget class="QTabWidget" name="options_dialog">
      <property name="toolTip">
@@ -31,7 +30,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>8</number>
+      <number>6</number>
      </property>
      <widget class="QWidget" name="tab_i_select">
       <attribute name="title">
@@ -1676,19 +1675,6 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="0">
-        <spacer name="verticalSpacer_25">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>108</width>
-           <height>81</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item row="2" column="1">
         <spacer name="verticalSpacer_26">
          <property name="orientation">
@@ -1711,6 +1697,19 @@
           <size>
            <width>20</width>
            <height>25</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0" rowspan="2">
+        <spacer name="verticalSpacer_25">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>108</width>
+           <height>81</height>
           </size>
          </property>
         </spacer>
@@ -2797,7 +2796,7 @@ p, li { white-space: pre-wrap; }
          </item>
         </layout>
        </item>
-       <item row="1" column="2" rowspan="3">
+       <item row="1" column="2" rowspan="3" colspan="2">
         <widget class="QGroupBox" name="groupBox_26">
          <property name="title">
           <string>Set values</string>
@@ -2939,7 +2938,7 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="2" column="1" rowspan="2">
+       <item row="2" column="1" rowspan="3">
         <widget class="QGroupBox" name="groupBox_14">
          <property name="title">
           <string>color</string>
@@ -3812,7 +3811,7 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="3" column="3">
+       <item row="3" column="4" rowspan="2">
         <spacer name="horizontalSpacer_21">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -3825,7 +3824,20 @@ p, li { white-space: pre-wrap; }
          </property>
         </spacer>
        </item>
-       <item row="4" column="1">
+       <item row="4" column="3" rowspan="2">
+        <spacer name="verticalSpacer_17">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="5" column="1">
         <spacer name="verticalSpacer_7">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -3834,6 +3846,19 @@ p, li { white-space: pre-wrap; }
           <size>
            <width>20</width>
            <height>8</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="0" rowspan="3">
+        <spacer name="verticalSpacer_31">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
           </size>
          </property>
         </spacer>
@@ -5315,15 +5340,137 @@ p, li { white-space: pre-wrap; }
       <attribute name="title">
        <string>Color Bar</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_30">
-       <item row="0" column="0">
-        <widget class="QCheckBox" name="gcb_enable">
-         <property name="text">
-          <string>Enable</string>
+      <layout class="QGridLayout" name="gridLayout_51">
+       <item row="1" column="4" rowspan="2">
+        <spacer name="verticalSpacer_13">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>64</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="2" rowspan="2">
+        <spacer name="verticalSpacer_11">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>64</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="3">
+        <widget class="QGroupBox" name="groupBox_19">
+         <property name="title">
+          <string>Format</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_28">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="gcb_log">
+            <property name="toolTip">
+             <string>display log(data) or real data</string>
+            </property>
+            <property name="text">
+             <string>Log value</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_15">
+            <item>
+             <widget class="QLabel" name="label_23">
+              <property name="text">
+               <string>#digits</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="gcb_spin_digit">
+              <property name="toolTip">
+               <string>number of digits displayed</string>
+              </property>
+              <property name="maximum">
+               <number>9</number>
+              </property>
+              <property name="value">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </item>
-       <item row="0" column="1" rowspan="3">
+       <item row="0" column="6">
+        <spacer name="horizontalSpacer_9">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>369</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="4">
+        <widget class="QGroupBox" name="groupBox_32">
+         <property name="title">
+          <string>Legend</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_30">
+          <item row="0" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <item>
+             <widget class="QLabel" name="label_37">
+              <property name="toolTip">
+               <string>Factor value to multiply with physical quantity to display</string>
+              </property>
+              <property name="text">
+               <string>Factor value</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="gcb_factor">
+              <property name="maximum">
+               <double>999999999999999939709166371603178586112.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_22">
+            <item>
+             <widget class="QLabel" name="label_38">
+              <property name="text">
+               <string>Name</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="gcb_name"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1" rowspan="2">
         <widget class="QGroupBox" name="groupBox_16">
          <property name="title">
           <string>Font</string>
@@ -5785,7 +5932,33 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="0" column="2" rowspan="3">
+       <item row="1" column="5" rowspan="2">
+        <spacer name="verticalSpacer_16">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="0">
+        <spacer name="verticalSpacer_8">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>48</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="2" rowspan="2">
         <widget class="QGroupBox" name="groupBox_17">
          <property name="title">
           <string>Color bar size </string>
@@ -5842,50 +6015,14 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="0" column="3" rowspan="2">
-        <widget class="QGroupBox" name="groupBox_19">
-         <property name="title">
-          <string>Format</string>
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="gcb_enable">
+         <property name="text">
+          <string>Enable</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_28">
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="gcb_log">
-            <property name="toolTip">
-             <string>display log(data) or real data</string>
-            </property>
-            <property name="text">
-             <string>Log value</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout_15">
-            <item>
-             <widget class="QLabel" name="label_23">
-              <property name="text">
-               <string>#digits</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="gcb_spin_digit">
-              <property name="toolTip">
-               <string>number of digits displayed</string>
-              </property>
-              <property name="maximum">
-               <number>9</number>
-              </property>
-              <property name="value">
-               <number>1</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
         </widget>
        </item>
-       <item row="0" column="4" rowspan="3">
+       <item row="0" column="5">
         <widget class="QGroupBox" name="gcb_orientation">
          <property name="toolTip">
           <string>Choose bar orientation</string>
@@ -6017,33 +6154,7 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="1" column="5">
-        <spacer name="horizontalSpacer_9">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>369</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="0" rowspan="2">
-        <spacer name="verticalSpacer_8">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>48</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="3" rowspan="3">
+       <item row="1" column="3" rowspan="3">
         <spacer name="verticalSpacer_12">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -6056,7 +6167,7 @@ p, li { white-space: pre-wrap; }
          </property>
         </spacer>
        </item>
-       <item row="3" column="1" rowspan="2">
+       <item row="2" column="1">
         <spacer name="verticalSpacer_10">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -6065,32 +6176,6 @@ p, li { white-space: pre-wrap; }
           <size>
            <width>20</width>
            <height>70</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="4" column="2">
-        <spacer name="verticalSpacer_11">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>64</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="4" column="4">
-        <spacer name="verticalSpacer_13">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>64</height>
           </size>
          </property>
         </spacer>

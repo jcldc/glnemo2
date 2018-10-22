@@ -279,18 +279,18 @@ void GLColorbar::drawLegend()
 {
   if (go && phys_select && phys_select->isValid()) {
     double value;
-    double diff_rho=(log(phys_select->getMax())-log(phys_select->getMin()))/100.;
+    double diff_rho=(log(phys_select->getMax()*go->gcb_factor)-log(phys_select->getMin()*go->gcb_factor))/100.;
     //max
-    value=log(phys_select->getMin())+go->gcb_max*diff_rho;
+    value=log(phys_select->getMin()*go->gcb_factor)+go->gcb_max*diff_rho;
     drawText(value,0);
     //max - 1/3 (max-min)
-    value=log(phys_select->getMin())+(go->gcb_max-(go->gcb_max-go->gcb_min)/3.)*diff_rho;
+    value=log(phys_select->getMin()*go->gcb_factor)+(go->gcb_max-(go->gcb_max-go->gcb_min)/3.)*diff_rho;
     drawText(value,1);
     // max - 2/3 (max-min)
-    value=log(phys_select->getMin())+(go->gcb_max-2.*(go->gcb_max-go->gcb_min)/3.)*diff_rho;
+    value=log(phys_select->getMin()*go->gcb_factor)+(go->gcb_max-2.*(go->gcb_max-go->gcb_min)/3.)*diff_rho;
     drawText(value,2);
     // max - 3/3 (max-min) 
-    value = log(phys_select->getMin())+go->gcb_min*diff_rho; 
+    value = log(phys_select->getMin()*go->gcb_factor)+go->gcb_min*diff_rho;
     drawText(value,3);
   }
 }
@@ -302,8 +302,13 @@ void GLColorbar::drawText(float value, int fac)
   int xx=0,yy=0,tw=0,th=0;
   // max
   if (!go->gcb_logmode) value=exp(value);
-  text1=QString("%1").arg(value,0,'E',go->gcb_ndigits);
-  legend->setText(text0,text1);    
+  if (fac ==0) {
+    // add legend name for the first line
+    text1=QString("%1 %2").arg(value,0,'E',go->gcb_ndigits).arg(go->gcb_legend_name);
+  } else {
+    text1=QString("%1").arg(value,0,'E',go->gcb_ndigits);
+  }
+  legend->setText(text0,text1);
   switch (go->gcb_orientation) {
   case 0: // North
     tw=legend->getTextWidth();    
