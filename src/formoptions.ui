@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>906</width>
-    <height>286</height>
+    <width>991</width>
+    <height>288</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1495,6 +1495,12 @@
       <layout class="QGridLayout" name="gridLayout_37">
        <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_23">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>Projection mode</string>
          </property>
@@ -1512,6 +1518,19 @@
              <string>Orthographic</string>
             </property>
            </widget>
+          </item>
+          <item row="2" column="0">
+           <spacer name="verticalSpacer_24">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>67</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
@@ -1561,19 +1580,6 @@
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
-              <spacer name="verticalSpacer_19">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>25</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
             </layout>
            </widget>
           </item>
@@ -1589,75 +1595,6 @@
           </item>
           <item row="2" column="1">
            <widget class="QDial" name="axis_dial"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="2" rowspan="2">
-        <widget class="QGroupBox" name="groupBox_24">
-         <property name="title">
-          <string>Opaque disc</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_27">
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="cb_opaque_disc">
-            <property name="toolTip">
-             <string>Toggle opaque disc centered in 0,0,0</string>
-            </property>
-            <property name="text">
-             <string>Enable</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout_16">
-            <item>
-             <widget class="QDoubleSpinBox" name="od_radius_spin">
-              <property name="toolTip">
-               <string>Opaque disc radius</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-              <property name="decimals">
-               <number>5</number>
-              </property>
-              <property name="maximum">
-               <double>999999999.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_26">
-              <property name="text">
-               <string>Radius</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="cb_coronograph">
-            <property name="toolTip">
-             <string>Display a coronograph</string>
-            </property>
-            <property name="text">
-             <string>Coronograph</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <spacer name="verticalSpacer_24">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>61</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </widget>
@@ -1713,6 +1650,71 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="0" column="2">
+        <widget class="QGroupBox" name="groupBox_24">
+         <property name="title">
+          <string>Opaque disc</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_27">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="cb_opaque_disc">
+            <property name="toolTip">
+             <string>Toggle opaque disc centered in 0,0,0</string>
+            </property>
+            <property name="text">
+             <string>Enable</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QDoubleSpinBox" name="od_radius_spin">
+            <property name="toolTip">
+             <string>Opaque disc radius</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="decimals">
+             <number>5</number>
+            </property>
+            <property name="maximum">
+             <double>999999999.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="label_26">
+            <property name="text">
+             <string>Radius</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="cb_coronograph">
+            <property name="toolTip">
+             <string>Display a coronograph</string>
+            </property>
+            <property name="text">
+             <string>Coronograph</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <spacer name="verticalSpacer_19">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>32</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -2455,68 +2457,20 @@ exist. You must check COM also.</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1" rowspan="2">
-        <widget class="QGroupBox" name="groupBox_10">
-         <property name="font">
-          <font>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
+       <item row="1" column="2">
+        <spacer name="verticalSpacer_18">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <property name="title">
-          <string>Dimensions</string>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>94</height>
+          </size>
          </property>
-         <layout class="QGridLayout" name="gridLayout_17">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>Mesh length</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="mesh_length_spin">
-            <property name="toolTip">
-             <string>Grid's size mesh</string>
-            </property>
-            <property name="decimals">
-             <number>8</number>
-            </property>
-            <property name="maximum">
-             <double>9999.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>1.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_14">
-            <property name="text">
-             <string># meshs</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="mesh_nb_spin">
-            <property name="toolTip">
-             <string>#meshs per grid</string>
-            </property>
-            <property name="maximum">
-             <number>999</number>
-            </property>
-            <property name="singleStep">
-             <number>1</number>
-            </property>
-            <property name="value">
-             <number>28</number>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
+        </spacer>
        </item>
-       <item row="0" column="2" rowspan="2">
+       <item row="0" column="2">
         <widget class="QGroupBox" name="groupBox_9">
          <property name="title">
           <string>Active Grid Planes</string>
@@ -2588,7 +2542,81 @@ exist. You must check COM also.</string>
          </layout>
         </widget>
        </item>
-       <item row="0" column="3" rowspan="2">
+       <item row="0" column="4">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1">
+        <widget class="QGroupBox" name="groupBox_10">
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="title">
+          <string>Dimensions</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_17">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>Mesh length</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QDoubleSpinBox" name="mesh_length_spin">
+            <property name="toolTip">
+             <string>Grid's size mesh</string>
+            </property>
+            <property name="decimals">
+             <number>8</number>
+            </property>
+            <property name="maximum">
+             <double>9999.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>1.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string># meshs</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="mesh_nb_spin">
+            <property name="toolTip">
+             <string>#meshs per grid</string>
+            </property>
+            <property name="maximum">
+             <number>999</number>
+            </property>
+            <property name="singleStep">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>28</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="3">
         <widget class="QGroupBox" name="groupBox_11">
          <property name="title">
           <string>Cube</string>
@@ -2634,32 +2662,6 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="1" column="4">
-        <spacer name="horizontalSpacer_7">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>307</width>
-           <height>74</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="2">
-        <spacer name="verticalSpacer_18">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>94</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2">
@@ -2667,6 +2669,50 @@ p, li { white-space: pre-wrap; }
        <string>On screen display</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_25">
+       <item row="0" column="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_17">
+         <item>
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Title name</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="title_name">
+           <property name="toolTip">
+            <string>Change title name</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="3" column="0" rowspan="3">
+        <spacer name="verticalSpacer_31">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="4" column="2">
+        <spacer name="verticalSpacer_17">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item row="0" column="0" rowspan="3">
         <widget class="QGroupBox" name="groupBox_12">
          <property name="title">
@@ -2778,67 +2824,23 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="0" column="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_17">
-         <item>
-          <widget class="QLabel" name="label_18">
-           <property name="text">
-            <string>Title name</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="title_name">
-           <property name="toolTip">
-            <string>Change title name</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="1" column="2" rowspan="3" colspan="2">
+       <item row="1" column="2" rowspan="2" colspan="2">
         <widget class="QGroupBox" name="groupBox_26">
          <property name="title">
           <string>Set values</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_18">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_31">
-            <property name="text">
-             <string>zoom</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="zoom_dspin">
-            <property name="decimals">
-             <number>8</number>
-            </property>
-            <property name="minimum">
-             <double>-100000.000000000000000</double>
-            </property>
-            <property name="maximum">
-             <double>100000.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <spacer name="horizontalSpacer_8">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>212</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_32">
             <property name="text">
              <string>Rot</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_33">
+            <property name="text">
+             <string>Center</string>
             </property>
            </widget>
           </item>
@@ -2885,10 +2887,29 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_33">
-            <property name="text">
-             <string>Center</string>
+          <item row="0" column="2">
+           <spacer name="horizontalSpacer_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>212</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="1">
+           <widget class="QDoubleSpinBox" name="zoom_dspin">
+            <property name="decimals">
+             <number>8</number>
+            </property>
+            <property name="minimum">
+             <double>-100000.000000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>100000.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -2935,10 +2956,17 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_31">
+            <property name="text">
+             <string>zoom</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-       <item row="2" column="1" rowspan="3">
+       <item row="2" column="1">
         <widget class="QGroupBox" name="groupBox_14">
          <property name="title">
           <string>color</string>
@@ -3811,33 +3839,20 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="3" column="4" rowspan="2">
-        <spacer name="horizontalSpacer_21">
+       <item row="1" column="4">
+        <spacer name="horizontalSpacer_7">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>110</width>
+           <width>40</width>
            <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
-       <item row="4" column="3" rowspan="2">
-        <spacer name="verticalSpacer_17">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="5" column="1">
+       <item row="3" column="1" rowspan="2">
         <spacer name="verticalSpacer_7">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -3846,19 +3861,6 @@ p, li { white-space: pre-wrap; }
           <size>
            <width>20</width>
            <height>8</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="0" rowspan="3">
-        <spacer name="verticalSpacer_31">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
           </size>
          </property>
         </spacer>
@@ -5443,6 +5445,12 @@ p, li { white-space: pre-wrap; }
             </item>
             <item>
              <widget class="QDoubleSpinBox" name="gcb_factor">
+              <property name="inputMethodHints">
+               <set>Qt::ImhFormattedNumbersOnly</set>
+              </property>
+              <property name="decimals">
+               <number>30</number>
+              </property>
               <property name="maximum">
                <double>999999999999999939709166371603178586112.000000000000000</double>
               </property>
@@ -6189,10 +6197,16 @@ p, li { white-space: pre-wrap; }
       <layout class="QGridLayout" name="gridLayout_33">
        <item row="0" column="0" rowspan="2">
         <widget class="QGroupBox" name="groupBox_6">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>Screenshot properties</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_12">
+         <layout class="QGridLayout" name="gridLayout_16">
           <item row="0" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_20">
             <item>
@@ -6768,6 +6782,19 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
            </layout>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <spacer name="horizontalSpacer_17">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>212</width>
+              <height>21</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item row="2" column="0" colspan="2">
            <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -7708,28 +7735,21 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="1" column="1" colspan="2">
-           <spacer name="horizontalSpacer_17">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>212</width>
-              <height>21</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
          </layout>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QGroupBox" name="groupBox_7">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>Automatic shots</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_16">
+         <layout class="QGridLayout" name="gridLayout_12">
           <item row="0" column="0">
            <widget class="QCheckBox" name="auto_save_gl">
             <property name="toolTip">
@@ -7758,31 +7778,15 @@ p, li { white-space: pre-wrap; }
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::MinimumExpanding</enum>
-         </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>153</width>
+           <width>376</width>
            <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
        <item row="1" column="1">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>99</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="0">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -7790,7 +7794,7 @@ p, li { white-space: pre-wrap; }
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>18</height>
+           <height>135</height>
           </size>
          </property>
         </spacer>
@@ -7843,6 +7847,16 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
+          <item row="0" column="0">
+           <widget class="QPushButton" name="cam_commit_button">
+            <property name="toolTip">
+             <string>Apply camera path currently edited</string>
+            </property>
+            <property name="text">
+             <string>Commit</string>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="0">
            <spacer name="verticalSpacer_14">
             <property name="orientation">
@@ -7855,16 +7869,6 @@ p, li { white-space: pre-wrap; }
              </size>
             </property>
            </spacer>
-          </item>
-          <item row="0" column="0">
-           <widget class="QPushButton" name="cam_commit_button">
-            <property name="toolTip">
-             <string>Apply camera path currently edited</string>
-            </property>
-            <property name="text">
-             <string>Commit</string>
-            </property>
-           </widget>
           </item>
          </layout>
         </widget>
@@ -9115,6 +9119,19 @@ p, li { white-space: pre-wrap; }
           <size>
            <width>18</width>
            <height>23</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="1">
+        <spacer name="verticalSpacer_32">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
           </size>
          </property>
         </spacer>
