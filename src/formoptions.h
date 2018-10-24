@@ -23,6 +23,7 @@
 #include <QMutex>
 #include "ui_formoptions.h"
 #include "globaloptions.h"
+#include "QLocale"
 namespace glnemo {
 
 class FormOptions: public QDialog {
@@ -332,8 +333,8 @@ class FormOptions: public QDialog {
       emit update_gl();
     }
     // change physical quantity value factor
-    void on_gcb_factor_valueChanged(double value) {
-      go->gcb_factor = value;
+    void on_gcb_factor_returnPressed() {
+      go->gcb_factor = QLocale().toFloat(form.gcb_factor->text());
       emit update_gl();
     }
     // legend name
