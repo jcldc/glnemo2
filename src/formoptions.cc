@@ -127,7 +127,13 @@ FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):
         arg(go->gcb_color.green()).
         arg(go->gcb_color.blue());  
   form.gcb_font_color->setStyleSheet(css);
-  
+  QDoubleValidator * double_validator= new QDoubleValidator(this);
+   //double_validator->setBottom(0.00);
+   //double_validator->setDecimals(12);
+   //double_validator->setTop(100.00);
+  form.gcb_factor->setValidator( double_validator);
+  form.gcb_factor->setText("1");
+
   // ----- auto screnshots tab
   //form.radio_res_standard->clicked(true);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
