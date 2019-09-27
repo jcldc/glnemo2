@@ -61,5 +61,10 @@ Makefile.in
 *.cubin
 *.fatbin
 
-
-
+#
+Makefile
+factory
+.moc/
+._ui/
+.moc/
+.res/
