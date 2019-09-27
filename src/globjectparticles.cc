@@ -1,14 +1,14 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2018                                  
-// e-mail:   Jean-Charles.Lambert@lam.fr                                      
-// address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
-//           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
-//           13388 Marseille cedex 13 France                                   
-//           CNRS U.M.R 7326                                                   
+// Copyright Jean-Charles LAMBERT - 2007-2018
+// e-mail:   Jean-Charles.Lambert@lam.fr
+// address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
+//           Laboratoire d'Astrophysique de Marseille
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert
+//           38, rue Frï¿½dï¿½ric Joliot-Curie
+//           13388 Marseille cedex 13 France
+//           CNRS U.M.R 7326
 // ============================================================================
-// See the complete license in LICENSE and/or "http://www.cecill.info".        
+// See the complete license in LICENSE and/or "http://www.cecill.info".
 // ============================================================================
 #include <GL/glew.h>
 #include "globjectparticles.h"
@@ -40,11 +40,11 @@ int index_min, index_max;
 int nhisto=10000;
 
 // ============================================================================
-// constructor                                                                 
+// constructor
 GLObjectParticles::GLObjectParticles(GLTextureVector * _gtv ):GLObject()
 {
   dplist_index = glGenLists( 1 );    // get a new display list index
-  texture = NULL;                    // no texture yet              
+  texture = NULL;                    // no texture yet
   gtv = _gtv;
   // reserve memory
   index_histo.reserve(nhisto);
@@ -66,7 +66,7 @@ GLObjectParticles::GLObjectParticles(GLTextureVector * _gtv ):GLObject()
   phys_select=NULL;
 }
 // ============================================================================
-// constructor                                                                 
+// constructor
 GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
                                      ParticlesObject * _po,
                                      const GlobalOptions   * _go,
@@ -84,7 +84,7 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
     glGenBuffersARB(1,&vbo_size);    // get Vertex Buffer Object
     glGenBuffersARB(1,&vbo_index);   // get Vertex Buffer Object
     glGenBuffersARB(1,&vbo_index2);
-    glGenBuffersARB(1,&vbo_data);    
+    glGenBuffersARB(1,&vbo_data);
     if (_part_data->vel) {
 #if 0 // glsl 330
         glGenBuffersARB(1,&vbo_vel);     // get Vertex Buffer Object
@@ -103,7 +103,7 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
   update(_part_data,_po,_go);
 }
 // ============================================================================
-// desstructor                                                                 
+// desstructor
 GLObjectParticles::~GLObjectParticles()
 {
   std::cerr << "inside GLObjectParticles::~GLObjectParticles()\n";
@@ -113,13 +113,13 @@ GLObjectParticles::~GLObjectParticles()
   }
 }
 // ============================================================================
-// update                                                                      
+// update
 void GLObjectParticles::display(const double * mModel, int win_height)
 {
   if (po->isVisible()) {
     // display particles
     if (po->isPartEnable()) {
-      if (GLWindow::GLSL_support) 
+      if (GLWindow::GLSL_support)
         displayVboShader(win_height,true);
       else {
         glEnable(GL_BLEND);
@@ -147,11 +147,11 @@ void GLObjectParticles::display(const double * mModel, int win_height)
 
     // display sprites
     if (po->isGazEnable() && texture) {
-      if (GLWindow::GLSL_support && po->isGazGlsl()) {      
+      if (GLWindow::GLSL_support && po->isGazGlsl()) {
         GLObject::setColor(po->getColor());
-        displayVboShader(win_height,false);      
+        displayVboShader(win_height,false);
       }
-      else displaySprites(mModel); 
+      else displaySprites(mModel);
     }
   }
   if (po->isOrbitsEnable()) {
@@ -209,7 +209,7 @@ void GLObjectParticles::displayVboVelShader330()
         // positions
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
         vpositions=glGetAttribLocation(vel_shader->getProgramId(), "position");
-        glEnableVertexAttribArrayARB(vpositions);        
+        glEnableVertexAttribArrayARB(vpositions);
         start = 2*3*min_index*sizeof(float);
         int stride=2*3*sizeof(GLfloat);
         glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
@@ -217,7 +217,7 @@ void GLObjectParticles::displayVboVelShader330()
         // velocities
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel);
         vvelocities=glGetAttribLocation(vel_shader->getProgramId(), "velocity");
-        glEnableVertexAttribArrayARB(vvelocities);        
+        glEnableVertexAttribArrayARB(vvelocities);
         start = 3*min_index*sizeof(float);
         glVertexAttribPointerARB(vvelocities,3,GL_FLOAT, 0, 0, (void *) (start));
 #endif
@@ -332,7 +332,7 @@ void GLObjectParticles::displayVboVelShader130()
     }
 }
 // ============================================================================
-// displayVboShader()                                                            
+// displayVboShader()
 void GLObjectParticles::displayVboShader(const int win_height, const bool use_point)
 {
   static bool zsort=false;
@@ -365,13 +365,13 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   if (hasPhysic && go->render_mode==1) {                 // if physic
     GLObject::setColor(Qt::black); // send black color to the shader
   } else {                              // else
-    GLObject::setColor(po->getColor()); // send user selected color 
+    GLObject::setColor(po->getColor()); // send user selected color
   }
   if (use_point)
     glColor4ub(mycolor.red(), mycolor.green(), mycolor.blue(),po->getPartAlpha());
   else
     glColor4ub(mycolor.red(), mycolor.green(), mycolor.blue(),po->getGazAlpha());
-  
+
   //if ((go->render_mode == 0 || go->render_mode == 1) && !hasPhysic) { // Alpha blending accumulation
   if ((go->render_mode == 0 ) ) { // Alpha blending accumulation
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -379,7 +379,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
     glDepthMask(GL_FALSE);
     checkGlError("GLObjectParticles::displayVboShader -> Alpha blending accumulation");
   }
-  else 
+  else
     if (go->render_mode == 1) {  // No Alpha bending accumulation
       glDepthMask(GL_FALSE);
       glDisable(GL_DEPTH_TEST);
@@ -391,22 +391,22 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
       glEnable(GL_ALPHA_TEST);
       glAlphaFunc(GL_GREATER, 0.00f);
 
-      if ((err = glGetError())) { 
-        fprintf(stderr,">> 2 c error %x\n", (unsigned int)err); 
+      if ((err = glGetError())) {
+        fprintf(stderr,">> 2 c error %x\n", (unsigned int)err);
       }
   }
 
-  glTexEnvi(GL_POINT_SPRITE,GL_COORD_REPLACE,GL_TRUE); 
+  glTexEnvi(GL_POINT_SPRITE,GL_COORD_REPLACE,GL_TRUE);
 
   // start shader program
   shader->start();
-  
+
   // process shader color variables
   sendShaderData(win_height,use_point);
-  
+
   glActiveTextureARB(GL_TEXTURE0_ARB);
   texture->glBindTexture();  // bind texture
-  
+
   // get attribute location for sprite size
   int a_sprite_size = glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
   glVertexAttrib1f(a_sprite_size,1.0);
@@ -424,7 +424,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   }
   if ((go->render_mode == 1 )) { // individual size and color
     // Send vertex object neighbours size
-    if (hasPhysic && phys_select && phys_select->isValid()) { 
+    if (hasPhysic && phys_select && phys_select->isValid()) {
       // set back texture_size to one for gas
       //po->setGazSize(1.0);
       //po->setGazSizeMax(1.0);
@@ -434,9 +434,9 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
       glVertexAttribPointerARB(a_sprite_size,1,GL_FLOAT, 0, 0, (void *) (start));
     }
     // Send physical data
-    if (hasPhysic && phys_select && phys_select->isValid()) {  
+    if (hasPhysic && phys_select && phys_select->isValid()) {
       glEnableVertexAttribArrayARB(a_phys_data);
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_data);      
+      glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_data);
       int start = min_index*sizeof(float);
       glVertexAttribPointerARB(a_phys_data,1,GL_FLOAT, 0, 0, (void *) (start));
     }
@@ -446,7 +446,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
     }
   }
 
-  // Draw points 
+  // Draw points
   int start,maxvert;
   GLsizei  stride;
   maxvert=max_index-min_index+1;
@@ -487,12 +487,12 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
 
   if (hasPhysic && ( go->render_mode == 1)) {
     //glDisableClientState(GL_NORMAL_ARRAY);
-    if (phys_select && phys_select->isValid()) {  
+    if (phys_select && phys_select->isValid()) {
       glDisableVertexAttribArray(a_sprite_size);
       glDisableVertexAttribArray(a_phys_data);
     }
     //glDisableClientState(GL_COLOR_ARRAY);
-    
+
   }
   glDisableClientState(GL_VERTEX_ARRAY);
   //glDisableVertexAttribArray(vpositions);
@@ -503,7 +503,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
 
 }
 // ============================================================================
-// update                                                                      
+// update
 void GLObjectParticles::update( const ParticlesData   * _part_data,
                                 ParticlesObject * _po,
                                 const GlobalOptions   * _go,
@@ -517,10 +517,10 @@ void GLObjectParticles::update( const ParticlesData   * _part_data,
   // get physical value data array
   phys_select = part_data->getPhysData();
   phys_select_id = part_data->getIpvs();
-  hasPhysic = po->hasPhysic();//checkHasPhysic(); // check the object has physic            
+  hasPhysic = po->hasPhysic();//checkHasPhysic(); // check the object has physic
   // color
   mycolor   = po->getColor();
-  
+
   if (update_obj) { // force to rebuild VBO and display list
     if (!GLWindow::GLSL_support) buildDisplayList();
     if (!GLWindow::GLSL_support && part_data->vel)
@@ -533,14 +533,14 @@ void GLObjectParticles::update( const ParticlesData   * _part_data,
       glEndList();
     }
     if (GLWindow::GLSL_support) {
-      
+
       buildVboPos();
       checkGlError("GLObjectParticles::update buildVboPos");
       buildVboPhysData();
       checkGlError("GLObjectParticles::update buildPhysData");
       buildVboHsml();
       checkGlError("GLObjectParticles::update buildVboSize2");
-      
+
 #if ! GLDRAWARRAYS
       sortByDensity();
 #endif
@@ -552,7 +552,7 @@ void GLObjectParticles::update( const ParticlesData   * _part_data,
   }
 }
 // ============================================================================
-// updateVbo                                                                   
+// updateVbo
 void GLObjectParticles::updateVbo()
 {
   // get physical value data array
@@ -561,7 +561,7 @@ void GLObjectParticles::updateVbo()
   if (phys_select_id != part_data->getIpvs()) { // new physical quantity
     phys_select=part_data->getPhysData();
     phys_select_id=part_data->getIpvs();
-    hasPhysic = po->hasPhysic();//checkHasPhysic(); // check the object has physic      
+    hasPhysic = po->hasPhysic();//checkHasPhysic(); // check the object has physic
     buildVboPos();
   }
   buildVboPhysData();
@@ -573,7 +573,7 @@ void GLObjectParticles::updateVbo()
 #if ! GLDRAWARRAYS
         phys_itv.clear();
 #endif
-        for (int i=0; i < po->npart; i+=po->step) {         
+        for (int i=0; i < po->npart; i+=po->step) {
           if (phys_select && phys_select->isValid()) {
 #if ! GLDRAWARRAYS
             int index=po->index_tab[i];
@@ -587,7 +587,7 @@ void GLObjectParticles::updateVbo()
         }
       }
 #if ! GLDRAWARRAYS
-      sortByDensity();	
+      sortByDensity();
 #else // GLDRAWARRAYS
       buildVboHsml();
 #endif
@@ -596,7 +596,7 @@ void GLObjectParticles::updateVbo()
   }
 }
 // ============================================================================
-// updateVbo                                                                   
+// updateVbo
 void GLObjectParticles::updateColorVbo()
 {
   if (1||go->render_mode == 1 ) {
@@ -681,8 +681,8 @@ void GLObjectParticles::buildVboVelFactor()
 }
 
 // ============================================================================
-// buildVboPos                                                                 
-// Build Vector Buffer Object for positions array                              
+// buildVboPos
+// Build Vector Buffer Object for positions array
 void GLObjectParticles::buildVboPos()
 {
   QTime tbench,tbloc;
@@ -698,11 +698,11 @@ void GLObjectParticles::buildVboPos()
   //rho.clear();      // clear rho density vector
   phys_itv.clear(); // clear ohysical value vector
   rho_itv.clear();
-  vindex_sel.clear();   // clear zdepth vector     
+  vindex_sel.clear();   // clear zdepth vector
   rho_itv.reserve(((po->npart/po->step)+1));
   vindex_sel.reserve(((po->npart/po->step)+1));
   phys_itv.reserve(((po->npart/po->step)+1));
-  
+
   for (int i=0; i < po->npart; i+=po->step) {
     int index=po->index_tab[i];
     if (phys_select && phys_select->isValid()) {
@@ -711,8 +711,8 @@ void GLObjectParticles::buildVboPos()
       myphys.value   = phys_select->data[index];
       myphys.i_point = i;
       phys_itv.push_back(myphys);
-      
-      if (po->rhoSorted() && 
+
+      if (po->rhoSorted() &&
           phys_select->getType() != PhysicalData::rho && part_data->rho) {
         GLObjectIndexTab myphys;
         myphys.index   = index;
@@ -721,7 +721,7 @@ void GLObjectParticles::buildVboPos()
         rho_itv.push_back(myphys);
       }
     }
-        
+
 #if 1 // used if z depth test activated
     GLObjectIndexTab myz;
     myz.index = index;
@@ -730,10 +730,10 @@ void GLObjectParticles::buildVboPos()
 #endif
   }
   if (BENCH) qWarning("Time elapsed to setup PHYSICAL arrays: %f s", tbloc.elapsed()/1000.);
-  
+
 #ifdef _OPENMP
   int ntask=omp_get_max_threads(); // return number of task requested
-  std::cerr << "#OpenMP TASKS = "<<ntask<<"\n";  
+  std::cerr << "#OpenMP TASKS = "<<ntask<<"\n";
 #endif
   // sort by density
 #if GLDRAWARRAYS
@@ -755,8 +755,8 @@ void GLObjectParticles::buildVboPos()
         phys_select && phys_select->getType() != PhysicalData::rho && part_data->rho) {
       index = rho_itv[i].index; // it's temperature/pressure, we sort by density
     }
-    else { 
-      if (phys_select && phys_select->isValid()) 
+    else {
+      if (phys_select && phys_select->isValid())
         index = phys_itv[i].index; // we sort by physical value
       else                index = po->index_tab[i]; // no physic
     }
@@ -784,7 +784,7 @@ void GLObjectParticles::buildVboPos()
   min_index=0; max_index=nvert_pos-1;
 
   tbloc.restart();
-  buildIndexHisto();  
+  buildIndexHisto();
   if (BENCH) qWarning("Time elapsed to build indexes histo : %f s", tbloc.elapsed()/1000.);
 
   tbloc.restart();
@@ -793,7 +793,7 @@ void GLObjectParticles::buildVboPos()
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
   assert( nvert_pos <= (po->npart/po->step)+1);
   std::cerr << "buildVbo Pos nvert_pos="<<nvert_pos<<"\n";
-  
+
   int factor=1.0;
   if (part_data->vel) {
       factor = 2.0;
@@ -830,13 +830,13 @@ if (BENCH) qWarning("Transfert Speed (POS) VBO arrays to GPU: %f MB/s", factor *
   if (BENCH) qWarning("Time elapsed to build VBO pos: %f s", tbench.elapsed()/1000.);
 }
 // ============================================================================
-// buildVboHsml                                                             
-// Build Vector Buffer Object for size point array                             
+// buildVboHsml
+// Build Vector Buffer Object for size point array
 void GLObjectParticles::buildVboHsml()
 {
   QTime tbench;
   tbench.restart();
-  
+
   std::vector <GLfloat> hsml_value;
   hsml_value.reserve(((po->npart/po->step)+1));
 
@@ -851,8 +851,8 @@ void GLObjectParticles::buildVboHsml()
         phys_select && phys_select->getType() != PhysicalData::rho && part_data->rho) {
       index = rho_itv[i].index; // it's temperature/pressure, we sort by density
     }
-    else { 
-      if (phys_select && phys_select->isValid()) 
+    else {
+      if (phys_select && phys_select->isValid())
         index = phys_itv[i].index; // we sort by physical value
       else                index = po->index_tab[i]; // no physic
     }
@@ -862,12 +862,12 @@ void GLObjectParticles::buildVboHsml()
       } else {
         hsml_value.push_back(2.0);
       }
-    }    
+    }
   }
-  
+
   // bind VBO buffer for sending data
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_size);
-  
+
   assert( (int) hsml_value.size() <= (po->npart/po->step)+1);
   // upload data to VBO
   glBufferDataARB(GL_ARRAY_BUFFER_ARB, hsml_value.size() * sizeof(float), &hsml_value[0], GL_STATIC_DRAW_ARB);
@@ -879,8 +879,8 @@ void GLObjectParticles::buildVboHsml()
   if (BENCH) qWarning("Time elapsed to build VBO Hsml: %f s", tbench.elapsed()/1000.);
 }
 // ============================================================================
-// buildVboData                                                                
-// Build Vector Buffer Object for physical data  array                             
+// buildVboData
+// Build Vector Buffer Object for physical data  array
 void GLObjectParticles::buildVboPhysData()
 {
   QTime tbench;
@@ -900,8 +900,8 @@ void GLObjectParticles::buildVboPhysData()
         phys_select && phys_select->getType() != PhysicalData::rho && part_data->rho) {
       index = rho_itv[i].index; // it's temperature/pressure, we sort by density
     }
-    else { 
-      if (phys_select && phys_select->isValid()) 
+    else {
+      if (phys_select && phys_select->isValid())
         index = phys_itv[i].index; // we sort by physical value
       else                index = po->index_tab[i]; // no physic
     }
@@ -915,13 +915,13 @@ void GLObjectParticles::buildVboPhysData()
         phys_data.push_back(v);
       }
     } else {
-      phys_data.push_back(0.0);      
+      phys_data.push_back(0.0);
     }
   }
-  
+
   // bind VBO buffer for sending data
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_data);
-  
+
   assert( (int)phys_data.size() <= (po->npart/po->step)+1);
   // upload data to VBO
   glBufferDataARB(GL_ARRAY_BUFFER_ARB,phys_data.size() * sizeof(float), &phys_data[0], GL_STATIC_DRAW_ARB);
@@ -938,7 +938,7 @@ void GLObjectParticles::buildVboPhysData()
 void GLObjectParticles::checkVboAllocation(const int sizebuf)
 {
   GLint size;
-  glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size); 
+  glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
   if (size != sizebuf) {
     std::cerr << "FATAL: Pixel Buffer Object allocation failed!";
     std::cerr << "Expected size ["<<sizebuf<<"] != from "<<size<<"\n";
@@ -947,13 +947,13 @@ void GLObjectParticles::checkVboAllocation(const int sizebuf)
   //glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 // ============================================================================
-// updateColormap();                                                                   
+// updateColormap();
 void GLObjectParticles::updateColormap()
 {
   cmap.clear();
   cmap.reserve(go->R->size()*3);
   float powcolor=go->powercolor;
-  for (unsigned int i=0; i<go->R->size(); i++) {    
+  for (unsigned int i=0; i<go->R->size(); i++) {
       cmap.push_back(pow((*go->R)[i],powcolor));
       cmap.push_back(pow((*go->G)[i],powcolor));
       cmap.push_back(pow((*go->B)[i],powcolor));
@@ -963,16 +963,16 @@ void GLObjectParticles::updateColormap()
 // ============================================================================
 // sendShaderColor();
 void GLObjectParticles::sendShaderData(const int win_height, const bool use_point)
-{  
+{
   static bool first=true;
   bool physic=(phys_select && phys_select->isValid())?true:false;
-  
+
   if (first && physic ) {
     first=false;
     //po->setMaxPhys(phys_select->getMax());
     //po->setMinPhys(phys_select->getMin());
   }
-  
+
   // send matrix
   GLfloat proj[16];
   glGetFloatv( GL_PROJECTION_MATRIX,proj);
@@ -992,13 +992,13 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
   if (use_point) alpha=po->getPartAlpha()/255.;
   else alpha=po->getGazAlpha()/255.;
   if (go->render_mode == 1 ) { // individual size and color
-    if (physic)  
+    if (physic)
       shader->sendUniformf("alpha", alpha*alpha); // send alpha channel
     else
-      shader->sendUniformf("alpha", alpha); // send alpha channel      
+      shader->sendUniformf("alpha", alpha); // send alpha channel
   }
   if (go->render_mode == 0 ) { // global size and color
-    shader->sendUniformf("alpha", 1.0); // send alpha channel      
+    shader->sendUniformf("alpha", 1.0); // send alpha channel
   }
 
   // Send texture size factor
@@ -1040,10 +1040,10 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
 
   // use point or texture ?
   shader->sendUniformi("use_point",use_point);
-  
+
   // perspective mode ?
   shader->sendUniformi("perspective",go->perspective);
-  
+
   // send colormap stuffs
   shader->sendUniformXfv("colormap",3,cmap.size()/3,&cmap[0]);
   shader->sendUniformi("ncmap",cmap.size()/3);
@@ -1051,7 +1051,7 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
   //shader->sendUniformi("dynamic_cmap",go->dynamic_cmap);
   shader->sendUniformi("reverse_cmap",go->reverse_cmap);
   shader->sendUniformf("powalpha",go->poweralpha);
-  
+
   // send physical quantities stuffs
   if (hasPhysic&& go->render_mode==1) { // physic) {
     if (!go->dynamic_cmap) {
@@ -1072,7 +1072,7 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
       shader->sendUniformf("data_phys_min",log(po->getMinPhys()));
       shader->sendUniformf("data_phys_max",log(po->getMaxPhys()+moremax));
     }
-    
+
     //int imin=phys_itv[min_index].index;
     //int imax=phys_itv[max_index].index;
 
@@ -1095,7 +1095,7 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
   }
 }
 // ============================================================================
-// update                                                                      
+// update
 void GLObjectParticles::updateVel()
 {
   //buildVelDisplayList();
@@ -1103,7 +1103,7 @@ void GLObjectParticles::updateVel()
 }
 
 // ============================================================================
-// buildDisplayList                                                            
+// buildDisplayList
 void GLObjectParticles::buildDisplayList()
 {
   QTime tbench;
@@ -1111,8 +1111,8 @@ void GLObjectParticles::buildDisplayList()
   // display list
   glNewList( dplist_index, GL_COMPILE );
   glBegin(GL_POINTS);
-  
-  // draw all the selected points 
+
+  // draw all the selected points
   for (int i=0; i < po->npart; i+=po->step) {
     int index=po->index_tab[i];
     float
@@ -1127,7 +1127,7 @@ void GLObjectParticles::buildDisplayList()
   if (BENCH) qWarning("Time elapsed to build Pos Display list: %f s", tbench.elapsed()/1000.);
 }
 // ============================================================================
-// buildDisplayList                                                            
+// buildDisplayList
 void GLObjectParticles::buildVelDisplayList()
 {
   if (part_data->vel) {
@@ -1137,7 +1137,7 @@ void GLObjectParticles::buildVelDisplayList()
     // display list
     glNewList( vel_dp_list, GL_COMPILE );
     glBegin(GL_LINES);
-    
+
     // draw all the selected points
     const float vfactor = po->getVelSize();// / part_data->getMaxVelNorm(); // requested by Peter Teuben
     for (int i=0; i < po->npart; i+=po->step) {
@@ -1162,12 +1162,12 @@ void GLObjectParticles::buildVelDisplayList()
   }
 }
 // ============================================================================
-// buildOrbitsDisplayList                                                            
+// buildOrbitsDisplayList
 void GLObjectParticles::buildOrbitsDisplayList()
 {
   OrbitsVector oo = po->ov;
   glNewList( orb_dp_list, GL_COMPILE );
-  
+
   // loop on orbits_max
   for (OrbitsVector::iterator oiv =oo.begin();oiv!=oo.end() ; oiv++) {
     glBegin(GL_LINE_STRIP);
@@ -1177,7 +1177,7 @@ void GLObjectParticles::buildOrbitsDisplayList()
     }
     glEnd();
   }
-  
+
   glEndList();
 }
 // ============================================================================
@@ -1185,9 +1185,9 @@ void GLObjectParticles::buildOrbitsDisplayList()
 // select particles and sort them according to their
 // physical values
 void GLObjectParticles::selectParticles()
-{ 
+{
   phys_itv.clear();   // clear physical value vector
-  vindex_sel.clear(); // clear vindex vector     
+  vindex_sel.clear(); // clear vindex vector
   for (int i=0; i < po->npart; i+=po->step) {
     int index=po->index_tab[i];
     if (phys_select && phys_select->isValid()) {
@@ -1196,7 +1196,7 @@ void GLObjectParticles::selectParticles()
       myphys.value   = phys_select->data[index];
       myphys.i_point = i;
       phys_itv.push_back(myphys);
-    }    
+    }
     // used if z depth test activated
     GLObjectIndexTab myz;
     myz.index = index;
@@ -1211,11 +1211,11 @@ void GLObjectParticles::selectParticles()
 }
 
 // ============================================================================
-// compare 2 elements                                                          
+// compare 2 elements
 int GLObjectParticles::compareZ( const void * a, const void * b )
 {
   float (*pa)[3], (*pb)[3];
-  pa = ( float(*)[3] ) a; 
+  pa = ( float(*)[3] ) a;
   pb = ( float(*)[3] ) b;
   return (int)(*pb[2] - *pa[2]);
 }
@@ -1232,14 +1232,14 @@ void GLObjectParticles::buildIndexHisto()
   // reset index_histo array
   index_histo.clear();
   for (int i=0; i <nhisto;i++) index_histo.push_back(-1);
-  
+
 
   // compute first particle index in the percentage
   if (phys_select && phys_select->isValid()) {
-  
+
     float log_part_r_max=0., log_part_r_min=0., diff_log_part=0.;
     float log_phys_max,log_phys_min, diff_log_phys;
-    
+
     if (part_data->rho) {
       log_part_r_max = log(part_data->rho->getMax());
       log_part_r_min = log(part_data->rho->getMin());
@@ -1248,7 +1248,7 @@ void GLObjectParticles::buildIndexHisto()
     log_phys_max = log(phys_select->getMax());
     log_phys_min = log(phys_select->getMin());
     diff_log_phys= (nhisto-1.)/(log_phys_max-log_phys_min);
-    
+
     int cpt=0;
     // find first index of particle in the percentage
     for (int i=0; i < po->npart; i+=po->step) {
@@ -1263,28 +1263,28 @@ void GLObjectParticles::buildIndexHisto()
           int percen=(log(rho_data)-log_part_r_min)*diff_log_part;
           assert(percen<nhisto && percen>=0);
           if (index_histo[percen]==-1) { // no value yet
-            index_histo[percen]=cpt; // store 
-            
+            index_histo[percen]=cpt; // store
+
           }
           cpt++;
         }
       }
-      else {        
-        index = phys_itv[i].index; // we sort by physical value     
+      else {
+        index = phys_itv[i].index; // we sort by physical value
         float phys_data=phys_select->data[index];
         if (phys_data!=0 && phys_data!=-1) {
           //std::cerr << "I="<<i<<" => "<<phys_data<<"\n";
           int percen=(log(phys_data)-log_phys_min)*diff_log_phys;
           assert(percen<nhisto && percen>=0);
           if (index_histo[percen]==-1) { // no value yet
-            index_histo[percen]=cpt; // store 
-            
+            index_histo[percen]=cpt; // store
+
           }
           cpt++;
         }
       }
 #endif
-      
+
     }
     // fill empty index_histo
     int last=0;
@@ -1299,12 +1299,12 @@ void GLObjectParticles::buildIndexHisto()
   }
 }
 // ============================================================================
-//                     - Texture and Sprites management -                      
+//                     - Texture and Sprites management -
 // ============================================================================
 // ============================================================================
 
 // ============================================================================
-// setTexture()                                                                 
+// setTexture()
 void GLObjectParticles::setTexture(QString name)
 {
   assert(0); // we should not go here
@@ -1317,7 +1317,7 @@ void GLObjectParticles::setTexture(QString name)
   }
 }
 // ============================================================================
-// setTexture()                                                                 
+// setTexture()
 void GLObjectParticles::setTexture(const int tex)
 {
   //assert(tex<3);
@@ -1325,7 +1325,7 @@ void GLObjectParticles::setTexture(const int tex)
   texture = &(*gtv)[tex];
 }
 // ============================================================================
-// setTexture()                                                                 
+// setTexture()
 void GLObjectParticles::setTexture()
 {
   if (!texture) {
@@ -1333,7 +1333,7 @@ void GLObjectParticles::setTexture()
   }
 }
 // ============================================================================
-// sortDyDensity                                                               
+// sortDyDensity
 void GLObjectParticles::sortByDensity()
 {
       // sort according to the density
@@ -1357,7 +1357,7 @@ void GLObjectParticles::sortByDensity()
   for (int i=0; i < po->npart; i+=po->step) {
     int index;
     if (part_data->rho) index = phys_itv[i].i_point;
-    
+
     if (part_data->rho) {
         index = phys_itv[i].i_point;
         int index2 = phys_itv[i].index;
@@ -1386,7 +1386,7 @@ void GLObjectParticles::sortByDensity()
 
 }
 // ============================================================================
-// sortDyDepth                                                                 
+// sortDyDepth
 void GLObjectParticles::sortByDepth()
 {
 #define MM(row,col)  mModel[col*4+row]
@@ -1434,10 +1434,10 @@ void GLObjectParticles::sortByDepth()
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 }
 // ============================================================================
-// displaySprites()                                                            
-// use billboarding technique to display sprites :                             
-// - transforms coordinates points according model view matrix                 
-// - draw quad (2 triangles) around new coordinates and facing camera          
+// displaySprites()
+// use billboarding technique to display sprites :
+// - transforms coordinates points according model view matrix
+// - draw quad (2 triangles) around new coordinates and facing camera
 void GLObjectParticles::displaySprites(const double * mModel)
 {
 #define MM(row,col)  mModel[col*4+row]
@@ -1445,7 +1445,7 @@ void GLObjectParticles::displaySprites(const double * mModel)
   glPushMatrix();
   glLoadIdentity();             // reset opengl state machine
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  
+
   glEnable( GL_TEXTURE_2D );
   glEnable(GL_BLEND);
 #if 1
@@ -1457,10 +1457,10 @@ void GLObjectParticles::displaySprites(const double * mModel)
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0);
 #endif
-  
-  GLObject::setColor(po->getColor()); // set the color 
+
+  GLObject::setColor(po->getColor()); // set the color
   glColor4ub(mycolor.red(), mycolor.green(), mycolor.blue(),po->getGazAlpha());
-  
+
   texture->glBindTexture();  // bind texture
   // uv coordinates
   float uv[4][2] = { {0.0f         , 1.0f-texture->V()}, {0.0f         , 1.0f             },
