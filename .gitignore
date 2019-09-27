@@ -63,7 +63,7 @@ Makefile.in
 
 #
 Makefile
-factory
+#factory
 .moc/
 ._ui/
 .moc/
