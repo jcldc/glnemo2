@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -31,6 +31,7 @@
 #include "particlesobject.h"
 #include "tools3d.h"
 #include "fnt.h"
+#include "glcharacteristicpoint.h"
 //#include "cshader.h"
 
 namespace glnemo {
@@ -98,6 +99,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera 
   checkGLErrors("initializeGL");
   shader = NULL;
   vel_shader = NULL;
+
   initShader();
   checkGLErrors("initShader");
   ////////
@@ -171,6 +173,7 @@ GLWindow::~GLWindow()
     glDeleteRenderbuffersEXT(1, &framebuffer);
     if (shader) delete shader;
     if (vel_shader) delete vel_shader;
+    if (charac_shader) delete charac_shader; // maybe useless as deleting null pointer has no effect
   }
 //  if (p_data)
 //    delete p_data;
@@ -220,7 +223,8 @@ void GLWindow::update(ParticlesData   * _p_data,
   store_options->octree_level = 0;
   //tree->update(p_data, _pov);
   gl_colorbar->update(&gpv,p_data->getPhysData(),store_options,mutex_data);
-  
+
+
   for (unsigned int i=0; i<pov->size() ;i++) {
     if (i>=gpv.size()) {
       GLObjectParticles * gp = new GLObjectParticles(p_data,&((*pov)[i]),
@@ -557,7 +561,10 @@ void GLWindow::paintGL()
   if (store_options->octree_display || 1) {
     tree->display();
   }
-  
+
+    if(cp->ready())
+        cp->display();
+
   // On Screen Display
   if (store_options->show_osd) osd->display();
     
@@ -642,6 +649,17 @@ void GLWindow::initShader()
               vel_shader=NULL;
           }
       }
+
+        // characteristic shader
+        charac_shader = new CShader(GlobalOptions::RESPATH.toStdString() + "/shaders/characteristic.vert",
+                                    GlobalOptions::RESPATH.toStdString() + "/shaders/characteristic.frag");
+        if (!charac_shader->init()) {
+            delete charac_shader;
+            charac_shader = nullptr;
+        }
+        cp = new GLObjectCharacteristicPoint(charac_shader);
+
+
     }
 
   }

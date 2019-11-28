@@ -30,6 +30,7 @@
 #include "glcolorbar.h"
 #include "glaxesobject.h"
 #include "camera.h"
+#include "glcharacteristicpoint.h"
 
 
 class fntTexFont;
@@ -186,6 +187,8 @@ private:
   // Vectors
   GLObjectParticlesVector gpv;
   ParticlesObjectVector * pov;
+  GLObjectCharacteristicPoint *cp;
+
   ParticlesData   * p_data;
   // projections
   void setProjection(const int x, const int y, const int w, const int h );
@@ -279,7 +282,7 @@ private:
   // bench
   int nframe;
   // Shaders
-  CShader * shader, * vel_shader;
+  CShader * shader, * vel_shader, *charac_shader;
   void initShader();
   unsigned int m_vertexShader, m_pixelShader;
 
