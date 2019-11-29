@@ -3,6 +3,7 @@
 //
 
 #include "glcharacteristicpoint.h"
+#include "stdio.h"
 
 namespace glnemo {
 
@@ -10,7 +11,7 @@ namespace glnemo {
         charac_shader = _charac_shader;
     }
 
-    void GLObjectCharacteristicPoint::display(double *mScreen) {
+    void GLObjectCharacteristicPoint::display() {
 
         charac_shader->start();
 
@@ -23,11 +24,6 @@ namespace glnemo {
         glGetFloatv(GL_MODELVIEW_MATRIX, mview);
         charac_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
 
-        GLfloat CameraRight_worldspace[3] = {mScreen[0], mScreen[1], mScreen[2]};
-        GLfloat CameraUp_worldspace[3] = {mScreen[4], mScreen[5], mScreen[6]};
-
-        charac_shader->sendUniformXfv("CameraRight_worldspace", 3, 1, &CameraRight_worldspace[0]);
-        charac_shader->sendUniformXfv("CameraUp_worldspace", 3, 1, &CameraUp_worldspace[0]);
         charac_shader->sendUniformXfv("point_center", 3, 1, &point_center[0]);
         charac_shader->sendUniformi("nb_vertices", nb_points);
         charac_shader->sendUniformf("radius", radius);

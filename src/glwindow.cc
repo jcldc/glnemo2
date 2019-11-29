@@ -563,7 +563,7 @@ void GLWindow::paintGL()
   }
 
   if(cp->ready())
-      cp->display(mScreen);
+      cp->display();
 
   // On Screen Display
   if (store_options->show_osd) osd->display();

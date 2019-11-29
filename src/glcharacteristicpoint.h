@@ -14,7 +14,7 @@ namespace glnemo {
     public:
         GLObjectCharacteristicPoint(CShader *_charac_shader);
 
-        void display(double *mScreen);
+        void display();
 
         bool ready();
 
