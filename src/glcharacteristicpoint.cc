@@ -3,7 +3,6 @@
 //
 
 #include "glcharacteristicpoint.h"
-#include "stdio.h"
 
 namespace glnemo {
 
@@ -27,8 +26,12 @@ namespace glnemo {
         charac_shader->sendUniformXfv("point_center", 3, 1, &point_center[0]);
         charac_shader->sendUniformi("nb_vertices", nb_points);
         charac_shader->sendUniformf("radius", radius);
+        charac_shader->sendUniformi("is_annulus", is_annulus);
 
-        glDrawArrays(GL_TRIANGLE_FAN, 0, nb_points);
+        if(is_annulus)
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, nb_points*2);
+        else
+            glDrawArrays(GL_TRIANGLE_FAN, 0, nb_points);
 
         charac_shader->stop();
 

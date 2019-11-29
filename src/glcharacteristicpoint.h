@@ -15,7 +15,6 @@ namespace glnemo {
         GLObjectCharacteristicPoint(CShader *_charac_shader);
 
         void display();
-
         bool ready();
 
     private:
@@ -25,6 +24,7 @@ namespace glnemo {
         };
         int nb_points = 100;
         float radius = 0.3;
+        bool is_annulus = false;
     };
 
 }
