@@ -562,8 +562,8 @@ void GLWindow::paintGL()
     tree->display();
   }
 
-    if(cp->ready())
-        cp->display();
+  if(cp->ready())
+      cp->display(mScreen);
 
   // On Screen Display
   if (store_options->show_osd) osd->display();
