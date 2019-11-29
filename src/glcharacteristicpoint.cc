@@ -8,14 +8,11 @@ namespace glnemo {
 
     GLObjectCharacteristicPoint::GLObjectCharacteristicPoint(CShader *_charac_shader) {
         charac_shader = _charac_shader;
-        glGenBuffers(1, &vbo_pos);
     }
 
     void GLObjectCharacteristicPoint::display(double *mScreen) {
 
         charac_shader->start();
-
-        vpos = glGetAttribLocation(charac_shader->getProgramId(), "position");
 
         // send matrix
         GLfloat proj[16];
@@ -32,21 +29,13 @@ namespace glnemo {
         charac_shader->sendUniformXfv("CameraRight_worldspace", 3, 1, &CameraRight_worldspace[0]);
         charac_shader->sendUniformXfv("CameraUp_worldspace", 3, 1, &CameraUp_worldspace[0]);
         charac_shader->sendUniformXfv("point_center", 3, 1, &point_center[0]);
+        charac_shader->sendUniformi("nb_vertices", nb_points);
+        charac_shader->sendUniformf("radius", radius);
 
+        glDrawArrays(GL_TRIANGLE_FAN, 0, nb_points);
 
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_pos);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        glVertexAttribPointerARB(vpos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
-        glEnableVertexAttribArrayARB(vpos);
-
-        glPointSize(5);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
         charac_shader->stop();
 
-        glDisableVertexAttribArray(vpos);
     }
 
     bool GLObjectCharacteristicPoint::ready() {

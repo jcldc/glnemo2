@@ -20,17 +20,11 @@ namespace glnemo {
 
     private:
         CShader *charac_shader;
-        GLuint vbo_pos;
         float point_center[3] = {
                 1.0f, 1.f, 0.0f,
         };
-        float vertices[9] = {
-                -0.2f, -0.2f, 0.0f,
-                0.2f, -0.2f, 0.0f,
-                -0.2f, 0.2f, 0.0f,
-//                0.2f, 0.2f, 0.0f,
-        };
-        int vpos;
+        int nb_points = 100;
+        float radius = 0.3;
     };
 
 }
