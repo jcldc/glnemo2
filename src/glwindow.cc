@@ -547,6 +547,9 @@ void GLWindow::paintGL()
         }
       }
     }
+  if(cp->ready())
+      cp->display();
+
     if (obj_has_physic) {
       if (fbo) // offscreen rendering activated
         gl_colorbar->display(texWidth,texHeight);
@@ -561,9 +564,6 @@ void GLWindow::paintGL()
   if (store_options->octree_display || 1) {
     tree->display();
   }
-
-  if(cp->ready())
-      cp->display();
 
   // On Screen Display
   if (store_options->show_osd) osd->display();
