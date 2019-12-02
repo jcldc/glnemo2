@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -114,12 +114,12 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera 
 
   // axes
   axes = new GLAxesObject();
-  
+
   // cube
   cube  = new GLCubeObject(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
   // load texture
   GLTexture::loadTextureVector(gtv);
-  
+
   // build display list in case of screenshot
   if (store_options->show_part && pov ) {
     //std::cerr << "GLWindow::initializeGL() => build display list\n";
@@ -130,7 +130,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera 
       //gpv[i].buildVboPos();
     }
   }
-  
+
   // Osd
   fntRenderer text;
   font = new fntTexFont(store_options->osd_font_name.toStdString().c_str());
@@ -139,7 +139,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera 
   osd = new GLObjectOsd(wwidth,wheight,text,store_options->osd_color);
   // colorbar
   gl_colorbar = new GLColorbar(store_options,true);
-  
+
   ////////
   // FBO
   // Set the width and height appropriately for you image
@@ -209,7 +209,7 @@ void GLWindow::update(ParticlesData   * _p_data,
   }
   //else pov    = _pov;
   pov    = _pov;
-  
+
   if (p_data!=_p_data) {
     if (store_options->duplicate_mem)  *p_data = *_p_data;
     else                                p_data = _p_data;
@@ -220,7 +220,7 @@ void GLWindow::update(ParticlesData   * _p_data,
   store_options->octree_level = 0;
   //tree->update(p_data, _pov);
   gl_colorbar->update(&gpv,p_data->getPhysData(),store_options,mutex_data);
-  
+
   for (unsigned int i=0; i<pov->size() ;i++) {
     if (i>=gpv.size()) {
       GLObjectParticles * gp = new GLObjectParticles(p_data,&((*pov)[i]),
@@ -239,7 +239,7 @@ void GLWindow::update(ParticlesData   * _p_data,
   gl_select->update(&gpv,store_options,mutex_data);
   mutex_data->unlock();
   updateGL();
-  
+
 }
 // ============================================================================
 // update
@@ -328,16 +328,16 @@ void GLWindow::updateGrid(bool ugl)
 {
   gridx->setActivate(store_options->xy_grid);
   gridx->setColor(store_options->col_x_grid);
-  
+
   gridy->setActivate(store_options->yz_grid);
   gridy->setColor(store_options->col_y_grid);
-  
+
   gridz->setActivate(store_options->xz_grid);
   gridz->setColor(store_options->col_z_grid);
-  
+
   cube->setActivate(store_options->show_cube);
   cube->setColor(store_options->col_cube);
-  
+
   if (ugl) updateGL();
 }
 // ============================================================================
@@ -377,7 +377,7 @@ void GLWindow::paintGL()
     }
   } 
   //setFocus();
-  
+
   qglClearColor(store_options->background_color);
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -386,12 +386,12 @@ void GLWindow::paintGL()
   glMatrixMode( GL_MODELVIEW );
   glLoadIdentity();
   //glEnable(GL_DEPTH_TEST);
-  
+
   // rotation around scene/object axes
   float ru=store_options->urot-last_urot;
   float rv=store_options->vrot-last_vrot;
   float rw=store_options->wrot-last_wrot;
-  
+
   // the following code compute OpenGL rotation 
   // around UVW scene/object axes
   if (ru!=0 ||
@@ -404,7 +404,7 @@ void GLWindow::paintGL()
       glRotatef(rv, mScene[4],mScene[5], mScene[6] );
     if (rw!=0)
       glRotatef(rw, mScene[8],mScene[9], mScene[10]);
-    
+
     last_urot = store_options->urot;
     last_vrot = store_options->vrot;
     last_wrot = store_options->wrot;
@@ -445,7 +445,7 @@ void GLWindow::paintGL()
     glGetDoublev (GL_MODELVIEW_MATRIX, mScene); // set to Identity
     reset_scene_rotation=false;
     last_urot = last_vrot = last_wrot = 0.0;
-  }  
+  }
 
   glLoadIdentity (); // reset OGL rotations
   // set camera
@@ -454,19 +454,19 @@ void GLWindow::paintGL()
     camera->moveTo();
   }
   glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mRot);
-  
+
   // apply screen rotation on the whole system
-  glMultMatrixd (mScreen);   
+  glMultMatrixd (mScreen);
   // apply scene/world rotation on the whole system
-  glMultMatrixd (mScene);   
-  
+  glMultMatrixd (mScene);
+
   // Grid Anti aliasing
 #ifdef GL_MULTISAMPLE
   glEnable(GL_MULTISAMPLE);
 #endif
   if (1) { //line_aliased) {
     glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_POLYGON_SMOOTH);    
+    glEnable(GL_POLYGON_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     //glLineWidth (0.61);
@@ -513,7 +513,7 @@ void GLWindow::paintGL()
 
   // nice points display
   glEnable(GL_POINT_SMOOTH);
-  
+
   // control blending on particles
   if (store_options->blending) {
     glEnable(GL_BLEND);
@@ -552,15 +552,15 @@ void GLWindow::paintGL()
 
     //mutex_data->unlock();
   }
-  
+
   // octree
   if (store_options->octree_display || 1) {
     tree->display();
   }
-  
+
   // On Screen Display
   if (store_options->show_osd) osd->display();
-    
+
   // display selected area
   gl_select->display(QGLWidget::width(),QGLWidget::height());
 
