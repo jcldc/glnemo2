@@ -187,7 +187,7 @@ private:
   // Vectors
   GLObjectParticlesVector gpv;
   ParticlesObjectVector * pov;
-  GLObjectCharacteristicPoint *cp;
+  GLObjectCharacteristicPointList *cpl;
 
   ParticlesData   * p_data;
   // projections

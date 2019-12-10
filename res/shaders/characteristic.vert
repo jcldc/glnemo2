@@ -7,6 +7,8 @@ uniform mat4 projMatrix;
 uniform vec3 point_center;
 uniform bool is_annulus;
 
+//attribute vec3 point_center;
+
 float PI = 3.14159265359;
 
 void main()
@@ -15,7 +17,7 @@ void main()
     vec3 position;
 
     if(is_annulus && gl_VertexID % 2 == 0)
-        position = vec3((radius-.1)*cos(angle),(radius-.1)*sin(angle),0.f);
+        position = vec3((radius-radius*.5)*cos(angle),(radius-radius*.5)*sin(angle),0.f);
     else
         position = vec3(radius*cos(angle),radius*sin(angle),0.f);
 

@@ -32,6 +32,8 @@
 #include "tools3d.h"
 #include "fnt.h"
 #include "glcharacteristicpoint.h"
+#include "json.hpp"
+using json = nlohmann::json;
 //#include "cshader.h"
 
 namespace glnemo {
@@ -168,12 +170,12 @@ GLWindow::~GLWindow()
   delete cube;
   delete tree;
   delete axes;
+  delete cpl;
   if (GLWindow::GLSL_support) {
     glDeleteRenderbuffersEXT(1, &renderbuffer);
     glDeleteRenderbuffersEXT(1, &framebuffer);
     if (shader) delete shader;
     if (vel_shader) delete vel_shader;
-    if (charac_shader) delete charac_shader; // maybe useless as deleting null pointer has no effect
   }
 //  if (p_data)
 //    delete p_data;
@@ -547,8 +549,10 @@ void GLWindow::paintGL()
         }
       }
     }
-  if(cp->ready())
-      cp->display();
+//  if(cp->ready())
+//      cp->display();
+
+    cpl->display_all();
 
     if (obj_has_physic) {
       if (fbo) // offscreen rendering activated
@@ -649,16 +653,14 @@ void GLWindow::initShader()
               vel_shader=NULL;
           }
       }
-
-        // characteristic shader
-        charac_shader = new CShader(GlobalOptions::RESPATH.toStdString() + "/shaders/characteristic.vert",
-                                    GlobalOptions::RESPATH.toStdString() + "/shaders/characteristic.frag");
-        if (!charac_shader->init()) {
-            delete charac_shader;
-            charac_shader = nullptr;
-        }
-        cp = new GLObjectCharacteristicPoint(charac_shader);
-
+          auto json_obj = R"(
+              {
+                "shape": "annulus",
+                "radius": 2,
+                "position": [1, 1, 1]
+              }
+            )"_json;
+        cpl = new GLObjectCharacteristicPointList(json_obj);
 
     }
 
