@@ -654,7 +654,7 @@ void GLWindow::initShader()
           }
       }
         std::cerr << "Loading json file\n";
-        std::ifstream i("annulus.json");
+        std::ifstream i("characteristic_objects.json");
         json j;
         i >> j;
         cpl = new GLObjectCharacteristicPointList(j);
