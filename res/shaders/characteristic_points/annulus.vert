@@ -12,7 +12,7 @@ float PI = 3.14159265359;
 
 void main()
 {
-    float angle = (2*PI/nb_vertices)*gl_VertexID;
+    float angle = 2*PI/(nb_vertices-2)*gl_VertexID;
     vec3 position;
 
     if(gl_VertexID % 2 == 0)

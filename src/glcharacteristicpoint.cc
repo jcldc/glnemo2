@@ -178,7 +178,7 @@ namespace glnemo {
         m_disk_shader->sendUniformXfv("projMatrix", 16, 1, &proj[0]);
         m_disk_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
         m_disk_shader->sendUniformi("nb_vertices", 100);
-        glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, 100, 2);
+        glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, 100, m_disks.size());
         glBindVertexArray(0);
         m_disk_shader->stop();
 
@@ -187,8 +187,8 @@ namespace glnemo {
         glBindVertexArray(m_annulus_vao);
         m_annulus_shader->sendUniformXfv("projMatrix", 16, 1, &proj[0]);
         m_annulus_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
-        m_annulus_shader->sendUniformi("nb_vertices", 200);
-        glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, 200, 1);
+        m_annulus_shader->sendUniformi("nb_vertices", 100);
+        glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, 100, m_annuli.size());
         glBindVertexArray(0);
         m_annulus_shader->stop();
 

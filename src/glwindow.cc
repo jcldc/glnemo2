@@ -653,27 +653,11 @@ void GLWindow::initShader()
               vel_shader=NULL;
           }
       }
-          auto json_obj = R"(
-              [
- 	{
-   	"shape": "annulus",
-   	"coords": [-2.0, 2.0, 3.0],
-   	"radius": 1,
-   	"fill_ratio": 0.5
-   },
-   {
-   	"shape": "disk",
-   	"coords": [2.0, 2.0, -1.0],
-   	"radius": 0.5
-   },
-   {
-   	"shape": "disk",
-   	"coords": [4.0, 1.0, 1.0],
-   	"radius": 1.5
-   }
-]
-            )"_json;
-        cpl = new GLObjectCharacteristicPointList(json_obj);
+        std::cerr << "Loading json file\n";
+        std::ifstream i("annulus.json");
+        json j;
+        i >> j;
+        cpl = new GLObjectCharacteristicPointList(j);
 
     }
 
