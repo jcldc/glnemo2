@@ -43,14 +43,14 @@ namespace glnemo {
         void display_all();
 
     private:
-        CShader *m_charac_shader = nullptr;
-        std::vector<GLObjectCharacteristicPoint*> m_characteristic_points;
-        std::vector<float> m_point_center_vertices;
-        GLuint m_vbo;
-        GLuint m_ebo;
-        GLuint m_vao;
-        std::vector<unsigned int> m_indices;
-        std::vector<float> m_vertices;
+        CShader *m_disk_shader = nullptr;
+        CShader *m_annulus_shader = nullptr;
+        std::vector<GLObjectCharacteristicPoint*> m_disks;
+        std::vector<GLObjectCharacteristicPoint*> m_annuli;
+        GLuint m_disk_vao;
+        GLuint m_annulus_vao;
+        std::vector<float> m_disk_data;
+        std::vector<float> m_annulus_data;
     };
 
 }

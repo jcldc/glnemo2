@@ -534,6 +534,9 @@ void GLWindow::paintGL()
   else                        glDisable(GL_DEPTH_TEST);
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
+
+    cpl->display_all();
+
   if (store_options->show_part && pov ) {
     //mutex_data->lock();
     bool first=true;
@@ -549,10 +552,7 @@ void GLWindow::paintGL()
         }
       }
     }
-//  if(cp->ready())
-//      cp->display();
 
-    cpl->display_all();
 
     if (obj_has_physic) {
       if (fbo) // offscreen rendering activated
@@ -654,11 +654,24 @@ void GLWindow::initShader()
           }
       }
           auto json_obj = R"(
-              {
-                "shape": "annulus",
-                "radius": 2,
-                "position": [1, 1, 1]
-              }
+              [
+ 	{
+   	"shape": "annulus",
+   	"coords": [-2.0, 2.0, 3.0],
+   	"radius": 1,
+   	"fill_ratio": 0.5
+   },
+   {
+   	"shape": "disk",
+   	"coords": [2.0, 2.0, -1.0],
+   	"radius": 0.5
+   },
+   {
+   	"shape": "disk",
+   	"coords": [4.0, 1.0, 1.0],
+   	"radius": 1.5
+   }
+]
             )"_json;
         cpl = new GLObjectCharacteristicPointList(json_obj);
 
