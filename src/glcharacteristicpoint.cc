@@ -10,6 +10,7 @@ namespace glnemo {
     GLObjectCharacteristicPoint::GLObjectCharacteristicPoint(std::array<float, 3> coords, Shape shape, float radius,
                                                              float fill_ratio = 0)
             : m_coords(coords), m_shape(shape), m_fill_ratio(fill_ratio), m_radius(radius) {
+        m_display = true;
     }
 
 
@@ -31,17 +32,7 @@ namespace glnemo {
 
     /******* GLObjectCharacteristicPointList ********/
 
-    GLObjectCharacteristicPointList::GLObjectCharacteristicPointList(json characteristic_points) {
-
-        for (json::iterator it = characteristic_points.begin(); it != characteristic_points.end(); ++it) {
-            if ((*it)["shape"] == "disk")
-                m_disks.push_back(new GLObjectCharacteristicPoint((*it)["coords"], Shape::disk, (*it)["radius"]));
-            else if ((*it)["shape"] == "annulus")
-                m_annuli.push_back(new GLObjectCharacteristicPoint((*it)["coords"], Shape::annulus, (*it)["radius"],
-                                                                   (*it)["fill_ratio"]));
-
-        }
-
+    GLObjectCharacteristicPointList::GLObjectCharacteristicPointList() {
         // SHADER INIT
         this->m_disk_shader = new CShader(
                 GlobalOptions::RESPATH.toStdString() + "/shaders/characteristic_points/disk.vert",
@@ -63,92 +54,17 @@ namespace glnemo {
             std::cerr << "Failed to initialize annulus shader\n";
             exit(1);
         }
+    };
 
-        // DATA INIT
-//
-        for (auto point : m_disks) {
-            m_disk_data.push_back(point->getCoords().data()[0]);
-            m_disk_data.push_back(point->getCoords().data()[1]);
-            m_disk_data.push_back(point->getCoords().data()[2]);
-            m_disk_data.push_back(point->getRadius());
-        }
-
-        for (auto point : m_annuli) {
-            m_annulus_data.push_back(point->getCoords().data()[0]);
-            m_annulus_data.push_back(point->getCoords().data()[1]);
-            m_annulus_data.push_back(point->getCoords().data()[2]);
-            m_annulus_data.push_back(point->getRadius());
-            m_annulus_data.push_back(point->getFillRatio());
-        }
+    GLObjectCharacteristicPointList::GLObjectCharacteristicPointList(json characteristic_points) : GLObjectCharacteristicPointList() {
         // BUFFER INIT
-        GLuint disk_vbo;
-        GLuint annulus_vbo;
-
-        glGenBuffersARB(1, &disk_vbo);
-        glGenBuffersARB(1, &annulus_vbo);
+        glGenBuffersARB(1, &m_disk_vbo);
+        glGenBuffersARB(1, &m_annulus_vbo);
         glGenVertexArrays(1, &m_disk_vao);
         glGenVertexArrays(1, &m_annulus_vao);
 
-        // SEND DATA
-        glBindVertexArray(m_disk_vao);
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, disk_vbo);
-        glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * m_disk_data.size(), m_disk_data.data(), GL_STATIC_DRAW);
-
-        GLuint point_center_disk_attrib = glGetAttribLocation(m_disk_shader->getProgramId(), "point_center");
-        GLuint radius_disk_attrib = glGetAttribLocation(m_disk_shader->getProgramId(), "radius");
-        if (point_center_disk_attrib == -1) {
-            std::cerr << "Error occured when getting \"point_center\" attribute (disk shader)\n";
-            exit(1);
-        }
-        if (radius_disk_attrib == -1) {
-            std::cerr << "Error occured when getting \"radius\" attribute (disk shader)\n";
-            exit(1);
-        }
-        glEnableVertexAttribArrayARB(point_center_disk_attrib);
-        glVertexAttribPointerARB(point_center_disk_attrib, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
-        glVertexBindingDivisor(point_center_disk_attrib, 1);
-
-        glEnableVertexAttribArrayARB(radius_disk_attrib);
-        glVertexAttribPointerARB(radius_disk_attrib, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
-                                 (void *) (3 * sizeof(float)));
-        glVertexBindingDivisor(radius_disk_attrib, 1);
-
-        glBindVertexArray(0);
-
-
-        glBindVertexArray(m_annulus_vao);
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, annulus_vbo);
-        glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * m_annulus_data.size(), m_annulus_data.data(), GL_STATIC_DRAW);
-        GLuint point_center_annulus_attrib = glGetAttribLocation(m_annulus_shader->getProgramId(), "point_center");
-        GLuint radius_annulus_attrib = glGetAttribLocation(m_annulus_shader->getProgramId(), "radius");
-        GLuint fill_ratio_annulus_attrib = glGetAttribLocation(m_annulus_shader->getProgramId(), "fill_ratio");
-        if (point_center_annulus_attrib == -1) {
-            std::cerr << "Error occured when getting \"point_center\" attribute (annulus shader)\n";
-            exit(1);
-        }
-        if (radius_annulus_attrib == -1) {
-            std::cerr << "Error occured when getting \"radius\" attribute (annulus shader)\n";
-            exit(1);
-        }
-        if (fill_ratio_annulus_attrib == -1) {
-            std::cerr << "Error occured when getting \"fill_ratio\" attribute (annulus shader)\n";
-            exit(1);
-        }
-        glEnableVertexAttribArrayARB(point_center_annulus_attrib);
-        glVertexAttribPointerARB(point_center_annulus_attrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
-        glVertexBindingDivisor(point_center_annulus_attrib, 1);
-
-        glEnableVertexAttribArrayARB(radius_annulus_attrib);
-        glVertexAttribPointerARB(radius_annulus_attrib, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                                 (void *) (3 * sizeof(float)));
-        glVertexBindingDivisor(radius_annulus_attrib, 1);
-
-        glEnableVertexAttribArrayARB(fill_ratio_annulus_attrib);
-        glVertexAttribPointerARB(fill_ratio_annulus_attrib, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                                 (void *) (4 * sizeof(float)));
-        glVertexBindingDivisor(fill_ratio_annulus_attrib, 1);
-
-        glBindVertexArray(0);
+        this->initFromJson(characteristic_points);
+        this->initVboData();
     }
 
     GLObjectCharacteristicPointList::~GLObjectCharacteristicPointList() {
@@ -160,6 +76,8 @@ namespace glnemo {
         }
         m_disks.clear();
         m_annuli.clear();
+        glDeleteBuffers(1, &m_disk_vbo);
+        glDeleteBuffers(1, &m_annulus_vbo);
         glDeleteVertexArrays(1, &m_annulus_vao);
         glDeleteVertexArrays(1, &m_disk_vao);
     }
@@ -197,5 +115,106 @@ namespace glnemo {
 
     bool GLObjectCharacteristicPointList::ready() {
         return m_disk_shader != nullptr;
+    }
+
+    void GLObjectCharacteristicPointList::addPoint(GLObjectCharacteristicPoint *point) {
+        if (point->getShape() == Shape::disk)
+            m_disks.push_back(point);
+        else if (point->getShape() == Shape::annulus)
+            m_annuli.push_back(point);
+    }
+
+    void GLObjectCharacteristicPointList::initFromJson(json characteristic_points) {
+
+        for (json::iterator it = characteristic_points.begin(); it != characteristic_points.end(); ++it) {
+            if ((*it)["shape"] == "disk")
+                m_disks.push_back(new GLObjectCharacteristicPoint((*it)["coords"], Shape::disk, (*it)["radius"]));
+            else if ((*it)["shape"] == "annulus")
+                m_annuli.push_back(new GLObjectCharacteristicPoint((*it)["coords"], Shape::annulus, (*it)["radius"],
+                                                                   (*it).value("fill_ratio", 0.1)));
+
+        }
+    }
+
+    void GLObjectCharacteristicPointList::initVboData() {
+        m_disk_data.clear();
+        m_annulus_data.clear();
+        // DATA INIT
+        for (auto point : m_disks) {
+            m_disk_data.push_back(point->getCoords().data()[0]);
+            m_disk_data.push_back(point->getCoords().data()[1]);
+            m_disk_data.push_back(point->getCoords().data()[2]);
+            m_disk_data.push_back(point->getRadius());
+        }
+
+        for (auto point : m_annuli) {
+            m_annulus_data.push_back(point->getCoords().data()[0]);
+            m_annulus_data.push_back(point->getCoords().data()[1]);
+            m_annulus_data.push_back(point->getCoords().data()[2]);
+            m_annulus_data.push_back(point->getRadius());
+            m_annulus_data.push_back(point->getFillRatio());
+        }
+
+
+        // SEND DATA
+        glBindVertexArray(m_disk_vao);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_disk_vbo);
+        glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * m_disk_data.size(), m_disk_data.data(), GL_STATIC_DRAW);
+
+        GLuint point_center_disk_attrib = glGetAttribLocation(m_disk_shader->getProgramId(), "point_center");
+        GLuint radius_disk_attrib = glGetAttribLocation(m_disk_shader->getProgramId(), "radius");
+        if (point_center_disk_attrib == -1) {
+            std::cerr << "Error occured when getting \"point_center\" attribute (disk shader)\n";
+            exit(1);
+        }
+        if (radius_disk_attrib == -1) {
+            std::cerr << "Error occured when getting \"radius\" attribute (disk shader)\n";
+            exit(1);
+        }
+        glEnableVertexAttribArrayARB(point_center_disk_attrib);
+        glVertexAttribPointerARB(point_center_disk_attrib, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
+        glVertexBindingDivisor(point_center_disk_attrib, 1);
+
+        glEnableVertexAttribArrayARB(radius_disk_attrib);
+        glVertexAttribPointerARB(radius_disk_attrib, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
+                                 (void *) (3 * sizeof(float)));
+        glVertexBindingDivisor(radius_disk_attrib, 1);
+
+        glBindVertexArray(0);
+
+
+        glBindVertexArray(m_annulus_vao);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_annulus_vbo);
+        glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * m_annulus_data.size(), m_annulus_data.data(), GL_STATIC_DRAW);
+        GLuint point_center_annulus_attrib = glGetAttribLocation(m_annulus_shader->getProgramId(), "point_center");
+        GLuint radius_annulus_attrib = glGetAttribLocation(m_annulus_shader->getProgramId(), "radius");
+        GLuint fill_ratio_annulus_attrib = glGetAttribLocation(m_annulus_shader->getProgramId(), "fill_ratio");
+        if (point_center_annulus_attrib == -1) {
+            std::cerr << "Error occured when getting \"point_center\" attribute (annulus shader)\n";
+            exit(1);
+        }
+        if (radius_annulus_attrib == -1) {
+            std::cerr << "Error occured when getting \"radius\" attribute (annulus shader)\n";
+            exit(1);
+        }
+        if (fill_ratio_annulus_attrib == -1) {
+            std::cerr << "Error occured when getting \"fill_ratio\" attribute (annulus shader)\n";
+            exit(1);
+        }
+        glEnableVertexAttribArrayARB(point_center_annulus_attrib);
+        glVertexAttribPointerARB(point_center_annulus_attrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
+        glVertexBindingDivisor(point_center_annulus_attrib, 1);
+
+        glEnableVertexAttribArrayARB(radius_annulus_attrib);
+        glVertexAttribPointerARB(radius_annulus_attrib, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                                 (void *) (3 * sizeof(float)));
+        glVertexBindingDivisor(radius_annulus_attrib, 1);
+
+        glEnableVertexAttribArrayARB(fill_ratio_annulus_attrib);
+        glVertexAttribPointerARB(fill_ratio_annulus_attrib, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                                 (void *) (4 * sizeof(float)));
+        glVertexBindingDivisor(fill_ratio_annulus_attrib, 1);
+
+        glBindVertexArray(0);
     }
 }
