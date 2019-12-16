@@ -31,7 +31,7 @@
 #include "particlesobject.h"
 #include "tools3d.h"
 #include "fnt.h"
-#include "glcharacteristicpoint.h"
+#include "glcpoints.h"
 #include "json.hpp"
 using json = nlohmann::json;
 //#include "cshader.h"
@@ -657,7 +657,7 @@ void GLWindow::initShader()
         std::ifstream i("characteristic_objects.json");
         json j;
         i >> j;
-        cpl = new GLObjectCharacteristicPointList(j);
+        cpl = new GLCPointList(j);
 
     }
 

@@ -30,7 +30,7 @@
 #include "glcolorbar.h"
 #include "glaxesobject.h"
 #include "camera.h"
-#include "glcharacteristicpoint.h"
+#include "glcpoints.h"
 
 
 class fntTexFont;
@@ -187,7 +187,7 @@ private:
   // Vectors
   GLObjectParticlesVector gpv;
   ParticlesObjectVector * pov;
-  GLObjectCharacteristicPointList *cpl;
+  GLCPointList *cpl;
 
   ParticlesData   * p_data;
   // projections

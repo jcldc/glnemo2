@@ -2,8 +2,8 @@
 // Created by kalterkrieg on 25/11/2019.
 //
 
-#ifndef GLNEMO2_GLCHARACTERISTICPOINT_H
-#define GLNEMO2_GLCHARACTERISTICPOINT_H
+#ifndef GLNEMO2_GLCPOINTS_H
+#define GLNEMO2_GLCPOINTS_H
 
 #include <iostream>
 #include "cshader.h"
@@ -20,9 +20,9 @@ namespace glnemo {
         disk, annulus
     };
 
-    class GLObjectCharacteristicPoint {
+    class GLCPoint {
     public:
-        GLObjectCharacteristicPoint(std::array<float, 3> coords, Shape shape, float radius, float fill_ratio);
+        GLCPoint(std::array<float, 3> coords, Shape shape, float radius, float fill_ratio);
         Shape getShape() const;
         float getRadius() const;
         float getFillRatio() const;
@@ -36,23 +36,23 @@ namespace glnemo {
     };
 
 
-    class GLObjectCharacteristicPointList {
+    class GLCPointList {
     public:
-        GLObjectCharacteristicPointList();
-        GLObjectCharacteristicPointList(json characteristic_points);
-        ~GLObjectCharacteristicPointList();
+        GLCPointList();
+        GLCPointList(json cpoints);
+        ~GLCPointList();
 
-        void initFromJson(json characteristic_points);
+        void initFromJson(json cpoints);
         void initVboData();
         bool ready();
         void display_all();
-        void addPoint(GLObjectCharacteristicPoint *point);
+        void addPoint(GLCPoint *point);
 
     private:
         CShader *m_disk_shader = nullptr;
         CShader *m_annulus_shader = nullptr;
-        std::vector<GLObjectCharacteristicPoint *> m_disks;
-        std::vector<GLObjectCharacteristicPoint *> m_annuli;
+        std::vector<GLCPoint *> m_disks;
+        std::vector<GLCPoint *> m_annuli;
         GLuint m_disk_vao, m_annulus_vao,
                 m_disk_vbo, m_annulus_vbo;
         std::vector<float> m_disk_data;
@@ -60,4 +60,4 @@ namespace glnemo {
     };
 
 }
-#endif //GLNEMO2_GLCHARACTERISTICPOINT_H
+#endif //GLNEMO2_GLCPOINTS_H

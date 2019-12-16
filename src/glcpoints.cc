@@ -2,41 +2,41 @@
 // Created by kalterkrieg on 25/11/2019.
 //
 
-#include "glcharacteristicpoint.h"
+#include "glcpoints.h"
 #include "globaloptions.h"
 
 namespace glnemo {
 
-    GLObjectCharacteristicPoint::GLObjectCharacteristicPoint(std::array<float, 3> coords, Shape shape, float radius,
+    GLCPoint::GLCPoint(std::array<float, 3> coords, Shape shape, float radius,
                                                              float fill_ratio = 0)
             : m_coords(coords), m_shape(shape), m_fill_ratio(fill_ratio), m_radius(radius) {
         m_display = true;
     }
 
 
-    Shape GLObjectCharacteristicPoint::getShape() const {
+    Shape GLCPoint::getShape() const {
         return m_shape;
     }
 
-    float GLObjectCharacteristicPoint::getRadius() const {
+    float GLCPoint::getRadius() const {
         return m_radius;
     }
 
-    float GLObjectCharacteristicPoint::getFillRatio() const {
+    float GLCPoint::getFillRatio() const {
         return m_fill_ratio;
     }
 
-    const std::array<float, 3> &GLObjectCharacteristicPoint::getCoords() const {
+    const std::array<float, 3> &GLCPoint::getCoords() const {
         return m_coords;
     }
 
-    /******* GLObjectCharacteristicPointList ********/
+    /******* GLCPointList ********/
 
-    GLObjectCharacteristicPointList::GLObjectCharacteristicPointList() {
+    GLCPointList::GLCPointList() {
         // SHADER INIT
         this->m_disk_shader = new CShader(
-                GlobalOptions::RESPATH.toStdString() + "/shaders/characteristic_points/disk.vert",
-                GlobalOptions::RESPATH.toStdString() + "/shaders/characteristic_points/characteristic.frag");
+                GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/disk.vert",
+                GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
         if (!m_disk_shader->init()) {
             delete m_disk_shader;
             m_disk_shader = nullptr;
@@ -46,8 +46,8 @@ namespace glnemo {
 
         // SHADER INIT
         this->m_annulus_shader = new CShader(
-                GlobalOptions::RESPATH.toStdString() + "/shaders/characteristic_points/annulus.vert",
-                GlobalOptions::RESPATH.toStdString() + "/shaders/characteristic_points/characteristic.frag");
+                GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/annulus.vert",
+                GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
         if (!m_annulus_shader->init()) {
             delete m_annulus_shader;
             m_annulus_shader = nullptr;
@@ -56,18 +56,18 @@ namespace glnemo {
         }
     };
 
-    GLObjectCharacteristicPointList::GLObjectCharacteristicPointList(json characteristic_points) : GLObjectCharacteristicPointList() {
+    GLCPointList::GLCPointList(json cpoints) : GLCPointList() {
         // BUFFER INIT
         glGenBuffersARB(1, &m_disk_vbo);
         glGenBuffersARB(1, &m_annulus_vbo);
         glGenVertexArrays(1, &m_disk_vao);
         glGenVertexArrays(1, &m_annulus_vao);
 
-        this->initFromJson(characteristic_points);
+        this->initFromJson(cpoints);
         this->initVboData();
     }
 
-    GLObjectCharacteristicPointList::~GLObjectCharacteristicPointList() {
+    GLCPointList::~GLCPointList() {
         for (auto charac_point : m_disks) {
             delete charac_point;
         }
@@ -82,7 +82,7 @@ namespace glnemo {
         glDeleteVertexArrays(1, &m_disk_vao);
     }
 
-    void GLObjectCharacteristicPointList::display_all() {
+    void GLCPointList::display_all() {
         if (!this->ready())
             return;
 
@@ -113,30 +113,30 @@ namespace glnemo {
         glBindVertexArray(0);
     }
 
-    bool GLObjectCharacteristicPointList::ready() {
+    bool GLCPointList::ready() {
         return m_disk_shader != nullptr;
     }
 
-    void GLObjectCharacteristicPointList::addPoint(GLObjectCharacteristicPoint *point) {
+    void GLCPointList::addPoint(GLCPoint *point) {
         if (point->getShape() == Shape::disk)
             m_disks.push_back(point);
         else if (point->getShape() == Shape::annulus)
             m_annuli.push_back(point);
     }
 
-    void GLObjectCharacteristicPointList::initFromJson(json characteristic_points) {
+    void GLCPointList::initFromJson(json cpoints) {
 
-        for (json::iterator it = characteristic_points.begin(); it != characteristic_points.end(); ++it) {
+        for (json::iterator it = cpoints.begin(); it != cpoints.end(); ++it) {
             if ((*it)["shape"] == "disk")
-                m_disks.push_back(new GLObjectCharacteristicPoint((*it)["coords"], Shape::disk, (*it)["radius"]));
+                m_disks.push_back(new GLCPoint((*it)["coords"], Shape::disk, (*it)["radius"]));
             else if ((*it)["shape"] == "annulus")
-                m_annuli.push_back(new GLObjectCharacteristicPoint((*it)["coords"], Shape::annulus, (*it)["radius"],
+                m_annuli.push_back(new GLCPoint((*it)["coords"], Shape::annulus, (*it)["radius"],
                                                                    (*it).value("fill_ratio", 0.1)));
 
         }
     }
 
-    void GLObjectCharacteristicPointList::initVboData() {
+    void GLCPointList::initVboData() {
         m_disk_data.clear();
         m_annulus_data.clear();
         // DATA INIT
