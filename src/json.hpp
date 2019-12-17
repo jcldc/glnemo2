@@ -1815,13 +1815,13 @@ JSON_HEDLEY_DIAGNOSTIC_POP
     template<template<typename, typename, typename...> class ObjectType,   \
              template<typename, typename...> class ArrayType,              \
              class StringType, class BooleanType, class NumberIntegerType, \
-             class NumberUnsignedType, class NumberFloatType,              \
+             class NumberUnsignedType, class NumberFloatTypeJson,              \
              template<typename> class AllocatorType,                       \
              template<typename, typename = void> class JSONSerializer>
 
 #define NLOHMANN_BASIC_JSON_TPL                                            \
     basic_json<ObjectType, ArrayType, StringType, BooleanType,             \
-    NumberIntegerType, NumberUnsignedType, NumberFloatType,                \
+    NumberIntegerType, NumberUnsignedType, NumberFloatTypeJson,                \
     AllocatorType, JSONSerializer>
 
 
@@ -2414,7 +2414,7 @@ template<template<typename U, typename V, typename... Args> class ObjectType =
          class StringType = std::string, class BooleanType = bool,
          class NumberIntegerType = std::int64_t,
          class NumberUnsignedType = std::uint64_t,
-         class NumberFloatType = double,
+         class NumberFloatTypeJson = double,
          template<typename U> class AllocatorType = std::allocator,
          template<typename T, typename SFINAE = void> class JSONSerializer =
          adl_serializer>
@@ -3662,9 +3662,9 @@ void to_json(BasicJsonType& j, typename BasicJsonType::string_t&& s)
     external_constructor<value_t::string>::construct(j, std::move(s));
 }
 
-template<typename BasicJsonType, typename FloatType,
-         enable_if_t<std::is_floating_point<FloatType>::value, int> = 0>
-void to_json(BasicJsonType& j, FloatType val) noexcept
+template<typename BasicJsonType, typename FloatTypeJson,
+         enable_if_t<std::is_floating_point<FloatTypeJson>::value, int> = 0>
+void to_json(BasicJsonType& j, FloatTypeJson val) noexcept
 {
     external_constructor<value_t::number_float>::construct(j, static_cast<typename BasicJsonType::number_float_t>(val));
 }
@@ -11195,81 +11195,81 @@ namespace nlohmann
 namespace detail
 {
 /// abstract output adapter interface
-template<typename CharType> struct output_adapter_protocol
+template<typename CharTypeJson> struct output_adapter_protocol
 {
-    virtual void write_character(CharType c) = 0;
-    virtual void write_characters(const CharType* s, std::size_t length) = 0;
+    virtual void write_character(CharTypeJson c) = 0;
+    virtual void write_characters(const CharTypeJson* s, std::size_t length) = 0;
     virtual ~output_adapter_protocol() = default;
 };
 
 /// a type to simplify interfaces
-template<typename CharType>
-using output_adapter_t = std::shared_ptr<output_adapter_protocol<CharType>>;
+template<typename CharTypeJson>
+using output_adapter_t = std::shared_ptr<output_adapter_protocol<CharTypeJson>>;
 
 /// output adapter for byte vectors
-template<typename CharType>
-class output_vector_adapter : public output_adapter_protocol<CharType>
+template<typename CharTypeJson>
+class output_vector_adapter : public output_adapter_protocol<CharTypeJson>
 {
   public:
-    explicit output_vector_adapter(std::vector<CharType>& vec) noexcept
+    explicit output_vector_adapter(std::vector<CharTypeJson>& vec) noexcept
         : v(vec)
     {}
 
-    void write_character(CharType c) override
+    void write_character(CharTypeJson c) override
     {
         v.push_back(c);
     }
 
     JSON_HEDLEY_NON_NULL(2)
-    void write_characters(const CharType* s, std::size_t length) override
+    void write_characters(const CharTypeJson* s, std::size_t length) override
     {
         std::copy(s, s + length, std::back_inserter(v));
     }
 
   private:
-    std::vector<CharType>& v;
+    std::vector<CharTypeJson>& v;
 };
 
 /// output adapter for output streams
-template<typename CharType>
-class output_stream_adapter : public output_adapter_protocol<CharType>
+template<typename CharTypeJson>
+class output_stream_adapter : public output_adapter_protocol<CharTypeJson>
 {
   public:
-    explicit output_stream_adapter(std::basic_ostream<CharType>& s) noexcept
+    explicit output_stream_adapter(std::basic_ostream<CharTypeJson>& s) noexcept
         : stream(s)
     {}
 
-    void write_character(CharType c) override
+    void write_character(CharTypeJson c) override
     {
         stream.put(c);
     }
 
     JSON_HEDLEY_NON_NULL(2)
-    void write_characters(const CharType* s, std::size_t length) override
+    void write_characters(const CharTypeJson* s, std::size_t length) override
     {
         stream.write(s, static_cast<std::streamsize>(length));
     }
 
   private:
-    std::basic_ostream<CharType>& stream;
+    std::basic_ostream<CharTypeJson>& stream;
 };
 
 /// output adapter for basic_string
-template<typename CharType, typename StringType = std::basic_string<CharType>>
-class output_string_adapter : public output_adapter_protocol<CharType>
+template<typename CharTypeJson, typename StringType = std::basic_string<CharTypeJson>>
+class output_string_adapter : public output_adapter_protocol<CharTypeJson>
 {
   public:
     explicit output_string_adapter(StringType& s) noexcept
         : str(s)
     {}
 
-    void write_character(CharType c) override
+    void write_character(CharTypeJson c) override
     {
         str.push_back(c);
     }
 
     JSON_HEDLEY_NON_NULL(2)
-    void write_characters(const CharType* s, std::size_t length) override
+    void write_characters(const CharTypeJson* s, std::size_t length) override
     {
         str.append(s, length);
     }
@@ -11278,26 +11278,26 @@ class output_string_adapter : public output_adapter_protocol<CharType>
     StringType& str;
 };
 
-template<typename CharType, typename StringType = std::basic_string<CharType>>
+template<typename CharTypeJson, typename StringType = std::basic_string<CharTypeJson>>
 class output_adapter
 {
   public:
-    output_adapter(std::vector<CharType>& vec)
-        : oa(std::make_shared<output_vector_adapter<CharType>>(vec)) {}
+    output_adapter(std::vector<CharTypeJson>& vec)
+        : oa(std::make_shared<output_vector_adapter<CharTypeJson>>(vec)) {}
 
-    output_adapter(std::basic_ostream<CharType>& s)
-        : oa(std::make_shared<output_stream_adapter<CharType>>(s)) {}
+    output_adapter(std::basic_ostream<CharTypeJson>& s)
+        : oa(std::make_shared<output_stream_adapter<CharTypeJson>>(s)) {}
 
     output_adapter(StringType& s)
-        : oa(std::make_shared<output_string_adapter<CharType, StringType>>(s)) {}
+        : oa(std::make_shared<output_string_adapter<CharTypeJson, StringType>>(s)) {}
 
-    operator output_adapter_t<CharType>()
+    operator output_adapter_t<CharTypeJson>()
     {
         return oa;
     }
 
   private:
-    output_adapter_t<CharType> oa = nullptr;
+    output_adapter_t<CharTypeJson> oa = nullptr;
 };
 }  // namespace detail
 }  // namespace nlohmann
@@ -11314,7 +11314,7 @@ namespace detail
 /*!
 @brief serialization to CBOR and MessagePack values
 */
-template<typename BasicJsonType, typename CharType>
+template<typename BasicJsonType, typename CharTypeJson>
 class binary_writer
 {
     using string_t = typename BasicJsonType::string_t;
@@ -11325,7 +11325,7 @@ class binary_writer
 
     @param[in] adapter  output adapter to write to
     */
-    explicit binary_writer(output_adapter_t<CharType> adapter) : oa(adapter)
+    explicit binary_writer(output_adapter_t<CharTypeJson> adapter) : oa(adapter)
     {
         assert(oa);
     }
@@ -11506,7 +11506,7 @@ class binary_writer
 
                 // step 2: write the string
                 oa->write_characters(
-                    reinterpret_cast<const CharType*>(j.m_value.string->c_str()),
+                    reinterpret_cast<const CharTypeJson*>(j.m_value.string->c_str()),
                     j.m_value.string->size());
                 break;
             }
@@ -11763,7 +11763,7 @@ class binary_writer
 
                 // step 2: write the string
                 oa->write_characters(
-                    reinterpret_cast<const CharType*>(j.m_value.string->c_str()),
+                    reinterpret_cast<const CharTypeJson*>(j.m_value.string->c_str()),
                     j.m_value.string->size());
                 break;
             }
@@ -11891,7 +11891,7 @@ class binary_writer
                 }
                 write_number_with_ubjson_prefix(j.m_value.string->size(), true);
                 oa->write_characters(
-                    reinterpret_cast<const CharType*>(j.m_value.string->c_str()),
+                    reinterpret_cast<const CharTypeJson*>(j.m_value.string->c_str()),
                     j.m_value.string->size());
                 break;
             }
@@ -11907,7 +11907,7 @@ class binary_writer
                 if (use_type and not j.m_value.array->empty())
                 {
                     assert(use_count);
-                    const CharType first_prefix = ubjson_prefix(j.front());
+                    const CharTypeJson first_prefix = ubjson_prefix(j.front());
                     const bool same_prefix = std::all_of(j.begin() + 1, j.end(),
                                                          [this, first_prefix](const BasicJsonType & v)
                     {
@@ -11952,7 +11952,7 @@ class binary_writer
                 if (use_type and not j.m_value.object->empty())
                 {
                     assert(use_count);
-                    const CharType first_prefix = ubjson_prefix(j.front());
+                    const CharTypeJson first_prefix = ubjson_prefix(j.front());
                     const bool same_prefix = std::all_of(j.begin(), j.end(),
                                                          [this, first_prefix](const BasicJsonType & v)
                     {
@@ -11977,7 +11977,7 @@ class binary_writer
                 {
                     write_number_with_ubjson_prefix(el.first.size(), true);
                     oa->write_characters(
-                        reinterpret_cast<const CharType*>(el.first.c_str()),
+                        reinterpret_cast<const CharTypeJson*>(el.first.c_str()),
                         el.first.size());
                     write_ubjson(el.second, use_count, use_type, prefix_required);
                 }
@@ -12024,7 +12024,7 @@ class binary_writer
     {
         oa->write_character(to_char_type(element_type)); // boolean
         oa->write_characters(
-            reinterpret_cast<const CharType*>(name.c_str()),
+            reinterpret_cast<const CharTypeJson*>(name.c_str()),
             name.size() + 1u);
     }
 
@@ -12066,7 +12066,7 @@ class binary_writer
 
         write_number<std::int32_t, true>(static_cast<std::int32_t>(value.size() + 1ul));
         oa->write_characters(
-            reinterpret_cast<const CharType*>(value.c_str()),
+            reinterpret_cast<const CharTypeJson*>(value.c_str()),
             value.size() + 1);
     }
 
@@ -12305,12 +12305,12 @@ class binary_writer
     // CBOR //
     //////////
 
-    static constexpr CharType get_cbor_float_prefix(float /*unused*/)
+    static constexpr CharTypeJson get_cbor_float_prefix(float /*unused*/)
     {
         return to_char_type(0xFA);  // Single-Precision Float
     }
 
-    static constexpr CharType get_cbor_float_prefix(double /*unused*/)
+    static constexpr CharTypeJson get_cbor_float_prefix(double /*unused*/)
     {
         return to_char_type(0xFB);  // Double-Precision Float
     }
@@ -12319,12 +12319,12 @@ class binary_writer
     // MsgPack //
     /////////////
 
-    static constexpr CharType get_msgpack_float_prefix(float /*unused*/)
+    static constexpr CharTypeJson get_msgpack_float_prefix(float /*unused*/)
     {
         return to_char_type(0xCA);  // float 32
     }
 
-    static constexpr CharType get_msgpack_float_prefix(double /*unused*/)
+    static constexpr CharTypeJson get_msgpack_float_prefix(double /*unused*/)
     {
         return to_char_type(0xCB);  // float 64
     }
@@ -12462,7 +12462,7 @@ class binary_writer
           write_number_with_ubjson_prefix. Therefore, we return 'L' for any
           value that does not fit the previous limits.
     */
-    CharType ubjson_prefix(const BasicJsonType& j) const noexcept
+    CharTypeJson ubjson_prefix(const BasicJsonType& j) const noexcept
     {
         switch (j.type())
         {
@@ -12533,12 +12533,12 @@ class binary_writer
         }
     }
 
-    static constexpr CharType get_ubjson_float_prefix(float /*unused*/)
+    static constexpr CharTypeJson get_ubjson_float_prefix(float /*unused*/)
     {
         return 'd';  // float 32
     }
 
-    static constexpr CharType get_ubjson_float_prefix(double /*unused*/)
+    static constexpr CharTypeJson get_ubjson_float_prefix(double /*unused*/)
     {
         return 'D';  // float 64
     }
@@ -12562,7 +12562,7 @@ class binary_writer
     void write_number(const NumberType n)
     {
         // step 1: write number to array of length NumberType
-        std::array<CharType, sizeof(NumberType)> vec;
+        std::array<CharTypeJson, sizeof(NumberType)> vec;
         std::memcpy(vec.data(), &n, sizeof(NumberType));
 
         // step 2: write array to output (with possible reordering)
@@ -12577,41 +12577,41 @@ class binary_writer
 
   public:
     // The following to_char_type functions are implement the conversion
-    // between uint8_t and CharType. In case CharType is not unsigned,
+    // between uint8_t and CharTypeJson. In case CharTypeJson is not unsigned,
     // such a conversion is required to allow values greater than 128.
     // See <https://github.com/nlohmann/json/issues/1286> for a discussion.
-    template < typename C = CharType,
+    template < typename C = CharTypeJson,
                enable_if_t < std::is_signed<C>::value and std::is_signed<char>::value > * = nullptr >
-    static constexpr CharType to_char_type(std::uint8_t x) noexcept
+    static constexpr CharTypeJson to_char_type(std::uint8_t x) noexcept
     {
         return *reinterpret_cast<char*>(&x);
     }
 
-    template < typename C = CharType,
+    template < typename C = CharTypeJson,
                enable_if_t < std::is_signed<C>::value and std::is_unsigned<char>::value > * = nullptr >
-    static CharType to_char_type(std::uint8_t x) noexcept
+    static CharTypeJson to_char_type(std::uint8_t x) noexcept
     {
-        static_assert(sizeof(std::uint8_t) == sizeof(CharType), "size of CharType must be equal to std::uint8_t");
-        static_assert(std::is_pod<CharType>::value, "CharType must be POD");
-        CharType result;
+        static_assert(sizeof(std::uint8_t) == sizeof(CharTypeJson), "size of CharTypeJson must be equal to std::uint8_t");
+        static_assert(std::is_pod<CharTypeJson>::value, "CharTypeJson must be POD");
+        CharTypeJson result;
         std::memcpy(&result, &x, sizeof(x));
         return result;
     }
 
-    template<typename C = CharType,
+    template<typename C = CharTypeJson,
              enable_if_t<std::is_unsigned<C>::value>* = nullptr>
-    static constexpr CharType to_char_type(std::uint8_t x) noexcept
+    static constexpr CharTypeJson to_char_type(std::uint8_t x) noexcept
     {
         return x;
     }
 
-    template < typename InputCharType, typename C = CharType,
+    template < typename InputCharTypeJson, typename C = CharTypeJson,
                enable_if_t <
                    std::is_signed<C>::value and
                    std::is_signed<char>::value and
-                   std::is_same<char, typename std::remove_cv<InputCharType>::type>::value
+                   std::is_same<char, typename std::remove_cv<InputCharTypeJson>::type>::value
                    > * = nullptr >
-    static constexpr CharType to_char_type(InputCharType x) noexcept
+    static constexpr CharTypeJson to_char_type(InputCharTypeJson x) noexcept
     {
         return x;
     }
@@ -12621,7 +12621,7 @@ class binary_writer
     const bool is_little_endian = binary_reader<BasicJsonType>::little_endianess();
 
     /// the output
-    output_adapter_t<CharType> oa = nullptr;
+    output_adapter_t<CharTypeJson> oa = nullptr;
 };
 }  // namespace detail
 }  // namespace nlohmann
@@ -12827,8 +12827,8 @@ boundaries.
 
 @pre value must be finite and positive
 */
-template <typename FloatType>
-boundaries compute_boundaries(FloatType value)
+template <typename FloatTypeJson>
+boundaries compute_boundaries(FloatTypeJson value)
 {
     assert(std::isfinite(value));
     assert(value > 0);
@@ -12840,11 +12840,11 @@ boundaries compute_boundaries(FloatType value)
     // If v is normalized:
     //      value = 1.F * 2^(E - bias) = (2^(p-1) + F) * 2^(E - bias - (p-1))
 
-    static_assert(std::numeric_limits<FloatType>::is_iec559,
+    static_assert(std::numeric_limits<FloatTypeJson>::is_iec559,
                   "internal error: dtoa_short requires an IEEE-754 floating-point implementation");
 
-    constexpr int      kPrecision = std::numeric_limits<FloatType>::digits; // = p (includes the hidden bit)
-    constexpr int      kBias      = std::numeric_limits<FloatType>::max_exponent - 1 + (kPrecision - 1);
+    constexpr int      kPrecision = std::numeric_limits<FloatTypeJson>::digits; // = p (includes the hidden bit)
+    constexpr int      kBias      = std::numeric_limits<FloatTypeJson>::max_exponent - 1 + (kPrecision - 1);
     constexpr int      kMinExp    = 1 - kBias;
     constexpr std::uint64_t kHiddenBit = std::uint64_t{1} << (kPrecision - 1); // = 2^(p-1)
 
@@ -13527,11 +13527,11 @@ v = buf * 10^decimal_exponent
 len is the length of the buffer (number of decimal digits)
 The buffer must be large enough, i.e. >= max_digits10.
 */
-template <typename FloatType>
+template <typename FloatTypeJson>
 JSON_HEDLEY_NON_NULL(1)
-void grisu2(char* buf, int& len, int& decimal_exponent, FloatType value)
+void grisu2(char* buf, int& len, int& decimal_exponent, FloatTypeJson value)
 {
-    static_assert(diyfp::kPrecision >= std::numeric_limits<FloatType>::digits + 3,
+    static_assert(diyfp::kPrecision >= std::numeric_limits<FloatTypeJson>::digits + 3,
                   "internal error: not enough precision");
 
     assert(std::isfinite(value));
@@ -13703,10 +13703,10 @@ format. Returns an iterator pointing past-the-end of the decimal representation.
 @note The buffer must be large enough.
 @note The result is NOT null-terminated.
 */
-template <typename FloatType>
+template <typename FloatTypeJson>
 JSON_HEDLEY_NON_NULL(1, 2)
 JSON_HEDLEY_RETURNS_NON_NULL
-char* to_chars(char* first, const char* last, FloatType value)
+char* to_chars(char* first, const char* last, FloatTypeJson value)
 {
     static_cast<void>(last); // maybe unused - fix warning
     assert(std::isfinite(value));
@@ -13727,7 +13727,7 @@ char* to_chars(char* first, const char* last, FloatType value)
         return first;
     }
 
-    assert(last - first >= std::numeric_limits<FloatType>::max_digits10);
+    assert(last - first >= std::numeric_limits<FloatTypeJson>::max_digits10);
 
     // Compute v = buffer * 10^decimal_exponent.
     // The decimal digits are stored in the buffer, which needs to be interpreted
@@ -13737,16 +13737,16 @@ char* to_chars(char* first, const char* last, FloatType value)
     int decimal_exponent = 0;
     dtoa_impl::grisu2(first, len, decimal_exponent, value);
 
-    assert(len <= std::numeric_limits<FloatType>::max_digits10);
+    assert(len <= std::numeric_limits<FloatTypeJson>::max_digits10);
 
     // Format the buffer like printf("%.*g", prec, value)
     constexpr int kMinExp = -4;
     // Use digits10 here to increase compatibility with version 2.
-    constexpr int kMaxExp = std::numeric_limits<FloatType>::digits10;
+    constexpr int kMaxExp = std::numeric_limits<FloatTypeJson>::digits10;
 
     assert(last - first >= kMaxExp + 2);
-    assert(last - first >= 2 + (-kMinExp - 1) + std::numeric_limits<FloatType>::max_digits10);
-    assert(last - first >= std::numeric_limits<FloatType>::max_digits10 + 6);
+    assert(last - first >= 2 + (-kMinExp - 1) + std::numeric_limits<FloatTypeJson>::max_digits10);
+    assert(last - first >= std::numeric_limits<FloatTypeJson>::max_digits10 + 6);
 
     return dtoa_impl::format_buffer(first, len, decimal_exponent, kMinExp, kMaxExp);
 }
@@ -14638,7 +14638,7 @@ in @ref boolean_t)
 default; will be used in @ref number_integer_t)
 @tparam NumberUnsignedType type for JSON unsigned integer numbers (@c
 `uint64_t` by default; will be used in @ref number_unsigned_t)
-@tparam NumberFloatType type for JSON floating-point numbers (`double` by
+@tparam NumberFloatTypeJson type for JSON floating-point numbers (`double` by
 default; will be used in @ref number_float_t)
 @tparam AllocatorType type of the allocator to use (`std::allocator` by
 default)
@@ -14714,7 +14714,7 @@ class basic_json
     friend ::nlohmann::detail::serializer<basic_json>;
     template<typename BasicJsonType>
     friend class ::nlohmann::detail::iter_impl;
-    template<typename BasicJsonType, typename CharType>
+    template<typename BasicJsonType, typename CharTypeJson>
     friend class ::nlohmann::detail::binary_writer;
     template<typename BasicJsonType, typename SAX>
     friend class ::nlohmann::detail::binary_reader;
@@ -14739,11 +14739,11 @@ class basic_json
     using iteration_proxy = ::nlohmann::detail::iteration_proxy<Iterator>;
     template<typename Base> using json_reverse_iterator = ::nlohmann::detail::json_reverse_iterator<Base>;
 
-    template<typename CharType>
-    using output_adapter_t = ::nlohmann::detail::output_adapter_t<CharType>;
+    template<typename CharTypeJson>
+    using output_adapter_t = ::nlohmann::detail::output_adapter_t<CharTypeJson>;
 
     using binary_reader = ::nlohmann::detail::binary_reader<basic_json>;
-    template<typename CharType> using binary_writer = ::nlohmann::detail::binary_writer<basic_json, CharType>;
+    template<typename CharTypeJson> using binary_writer = ::nlohmann::detail::binary_writer<basic_json, CharTypeJson>;
 
     using serializer = ::nlohmann::detail::serializer<basic_json>;
 
@@ -15312,11 +15312,11 @@ class basic_json
     number_unsigned_t and @ref number_float_t are used.
 
     To store floating-point numbers in C++, a type is defined by the template
-    parameter @a NumberFloatType which chooses the type to use.
+    parameter @a NumberFloatTypeJson which chooses the type to use.
 
     #### Default type
 
-    With the default values for @a NumberFloatType (`double`), the default
+    With the default values for @a NumberFloatTypeJson (`double`), the default
     value for @a number_float_t is:
 
     @code {.cpp}
@@ -15359,7 +15359,7 @@ class basic_json
 
     @since version 1.0.0
     */
-    using number_float_t = NumberFloatType;
+    using number_float_t = NumberFloatTypeJson;
 
     /// @}
 

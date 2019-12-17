@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -42,7 +42,7 @@ class GlobalOptions;
 class GLWindow : public QGLWidget {
   Q_OBJECT
 public:
-    GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera * );
+    GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, GLCPointSetManager *);
     ~GLWindow();
 
     void bestZoomFit();
@@ -187,7 +187,7 @@ private:
   // Vectors
   GLObjectParticlesVector gpv;
   ParticlesObjectVector * pov;
-  GLCPointList *cpl;
+  GLCPointSetManager* cpointset_manager;
 
   ParticlesData   * p_data;
   // projections
@@ -281,8 +281,9 @@ private:
   bool is_shift_pressed;
   // bench
   int nframe;
-  // Shaders
-  CShader * shader, * vel_shader, *charac_shader;
+//   Shaders
+  CShader * shader, * vel_shader;
+//  CShader * disk_shader, annulus_shader;
   void initShader();
   unsigned int m_vertexShader, m_pixelShader;
 

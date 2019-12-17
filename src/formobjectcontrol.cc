@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -18,6 +18,9 @@
 #include <QColorDialog>
 #include <QRegExp>
 #include <assert.h>
+#include <QFileDialog>
+#include <QStandardItemModel>
+#include <QtCore/QStringListModel>
 #include "globaloptions.h"
 #include "gltexture.h"
 
@@ -39,35 +42,26 @@ int osfile =0;
 // ============================================================================
 // Constructor                                                                 
 // create the 2 tables : Range and File                                        
-FormObjectControl::FormObjectControl(QWidget *parent):QDialog(parent)
+FormObjectControl::FormObjectControl(GLCPointSetManager* _pointset_manager, QWidget *parent):QDialog(parent)
 {
+  pointset_manager = _pointset_manager;
   ignoreCloseEvent = true;
   form.setupUi(this);
   current_data = NULL;
   // set number of rows per table (20)
   form.range_table->setRowCount(20);
   osrange=0;
-  
-  form.select_table->setRowCount(20);
+
   osselec=osrange+form.range_table->rowCount();
-  
-  form.file_table->setRowCount(20);
-  osfile=osselec+form.select_table->rowCount();
-  
-  form.range_table->setColumnWidth(0,25);   // Vis  
+
+  form.range_table->setColumnWidth(0,25);   // Vis
   form.range_table->setColumnWidth(1,150);  // Range
   form.range_table->setColumnWidth(2,45);   // Color
-  form.file_table->setColumnWidth(0,25);
-  form.select_table->setColumnWidth(0,25);
   for (int i=0; i < form.range_table->rowCount(); i++) {
     form.range_table->setRowHeight(i,25);
-    form.file_table->setRowHeight(i,25);
-    form.select_table->setRowHeight(i,25);
   }
   // create object index array
-  int no=form.range_table->rowCount()  +
-         form.select_table->rowCount() +
-         form.file_table->rowCount();
+  int no=form.range_table->rowCount();
   object_index = new int[no];
   for (int i=0; i<no;i++) object_index[i]=-1; // -1=>object does not exist
   current_object = 0;
@@ -76,15 +70,9 @@ FormObjectControl::FormObjectControl(QWidget *parent):QDialog(parent)
   lock = true;
   // insert checkbox and color widget into tables
   initTableWidget(form.range_table ,0,RT_VISIB,RT_COLOR);  // range
-  initTableWidget(form.select_table,1,ST_VISIB,ST_COLOR);  // select
-  initTableWidget(form.file_table  ,2,FT_VISIB,FT_COLOR);  // file 
   // Selection mode and behaviour
   form.range_table->setSelectionMode(QAbstractItemView::SingleSelection);
   form.range_table->setSelectionBehavior(QAbstractItemView::SelectItems);
-  form.select_table->setSelectionMode(QAbstractItemView::SingleSelection);
-  form.select_table->setSelectionBehavior(QAbstractItemView::SelectItems);
-  form.file_table->setSelectionMode(QAbstractItemView::SingleSelection);
-  form.file_table->setSelectionBehavior(QAbstractItemView::SelectItems);
   // create range selection combobox to store objects' particles indexes.
   combobox = new QComboBoxTable(0,0,0);
   form.range_table->setCellWidget(0,RT_COLOR-1,combobox);
@@ -95,7 +83,7 @@ FormObjectControl::FormObjectControl(QWidget *parent):QDialog(parent)
   connect(combobox,SIGNAL(comboActivated(const int, const int)),this,
           SLOT(checkComboLine(const int, const int)));
   // intialyze texture combobox according to the texture array
-  // loop and load all embeded textures                       
+  // loop and load all embeded textures
   int i=0;
   while (GLTexture::TEXTURE[i][0]!=NULL) {
     form.texture_box->addItem(QIcon(GlobalOptions::RESPATH+GLTexture::TEXTURE[i][0]),GLTexture::TEXTURE[i][1]);
@@ -120,10 +108,10 @@ FormObjectControl::FormObjectControl(QWidget *parent):QDialog(parent)
   //DEACTIVARED form.dens_glob_box->setDisabled(true);
   dens_color_bar = new DensityColorBar(go,form.dens_bar_view);
   form.dens_bar_view->setScene(dens_color_bar);
-  
+
   form.objects_properties->setTabEnabled(1,false);
   form.objects_properties->setCurrentIndex(0); // set position to first tab
-  
+
   my_mutex2 = new QMutex(QMutex::Recursive);
 }
 
@@ -210,10 +198,10 @@ void FormObjectControl::update(ParticlesData   * _p_data,
   pov          = _pov;
   // get physical value data array
   phys_select = current_data->getPhysData();
-  
+
   // parse all the objects to check if physic is present
   checkPhysic();
-  
+
   int cpt=0;
   combobox->clear();
   for (int i=0; i < form.range_table->rowCount(); i++) {
@@ -221,12 +209,7 @@ void FormObjectControl::update(ParticlesData   * _p_data,
       object_index[i]=cpt++;
       QTableWidget * tw;
       if ((*pov)[i].selectFrom() == ParticlesObject::Range) { // Range
-        tw = form.range_table;	
-        updateTable(tw,i,RT_VISIB ,RT_COLOR);
-        updateRangeTable(i);
-      }
-      if ((*pov)[i].selectFrom() == ParticlesObject::Select) { // Range
-        tw = form.select_table;	
+        tw = form.range_table;
         updateTable(tw,i,RT_VISIB ,RT_COLOR);
         updateRangeTable(i);
       }
@@ -237,7 +220,7 @@ void FormObjectControl::update(ParticlesData   * _p_data,
         updateFileTable(i);
       }
 #endif
-      //updateObjectSettings(i); 
+      //updateObjectSettings(i);
     }
     else {               // not belonging to object list
       if (reset_table) {
@@ -249,24 +232,24 @@ void FormObjectControl::update(ParticlesData   * _p_data,
 
     }
     //if (i) form.range_table->setCellWidget(i,1,NULL);
-    
+
   }
   first=false;
   ///!!!!updateObjectSettings(0);
-  ///MODIFICATION April,15 2011 
-  updateObjectSettings(last_row); 
+  ///MODIFICATION April,15 2011
+  updateObjectSettings(last_row);
   EMIT=false;
   // stretch tab
   form.z_stretch_jit_cb->setChecked(go->z_stretch_jit);
   form.z_stretch_max_spin->setValue((double) go->z_stretch_max);
   form.z_stretch_slide->setValue(form.z_stretch_slide->maximum());
   EMIT=true;
-  ///MODIFICATION April,15 2011 
+  ///MODIFICATION April,15 2011
   form.range_table->setCurrentCell(current_object,1);
   // set active row
   lock=true;
   if (go  && ! go->duplicate_mem) mutex_data->unlock();
-  
+
   on_range_table_cellClicked(last_row,1);
   //physicalSelected();
 }
@@ -374,15 +357,15 @@ int FormObjectControl::on_range_table_cellClicked(int row,int column)
     combobox->setEditText(item->text()); // add object to the combobox
     combobox->display();
 #else
-    if (object_index[row] != -1 )          // object exist        
+    if (object_index[row] != -1 )          // object exist
       combobox->setEditText(item->text()); // put range from table
-    combobox->display();                   // display combobox    
-#endif 
+    combobox->display();                   // display combobox
+#endif
   }
 
   current_object = row;
   updateObjectSettings(row);   // Update object properties on the form
-  
+
   // -
   // --- process click event on [Color cell]
   // -
@@ -458,7 +441,7 @@ void FormObjectControl::checkComboLine(const int row, const int col)
       std::cerr << "ncap="<<rx.captureCount()<<" first="<<first<<" last="<<last<<" step="<<step<<"\n";
 #endif
       // check if the syntax is correct
-      int npart=last-first+1; // #part 
+      int npart=last-first+1; // #part
 //      if (current_data && npart <= *(current_data->nbody) && npart>0) {    // valid object
       if (pov && npart <= nbody && npart>0) {    // valid object
         item->setText(combobox->currentText()); // fill cell
@@ -481,14 +464,14 @@ void FormObjectControl::checkComboLine(const int row, const int col)
           }
         }
         else {              // it's a new object
-          ParticlesObject * po = new ParticlesObject(); // new object                
+          ParticlesObject * po = new ParticlesObject(); // new object
           po->buildIndexList( npart,first,last,step);   // object's particles indexes
           // get color
           QTableWidgetItem * twi = form.range_table->item(row,RT_COLOR);
           assert(twi);
-          // set color 
+          // set color
           po->setColor(twi->background().color());
-          // get visibility 
+          // get visibility
           QCheckBoxTable * checkbox = static_cast<QCheckBoxTable *>
           (form.range_table->cellWidget(row,RT_VISIB));
           assert(checkbox);
@@ -497,7 +480,7 @@ void FormObjectControl::checkComboLine(const int row, const int col)
           pov->push_back(*po);                    // insert object
           delete po;
           object_index[row] = pov->size()-1; // update object list
-          current_object = row;              //                  
+          current_object = row;              //
           updateObjectSettings(row);         // update form !!! CAUSE OF CRASH
           emit objectUpdate();               // update OpenGL object
         }
@@ -633,8 +616,8 @@ void FormObjectControl::updateObjectSettings( const int row)
       // the global value if it has been defined
       //min
       int min=rint((log(gminphys)-log(phys_select->getMin()))*1./diff_rho);
-      form.dens_slide_min->setValue(min);      
-      //max      
+      form.dens_slide_min->setValue(min);
+      //max
       int max=rint((log(gmaxphys)-log(phys_select->getMin()))*1./diff_rho);
       form.dens_slide_max->setValue(max);
       //pobj->setMaxPercenPhys(std::max(1,max-1));
@@ -658,7 +641,7 @@ void FormObjectControl::updateObjectSettings( const int row)
         go->phys_max_glob = pobj->getMaxPhys();
       }
 #endif
-    } 
+    }
   }
   if ( i_obj == -1 ) { // no object selected
     // Particles Settings
@@ -681,7 +664,7 @@ void FormObjectControl::updateObjectSettings( const int row)
     form.orecord_check->setChecked(false);
     form.orbit_history_spin->setValue(form.orbit_history_spin->maximum());
     form.orbit_max_spin->setValue(form.orbit_max_spin->maximum());
-    
+
   }
   EMIT = true;
   //if (go  && ! go->duplicate_mem) mutex_data->unlock();
@@ -700,19 +683,19 @@ void FormObjectControl::checkPhysic()
         int index=pobj->index_tab[i];
         if (phys_select && phys_select->isValid()) {
           if (phys_select->data[index] != -1) pobj->setPhysic(true);
-        }    
-      }     
-      // 
+        }
+      }
+      //
       if (pobj->hasPhysic() && phys_select && phys_select->isValid()) {
         if (go->phys_min_glob==-1 && go->phys_max_glob==-1) { // glob phys not defined
           if (pobj->getMinPhys()==-1. &&  // default parameter -1 -1
               pobj->getMaxPhys()==-1.) {  // it's a NEW object, so we set min/max phys
-            pobj->setMinPhys(phys_select->getMin()); 
+            pobj->setMinPhys(phys_select->getMin());
             pobj->setMaxPhys(phys_select->getMax());
           }
         } else { // global phys defined
           if (pobj->getMinPhys()==-1. &&            // default parameter for the object
-              pobj->getMaxPhys()==-1.) {  // 
+              pobj->getMaxPhys()==-1.) {  //
             pobj->setMinPhys(go->phys_min_glob);
             pobj->setMaxPhys(go->phys_max_glob);
           }
@@ -1090,7 +1073,7 @@ void FormObjectControl::dens_slide_min_max(const int x, const int y)
     assert(i_obj < (int)pov->size());
     //std::cerr << "x="<<x<< "  y="<<y<<"\n";
     EMIT=FALSE;
-    
+
     if (fabs(x)> fabs(y)) {
       // horizontal move
       form.dens_slide_min->setValue(form.dens_slide_min->value()+x);
@@ -1108,7 +1091,7 @@ void FormObjectControl::dens_slide_min_max(const int x, const int y)
     setNewPhys();
     go->gcb_min = form.dens_slide_min->value();
     go->gcb_max = form.dens_slide_max->value();
-    emit changeBoundaryPhys(i_obj,EMIT); 
+    emit changeBoundaryPhys(i_obj,EMIT);
   }
   my_mutex2->unlock();
   //if (lock)
@@ -1129,24 +1112,24 @@ void FormObjectControl::on_dens_slide_min_valueChanged(int value)
     if (value > form.dens_slide_max->value()) { // min < max !
       form.dens_slide_max->setValue(value+1);
     }
-        
+
     //setNewPhys();
     ParticlesObject * pobj = &(*pov)[i_obj];
     if (value<0) value=0;
     if (value>=99) value=98;
     pobj->setMinPercenPhys(value);
     if (EMIT) {
-      
-      setNewPhys();      
+
+      setNewPhys();
       go->gcb_min = form.dens_slide_min->value();
       go->gcb_max = form.dens_slide_max->value();
-      emit changeBoundaryPhys(i_obj,EMIT);      
+      emit changeBoundaryPhys(i_obj,EMIT);
       //emit updateThresholMinMax();
     }
-    
+
     dens_histo->drawDensity(form.dens_slide_min->value(), form.dens_slide_max->value());
     dens_color_bar->draw(form.dens_slide_min->value(), form.dens_slide_max->value());
-    
+
     //if (EMIT) emit changeBoundaryPhys(i_obj,EMIT);
   }
   my_mutex2->unlock();
@@ -1167,14 +1150,14 @@ void FormObjectControl::on_dens_slide_max_valueChanged(int value)
     if (value <= form.dens_slide_min->value()) { // min < max !
       form.dens_slide_min->setValue(std::max(value-1,0));
     }
-    
+
     //setNewPhys();
     ParticlesObject * pobj = &(*pov)[i_obj];
     if (value<=0) value=1;
-    if (value>=100) value=99;    
+    if (value>=100) value=99;
     pobj->setMaxPercenPhys(value);
     if (EMIT) {
-    
+
       setNewPhys();
       go->gcb_min = form.dens_slide_min->value();
       go->gcb_max = form.dens_slide_max->value();
@@ -1183,7 +1166,7 @@ void FormObjectControl::on_dens_slide_max_valueChanged(int value)
 
     dens_histo->drawDensity(form.dens_slide_min->value(), form.dens_slide_max->value());
     dens_color_bar->draw(form.dens_slide_min->value(), form.dens_slide_max->value());
-    
+
     //if (EMIT) emit changeBoundaryPhys(i_obj,EMIT);
   }
   my_mutex2->unlock();
@@ -1273,7 +1256,7 @@ void FormObjectControl::on_temp_phys_radio_clicked()
 void FormObjectControl::on_tempdens_phys_radio_clicked()
 {
   mutex_data->lock();
-  
+
   current_data->setIpvs(PhysicalData::temperaturesd);
   int i_obj = object_index[current_object];
   if (pov && pov->size()>0 && i_obj != -1 && phys_select)  {  // at least one object
@@ -1311,31 +1294,31 @@ void FormObjectControl::physicalSelected()
   if (go  && ! go->duplicate_mem) mutex_data->lock();
   int i_obj = object_index[current_object];
   if (pov && pov->size()>0 && i_obj != -1 && phys_select)  {  // at least one object
-    assert(i_obj < (int)pov->size());    
+    assert(i_obj < (int)pov->size());
     ParticlesObject * pobj = &(*pov)[i_obj];
     setPhysicalTabName();
     if (phys_select && phys_select->isValid()) {
       form.dens_slide_min->setValue(0);      // here we should put current object value (from PhysObject), not   0
       form.dens_slide_max->setValue(100);    // here we should put current object value (from PhysObject), not 100
-      
+
       pobj->setMinPhys(phys_select->getMin());
       pobj->setMaxPhys(phys_select->getMax());
-      
+
       dens_histo->drawDensity(phys_select->data_histo);
       double diff_rho=(log(phys_select->getMax())-log(phys_select->getMin()))/100.;
       form.dens_slide_min->setValue((log(pobj->getMinPhys())-log(phys_select->getMin()))*1./diff_rho);
       form.dens_slide_max->setValue((log(pobj->getMaxPhys())-log(phys_select->getMin()))*1./diff_rho);
       dens_histo->drawDensity(form.dens_slide_min->value(),form.dens_slide_max->value());
       dens_color_bar->draw(form.dens_slide_min->value(),form.dens_slide_max->value());
-      
-      
+
+
       //on_dens_apply_button_clicked();
       //on_phys_console_button_clicked();
       if (EMIT) {
         emit densityProfileObjectChanged(i_obj);
         emit objectSettingsChanged();
       }
-    }    
+    }
   }
   if (go  && ! go->duplicate_mem) mutex_data->unlock();
 }
@@ -1348,18 +1331,18 @@ void FormObjectControl::setPhysicalTabName()
     //int type=phys_select->getType(); // return the index of the selectd physical quantities
     int type=current_data->getIpvs(); // return the index of the selectd physical quantities
     switch (type) {
-          case PhysicalData::rho : 
+          case PhysicalData::rho :
             form.dens_phys_radio->setChecked(true);
             form.objects_properties->setTabText(1,"Density");
             break;
           case PhysicalData::temperature :
             form.objects_properties->setTabText(1,"Temperature");
             form.temp_phys_radio->setChecked(true);
-            break;            
+            break;
            case PhysicalData::temperaturesd:
             form.objects_properties->setTabText(1,"Temperature/Dens");
             form.tempdens_phys_radio->setChecked(true);
-            break;            
+            break;
           case PhysicalData::pressure :
             form.objects_properties->setTabText(1,"Pressure");
             form.pressure_phys_radio->setChecked(true);
@@ -1423,4 +1406,24 @@ void FormObjectControl::on_z_stretch_max_spin_valueChanged(double value)
   }
 }
 
+    void FormObjectControl::on_load_cpoints_file_clicked(bool) {
+        QString file_path;
+        file_path = QFileDialog::getOpenFileName(this, tr("Select a characteristic point description file"));
+        if (!file_path.isEmpty()) {
+            emit loadCPointsFile(file_path);
+        }
+    }
+
+    void FormObjectControl::updateCPointsListWidget() {
+        form.cpoints_set_listwidget->clear();
+        for(auto cpoint_set : *pointset_manager)
+        {
+            new QListWidgetItem(QString::fromStdString(cpoint_set.second->getName()), form.cpoints_set_listwidget);
+        }
+
+    }
+
+//    void FormObjectControl::setCPointsTreeView() {
+//
+//    }
 }

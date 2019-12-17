@@ -40,7 +40,7 @@
 namespace glnemo {
 #define ICONSIZE 25
 // -----------------------------------------------------------------------------
-// MainWindow constructor                                                       
+// MainWindow constructor
 // -----------------------------------------------------------------------------
 MainWindow::MainWindow(std::string _ver)
 {
@@ -48,7 +48,7 @@ MainWindow::MainWindow(std::string _ver)
   user_select = NULL;
   version = _ver;
   mutex_data = new QMutex(QMutex::Recursive); // Recursive: a thread can lock a mutex more than
-                                              // once time, but mustunlock it as much as it    
+                                              // once time, but mustunlock it as much as it
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
   // application name + release
@@ -59,7 +59,7 @@ MainWindow::MainWindow(std::string _ver)
 //  mp.setColor(QPalette::Window,QColor(224,212,247));
 //  setPalette(mp);
   status_bar = statusBar();
-  
+
   // Plugins
   plugins = new PluginsManage();
 
@@ -69,11 +69,13 @@ MainWindow::MainWindow(std::string _ver)
   // Camera
   camera = new  Camera(store_options);
   // ------- openGL object ---------
-  gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera);
+  pointset_manager = new GLCPointSetManager();
+  gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager);
+  pointset_manager->initShaders();
   camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
   // colormap object
   colormap  = new Colormap(store_options);
-  
+
   // ----- build GUI ------------
   createForms();
   createDockWindows();
@@ -95,6 +97,8 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_o_c,SIGNAL(objectSettingsChanged()),gl_window,SLOT(updateGL()));
   connect(form_o_c,SIGNAL(objectUpdateVel(const int)),gl_window,SLOT(updateVel(const int)));
   connect(form_o_c,SIGNAL(objectUpdate()),gl_window,SLOT(update()));
+  connect(form_o_c,SIGNAL(loadCPointsFile(QString)),this,SLOT(loadCPointsFile(QString)));
+  connect(this, SIGNAL(loadCPointsSuccess()),form_o_c,SLOT(updateCPointsListWidget()));
   connect(form_o_c,SIGNAL(textureObjectChanged(const int, const int)),
           gl_window,SLOT(setTextureObject(const int, const int)));
   connect(form_options,SIGNAL(cam_reset()), camera,SLOT(reset()));
@@ -159,7 +163,7 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_options,SIGNAL(update_gl()),gl_window,SLOT(updateGL()));
   // options GL colorbar tab
   connect(form_options,SIGNAL(update_gcb_font()),gl_window->gl_colorbar,SLOT(updateFont()));
-  
+
   // --------- init some stuffs
   initVariables();
   startTimers();
@@ -170,7 +174,7 @@ MainWindow::MainWindow(std::string _ver)
   setCentralWidget(gl_window);
 }
 // -----------------------------------------------------------------------------
-// Start                                                                        
+// Start
 // -----------------------------------------------------------------------------
 void MainWindow::start(std::string shot)
 {
@@ -195,7 +199,7 @@ void MainWindow::start(std::string shot)
         form_options->setPlaySettings(current_data->getNumberFrames(), 0);
       }
       if (! exist ) {
-        current_data->initLoading(store_options); 
+        current_data->initLoading(store_options);
         if (shot == "") interactiveSelect("",true);
       }
       else {
@@ -242,7 +246,7 @@ void MainWindow::start(std::string shot)
     } else {
       if (shot != "") {
         // get suffix
-        QString suffix = ((QString(shot.c_str())).section('.', -1)).toUpper(); // 
+        QString suffix = ((QString(shot.c_str())).section('.', -1)).toUpper(); //
         if (suffix != "PNG" && suffix != "JPG" && suffix != "JPEG") {
           // add selected extension as suffix
           shot = shot + "." + store_options->base_frame_ext.toStdString();
@@ -250,16 +254,16 @@ void MainWindow::start(std::string shot)
         takeScreenshot(wsize,hsize,shot);
       }
     }
-  
+
   if (play) {
       actionPlay(); // start playing time step
   }
-  
+
   gl_window->setFocus();
   //actionMenuFileConnect();
 }
 // -----------------------------------------------------------------------------
-// MainMainWindow destructor                                                    
+// MainMainWindow destructor
 // -----------------------------------------------------------------------------
 MainWindow::~MainWindow()
 {
@@ -318,7 +322,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *ev)
 }
 
 // -----------------------------------------------------------------------------
-// create menus                                                                 
+// create menus
 // -----------------------------------------------------------------------------
 void MainWindow::createMenus()
 {
@@ -357,7 +361,7 @@ void MainWindow::createToolBars()
   icons_tool_bar->addAction(movie_form_action);
   //icons_tool_bar->addAction(com_action);
   icons_tool_bar->addAction(toggle_rotation_screen_action);
-  
+
   QSize icons;
   icons.scale(ICONSIZE,ICONSIZE,Qt::KeepAspectRatio);
   icons_tool_bar->setIconSize(icons);
@@ -367,14 +371,14 @@ void MainWindow::createToolBars()
   icons_tool_bar->setFocus();
 }
 // -----------------------------------------------------------------------------
-// create status bars                                                           
+// create status bars
 // -----------------------------------------------------------------------------
 void MainWindow::createStatusBar()
 {
   statusBar()->showMessage(tr("Ready"));
 }
 // -----------------------------------------------------------------------------
-// create Forms windows                                                         
+// create Forms windows
 // -----------------------------------------------------------------------------
 void MainWindow::createForms()
 {
@@ -382,7 +386,7 @@ void MainWindow::createForms()
   form_help   = new FormHelp(this);
   form_sshot  = new FormScreenshot(this);
   form_spart  = new FormSelectPart(this);
-  form_o_c    = new FormObjectControl(this);
+  form_o_c    = new FormObjectControl(pointset_manager, this);
   form_options= new FormOptions(store_options,mutex_data,this);
   form_connect = new FormConnect(this);
   // sig/slot
@@ -398,7 +402,7 @@ void MainWindow::createForms()
 
 }
 // -----------------------------------------------------------------------------
-// create docking windows                                                       
+// create docking windows
 // -----------------------------------------------------------------------------
 void MainWindow::createDockWindows()
 {
@@ -434,7 +438,7 @@ void MainWindow::createDockWindows()
 
 }
 // -----------------------------------------------------------------------------
-// create actions                                                               
+// create actions
 // -----------------------------------------------------------------------------
 void MainWindow::createActions()
 {
@@ -461,7 +465,7 @@ void MainWindow::createActions()
   quit_file_action->setShortcut(tr("Ctrl+Q"));
   quit_file_action->setStatusTip(tr("Quit"));
   connect(quit_file_action, SIGNAL(triggered()), this, SLOT(actionQuit()));
-  
+
   // ------- Help menu actions ---------
   // Documentation
   doc_action = new QAction(QIcon(""),tr("Documentation"),this);
@@ -485,27 +489,27 @@ void MainWindow::createActions()
   fullscreen_action->setStatusTip(tr("Toogle Full Screen"));
   connect( fullscreen_action, SIGNAL(triggered()), this, SLOT(actionFullScreen()) );
 
-  // Reset 
+  // Reset
   reset_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/home-mdk.png"),tr("Reset to initial positions"),this);
   reset_action->setShortcut(tr("Ctrl+R"));
   reset_action->setStatusTip(tr("Reset to initial positions"));
   connect( reset_action, SIGNAL( triggered() ), this, SLOT( actionReset() ) );
 
-  // Center to COM 
+  // Center to COM
   com_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/home-mdk.png"),tr("Center to COM"),this);
   com_action->setShortcut(tr("C"));
   com_action->setStatusTip(tr("Center to COM"));
   connect( com_action, SIGNAL( triggered() ), this, SLOT( actionCenterToCom() ) );
   addAction(com_action);
-  
+
   // Toggle projection orthographic/perspective
   proj_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/home-mdk.png"),tr("Toggle projection"),this);
   proj_action->setShortcut(tr("Ctrl+Shift+P"));
   proj_action->setStatusTip(tr("Toggle projection ortho/perps"));
   connect( proj_action, SIGNAL( triggered() ), this, SLOT( actionToggleProjection()) );
   addAction(proj_action);
-  
-  // render mode 
+
+  // render mode
   render_mode_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/home-mdk.png"),tr("Rendering mode"),this);
   render_mode_action->setShortcut(tr("M"));
   render_mode_action->setStatusTip(tr("Rendering mode"));
@@ -519,7 +523,7 @@ void MainWindow::createActions()
   fit_particles_action->setStatusTip(tr("Fit all particles on screen"));
   connect( fit_particles_action, SIGNAL( triggered() ), this, SLOT(actionBestZoom()) );
 
-  // Grid 
+  // Grid
   toggle_grid_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/grid.png"),tr("Toggle Grid"),this);
   toggle_grid_action->setShortcut(tr("G"));
   toggle_grid_action->setStatusTip(tr("Toggle Grid"));
@@ -563,13 +567,13 @@ void MainWindow::createActions()
   reload_action->setShortcut(tr("l"));
   reload_action->setStatusTip(tr("Reload snapshot"));
   connect(reload_action, SIGNAL( triggered() ), this, SLOT(actionReload()) );
-  
+
   // screenshot
   screenshot_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/camera.png"),tr("Take a screenshot"),this);
   screenshot_action->setShortcut(tr("S"));
   screenshot_action->setStatusTip(tr("Take a screenshot"));
   connect(screenshot_action, SIGNAL( triggered() ), this, SLOT(actionScreenshot()) );
-  
+
   // automatic screenshot during Play
   auto_screenshot_action = new QAction(QIcon(""),tr("Take a screenshot during play event"),this);
   auto_screenshot_action->setShortcut(tr("ctrl+S"));
@@ -584,18 +588,18 @@ void MainWindow::createActions()
   connect(auto_gl_screenshot_action, SIGNAL(triggered()), this, SLOT(actionGLAutoScreenshot()) );
   addAction(auto_gl_screenshot_action);
 
-  // toggle OSD 
+  // toggle OSD
   toggle_osd_action = new QAction(this);
   toggle_osd_action->setShortcut(tr("alt+t"));
   connect( toggle_osd_action, SIGNAL( triggered() ), this, SLOT( actionToggleOsd() ) );
   addAction(toggle_osd_action);
-  
+
   // print
   print_file_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/fileprint.png"),tr("Print OpenGL window"),this);
   print_file_action->setShortcut(tr(""));
   print_file_action->setStatusTip(tr("Print OpenGL window"));
   connect(print_file_action, SIGNAL( triggered() ), this, SLOT(actionPrint()) );
-  
+
   // movie
   movie_form_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/video_section.png"),tr("Make a movie"),this);
   movie_form_action->setShortcut(tr(""));
@@ -634,79 +638,79 @@ void MainWindow::createActions()
   toggle_rotation_screen_action->setShortcut(tr("Ctrl+L"));
   connect( toggle_rotation_screen_action, SIGNAL( triggered() ), this, SLOT( toggleRotateScreen()) );
   addAction(toggle_rotation_screen_action);
-  
-  // Auto rotate around X 
+
+  // Auto rotate around X
   rotatex_action = new QAction(this);
   rotatex_action->setShortcut(tr("Ctrl+X"));
   connect( rotatex_action, SIGNAL( triggered() ), this, SLOT( actionRotateX() ) );
   addAction(rotatex_action);
-  
-  // Auto rotate reverse around X 
+
+  // Auto rotate reverse around X
   rotatexr_action = new QAction(this);
   rotatexr_action->setShortcut(tr("Ctrl+Shift+X"));
   connect( rotatexr_action, SIGNAL( triggered() ), this, SLOT( actionRotateRX() ) );
   addAction(rotatexr_action);
-  
-  // Auto rotate around Y 
+
+  // Auto rotate around Y
   rotatey_action = new QAction(this);
   rotatey_action->setShortcut(tr("Ctrl+Y"));
   connect( rotatey_action, SIGNAL( triggered() ), this, SLOT( actionRotateY() ) );
   addAction(rotatey_action);
-  
-  // Auto rotate reverse around Y 
+
+  // Auto rotate reverse around Y
   rotateyr_action = new QAction(this);
   rotateyr_action->setShortcut(tr("Ctrl+Shift+Y"));
   connect( rotateyr_action, SIGNAL( triggered() ), this, SLOT( actionRotateRY() ) );
   addAction(rotateyr_action);
-  
-  // Auto rotate around Z 
+
+  // Auto rotate around Z
   rotatez_action = new QAction(this);
   rotatez_action->setShortcut(tr("Ctrl+Z"));
   connect( rotatez_action, SIGNAL( triggered() ), this, SLOT( actionRotateZ() ) );
   addAction(rotatez_action);
-  
-  // Auto rotate reverse around Z 
+
+  // Auto rotate reverse around Z
   rotatezr_action = new QAction(this);
   rotatezr_action->setShortcut(tr("Ctrl+Shift+Z"));
   connect( rotatezr_action, SIGNAL( triggered() ), this, SLOT( actionRotateRZ() ) );
   addAction(rotatezr_action);
-  
-  // Auto rotate around U 
+
+  // Auto rotate around U
   rotateu_action = new QAction(this);
   rotateu_action->setShortcut(tr("Ctrl+U"));
   connect( rotateu_action, SIGNAL( triggered() ), this, SLOT( actionRotateU() ) );
   addAction(rotateu_action);
-  
+
   // Auto rotate reverse around U
   rotateur_action = new QAction(this);
   rotateur_action->setShortcut(tr("Ctrl+Shift+U"));
   connect( rotateur_action, SIGNAL( triggered() ), this, SLOT( actionRotateRU() ) );
   addAction(rotateur_action);
-  
-  // Auto rotate around V 
+
+  // Auto rotate around V
   rotatev_action = new QAction(this);
   rotatev_action->setShortcut(tr("Ctrl+V"));
   connect( rotatev_action, SIGNAL( triggered() ), this, SLOT( actionRotateV() ) );
   addAction(rotatev_action);
-  
-  // Auto rotate reverse around V 
+
+  // Auto rotate reverse around V
   rotatevr_action = new QAction(this);
   rotatevr_action->setShortcut(tr("Ctrl+Shift+V"));
   connect( rotatevr_action, SIGNAL( triggered() ), this, SLOT( actionRotateRV() ) );
   addAction(rotatevr_action);
-  
-  // Auto rotate around W 
+
+  // Auto rotate around W
   rotatew_action = new QAction(this);
   rotatew_action->setShortcut(tr("Ctrl+W"));
   connect( rotatew_action, SIGNAL( triggered() ), this, SLOT( actionRotateW() ) );
   addAction(rotatew_action);
-  
+
   // Auto rotate reverse around W
   rotatewr_action = new QAction(this);
   rotatewr_action->setShortcut(tr("Ctrl+Shift+W"));
   connect( rotatewr_action, SIGNAL( triggered() ), this, SLOT( actionRotateRW() ) );
   addAction(rotatewr_action);
-  
+
   // Auto translate along X
   transx_action = new QAction(this);
   transx_action->setShortcut(tr("Alt+X"));
@@ -738,8 +742,8 @@ void MainWindow::connectCurrentData()
 }
 
 // -----------------------------------------------------------------------------
-// interactiveSelect                                                            
-// Lauch select particles dialog box                                            
+// interactiveSelect
+// Lauch select particles dialog box
 // -----------------------------------------------------------------------------
 void MainWindow::interactiveSelect(std::string _select, const bool first_snapshot)
 {
@@ -758,9 +762,9 @@ void MainWindow::interactiveSelect(std::string _select, const bool first_snapsho
   }
 }
 // -----------------------------------------------------------------------------
-// selectPart                                                                   
-// Slots connected to "select particles dialog box" to allow to load particles  
-// according to the user's selection.                                           
+// selectPart
+// Slots connected to "select particles dialog box" to allow to load particles
+// according to the user's selection.
 // -----------------------------------------------------------------------------
 void MainWindow::selectPart(const std::string _select, const bool first_snapshot, const bool load_vel)
 {
@@ -803,12 +807,12 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
   if ((reload) && current_data) {// reload action requested
     //store_options->phys_max_glob = store_options->phys_min_glob = -1; // reset for colobar display
     current_data->close();     // close the current snapshot
-    delete current_data;       // delete previous object    
+    delete current_data;       // delete previous object
     current_data = plugins->getObject(snapshot); // connect
     connectCurrentData();
     //connect(current_data,SIGNAL(stringStatus(QString)),status_bar, SLOT(showMessage(QString)));
     current_data->initLoading(store_options);
-    crv = current_data->getSnapshotRange();    
+    crv = current_data->getSnapshotRange();
     force_first_snapshot=true;
     ComponentRange::list(crv);
     //ComponentRange::list(&current_data->crv_first);
@@ -838,7 +842,7 @@ void MainWindow::selectPart(const std::string _select, const bool first_snapshot
 
 }
 // -----------------------------------------------------------------------------
-// loadNewData                                                                  
+// loadNewData
 // -----------------------------------------------------------------------------
 void MainWindow::loadNewData(const std::string select,
                              const std::string s_time,
@@ -859,12 +863,12 @@ void MainWindow::loadNewData(const std::string select,
     assert(crv->size());
     ComponentRange::list(crv);
     user_select->setSelection(select,crv,&pov); // fill pov according user sel and crv
-    
+
     // load from disk
     mutex_data->lock();
     QTime tbench;
     tbench.restart();
-    
+
     if (current_data->nextFrame(user_select->getIndexesTab(),user_select->getNSel())) {
       qDebug("Time elapsed to load snapshot: %d s", tbench.elapsed()/1000);
       store_options->new_frame=true;
@@ -875,7 +879,7 @@ void MainWindow::loadNewData(const std::string select,
         povold.clear();
         ParticlesObject::backupVVProperties(pov2,povold,pov.size());
         //std::cerr << "POVOLD list\n";
-        //listObjects(povold);        
+        //listObjects(povold);
       }
       ParticlesObject::initOrbitsVectorPOV(pov);
       pov2 = pov;   // copy new pov object to pov2
@@ -948,7 +952,7 @@ void MainWindow::loadNewData(const std::string select,
   }
 }
 // -----------------------------------------------------------------------------
-// startTimers                                                                  
+// startTimers
 // -----------------------------------------------------------------------------
 void MainWindow::startTimers()
 {
@@ -975,7 +979,7 @@ void MainWindow::startTimers()
   connect(auto_rotv_timer, SIGNAL(timeout()), gl_window, SLOT(rotateAroundV()));
   auto_rotw_timer = new QTimer(this);
   connect(auto_rotw_timer, SIGNAL(timeout()), gl_window, SLOT(rotateAroundW()));
-  
+
   bench_gup_timer = new QTimer(this);
   connect(bench_gup_timer, SIGNAL(timeout()), gl_window, SLOT(updateGL()));
   bench_nframe_timer = new QTimer(this);
@@ -983,7 +987,7 @@ void MainWindow::startTimers()
 
 }
 // -----------------------------------------------------------------------------
-// List Objects                                                                 
+// List Objects
 // -----------------------------------------------------------------------------
 void MainWindow::listObjects(ParticlesObjectVector& ppov)
 {
@@ -997,7 +1001,7 @@ void MainWindow::listObjects(ParticlesObjectVector& ppov)
   }
 }
 // -----------------------------------------------------------------------------
-// Set default parameters to all the object                                     
+// Set default parameters to all the object
 // -----------------------------------------------------------------------------
 void MainWindow::setDefaultParamObject(ParticlesObjectVector & pov){
 
@@ -1049,7 +1053,7 @@ void MainWindow::setRenderMode(ParticlesObjectVector & pov){
   }
 }
 // -----------------------------------------------------------------------------
-// parse Nemo parameters                                                        
+// parse Nemo parameters
 // -----------------------------------------------------------------------------
 void MainWindow::parseNemoParameters()
 {
@@ -1103,7 +1107,7 @@ void MainWindow::parseNemoParameters()
   store_options->gcb_pwidth      = getdparam((char *) "cbpw");
   store_options->gcb_pheight     = getdparam((char *) "cbph");
   store_options->gcb_font_size   = getdparam((char *) "cbfs");
-  
+
   store_options->perspective=getbparam((char *) "perspective");
   store_options->orthographic = !store_options->perspective;
   play                   = getbparam((char *) "play");
@@ -1137,30 +1141,30 @@ void MainWindow::parseNemoParameters()
   store_options->scale    = getdparam((char *) "scale");
   // auto rendering mode
   store_options->auto_render = getbparam((char *) "auto_render");
-  
+
   // select physical quantity to display
-  selphys = getiparam((char* )"selphys");  
+  selphys = getiparam((char* )"selphys");
   // min/max physical value
   if ( hasvalue((char *) "minphys") ) {
       store_options->phys_min_glob=getdparam((char *) "minphys");
       store_options->phys_local=false;
-  } 
+  }
   if ( hasvalue((char *) "maxphys") ) {
       store_options->phys_max_glob=getdparam((char *) "maxphys");
       store_options->phys_local=false;
   }
   // color map
   store_options->colormap += getiparam((char *) "cmapindex");
-  
+
   store_options->auto_com           =getbparam((char *) "com");
   store_options->cod                =getbparam((char *) "cod");
   // textures
   store_options->auto_texture_size  =getbparam((char *) "auto_ts");
   store_options->texture_size       =getdparam((char *) "texture_s");
   store_options->texture_alpha      =getdparam((char *) "texture_a");
-  
+
   store_options->duplicate_mem = getbparam((char *) "smooth_gui");
-  
+
   // ortho
   store_options->ortho_range = getdparam((char *) "ortho_range");
 
@@ -1175,11 +1179,11 @@ void MainWindow::parseNemoParameters()
   store_options->col_cube    = QColor(getparam((char *) "cube_color"));
 
   if (store_options->port) {;} // do nothing (remove compiler warning)
-  
+
   //                         finish NEMO
 }
 // -----------------------------------------------------------------------------
-// initVariables()                                                              
+// initVariables()
 void MainWindow::initVariables()
 {
   static bool first=true;
@@ -1192,7 +1196,7 @@ void MainWindow::initVariables()
   gl_window->setMouseRot(store_options->xrot,store_options->yrot,store_options->zrot);
 }
 // -----------------------------------------------------------------------------
-// killPlayingEvent                                                             
+// killPlayingEvent
 // -----------------------------------------------------------------------------
 void MainWindow::killPlayingEvent()
 {
@@ -1221,7 +1225,7 @@ void MainWindow::actionMenuFileOpen(QString myfile)
   } else {
     fileName=myfile;
   }
-  if (!fileName.isEmpty()) {    
+  if (!fileName.isEmpty()) {
     menudir = fileName;
     snapshot = fileName.toStdString();
     bool save_rho_exist = store_options->rho_exist;
@@ -1233,7 +1237,7 @@ void MainWindow::actionMenuFileOpen(QString myfile)
       if (current_data)
         delete current_data;      // free memory
       store_options->phys_min_glob = store_options->phys_max_glob =-1;
-      current_data = new_data;  // link new_data   
+      current_data = new_data;  // link new_data
       store_options->list_type = current_data->isListOf();
       form_options->activatePlayTime(store_options->list_type); // enable group box
       connectCurrentData(); // signal and slots connections
@@ -1248,7 +1252,7 @@ void MainWindow::actionMenuFileOpen(QString myfile)
       store_options->select_part="";
       current_data->initLoading(store_options);
       interactiveSelect("",true);
-      mutex_loading.unlock();   // release area                  
+      mutex_loading.unlock();   // release area
     } else { // no new data
       store_options->rho_exist = save_rho_exist;
       //form_options->activatePlayTime(false); // disable group box
@@ -1293,7 +1297,7 @@ bool MainWindow::actionMenuFileConnect2(std::string adresseIP, int Port, bool ve
   }
 }
 // -----------------------------------------------------------------------------
-// actionQuit()                                                                 
+// actionQuit()
 void MainWindow::actionQuit()
 {
   if (current_data) {
@@ -1302,23 +1306,23 @@ void MainWindow::actionQuit()
     mutex_loading.unlock();    // release area
   }
   if (store_options->enable_gui)
-    close();  
+    close();
   else
     //QCoreApplication::quit();
     exit(1);
 }
 // -----------------------------------------------------------------------------
-// actionReload()                                                               
+// actionReload()
 void MainWindow::actionReload()
 {
   if (! current_data) return;
   mutex_loading.lock();      // protect area
   killPlayingEvent();        // wait the end of loading thread
-  
+
 //   current_data->close();     // close the current snapshot
 //   delete current_data;
 //   current_data = plugins->getObject(snapshot);
-  
+
 //   loadNewData(select,store_options->select_time,// load data
 //         keep_all,store_options->vel_req,true); //
   reload=true;
@@ -1326,7 +1330,7 @@ void MainWindow::actionReload()
   mutex_loading.unlock();    // release area
 }
 // -----------------------------------------------------------------------------
-// actionFormObjectControl()                                                    
+// actionFormObjectControl()
 void MainWindow::actionFormObjectControl()
 {
   bool show= ! dock_o_c->isVisible();
@@ -1334,7 +1338,7 @@ void MainWindow::actionFormObjectControl()
   else      dock_o_c->close();
 }
 // -----------------------------------------------------------------------------
-// actionFormOptions()                                                    
+// actionFormOptions()
 void MainWindow::actionFormOptions()
 {
   bool show= ! dock_options->isVisible();
@@ -1349,7 +1353,7 @@ void MainWindow::actionFormOptionsShowMovie()
   actionFormOptions();
 }
 // -----------------------------------------------------------------------------
-// actionFullScreen()                                                           
+// actionFullScreen()
 void MainWindow::actionFullScreen()
 {
   static bool full_screen=true;
@@ -1367,13 +1371,13 @@ void MainWindow::actionFullScreen()
   statusBar()->showMessage(tr("Ready"));
 }
 // -----------------------------------------------------------------------------
-// actionBestactionBestZoom()                                                   
+// actionBestactionBestZoom()
 void MainWindow::actionBestZoom()
 {
   gl_window->bestZoomFit();
 }
 // -----------------------------------------------------------------------------
-// actionRenderMode()                                                           
+// actionRenderMode()
 void MainWindow::actionRenderMode()
 {
   store_options->render_mode = (store_options->render_mode+1)%2;
@@ -1388,7 +1392,7 @@ void MainWindow::actionRenderMode()
   gl_window->updateGL();
 }
 // -----------------------------------------------------------------------------
-// actionCenterToCom()                                                   
+// actionCenterToCom()
 void MainWindow::actionCenterToCom(const bool ugl)
 {
   double com[3] = {0., 0., 0.};
@@ -1432,13 +1436,13 @@ void MainWindow::actionCenterToCom(const bool ugl)
   //mutex_loading.unlock();
 }
 // -----------------------------------------------------------------------------
-// actionReset()                                                                
+// actionReset()
 void MainWindow::actionReset()
 {
   gl_window->resetView();
 }
 // -----------------------------------------------------------------------------
-// actionGrid()                                                                 
+// actionGrid()
 void MainWindow::actionGrid()
 {
   store_options->show_grid = !store_options->show_grid;
@@ -1446,7 +1450,7 @@ void MainWindow::actionGrid()
   gl_window->updateGL();
 }
 // -----------------------------------------------------------------------------
-// actionPrint()                                                                
+// actionPrint()
 void MainWindow::actionPrint()
 {
   QPrinter printer;
@@ -1458,19 +1462,19 @@ void MainWindow::actionPrint()
   painter.drawImage(0,0,img);
 }
 // -----------------------------------------------------------------------------
-// actionScreenshot()                                                           
+// actionScreenshot()
 void MainWindow::actionScreenshot()
 {
   form_sshot->show();
 }
 // -----------------------------------------------------------------------------
-// actionAutoScreenshot()                                                       
+// actionAutoScreenshot()
 void MainWindow::actionAutoScreenshot()
 {
-  store_options->auto_play_screenshot = !store_options->auto_play_screenshot; 
+  store_options->auto_play_screenshot = !store_options->auto_play_screenshot;
 }
 // -----------------------------------------------------------------------------
-// actionGLAutoScreenshot()                                                     
+// actionGLAutoScreenshot()
 void MainWindow::actionGLAutoScreenshot()
 {
   store_options->auto_gl_screenshot = !store_options->auto_gl_screenshot;
@@ -1512,7 +1516,7 @@ void MainWindow::actionZSorting()
   gl_window->updateGL();
 }
 // -----------------------------------------------------------------------------
-// startAutoScreenshot()                                                       
+// startAutoScreenshot()
 void MainWindow::startAutoScreenshot()
 {
   std::ostringstream stm1;
@@ -1529,7 +1533,7 @@ void MainWindow::startAutoScreenshot()
   store_options->frame_index++;
 }
 // -----------------------------------------------------------------------------
-// takeScreenshot()                                                             
+// takeScreenshot()
 void MainWindow::takeScreenshot(const int width, const int height,  std::string name)
 {
     if ( width!=0 && height!=0) { // valid dimensions
@@ -1600,7 +1604,7 @@ void MainWindow::takeScreenshot(const int width, const int height,  std::string 
 // -----------------------------------------------------------------------------
 // actionRotate around SCREEN axis
 // -----------------------------------------------------------------------------
-// actionAutoRotate() starts timer to rotate around screen x axis                                                       
+// actionAutoRotate() starts timer to rotate around screen x axis
 void MainWindow::actionAutoRotate(const int v)
 {
   switch (v) {
@@ -1643,7 +1647,7 @@ void MainWindow::actionAutoRotate(const int v)
   }
 }
 // -----------------------------------------------------------------------------
-// actionRotateX() starts timer to rotate around screen x axis                                                       
+// actionRotateX() starts timer to rotate around screen x axis
 void MainWindow::actionRotateX(const bool b)
 {
   if (!b ) {
@@ -1655,7 +1659,7 @@ void MainWindow::actionRotateX(const bool b)
   else                       auto_rotx_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionRotateRX() starts timer to rotate around screen x axis (reverse)                                   
+// actionRotateRX() starts timer to rotate around screen x axis (reverse)
 void MainWindow::actionRotateRX(const bool b)
 {
   if (!b ) {
@@ -1667,7 +1671,7 @@ void MainWindow::actionRotateRX(const bool b)
   else                       auto_rotx_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionRotateY() starts timer to rotate around screen y axis              
+// actionRotateY() starts timer to rotate around screen y axis
 void MainWindow::actionRotateY(const bool b)
 {
   if (!b ) {
@@ -1679,7 +1683,7 @@ void MainWindow::actionRotateY(const bool b)
   else                       auto_roty_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionRotateRY() starts timer to rotate around screen y axis (reverse)                                   
+// actionRotateRY() starts timer to rotate around screen y axis (reverse)
 void MainWindow::actionRotateRY(const bool b)
 {
   if (!b ) {
@@ -1691,7 +1695,7 @@ void MainWindow::actionRotateRY(const bool b)
   else                       auto_roty_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionRotateZ() starts timer to rotate around screen z axis                              
+// actionRotateZ() starts timer to rotate around screen z axis
 void MainWindow::actionRotateZ(const bool b)
 {
   if (!b ) {
@@ -1703,7 +1707,7 @@ void MainWindow::actionRotateZ(const bool b)
   else                       auto_rotz_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionRotateRZ() starts timer to rotate around screen z axis (reverse)                                   
+// actionRotateRZ() starts timer to rotate around screen z axis (reverse)
 void MainWindow::actionRotateRZ(const bool b)
 {
   if (!b ) {
@@ -1717,7 +1721,7 @@ void MainWindow::actionRotateRZ(const bool b)
 // -----------------------------------------------------------------------------
 // actionRotate around SCENE/Object axis
 // -----------------------------------------------------------------------------
-// actionRotateU() starts timer to rotate around scene u axis                                                       
+// actionRotateU() starts timer to rotate around scene u axis
 void MainWindow::actionRotateU(const bool b)
 {
   if (!b ) {
@@ -1729,7 +1733,7 @@ void MainWindow::actionRotateU(const bool b)
   else                      auto_rotu_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionRotateRU() starts timer to rotate around scene u axis (reverse)                                   
+// actionRotateRU() starts timer to rotate around scene u axis (reverse)
 void MainWindow::actionRotateRU(const bool b)
 {
   if (!b ) {
@@ -1741,7 +1745,7 @@ void MainWindow::actionRotateRU(const bool b)
   else                      auto_rotu_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionRotateV() starts timer to rotate around scene v axis                                                       
+// actionRotateV() starts timer to rotate around scene v axis
 void MainWindow::actionRotateV(const bool b)
 {
   if (!b ) {
@@ -1753,7 +1757,7 @@ void MainWindow::actionRotateV(const bool b)
   else                      auto_rotv_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionRotateRV() starts timer to rotate around scene v axis (reverse)                                   
+// actionRotateRV() starts timer to rotate around scene v axis (reverse)
 void MainWindow::actionRotateRV(const bool b)
 {
   if (!b ) {
@@ -1765,7 +1769,7 @@ void MainWindow::actionRotateRV(const bool b)
   else                      auto_rotv_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionRotateW() starts timer to rotate around scene w axis                                                       
+// actionRotateW() starts timer to rotate around scene w axis
 void MainWindow::actionRotateW(const bool b)
 {
   if (!b ) {
@@ -1777,7 +1781,7 @@ void MainWindow::actionRotateW(const bool b)
   else                      auto_rotw_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionRotateRW() starts timer to rotate around scene w axis (reverse)                                   
+// actionRotateRW() starts timer to rotate around scene w axis (reverse)
 void MainWindow::actionRotateRW(const bool b)
 {
   if (!b ) {
@@ -1789,7 +1793,7 @@ void MainWindow::actionRotateRW(const bool b)
   else                      auto_rotw_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionTranlateX()                                                            
+// actionTranlateX()
 void MainWindow::actionTranslateX()
 {
   static bool trans=false;
@@ -1798,7 +1802,7 @@ void MainWindow::actionTranslateX()
   else        auto_transx_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionTranlateZ()                                                            
+// actionTranlateZ()
 void MainWindow::actionTranslateY()
 {
   static bool trans=false;
@@ -1807,7 +1811,7 @@ void MainWindow::actionTranslateY()
   else        auto_transy_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionTranlateZ()                                                            
+// actionTranlateZ()
 void MainWindow::actionTranslateZ()
 {
   static bool trans=false;
@@ -1816,7 +1820,7 @@ void MainWindow::actionTranslateZ()
   else        auto_transz_timer->stop();
 }
 // -----------------------------------------------------------------------------
-// actionPlay()                                                                 
+// actionPlay()
 void MainWindow::actionPlay()
 {
   if ( ! current_data ) {
@@ -1851,13 +1855,13 @@ void MainWindow::actionPlay()
       play_timer->stop();
       emit endOfSnapshot(1);
       gl_window->updateGL(); // flush openGL buffer
-      //if (! anim_engine->record->isActivated()) 
+      //if (! anim_engine->record->isActivated())
       //  glbox->setHudActivate(GLHudObject::Loading, FALSE);
     }
   }
 }
 // -----------------------------------------------------------------------------
-// playEvent()                                                                  
+// playEvent()
 void MainWindow::playEvent()
 {
   mutex_loading.lock();
@@ -1869,9 +1873,9 @@ void MainWindow::playEvent()
   }
   else {
     //std::cerr << "loading_thread->isFinished() ?\n" << loading_thread->isFinished() << "\n";
-    if (loading_thread->isFinished() && // loading complete            
-        !is_key_pressed              && // no interactive user request 
-        !is_mouse_pressed               // (mouse, keyboard)           
+    if (loading_thread->isFinished() && // loading complete
+        !is_key_pressed              && // no interactive user request
+        !is_mouse_pressed               // (mouse, keyboard)
        ) {
       play_timer_one_frame->stop();
       uploadNewFrame();
@@ -1887,13 +1891,13 @@ void MainWindow::playEvent()
 // playOneFrame, load a frame in parallele if play_animation is false
 void MainWindow::playOneFrame()
 {
-  if (!play_animation) {   
+  if (!play_animation) {
     play_timer_one_frame->start();
   }
 }
 
 // -----------------------------------------------------------------------------
-// uploadNewFrame                                                               
+// uploadNewFrame
 void MainWindow::uploadNewFrame()
 {
   static bool first=true;
@@ -1912,7 +1916,7 @@ void MainWindow::uploadNewFrame()
       //pov2=pov; // modif orbits
     }
     //!!!!
-    
+
     //store_options->yrot =(float)((int)(store_options->yrot--)%360); // rotate around Y
     //!!!!
     updateOsd();
@@ -1954,31 +1958,31 @@ void MainWindow::uploadNewFrame()
   }
 }
 // -----------------------------------------------------------------------------
-// pressedKeyMouse()                                                            
+// pressedKeyMouse()
 void MainWindow::pressedKeyMouse(const bool k, const bool m)
 {
   is_key_pressed   = k;
   is_mouse_pressed = m;
 }
 // -----------------------------------------------------------------------------
-// updateOsd()                                                                  
+// updateOsd()
 void MainWindow::updateOsd(bool ugl)
 {
   GlobalOptions * g = store_options;
   gl_window->setOsd(GLObjectOsd::Projection,
                     g->perspective==true?QString("Perspective"):QString("Orthographic"),
                     g->osd_projection,false);
-  
-  if (current_data) {    
+
+  if (current_data) {
     gl_window->setOsd(GLObjectOsd::Nbody,
                       *current_data->part_data->nbody,g->osd_nbody,false);
     gl_window->setOsd(GLObjectOsd::Time,
                       *current_data->part_data->timu,g->osd_time,false);
-    
+
     std::string title = g->osd_title_name.toStdString();
     if (title=="") {
       title = current_data->getFileName();
-    }           
+    }
     gl_window->setOsd(GLObjectOsd::Title,
                       QString(title.c_str()),
                       g->osd_title,false);
@@ -1998,10 +2002,10 @@ void MainWindow::updateOsd(bool ugl)
   if (ugl) {
     gl_window->updateGL();
   }
-  
+
 }
 // -----------------------------------------------------------------------------
-// toggleRotateScreen                                                                  
+// toggleRotateScreen
 void MainWindow::toggleRotateScreen()
 {
   store_options->rotate_screen = !store_options->rotate_screen;
@@ -2010,7 +2014,7 @@ void MainWindow::toggleRotateScreen()
 }
 
 // -----------------------------------------------------------------------------
-// startBench()                                                                 
+// startBench()
 void MainWindow::startBench(const bool start)
 {
   if (start) {
@@ -2025,7 +2029,7 @@ void MainWindow::startBench(const bool start)
   }
 }
 // -----------------------------------------------------------------------------
-// updateBenchFrame()                                                           
+// updateBenchFrame()
 void MainWindow::updateBenchFrame()
 {
   int frame=gl_window->getFrame();
@@ -2033,10 +2037,10 @@ void MainWindow::updateBenchFrame()
   //form_options->updateFrame(1000*frame/500,total_frame);
   form_options->updateFrame(frame,total_frame);
   gl_window->resetFrame();
-  
+
 }
 // -----------------------------------------------------------------------------
-// createObjFromIndexList()                                                                
+// createObjFromIndexList()
 void MainWindow::createObjFromIndexList()
 {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -2045,7 +2049,7 @@ void MainWindow::createObjFromIndexList()
   if (list->size()) { //&& current_data->part_data->id.size()>0) {
     std::vector <int> indexes;
     indexes.reserve(list->size());
-    for (std::vector<int>::iterator i=list->begin(); i<list->end(); i++) {     
+    for (std::vector<int>::iterator i=list->begin(); i<list->end(); i++) {
       if (current_data->part_data->id.size()>0) { // save by ids
         //indexes.push_back(current_data->part_data->id[*i]);
         indexes.push_back(*i);
@@ -2059,12 +2063,12 @@ void MainWindow::createObjFromIndexList()
     pov.push_back(*po);
     delete po;
     listObjects(pov);
-    ParticlesObject::copyVVkeepProperties(pov,pov2,user_select->getNSel()); 
+    ParticlesObject::copyVVkeepProperties(pov,pov2,user_select->getNSel());
     form_o_c->update( current_data->part_data, &pov2,store_options,false); // update Form
     updateOsd();
     gl_window->update( current_data->part_data, &pov2,store_options,false);
 #else // JCL modification 2015 March 24
-    ParticlesObject * po = new ParticlesObject(ParticlesObject::Range); // new object   
+    ParticlesObject * po = new ParticlesObject(ParticlesObject::Range); // new object
     po->buildIndexList(indexes);
     po->checkPhysic(current_data->part_data);
     float texture=current_data->part_data->getMaxSize()/300.;
@@ -2096,7 +2100,7 @@ void MainWindow::createObjFromIndexList()
 }
 
 // -----------------------------------------------------------------------------
-// saveIndexList                                                                
+// saveIndexList
 void MainWindow::saveIndexList()
 {
   std::vector <int> * list = gl_window->gl_select->getList();
@@ -2107,8 +2111,8 @@ void MainWindow::saveIndexList()
       if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream out(&file);
         out << "#glnemo_index_list\n";
-        for (std::vector<int>::iterator i=list->begin(); i<list->end(); i++) {   
-          //std::cerr << "iterator  *i="<< *i <<"\n";           
+        for (std::vector<int>::iterator i=list->begin(); i<list->end(); i++) {
+          //std::cerr << "iterator  *i="<< *i <<"\n";
           if (current_data->part_data->id.size()>0) { // save by ids
             out << current_data->part_data->id[*i] << "\n";
           } else {                                    // save by indexes
@@ -2120,4 +2124,9 @@ void MainWindow::saveIndexList()
     }
   }
 }
+
+    void MainWindow::loadCPointsFile(QString file_path) {
+        pointset_manager->loadFile(file_path.toStdString());
+        emit loadCPointsSuccess();
+    }
 } // glnemo namespace }

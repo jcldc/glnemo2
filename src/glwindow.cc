@@ -49,12 +49,13 @@ namespace glnemo {
 // BEWARE when parent constructor QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 // is called, we get antialiasing during screenshot capture but we can loose    
 // performance during rendering. You have been warned !!!!!                     
-GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera *_camera) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
+GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera *_camera, GLCPointSetManager * _pointset_manager) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
   // copy parameters
   parent        = _parent;
   store_options = _go;
   camera        = _camera;
+    cpointset_manager = _pointset_manager;
   //setAttribute(Qt::WA_NoSystemBackground);
   // reset coordinates
   resetEvents(true);
@@ -170,7 +171,6 @@ GLWindow::~GLWindow()
   delete cube;
   delete tree;
   delete axes;
-  delete cpl;
   if (GLWindow::GLSL_support) {
     glDeleteRenderbuffersEXT(1, &renderbuffer);
     glDeleteRenderbuffersEXT(1, &framebuffer);
@@ -285,7 +285,7 @@ void GLWindow::updateColorVbo(const int i_obj)
 void GLWindow::update()
 {
   if (pov) {
-    update(p_data,pov,store_options);
+    update(p_data, pov, store_options, cpointset_manager);
   }
 }
 // ============================================================================
@@ -534,8 +534,7 @@ void GLWindow::paintGL()
   else                        glDisable(GL_DEPTH_TEST);
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
-
-    cpl->display_all();
+  cpointset_manager->displayAll();
 
   if (store_options->show_part && pov ) {
     //mutex_data->lock();
@@ -653,11 +652,6 @@ void GLWindow::initShader()
               vel_shader=NULL;
           }
       }
-        std::cerr << "Loading json file\n";
-        std::ifstream i("characteristic_objects.json");
-        json j;
-        i >> j;
-        cpl = new GLCPointList(j);
 
     }
 

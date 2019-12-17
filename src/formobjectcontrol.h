@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -17,6 +17,7 @@
 #define GLNEMOFORMOBJECTCONTROL_H
 
 #include "ui_formobjectcontrol.h"
+#include "glcpoints.h"
 #include "particlesobject.h"
 #include "particlesdata.h"
 #include "globaloptions.h"
@@ -106,7 +107,7 @@ namespace glnemo {
   class FormObjectControl: public QDialog {
   Q_OBJECT
   public:
-  FormObjectControl(QWidget *parent = 0);
+  FormObjectControl(GLCPointSetManager* _pointset_manager, QWidget *parent = 0);
 
     ~FormObjectControl();
     void update(ParticlesData   * ,
@@ -132,12 +133,14 @@ namespace glnemo {
   void reverseColorMap(const bool);
   void customColormap();
   void changeBoundaryPhys(const int, const bool b);
+  void loadCPointsFile(QString);
   public slots:
     void changeColorMap() {
       form.dynamic_cmap->setChecked(go->dynamic_cmap);
       form.reverse_cmap->setChecked(go->reverse_cmap);
       dens_color_bar->draw(form.dens_slide_min->value(),form.dens_slide_max->value());
     }
+    void updateCPointsListWidget();
   private slots:
     void reject() {} // allow to de activate escape key to close the box
     // global slots
@@ -152,6 +155,8 @@ namespace glnemo {
     void on_part_check_clicked(bool);
     void on_part_slide_size_valueChanged(int);
     void on_part_slide_alpha_valueChanged(int);
+    // cpoints tab
+    void on_load_cpoints_file_clicked(bool);
     // on gaz
     void on_gaz_check_clicked(bool);
     void on_gaz_slide_size_valueChanged(int);
@@ -238,6 +243,7 @@ namespace glnemo {
     Ui::FormObjectControl form;
     ParticlesData * current_data;
     ParticlesObjectVector * pov;
+    GLCPointSetManager *pointset_manager;
     GlobalOptions * go;
     QComboBoxTable * combobox;
     QString cbox_text;
