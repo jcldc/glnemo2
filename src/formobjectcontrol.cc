@@ -1406,24 +1406,47 @@ void FormObjectControl::on_z_stretch_max_spin_valueChanged(double value)
   }
 }
 
-    void FormObjectControl::on_load_cpoints_file_clicked(bool) {
-        QString file_path;
-        file_path = QFileDialog::getOpenFileName(this, tr("Select a characteristic point description file"));
-        if (!file_path.isEmpty()) {
-            emit loadCPointsFile(file_path);
-        }
-    }
+void FormObjectControl::on_load_cpoints_file_clicked(bool) {
+  QString file_path;
+  file_path = QFileDialog::getOpenFileName(
+      this, tr("Select a characteristic point description file"));
+  if (!file_path.isEmpty()) {
+    emit loadCPointsFile(file_path);
+  }
+}
 
-    void FormObjectControl::updateCPointsListWidget() {
-        form.cpoints_set_listwidget->clear();
-        for(auto cpoint_set : *pointset_manager)
-        {
-            new QListWidgetItem(QString::fromStdString(cpoint_set.second->getName()), form.cpoints_set_listwidget);
-        }
+GLCPointSet *FormObjectControl::getSelectedPointset() {
+  QListWidgetItem *current_item = form.cpoints_set_listwidget->currentItem();
+  if (!current_item)
+    return nullptr;
+  std::string pointset_name = current_item->text().toStdString();
+  return (*pointset_manager)[pointset_name];
+}
 
-    }
+void FormObjectControl::updateCPointsListWidget() {
+  form.cpoints_set_listwidget->clear();
+  for (auto cpoint_set : *pointset_manager) {
+    new QListWidgetItem(QString::fromStdString(cpoint_set.second->getName()),
+                        form.cpoints_set_listwidget);
+  }
+}
 
-//    void FormObjectControl::setCPointsTreeView() {
-//
-//    }
+void FormObjectControl::on_cpoints_display_cbx_stateChanged(int state) {
+  GLCPointSet *pointset = getSelectedPointset();
+  if (state == Qt::Checked)
+    pointset->show();
+  else if (state == Qt::Unchecked)
+    pointset->hide();
+  emit objectSettingsChanged();
+}
+
+void FormObjectControl::on_cpoints_set_listwidget_itemClicked(QListWidgetItem *item) {
+  GLCPointSet *pointset = getSelectedPointset();
+  form.cpoints_display_cbx->setChecked(pointset->isShown());
+}
+//void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) {
+//  GLCPointSet *pointset = getSelectedPointset();
+//  pointset.setThreshold(threshold);
+//}
+
 }

@@ -85,7 +85,7 @@ namespace glnemo {
       void cellClicked(const int, const int);
       void comboActivated(const int, const int);
       void updateIpvs(const int);
-      
+
   private slots:
     void  my_editTextChanged ( const QString & text ) {
       std::cerr << "[slot my_editTextChanged]  row : "<< row <<" text : " << text.toStdString() << "\n";
@@ -157,6 +157,9 @@ namespace glnemo {
     void on_part_slide_alpha_valueChanged(int);
     // cpoints tab
     void on_load_cpoints_file_clicked(bool);
+    void on_cpoints_display_cbx_stateChanged(int);
+    void on_cpoints_set_listwidget_itemClicked(QListWidgetItem *);
+//    void on_cpoints_threshold_slider_valueChanged(int);
     // on gaz
     void on_gaz_check_clicked(bool);
     void on_gaz_slide_size_valueChanged(int);
@@ -191,12 +194,12 @@ namespace glnemo {
     void setPhysicalTabName();
     void setNewPhys(bool update_glob=true);
     //
-    void on_dens_phys_radio_clicked();  
-    void on_temp_phys_radio_clicked();  
-    void on_tempdens_phys_radio_clicked();  
-    void on_pressure_phys_radio_clicked();  
+    void on_dens_phys_radio_clicked();
+    void on_temp_phys_radio_clicked();
+    void on_tempdens_phys_radio_clicked();
+    void on_pressure_phys_radio_clicked();
     void on_velnorm_phys_radio_clicked();
-    
+
     // colormap group
     void on_next_cmap_clicked() {
        emit nextColorMap();
@@ -204,8 +207,8 @@ namespace glnemo {
     void on_prev_cmap_clicked(){
        emit prevColorMap();
     }
-    void on_custom_cmap_clicked() { 
-      
+    void on_custom_cmap_clicked() {
+
     }
     void on_dynamic_cmap_clicked(bool b) {
       emit constantColorMap(b);
@@ -224,15 +227,16 @@ namespace glnemo {
         dens_color_bar->draw(form.dens_slide_min->value(),form.dens_slide_max->value());
       }
     }
-    
+
     private:
+    GLCPointSet* getSelectedPointset();
     void checkPhysic();
     void physicalSelected();
     void leaveEvent ( QEvent * event ) {
       if (event) {;} // remove compiler warning
       emit leaveEvent();
     }
-    void resizeEvent ( QResizeEvent * event ) {    
+    void resizeEvent ( QResizeEvent * event ) {
       form.dens_histo_view->repaint();
       dens_histo->resizeEvent(event);
       dens_histo->drawDensity(form.dens_slide_min->value(),form.dens_slide_max->value());
