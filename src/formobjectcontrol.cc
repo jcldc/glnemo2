@@ -1444,9 +1444,10 @@ void FormObjectControl::on_cpoints_set_listwidget_itemClicked(QListWidgetItem *i
   GLCPointSet *pointset = getSelectedPointset();
   form.cpoints_display_cbx->setChecked(pointset->isShown());
 }
-//void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) {
-//  GLCPointSet *pointset = getSelectedPointset();
-//  pointset.setThreshold(threshold);
-//}
+void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) {
+  GLCPointSet *pointset = getSelectedPointset();
+  pointset->setThreshold(threshold);
+  emit objectSettingsChanged();
+}
 
 }

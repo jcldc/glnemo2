@@ -10,15 +10,22 @@
 #include <iostream>
 #include <json.hpp>
 #include <map>
+#include <set>
 
 using json = nlohmann::json;
 
 #define NB_POINTS 100
 
 namespace glnemo {
-//    class GLCPointSet;
 
-enum Shape { disk, annulus };
+enum Shape {
+  disk, annulus
+};
+
+struct PPred {
+  template <typename T> inline bool operator()(const T * a, const T * b) const
+  { return *a < *b; }
+};
 
 class GLCPoint {
 public:
@@ -28,11 +35,18 @@ public:
   virtual std::vector<float> getPackedData() = 0;
   static void display(CShader *shader);
 
+  inline bool operator<(const GLCPoint &other) const { return m_size > other.getSize(); }
+  inline bool operator>(const GLCPoint &other) const { return *this < other; }
+  inline bool operator<=(const GLCPoint &other) const { return !(other > *this); }
+  inline bool operator>=(const GLCPoint &other) const { return !(other < *this); }
+
 protected:
   const int nb_vertices = 100;
   std::array<float, 3> m_coords;
   float m_size;
 };
+
+typedef std::set<GLCPoint *, PPred> glcpointset_t;
 
 class GLCPointAnnulus : public GLCPoint {
 public:
@@ -40,7 +54,7 @@ public:
   ~GLCPointAnnulus();
   std::vector<float> getPackedData();
   static void setAttributes(CShader *shader);
-  static void displayAll(CShader *shader, std::vector<GLCPoint *> &cpoints);
+  static void displayAll(CShader *shader, glcpointset_t &cpoints, int threshold);
 
 private:
   float m_fill_ratio;
@@ -52,14 +66,16 @@ public:
   ~GLCPointDisk();
   std::vector<float> getPackedData();
   static void setAttributes(CShader *shader);
-  static void displayAll(CShader *shader, std::vector<GLCPoint *> &cpoints);
+  static void displayAll(CShader *shader, glcpointset_t &cpoints, int threshold);
 
 private:
 };
 
 class GLCPointSet {
 public:
-  GLCPointSet(Shape shape, CShader *shader, std::string name = "");
+  GLCPointSet(Shape shape, CShader *shader, void(*setAttributesFn)(CShader *),
+              void(*displayAllFn)(CShader *, glcpointset_t &, int),
+              std::string name = "");
   ~GLCPointSet();
 
   void initVboData();
@@ -74,7 +90,7 @@ public:
 
 private:
   CShader *m_shader;
-  std::vector<GLCPoint *> m_cpoints;
+  glcpointset_t m_cpoints;
   GLuint m_vao, m_vbo;
   std::vector<float> m_data;
   std::string m_name;
@@ -82,8 +98,8 @@ private:
   QColor m_color;
   bool m_is_shown;
   int m_threshold;
-  void (*setAttributesFn)(CShader *);
-  void (*displayAllFn)(CShader *, std::vector<GLCPoint *> &);
+  void (*m_setAttributesFn)(CShader *);
+  void (*m_displayAllFn)(CShader *, glcpointset_t &, int);
 };
 
 class GLCPointSetManager {
