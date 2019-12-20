@@ -32,9 +32,6 @@
 #include "tools3d.h"
 #include "fnt.h"
 #include "glcpoints.h"
-#include "json.hpp"
-using json = nlohmann::json;
-//#include "cshader.h"
 
 namespace glnemo {
 #define DOF 4000000

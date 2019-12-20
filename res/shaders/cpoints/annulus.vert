@@ -6,7 +6,7 @@ uniform mat4 projMatrix;
 
 in vec3 point_center;
 in float radius;
-in float fill_ratio;
+float fill_ratio = 0.1;
 
 float PI = 3.14159265359;
 
