@@ -1433,21 +1433,32 @@ void FormObjectControl::updateCPointsListWidget() {
 
 void FormObjectControl::on_cpoints_display_cbx_stateChanged(int state) {
   GLCPointSet *pointset = getSelectedPointset();
-  if (state == Qt::Checked)
-    pointset->show();
-  else if (state == Qt::Unchecked)
-    pointset->hide();
-  emit objectSettingsChanged();
+  if (pointset) {
+    if (state == Qt::Checked)
+      pointset->show();
+    else if (state == Qt::Unchecked)
+      pointset->hide();
+    emit objectSettingsChanged();
+  }
 }
 
 void FormObjectControl::on_cpoints_set_listwidget_itemClicked(QListWidgetItem *item) {
   GLCPointSet *pointset = getSelectedPointset();
-  form.cpoints_display_cbx->setChecked(pointset->isShown());
+  if(pointset) {
+    form.cpoints_display_cbx->setChecked(pointset->isShown());
+  }
 }
 void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) {
   GLCPointSet *pointset = getSelectedPointset();
-  pointset->setThreshold(threshold);
-  emit objectSettingsChanged();
+  if(pointset){
+    pointset->setThreshold(threshold);
+    emit objectSettingsChanged();
+  }
+}
+void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
+  GLCPointSet *pointset = getSelectedPointset();
+  if(pointset){
+  }
 }
 
 }
