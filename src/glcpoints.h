@@ -45,7 +45,7 @@ typedef std::set<GLCPoint *, PPred> glcpointset_t;
 class GLCPointSet {
 public:
   GLCPointSet(CShader *shader, std::string name = "");
-  ~GLCPointSet();
+  virtual ~GLCPointSet();
   virtual void display() = 0;
   void initVboData();
   void setAttributes();
@@ -56,7 +56,7 @@ public:
   void show();
   bool isShown();
   const std::string &getName() const;
-  int setThreshold(int threshold);
+  void setThreshold(int threshold);
 
 protected:
   CShader *m_shader;

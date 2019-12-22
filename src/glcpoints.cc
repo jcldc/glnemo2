@@ -31,7 +31,7 @@ void GLCPointSet::sendUniforms() {
 
   m_shader->sendUniformXfv("projMatrix", 16, 1, &proj[0]);
   m_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
-  m_shader->sendUniformi("nb_vertices", 100);
+  m_shader->sendUniformi("nb_vertices", m_nb_vertices);
 }
 
 /******* GLCPointSet ********/
@@ -78,7 +78,7 @@ void GLCPointSet::show() {
 bool GLCPointSet::isShown() {
   return m_is_shown;
 }
-int GLCPointSet::setThreshold(int threshold) {
+void GLCPointSet::setThreshold(int threshold) {
   m_threshold = threshold < 0 ? 0 : threshold > 100 ? 100 : threshold; //clamp
 }
 
@@ -136,7 +136,7 @@ void GLCPointSetAnnulus::display() {
   glBindVertexArray(m_vao);
   sendUniforms();
   int nb_instances = m_cpoints.size() * m_threshold / 100;
-  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, 100, nb_instances);
+  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices, nb_instances);
   glBindVertexArray(0);
   m_shader->stop();
 }
@@ -155,7 +155,7 @@ void GLCPointSetDisk::display() {
   glBindVertexArray(m_vao);
   sendUniforms();
   int nb_instances = m_cpoints.size() * m_threshold / 100;
-  glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, 100, nb_instances);
+  glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, m_nb_vertices, nb_instances);
   glBindVertexArray(0);
   m_shader->stop();
 }
@@ -172,8 +172,12 @@ void GLCPointSetManager::loadFile(std::string filepath) {
   std::cerr << "Loading json file\n";
   std::ifstream file(filepath);
   json json_data;
-  file >> json_data;
-
+  try {
+    file >> json_data;
+  } catch (json::exception) {
+    std::cerr << "Failed to parse file " + filepath << "\n";
+    return;
+  }
 
   for (json::iterator it = json_data.begin(); it != json_data.end(); ++it) {
     m_nb_sets++;
@@ -185,25 +189,20 @@ void GLCPointSetManager::loadFile(std::string filepath) {
     if (str_shape == "annulus") {
       shader = m_annulus_shader;
       pointset = new GLCPointSetAnnulus(shader, name);
-      for (json::iterator data = (*it)["data"].begin(); data != (*it)["data"].end(); ++data) {
-        auto cpoint = new GLCPoint((*data)["coords"], (*data)["radius"]);
-        pointset->addPoint(cpoint);
-      }
-      pointset->initVboData();
-      m_pointsets[name] = pointset;
     } else if (str_shape == "disk") {
       shader = m_disk_shader;
       pointset = new GLCPointSetDisk(shader, name);
-      for (json::iterator data = (*it)["data"].begin(); data != (*it)["data"].end(); ++data) {
-        auto cpoint = new GLCPoint((*data)["coords"], (*data)["radius"]);
-        pointset->addPoint(cpoint);
-      }
-      pointset->initVboData();
-      m_pointsets[name] = pointset;
     } else {
       std::cerr << "Unrecognized shape : " + str_shape;
       continue;
     }
+
+    for (json::iterator data = (*it)["data"].begin(); data != (*it)["data"].end(); ++data) {
+      auto cpoint = new GLCPoint((*data)["coords"], (*data)["radius"]);
+      pointset->addPoint(cpoint);
+    }
+    pointset->initVboData();
+    m_pointsets[name] = pointset;
   }
 }
 
