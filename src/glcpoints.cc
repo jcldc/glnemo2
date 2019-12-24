@@ -23,7 +23,10 @@ const float &GLCPoint::getSize() const {
   return m_size;
 }
 
-void GLCPointSet::sendUniforms() {
+
+/******* GLCPointset ********/
+
+void GLCPointset::sendUniforms() {
   GLfloat proj[16];
   glGetFloatv(GL_PROJECTION_MATRIX, proj);
   GLfloat mview[16];
@@ -33,10 +36,7 @@ void GLCPointSet::sendUniforms() {
   m_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
   m_shader->sendUniformi("nb_vertices", m_nb_vertices);
 }
-
-/******* GLCPointSet ********/
-
-GLCPointSet::GLCPointSet(CShader *shader, std::string name) :
+GLCPointset::GLCPointset(CShader *shader, std::string name) :
         m_shader(shader), m_name(name) {
   m_is_shown = true;
   m_color = QColor("white");
@@ -47,42 +47,42 @@ GLCPointSet::GLCPointSet(CShader *shader, std::string name) :
 
 }
 
-GLCPointSet::~GLCPointSet() {
-  for (auto charac_point : m_cpoints) {
-    delete charac_point;
-  }
-  m_cpoints.clear();
+GLCPointset::~GLCPointset() {
+  // for (auto charac_point : m_cpoints) {
+    // delete charac_point;
+  // }
+  // m_cpoints.clear();
   glDeleteBuffers(1, &m_vbo);
   glDeleteVertexArrays(1, &m_vao);
 }
 
-bool GLCPointSet::ready() {
+bool GLCPointset::ready() {
   return m_shader != nullptr;
 }
 
-const std::string &GLCPointSet::getName() const {
+const std::string &GLCPointset::getName() const {
   return m_name;
 }
 
-void GLCPointSet::addPoint(GLCPoint *point) {
+void GLCPointset::addPoint(GLCPoint *point) {
   m_cpoints.insert(point);
 }
 
-void GLCPointSet::hide() {
+void GLCPointset::hide() {
   m_is_shown = false;
 }
 
-void GLCPointSet::show() {
+void GLCPointset::show() {
   m_is_shown = true;
 }
-bool GLCPointSet::isShown() {
+bool GLCPointset::isShown() {
   return m_is_shown;
 }
-void GLCPointSet::setThreshold(int threshold) {
+void GLCPointset::setThreshold(int threshold) {
   m_threshold = threshold < 0 ? 0 : threshold > 100 ? 100 : threshold; //clamp
 }
 
-void GLCPointSet::setAttributes() {
+void GLCPointset::setAttributes() {
   GLuint point_center_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "point_center");
   GLuint radius_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "radius");
   if (point_center_disk_attrib == -1) {
@@ -103,7 +103,7 @@ void GLCPointSet::setAttributes() {
   glVertexBindingDivisor(radius_disk_attrib, 1);
 }
 
-void GLCPointSet::initVboData() {
+void GLCPointset::initVboData() {
   m_data.clear();
   // DATA INIT
 
@@ -124,11 +124,11 @@ void GLCPointSet::initVboData() {
 }
 
 /******* GLCPointAnnulus ********/
-GLCPointSetAnnulus::GLCPointSetAnnulus(CShader *shader, std::string name)
-        : GLCPointSet(shader, name) {
+GLCPointsetAnnulus::GLCPointsetAnnulus(CShader *shader, std::string name)
+        : GLCPointset(shader, name) {
 }
 
-void GLCPointSetAnnulus::display() {
+void GLCPointsetAnnulus::display() {
   if (!ready() || !m_is_shown)
     return;
 
@@ -142,11 +142,11 @@ void GLCPointSetAnnulus::display() {
 }
 
 /******* GLCPointDisk ********/
-GLCPointSetDisk::GLCPointSetDisk(CShader *shader, std::string name)
-        : GLCPointSet(shader, name) {
+GLCPointsetDisk::GLCPointsetDisk(CShader *shader, std::string name)
+        : GLCPointset(shader, name) {
 }
 
-void GLCPointSetDisk::display() {
+void GLCPointsetDisk::display() {
 
   if (!ready() || !m_is_shown)
     return;
@@ -160,15 +160,15 @@ void GLCPointSetDisk::display() {
   m_shader->stop();
 }
 
-/******* GLCPointSetManager ********/
+/******* GLCPointsetManager ********/
 
 
-GLCPointSetManager::GLCPointSetManager() {
+GLCPointsetManager::GLCPointsetManager() {
   // SHADER INIT
   m_nb_sets = 0;
 }
 
-void GLCPointSetManager::loadFile(std::string filepath) {
+void GLCPointsetManager::loadFile(std::string filepath) {
   std::cerr << "Loading json file\n";
   std::ifstream file(filepath);
   json json_data;
@@ -180,18 +180,17 @@ void GLCPointSetManager::loadFile(std::string filepath) {
   }
 
   for (json::iterator it = json_data.begin(); it != json_data.end(); ++it) {
-    m_nb_sets++;
-    CShader *shader;
-    GLCPointSet *pointset;
+    GLCPointset *pointset;
+    CShader* shader;
 
     std::string str_shape = (*it)["shape"];
-    std::string name((*it).value("name", "CPoint set " + std::to_string(m_nb_sets)));
+    std::string name((*it).value("name", defaultName()));
     if (str_shape == "annulus") {
       shader = m_annulus_shader;
-      pointset = new GLCPointSetAnnulus(shader, name);
+      pointset = new GLCPointsetAnnulus(shader, name);
     } else if (str_shape == "disk") {
       shader = m_disk_shader;
-      pointset = new GLCPointSetDisk(shader, name);
+      pointset = new GLCPointsetDisk(shader, name);
     } else {
       std::cerr << "Unrecognized shape : " + str_shape;
       continue;
@@ -203,17 +202,25 @@ void GLCPointSetManager::loadFile(std::string filepath) {
     }
     pointset->initVboData();
     m_pointsets[name] = pointset;
+    m_nb_sets++;
   }
 }
 
-GLCPointSetManager::~GLCPointSetManager() {
-  for (auto cpointset: m_pointsets)
-    delete cpointset.second; //FIXME
+std::string GLCPointsetManager::defaultName() const {
+  return "CPoint set " + std::to_string(m_nb_sets);
 }
 
-void GLCPointSetManager::initShaders() {
+GLCPointsetManager::~GLCPointsetManager() {
+  for (auto cpointset: m_pointsets){
+    for(auto cpoint : cpointset.second->getCPoints())
+      delete cpoint;
+    delete cpointset.second;
+  }
+}
 
-  this->m_disk_shader = new CShader(
+void GLCPointsetManager::initShaders() {
+
+  m_disk_shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/disk.vert",
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
   if (!m_disk_shader->init()) {
@@ -221,7 +228,7 @@ void GLCPointSetManager::initShaders() {
     std::cerr << "Failed to initialize disk shader\n";
     exit(1);
   }
-  this->m_annulus_shader = new CShader(
+  m_annulus_shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/annulus.vert",
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
   if (!m_annulus_shader->init()) {
@@ -229,12 +236,44 @@ void GLCPointSetManager::initShaders() {
     std::cerr << "Failed to initialize annulus shader\n";
     exit(1);
   }
-
 }
 
-void GLCPointSetManager::displayAll() {
+void GLCPointsetManager::displayAll() {
   for (auto cpointset: m_pointsets)
     cpointset.second->display();
+}
+
+void GLCPointsetManager::createNewCPointset() {
+  m_pointsets[defaultName()] = new GLCPointsetAnnulus(m_annulus_shader, defaultName());
+  m_nb_sets++;
+}
+
+void GLCPointsetManager::deleteCPointset(std::string pointset_name) {
+  delete m_pointsets[pointset_name];
+  m_pointsets.erase(pointset_name);
+  m_nb_sets--;
+}
+
+void GLCPointsetManager::changePointsetType(std::string pointset_name, std::string new_type){
+  auto *old_pointset = m_pointsets[pointset_name];
+  GLCPointset *new_pointset;
+  if(new_type == "annulus")
+    new_pointset = new GLCPointsetAnnulus(m_annulus_shader, pointset_name);
+  else if(new_type == "disk")
+    new_pointset = new GLCPointsetDisk(m_disk_shader, pointset_name);
+  // else if(new_type == )
+  new_pointset->copyCPoints(old_pointset);
+  new_pointset->initVboData();
+  m_pointsets[pointset_name] = new_pointset;
+  delete old_pointset;
+}
+
+const glcpointset_t& GLCPointset::getCPoints() const{
+  return m_cpoints;
+}
+
+void GLCPointset::copyCPoints(GLCPointset* other){
+  m_cpoints = other->getCPoints();
 }
 
 }

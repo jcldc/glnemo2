@@ -85,7 +85,6 @@ class MainWindow : public QMainWindow {
     void dropEvent(QDropEvent *ev);
     void dragEnterEvent(QDragEnterEvent *ev);
   private slots:
-    void loadCPointsFile(QString);
     // action
     void actionFullScreen();
     void actionBestZoom();
@@ -243,7 +242,7 @@ class MainWindow : public QMainWindow {
     GlobalOptions * store_options;
     PluginsManage * plugins;
     ParticlesObjectVector pov,pov2;
-    GLCPointSetManager *pointset_manager;
+    GLCPointsetManager *pointset_manager;
     ComponentRangeVector * crv;
     void listObjects(ParticlesObjectVector& ppov);
     void setDefaultParamObject(ParticlesObjectVector&);
@@ -290,7 +289,6 @@ class MainWindow : public QMainWindow {
     int selphys;
     signals:
     void endOfSnapshot(const int);
-    void loadCPointsSuccess();
 };
 }
 

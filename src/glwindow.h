@@ -42,7 +42,7 @@ class GlobalOptions;
 class GLWindow : public QGLWidget {
   Q_OBJECT
 public:
-    GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, GLCPointSetManager *);
+    GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, GLCPointsetManager *);
     ~GLWindow();
 
     void bestZoomFit();
@@ -187,7 +187,7 @@ private:
   // Vectors
   GLObjectParticlesVector gpv;
   ParticlesObjectVector * pov;
-  GLCPointSetManager* cpointset_manager;
+  GLCPointsetManager* cpointset_manager;
 
   ParticlesData   * p_data;
   // projections

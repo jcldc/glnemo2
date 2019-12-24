@@ -42,7 +42,7 @@ int osfile =0;
 // ============================================================================
 // Constructor                                                                 
 // create the 2 tables : Range and File                                        
-FormObjectControl::FormObjectControl(GLCPointSetManager* _pointset_manager, QWidget *parent):QDialog(parent)
+FormObjectControl::FormObjectControl(GLCPointsetManager* _pointset_manager, QWidget *parent):QDialog(parent)
 {
   pointset_manager = _pointset_manager;
   ignoreCloseEvent = true;
@@ -113,6 +113,11 @@ FormObjectControl::FormObjectControl(GLCPointSetManager* _pointset_manager, QWid
   form.objects_properties->setCurrentIndex(0); // set position to first tab
 
   my_mutex2 = new QMutex(QMutex::Recursive);
+  double_validator = new QDoubleValidator(this);
+  form.add_cpoint_coords_x->setValidator(double_validator);
+  form.add_cpoint_coords_y->setValidator(double_validator);
+  form.add_cpoint_coords_z->setValidator(double_validator);
+  form.add_cpoint_coords_size->setValidator(double_validator);
 }
 
 // ============================================================================
@@ -120,6 +125,7 @@ FormObjectControl::FormObjectControl(GLCPointSetManager* _pointset_manager, QWid
 FormObjectControl::~FormObjectControl()
 {
   delete [] object_index;
+  delete double_validator;
   //delete combobox;
 }
 // ============================================================================
@@ -1405,24 +1411,31 @@ void FormObjectControl::on_z_stretch_max_spin_valueChanged(double value)
     if (EMIT) emit objectSettingsChanged();
   }
 }
-
+// ============================================================================
+// -- CPoints Tab --
+//
+// ============================================================================
+//
 void FormObjectControl::on_load_cpoints_file_clicked(bool) {
   QString file_path;
   file_path = QFileDialog::getOpenFileName(
       this, tr("Select a characteristic point description file"));
   if (!file_path.isEmpty()) {
-    emit loadCPointsFile(file_path);
+      pointset_manager->loadFile(file_path.toStdString());
+      updateCPointsListWidget();
   }
 }
-
-GLCPointSet *FormObjectControl::getSelectedPointset() {
+// ============================================================================
+//
+GLCPointset *FormObjectControl::getSelectedPointset() {
   QListWidgetItem *current_item = form.cpoints_set_listwidget->currentItem();
   if (!current_item)
     return nullptr;
   std::string pointset_name = current_item->text().toStdString();
   return (*pointset_manager)[pointset_name];
 }
-
+// ============================================================================
+//
 void FormObjectControl::updateCPointsListWidget() {
   form.cpoints_set_listwidget->clear();
   for (auto cpoint_set : *pointset_manager) {
@@ -1430,9 +1443,10 @@ void FormObjectControl::updateCPointsListWidget() {
                         form.cpoints_set_listwidget);
   }
 }
-
+// ============================================================================
+//
 void FormObjectControl::on_cpoints_display_cbx_stateChanged(int state) {
-  GLCPointSet *pointset = getSelectedPointset();
+  GLCPointset *pointset = getSelectedPointset();
   if (pointset) {
     if (state == Qt::Checked)
       pointset->show();
@@ -1441,24 +1455,72 @@ void FormObjectControl::on_cpoints_display_cbx_stateChanged(int state) {
     emit objectSettingsChanged();
   }
 }
-
+// ============================================================================
+//
 void FormObjectControl::on_cpoints_set_listwidget_itemClicked(QListWidgetItem *item) {
-  GLCPointSet *pointset = getSelectedPointset();
+  GLCPointset *pointset = getSelectedPointset();
   if(pointset) {
     form.cpoints_display_cbx->setChecked(pointset->isShown());
   }
 }
+// ============================================================================
+//
 void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) {
-  GLCPointSet *pointset = getSelectedPointset();
+  GLCPointset *pointset = getSelectedPointset();
   if(pointset){
     pointset->setThreshold(threshold);
     emit objectSettingsChanged();
   }
 }
+// ============================================================================
+//
 void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
-  GLCPointSet *pointset = getSelectedPointset();
-  if(pointset){
+  std::vector<QString> inputs_val = {
+          form.add_cpoint_coords_x->text(),
+          form.add_cpoint_coords_y->text(),
+          form.add_cpoint_coords_z->text(),
+          form.add_cpoint_coords_size->text()
+  };
+
+  if ( !std::any_of(inputs_val.begin(), inputs_val.end(), [](QString val){return val == "";}) ) {
+    std::cerr << "OK";
+//    GLCPointset *pointset = getSelectedPointset();
+//    if (pointset) {
+//
+//    }
   }
+  else {
+    std::cerr << "not ok";
+  }
+}
+// ============================================================================
+//
+void FormObjectControl::on_add_cpointset_clicked(bool) {
+  pointset_manager->createNewCPointset();
+  updateCPointsListWidget();
+
+}
+// ============================================================================
+//
+void FormObjectControl::on_remove_cpointset_clicked(bool) {
+  GLCPointset *pointset = getSelectedPointset();
+  if(pointset){
+    pointset_manager->deleteCPointset(pointset->getName());
+    updateCPointsListWidget();
+    emit objectSettingsChanged();
+  }
+}
+
+void FormObjectControl::shapeRadioClicked() {
+  GLCPointset *pointset = getSelectedPointset();
+  if(pointset){
+    QRadioButton* clickedBtn = qobject_cast<QRadioButton*>(sender());
+    if(clickedBtn->objectName() == "shape_radio_annulus")
+      pointset_manager->changePointsetType(pointset->getName(), "annulus");
+    else if(clickedBtn->objectName() == "shape_radio_square")
+      pointset_manager->changePointsetType(pointset->getName(), "disk");
+  } 
+  emit objectSettingsChanged();
 }
 
 }

@@ -69,7 +69,7 @@ MainWindow::MainWindow(std::string _ver)
   // Camera
   camera = new  Camera(store_options);
   // ------- openGL object ---------
-  pointset_manager = new GLCPointSetManager();
+  pointset_manager = new GLCPointsetManager();
   gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager);
   pointset_manager->initShaders();
   camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
@@ -97,8 +97,6 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_o_c,SIGNAL(objectSettingsChanged()),gl_window,SLOT(updateGL()));
   connect(form_o_c,SIGNAL(objectUpdateVel(const int)),gl_window,SLOT(updateVel(const int)));
   connect(form_o_c,SIGNAL(objectUpdate()),gl_window,SLOT(update()));
-  connect(form_o_c,SIGNAL(loadCPointsFile(QString)),this,SLOT(loadCPointsFile(QString)));
-  connect(this, SIGNAL(loadCPointsSuccess()),form_o_c,SLOT(updateCPointsListWidget()));
   connect(form_o_c,SIGNAL(textureObjectChanged(const int, const int)),
           gl_window,SLOT(setTextureObject(const int, const int)));
   connect(form_options,SIGNAL(cam_reset()), camera,SLOT(reset()));
@@ -2124,9 +2122,4 @@ void MainWindow::saveIndexList()
     }
   }
 }
-
-    void MainWindow::loadCPointsFile(QString file_path) {
-        pointset_manager->loadFile(file_path.toStdString());
-        emit loadCPointsSuccess();
-    }
 } // glnemo namespace }

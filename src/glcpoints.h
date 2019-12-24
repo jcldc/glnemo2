@@ -18,6 +18,15 @@ using json = nlohmann::json;
 
 namespace glnemo {
 
+enum CPointsetTypes{
+  annulus,
+  square,
+  frame,
+  arrow,
+  text
+};
+
+
 struct PPred {
   template<typename T>
   inline bool operator()(const T *a, const T *b) const { return *a < *b; }
@@ -42,15 +51,17 @@ private:
 
 typedef std::set<GLCPoint *, PPred> glcpointset_t;
 
-class GLCPointSet {
+class GLCPointset {
 public:
-  GLCPointSet(CShader *shader, std::string name = "");
-  virtual ~GLCPointSet();
+  GLCPointset(CShader *m_shader, std::string name = "");
+  virtual ~GLCPointset();
   virtual void display() = 0;
   void initVboData();
   void setAttributes();
   void addPoint(GLCPoint *point);
   void sendUniforms();
+  void copyCPoints(GLCPointset*);
+  const glcpointset_t& getCPoints() const;
   bool ready();
   void hide();
   void show();
@@ -67,30 +78,33 @@ protected:
   QColor m_color;
   bool m_is_shown;
   int m_threshold;
-  const int nb_vertices = 100;
+  const int m_nb_vertices = 100;
 };
 
-class GLCPointSetAnnulus : public GLCPointSet {
+class GLCPointsetAnnulus : public GLCPointset {
 public:
-  GLCPointSetAnnulus(CShader *shader, std::string name = "");
+  GLCPointsetAnnulus(CShader *m_shader, std::string name = "");
   void display();
 };
 
-class GLCPointSetDisk : public GLCPointSet {
+class GLCPointsetDisk : public GLCPointset {
 public:
-  GLCPointSetDisk(CShader *shader, std::string name = "");
+  GLCPointsetDisk(CShader *m_shader, std::string name = "");
   void display();
 };
 
-class GLCPointSetManager {
+class GLCPointsetManager {
 public:
-  GLCPointSetManager();
-  ~GLCPointSetManager();
+  GLCPointsetManager();
+  ~GLCPointsetManager();
   void loadFile(std::string filepath);
   void initShaders();
   void displayAll();
+  void createNewCPointset();
+  void deleteCPointset(std::string);
+  void changePointsetType(std::string pointset_name, std::string new_type);
 
-  typedef typename std::map<std::string, GLCPointSet *> map_type;
+  typedef typename std::map<std::string, GLCPointset *> map_type;
   typedef typename map_type::iterator iterator;
   typedef typename map_type::const_iterator const_iterator;
 
@@ -99,7 +113,7 @@ public:
   inline iterator end() noexcept { return m_pointsets.end(); }
   inline const_iterator cend() const noexcept { return m_pointsets.cend(); }
 
-  GLCPointSet *&operator[](const std::string &name) {
+  GLCPointset *&operator[](const std::string &name) {
     return m_pointsets.at(name);
   }
 
@@ -107,7 +121,8 @@ private:
   int m_nb_sets;
   CShader *m_disk_shader;
   CShader *m_annulus_shader;
-  std::map<std::string, GLCPointSet *> m_pointsets;
+  std::map<std::string, GLCPointset *> m_pointsets;
+  std::string defaultName() const;
 };
 
 } // namespace glnemo

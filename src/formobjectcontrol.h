@@ -48,7 +48,7 @@ namespace glnemo {
     };
     //~QCheckBoxTable();
   };
-  // ============================================================================
+// ============================================================================
   // class QComboBoxTable : combobox from where the user give the particles range
   // of the object
   class QComboBoxTable: public QComboBox {
@@ -107,7 +107,7 @@ namespace glnemo {
   class FormObjectControl: public QDialog {
   Q_OBJECT
   public:
-  FormObjectControl(GLCPointSetManager* _pointset_manager, QWidget *parent = 0);
+  FormObjectControl(GLCPointsetManager* _pointset_manager, QWidget *parent = 0);
 
     ~FormObjectControl();
     void update(ParticlesData   * ,
@@ -133,7 +133,6 @@ namespace glnemo {
   void reverseColorMap(const bool);
   void customColormap();
   void changeBoundaryPhys(const int, const bool b);
-  void loadCPointsFile(QString);
   public slots:
     void changeColorMap() {
       form.dynamic_cmap->setChecked(go->dynamic_cmap);
@@ -161,6 +160,14 @@ namespace glnemo {
     void on_cpoints_set_listwidget_itemClicked(QListWidgetItem *);
     void on_cpoints_threshold_slider_valueChanged(int);
     void on_add_cpoint_btn_clicked(bool);
+    void on_add_cpointset_clicked(bool);
+    void on_remove_cpointset_clicked(bool);
+    void on_shape_radio_annulus_clicked(bool) {shapeRadioClicked();};
+    void on_shape_radio_square_clicked(bool) {shapeRadioClicked();};
+    void on_shape_radio_frame_clicked(bool) {shapeRadioClicked();};
+    void on_shape_radio_arrow_clicked(bool) {shapeRadioClicked();};
+    void on_shape_radio_text_clicked(bool) {shapeRadioClicked();};
+    void shapeRadioClicked();
     // on gaz
     void on_gaz_check_clicked(bool);
     void on_gaz_slide_size_valueChanged(int);
@@ -230,7 +237,7 @@ namespace glnemo {
     }
 
     private:
-    GLCPointSet* getSelectedPointset();
+    GLCPointset* getSelectedPointset();
     void checkPhysic();
     void physicalSelected();
     void leaveEvent ( QEvent * event ) {
@@ -248,7 +255,7 @@ namespace glnemo {
     Ui::FormObjectControl form;
     ParticlesData * current_data;
     ParticlesObjectVector * pov;
-    GLCPointSetManager *pointset_manager;
+    GLCPointsetManager *pointset_manager;
     GlobalOptions * go;
     QComboBoxTable * combobox;
     QString cbox_text;
@@ -272,7 +279,7 @@ namespace glnemo {
     DensityHisto * dens_histo;
     DensityColorBar * dens_color_bar;
     PhysicalData * phys_select;
-
+    QDoubleValidator *double_validator;
 };
 
 }
