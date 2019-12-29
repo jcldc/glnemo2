@@ -3,6 +3,8 @@ build*
 *.pro.user
 *-debug/
 *.autosave
+.idea/
+.vscode/
 
 # tilda
 *~
