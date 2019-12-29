@@ -1516,12 +1516,17 @@ void FormObjectControl::shapeRadioClicked() {
   GLCPointset *pointset = getSelectedPointset();
   if(pointset){
     QRadioButton* clickedBtn = qobject_cast<QRadioButton*>(sender());
-    if(clickedBtn->objectName() == "shape_radio_disk")
+    if(clickedBtn->objectName() == "shape_radio_disk") {
       pointset_manager->changePointsetType(pointset->getName(), "disk");
-    else if(clickedBtn->objectName() == "shape_radio_square")
+      on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState());
+    }
+    else if(clickedBtn->objectName() == "shape_radio_square") {
       pointset_manager->changePointsetType(pointset->getName(), "square");
-  } 
-  emit objectSettingsChanged();
+      on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState());
+    }
+
+    emit objectSettingsChanged();
+  }
 }
 
 void FormObjectControl::on_shape_checkbox_filled_stateChanged(int state){
