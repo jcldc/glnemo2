@@ -25,7 +25,7 @@ const float &GLCPoint::getSize() const {
 
 /******* GLCPointset ********/
 
-void GLCPointset::sendUniforms(int nb_vertices) {
+void GLCPointset::sendUniforms() {
   GLfloat proj[16];
   glGetFloatv(GL_PROJECTION_MATRIX, proj);
   GLfloat mview[16];
@@ -33,8 +33,6 @@ void GLCPointset::sendUniforms(int nb_vertices) {
 
   m_shader->sendUniformXfv("projMatrix", 16, 1, &proj[0]);
   m_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
-  m_shader->sendUniformi("nb_vertices", nb_vertices);
-  m_shader->sendUniformi("is_filled", m_is_filled);
 }
 
 GLCPointset::GLCPointset(CShader *shader, std::string name) :
@@ -50,10 +48,6 @@ GLCPointset::GLCPointset(CShader *shader, std::string name) :
 }
 
 GLCPointset::~GLCPointset() {
-  // for (auto charac_point : m_cpoints) {
-  // delete charac_point;
-  // }
-  // m_cpoints.clear();
   glDeleteBuffers(1, &m_vbo);
   glDeleteVertexArrays(1, &m_vao);
 }
@@ -68,6 +62,7 @@ const std::string &GLCPointset::getName() const {
 
 void GLCPointset::addPoint(GLCPoint *point) {
   m_cpoints.insert(point);
+  initVboData();
 }
 
 void GLCPointset::hide() {
@@ -141,13 +136,18 @@ void GLCPointset::setFilled(bool filled) {
 const bool GLCPointset::isFilled() const {
   return m_is_filled;
 }
+CPointsetTypes GLCPointset::getPointsetType() const {
+  return m_pointset_type;
+}
 
 /******* GLCPointDisk ********/
 GLCPointsetDisk::GLCPointsetDisk(CShader *shader, std::string name)
-        : GLCPointset(shader, name) {
+        : GLCPointsetRegularPolygon(shader, name) {
+  m_nb_vertices = 100;
+  m_pointset_type = CPointsetTypes::disk;
 }
 
-void GLCPointsetDisk::display() {
+void GLCPointsetRegularPolygon::display() {
 
   if (!ready() || !m_is_shown)
     return;
@@ -155,13 +155,15 @@ void GLCPointsetDisk::display() {
   m_shader->start();
   glBindVertexArray(m_vao);
   int nb_instances = m_cpoints.size() * m_threshold / 100;
-//  sendUniforms(m_nb_vertices);
+
+  m_shader->sendUniformi("is_filled", m_is_filled);
+  sendUniforms();
   if (m_is_filled) {
-    sendUniforms(m_nb_vertices);
+    m_shader->sendUniformi("nb_vertices", m_nb_vertices);
     glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, m_nb_vertices, nb_instances);
   } else {
-    sendUniforms(m_nb_vertices*2);
-    glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices*2 +2, nb_instances);
+    m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
+    glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_instances);
   }
   glBindVertexArray(0);
   m_shader->stop();
@@ -169,26 +171,9 @@ void GLCPointsetDisk::display() {
 
 /******* GLCPointSquare ********/
 GLCPointsetSquare::GLCPointsetSquare(CShader *shader, std::string name)
-        : GLCPointset(shader, name) {
-}
-
-void GLCPointsetSquare::display() {
-
-  if (!ready() || !m_is_shown)
-    return;
-
-  m_shader->start();
-  glBindVertexArray(m_vao);
-  int nb_instances = m_cpoints.size() * m_threshold / 100;
-  if (m_is_filled) {
-    sendUniforms(m_nb_vertices);
-    glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, m_nb_vertices, nb_instances);
-  } else {
-    sendUniforms(m_nb_vertices*2);
-    glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices*2 +2, nb_instances);
-  }
-  glBindVertexArray(0);
-  m_shader->stop();
+        : GLCPointsetRegularPolygon(shader, name) {
+  m_nb_vertices = 4;
+  m_pointset_type = CPointsetTypes::square;
 }
 
 /******* GLCPointsetManager ********/
@@ -217,11 +202,9 @@ void GLCPointsetManager::loadFile(std::string filepath) {
     std::string str_shape = (*it)["shape"];
     std::string name((*it).value("name", defaultName()));
     if (str_shape == "disk") {
-      shader = m_disk_shader;
-      pointset = new GLCPointsetDisk(shader, name);
+      pointset = new GLCPointsetDisk(m_regular_polygon_shader, name);
     } else if (str_shape == "square") {
-      shader = m_square_shader;
-      pointset = new GLCPointsetSquare(shader, name);
+      pointset = new GLCPointsetSquare(m_regular_polygon_shader, name);
     } else {
       std::cerr << "Unrecognized shape : " + str_shape;
       continue;
@@ -251,20 +234,12 @@ GLCPointsetManager::~GLCPointsetManager() {
 
 void GLCPointsetManager::initShaders() {
 
-  m_disk_shader = new CShader(
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/square.vert",
+  m_regular_polygon_shader = new CShader(
+          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/regular_polygon.vert",
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
-  if (!m_disk_shader->init()) {
-    delete m_disk_shader;
+  if (!m_regular_polygon_shader->init()) {
+    delete m_regular_polygon_shader;
     std::cerr << "Failed to initialize disk shader\n";
-    exit(1);
-  }
-  m_square_shader = new CShader(
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/square.vert",
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
-  if (!m_square_shader->init()) {
-    delete m_square_shader;
-    std::cerr << "Failed to initialize square shader\n";
     exit(1);
   }
 }
@@ -275,7 +250,7 @@ void GLCPointsetManager::displayAll() {
 }
 
 void GLCPointsetManager::createNewCPointset() {
-  m_pointsets[defaultName()] = new GLCPointsetDisk(m_disk_shader, defaultName());
+  m_pointsets[defaultName()] = new GLCPointsetDisk(m_regular_polygon_shader, defaultName());
   m_nb_sets++;
 }
 
@@ -289,9 +264,9 @@ void GLCPointsetManager::changePointsetType(std::string pointset_name, std::stri
   auto *old_pointset = m_pointsets[pointset_name];
   GLCPointset *new_pointset;
   if (new_type == "disk")
-    new_pointset = new GLCPointsetDisk(m_disk_shader, pointset_name);
+    new_pointset = new GLCPointsetDisk(m_regular_polygon_shader, pointset_name);
   else if (new_type == "square")
-    new_pointset = new GLCPointsetSquare(m_square_shader, pointset_name);
+    new_pointset = new GLCPointsetSquare(m_regular_polygon_shader, pointset_name);
   // else if(new_type == )
   if (new_pointset) {
     new_pointset->copyCPoints(old_pointset);
@@ -301,4 +276,8 @@ void GLCPointsetManager::changePointsetType(std::string pointset_name, std::stri
   }
 }
 
+GLCPointsetRegularPolygon::GLCPointsetRegularPolygon(CShader *m_shader, std::string name) : GLCPointset(m_shader,
+                                                                                                        name) {
+
+}
 }

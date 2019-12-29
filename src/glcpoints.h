@@ -23,6 +23,11 @@ struct PPred {
   inline bool operator()(const T *a, const T *b) const { return *a < *b; }
 };
 
+enum CPointsetTypes{
+  disk,
+  square
+};
+
 class GLCPoint {
 public:
   GLCPoint(std::array<float, 3> coords, float size);
@@ -40,7 +45,7 @@ private:
   std::string m_text;
 };
 
-typedef std::set<GLCPoint *, PPred> glcpointset_t;
+typedef std::multiset<GLCPoint *, PPred> glcpointset_t;
 
 class GLCPointset {
 public:
@@ -50,7 +55,7 @@ public:
   void initVboData();
   void setAttributes();
   void addPoint(GLCPoint *point);
-  void sendUniforms(int nb_vertices);
+  void sendUniforms();
   void copyCPoints(GLCPointset*);
   const glcpointset_t& getCPoints() const;
   bool ready();
@@ -61,6 +66,7 @@ public:
   const bool isFilled() const;
   const std::string &getName() const;
   void setThreshold(int threshold);
+  inline int size() {return m_cpoints.size();}
 
 protected:
   CShader *m_shader;
@@ -72,20 +78,27 @@ protected:
   bool m_is_shown;
   bool m_is_filled;
   int m_threshold;
+  CPointsetTypes m_pointset_type;
+public:
+  CPointsetTypes getPointsetType() const;
 };
 
-class GLCPointsetDisk : public GLCPointset {
+class GLCPointsetRegularPolygon : public GLCPointset {
 public:
-  GLCPointsetDisk(CShader *m_shader, std::string name = "");
+  GLCPointsetRegularPolygon(CShader *m_shader, std::string name);
   void display();
-  const int m_nb_vertices = 100;
+protected:
+  int m_nb_vertices; //TODO make const with constructor
 };
 
-class GLCPointsetSquare : public GLCPointset {
+class GLCPointsetDisk : public GLCPointsetRegularPolygon {
 public:
-  GLCPointsetSquare(CShader *m_shader, std::string name = "");
-  void display();
-  const int m_nb_vertices = 4;
+  GLCPointsetDisk(CShader *m_shader, std::string name);
+};
+
+class GLCPointsetSquare : public GLCPointsetRegularPolygon {
+public:
+  GLCPointsetSquare(CShader *m_shader, std::string name);
 };
 
 class GLCPointsetManager {
@@ -114,7 +127,7 @@ public:
 
 private:
   int m_nb_sets;
-  CShader *m_disk_shader, *m_square_shader;
+  CShader *m_regular_polygon_shader;
   std::map<std::string, GLCPointset *> m_pointsets;
   std::string defaultName() const;
 };

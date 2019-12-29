@@ -1461,6 +1461,11 @@ void FormObjectControl::on_cpoints_set_listwidget_itemClicked(QListWidgetItem *i
   GLCPointset *pointset = getSelectedPointset();
   if(pointset) {
     form.cpoints_display_cbx->setChecked(pointset->isShown());
+    form.shape_checkbox_filled->setChecked(pointset->isFilled());
+    if(pointset->getPointsetType() == CPointsetTypes::square)
+      form.shape_radio_square->setChecked(true);
+    if(pointset->getPointsetType() == CPointsetTypes::disk)
+      form.shape_radio_disk->setChecked(true);
   }
 }
 // ============================================================================
@@ -1475,23 +1480,23 @@ void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) 
 // ============================================================================
 //
 void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
-  // TODO
   std::vector<QString> inputs_val = {
           form.add_cpoint_coords_x->text(),
           form.add_cpoint_coords_y->text(),
           form.add_cpoint_coords_z->text(),
           form.add_cpoint_coords_size->text()
   };
-
-  if ( !std::any_of(inputs_val.begin(), inputs_val.end(), [](QString val){return val == "";}) ) {
-    std::cerr << "OK";
-//    GLCPointset *pointset = getSelectedPointset();
-//    if (pointset) {
-//
-//    }
-  }
-  else {
-    std::cerr << "not ok";
+  if (!std::any_of(inputs_val.begin(), inputs_val.end(), [](QString input) { return input.isEmpty(); })) {
+    GLCPointset *pointset = getSelectedPointset();
+    if (pointset) {
+      GLCPoint *cpoint = new GLCPoint(
+              {inputs_val[0].toFloat(),
+                     inputs_val[1].toFloat(),
+                     inputs_val[2].toFloat()},
+                inputs_val[3].toFloat());
+      pointset->addPoint(cpoint);
+      emit objectSettingsChanged();
+    }
   }
 }
 // ============================================================================
