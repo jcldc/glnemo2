@@ -1257,9 +1257,9 @@ p, li { white-space: pre-wrap; }
                  </widget>
                 </item>
                 <item row="0" column="0">
-                 <widget class="QRadioButton" name="shape_radio_annulus">
+                 <widget class="QRadioButton" name="shape_radio_disk">
                   <property name="text">
-                   <string>Annulus</string>
+                   <string>Disk</string>
                   </property>
                  </widget>
                 </item>

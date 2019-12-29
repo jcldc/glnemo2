@@ -258,6 +258,10 @@ void MainWindow::start(std::string shot)
   }
 
   gl_window->setFocus();
+  if(cpoint_file != ""){
+    pointset_manager->loadFile(cpoint_file);
+    form_o_c->updateCPointsListWidget();
+  }
   //actionMenuFileConnect();
 }
 // -----------------------------------------------------------------------------
@@ -1175,6 +1179,8 @@ void MainWindow::parseNemoParameters()
   store_options->col_y_grid  = QColor(getparam((char *) "yzg_color"));
   store_options->col_z_grid  = QColor(getparam((char *) "xzg_color"));
   store_options->col_cube    = QColor(getparam((char *) "cube_color"));
+
+  cpoint_file = getparam((char*) "cpoint_file");
 
   if (store_options->port) {;} // do nothing (remove compiler warning)
 

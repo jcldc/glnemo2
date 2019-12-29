@@ -76,7 +76,7 @@
         <file>../res/shaders/velocity.frag130.cc</file>
         <file>../res/shaders/cpoints/characteristic.frag</file>
         <file>../res/shaders/cpoints/disk.vert</file>
-        <file>../res/shaders/cpoints/annulus.vert</file>
+        <file>../res/shaders/cpoints/square.vert</file>
         <file>../res/camera/path_02</file>
         <file>../res/camera/path_03</file>
         <file>../res/shaders/camera.vert.cc</file>

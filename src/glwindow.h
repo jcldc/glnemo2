@@ -283,7 +283,6 @@ private:
   int nframe;
 //   Shaders
   CShader * shader, * vel_shader;
-//  CShader * disk_shader, annulus_shader;
   void initShader();
   unsigned int m_vertexShader, m_pixelShader;
 

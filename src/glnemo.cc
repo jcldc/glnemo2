@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -164,8 +164,9 @@ std::string VERSION = "VERSION="+release+"\n    "+__DATE__+"  - JCL  compiled at
     "wsize=931\n       Windows's width size                             ",
     "hsize=750\n       Windows's height size                            ",
     "screenshot=\n     Screenshot name                                  ",
-    "shot_ext=jpg\n    Screenshot's extension jpg|png                    ",
+    "shot_ext=jpg\n    Screenshot's extension jpg|png                   ",
     "smooth_gui=t\n    if true it allows a smoother interactivity with  ",
+    "cpoint_file=\n    path to a json cpoint description file           ",
     "                   the GUI, but it **double** the memory usage. \n",
     VERSION.c_str(),
     NULL

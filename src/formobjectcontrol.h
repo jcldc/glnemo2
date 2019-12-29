@@ -162,12 +162,13 @@ namespace glnemo {
     void on_add_cpoint_btn_clicked(bool);
     void on_add_cpointset_clicked(bool);
     void on_remove_cpointset_clicked(bool);
-    void on_shape_radio_annulus_clicked(bool) {shapeRadioClicked();};
+    void on_shape_radio_disk_clicked(bool) {shapeRadioClicked();};
     void on_shape_radio_square_clicked(bool) {shapeRadioClicked();};
     void on_shape_radio_frame_clicked(bool) {shapeRadioClicked();};
     void on_shape_radio_arrow_clicked(bool) {shapeRadioClicked();};
     void on_shape_radio_text_clicked(bool) {shapeRadioClicked();};
     void shapeRadioClicked();
+    void on_shape_checkbox_filled_stateChanged(int);
     // on gaz
     void on_gaz_check_clicked(bool);
     void on_gaz_slide_size_valueChanged(int);

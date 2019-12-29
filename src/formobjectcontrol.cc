@@ -1475,6 +1475,7 @@ void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) 
 // ============================================================================
 //
 void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
+  // TODO
   std::vector<QString> inputs_val = {
           form.add_cpoint_coords_x->text(),
           form.add_cpoint_coords_y->text(),
@@ -1515,12 +1516,23 @@ void FormObjectControl::shapeRadioClicked() {
   GLCPointset *pointset = getSelectedPointset();
   if(pointset){
     QRadioButton* clickedBtn = qobject_cast<QRadioButton*>(sender());
-    if(clickedBtn->objectName() == "shape_radio_annulus")
-      pointset_manager->changePointsetType(pointset->getName(), "annulus");
-    else if(clickedBtn->objectName() == "shape_radio_square")
+    if(clickedBtn->objectName() == "shape_radio_disk")
       pointset_manager->changePointsetType(pointset->getName(), "disk");
+    else if(clickedBtn->objectName() == "shape_radio_square")
+      pointset_manager->changePointsetType(pointset->getName(), "square");
   } 
   emit objectSettingsChanged();
+}
+
+void FormObjectControl::on_shape_checkbox_filled_stateChanged(int state){
+  GLCPointset *pointset = getSelectedPointset();
+  if (pointset) {
+    if (state == Qt::Checked)
+      pointset->setFilled(true);
+    else if (state == Qt::Unchecked)
+      pointset->setFilled(false);
+    emit objectSettingsChanged();
+  }
 }
 
 }

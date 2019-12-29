@@ -6,7 +6,7 @@
 #define GLNEMO2_GLCPOINTS_H
 
 #include "cshader.h"
-#include <QtGui/QColor>
+#include <QColor>
 #include <iostream>
 #include <json.hpp>
 #include <map>
@@ -17,15 +17,6 @@ using json = nlohmann::json;
 #define NB_POINTS 100
 
 namespace glnemo {
-
-enum CPointsetTypes{
-  annulus,
-  square,
-  frame,
-  arrow,
-  text
-};
-
 
 struct PPred {
   template<typename T>
@@ -59,13 +50,15 @@ public:
   void initVboData();
   void setAttributes();
   void addPoint(GLCPoint *point);
-  void sendUniforms();
+  void sendUniforms(int nb_vertices);
   void copyCPoints(GLCPointset*);
   const glcpointset_t& getCPoints() const;
   bool ready();
   void hide();
   void show();
   bool isShown();
+  void setFilled(bool);
+  const bool isFilled() const;
   const std::string &getName() const;
   void setThreshold(int threshold);
 
@@ -77,20 +70,22 @@ protected:
   std::string m_name;
   QColor m_color;
   bool m_is_shown;
+  bool m_is_filled;
   int m_threshold;
-  const int m_nb_vertices = 100;
-};
-
-class GLCPointsetAnnulus : public GLCPointset {
-public:
-  GLCPointsetAnnulus(CShader *m_shader, std::string name = "");
-  void display();
 };
 
 class GLCPointsetDisk : public GLCPointset {
 public:
   GLCPointsetDisk(CShader *m_shader, std::string name = "");
   void display();
+  const int m_nb_vertices = 100;
+};
+
+class GLCPointsetSquare : public GLCPointset {
+public:
+  GLCPointsetSquare(CShader *m_shader, std::string name = "");
+  void display();
+  const int m_nb_vertices = 4;
 };
 
 class GLCPointsetManager {
@@ -119,8 +114,7 @@ public:
 
 private:
   int m_nb_sets;
-  CShader *m_disk_shader;
-  CShader *m_annulus_shader;
+  CShader *m_disk_shader, *m_square_shader;
   std::map<std::string, GLCPointset *> m_pointsets;
   std::string defaultName() const;
 };
