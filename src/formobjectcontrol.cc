@@ -1439,7 +1439,7 @@ GLCPointset *FormObjectControl::getSelectedPointset() {
 void FormObjectControl::updateCPointsListWidget() {
   form.cpoints_set_listwidget->clear();
   for (auto cpoint_set : *pointset_manager) {
-    new QListWidgetItem(QString::fromStdString(cpoint_set.second->getName()),
+    auto item = new QListWidgetItem(QString::fromStdString(cpoint_set.second->getName()),
                         form.cpoints_set_listwidget);
   }
 }
@@ -1489,12 +1489,10 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
   if (!std::any_of(inputs_val.begin(), inputs_val.end(), [](QString input) { return input.isEmpty(); })) {
     GLCPointset *pointset = getSelectedPointset();
     if (pointset) {
-      GLCPoint *cpoint = new GLCPoint(
-              {inputs_val[0].toFloat(),
-                     inputs_val[1].toFloat(),
-                     inputs_val[2].toFloat()},
-                inputs_val[3].toFloat());
-      pointset->addPoint(cpoint);
+      std::array<float, 3> coords = {inputs_val[0].toFloat(), inputs_val[1].toFloat(), inputs_val[2].toFloat()};
+      float size = inputs_val[3].toFloat();
+      const string &point_text = form.add_cpoint_text->text().toStdString();
+      pointset->addPoint(coords, size, point_text);
       emit objectSettingsChanged();
     }
   }

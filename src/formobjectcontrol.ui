@@ -1193,7 +1193,7 @@ p, li { white-space: pre-wrap; }
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QLineEdit" name="lineEdit">
+                   <widget class="QLineEdit" name="add_cpoint_text">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>

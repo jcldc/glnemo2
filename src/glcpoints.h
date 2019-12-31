@@ -11,6 +11,7 @@
 #include <json.hpp>
 #include <map>
 #include <set>
+#include <array>
 
 using json = nlohmann::json;
 
@@ -30,9 +31,10 @@ enum CPointsetTypes{
 
 class GLCPoint {
 public:
-  GLCPoint(std::array<float, 3> coords, float size);
+  GLCPoint(std::array<float, 3> coords, float size, std::string text);
   const std::array<float, 3> &getCoords() const;
   const float &getSize() const;
+  const std::string &getText() const;
 
   inline bool operator<(const GLCPoint &other) const { return m_size > other.getSize(); }
   inline bool operator>(const GLCPoint &other) const { return *this < other; }
@@ -54,7 +56,7 @@ public:
   virtual void display() = 0;
   void initVboData();
   void setAttributes();
-  void addPoint(GLCPoint *point);
+  void addPoint(std::array<float, 3> coords, float size, std::string text);
   void sendUniforms();
   void copyCPoints(GLCPointset*);
   const glcpointset_t& getCPoints() const;

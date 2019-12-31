@@ -3,6 +3,7 @@
 //
 
 #include <fstream>
+#include <array>
 #include "glcpoints.h"
 #include "globaloptions.h"
 
@@ -10,8 +11,8 @@ namespace glnemo {
 
 /******* GLCPoint ********/
 
-GLCPoint::GLCPoint(std::array<float, 3> coords, float size)
-        : m_coords(coords), m_size(size) {
+GLCPoint::GLCPoint(std::array<float, 3> coords, float size, std::string text)
+        : m_coords(coords), m_size(size), m_text(text) {
 }
 
 const std::array<float, 3> &GLCPoint::getCoords() const {
@@ -20,6 +21,9 @@ const std::array<float, 3> &GLCPoint::getCoords() const {
 
 const float &GLCPoint::getSize() const {
   return m_size;
+}
+const std::string &GLCPoint::getText() const {
+  return m_text;
 }
 
 
@@ -60,8 +64,9 @@ const std::string &GLCPointset::getName() const {
   return m_name;
 }
 
-void GLCPointset::addPoint(GLCPoint *point) {
-  m_cpoints.insert(point);
+void GLCPointset::addPoint(std::array<float, 3> coords, float size, std::string text) {
+  GLCPoint* cpoint = new GLCPoint(coords, size, text);
+  m_cpoints.insert(cpoint);
   initVboData();
 }
 
@@ -211,8 +216,7 @@ void GLCPointsetManager::loadFile(std::string filepath) {
     }
 
     for (json::iterator data = (*it)["data"].begin(); data != (*it)["data"].end(); ++data) {
-      auto cpoint = new GLCPoint((*data)["coords"], (*data)["radius"]);
-      pointset->addPoint(cpoint);
+      pointset->addPoint((*data)["coords"], (*data)["radius"], std::string()); //TODO change "radius" to "size"
     }
     pointset->initVboData();
     m_pointsets[name] = pointset;
