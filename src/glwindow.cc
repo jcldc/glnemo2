@@ -707,6 +707,7 @@ void GLWindow::resizeGL(int w, int h)
   glMatrixMode( GL_MODELVIEW );
   glLoadIdentity();
   osd->setWH(w,h);
+  cpointset_manager->setW(w);
 }
 // ============================================================================
 // set up the projection according to the width and height of the windows

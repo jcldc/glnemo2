@@ -165,8 +165,7 @@ namespace glnemo {
     void on_shape_radio_disk_clicked(bool) {shapeRadioClicked();};
     void on_shape_radio_square_clicked(bool) {shapeRadioClicked();};
     void on_shape_radio_frame_clicked(bool) {shapeRadioClicked();};
-    void on_shape_radio_arrow_clicked(bool) {shapeRadioClicked();};
-    void on_shape_radio_text_clicked(bool) {shapeRadioClicked();};
+    void on_shape_radio_tag_clicked(bool) {shapeRadioClicked();};
     void shapeRadioClicked();
     void on_shape_checkbox_filled_stateChanged(int);
     // on gaz

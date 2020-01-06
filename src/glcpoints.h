@@ -26,7 +26,8 @@ struct PPred {
 
 enum CPointsetTypes{
   disk,
-  square
+  square,
+  tag
 };
 
 class GLCPoint {
@@ -57,7 +58,7 @@ public:
   void initVboData();
   void setAttributes();
   void addPoint(std::array<float, 3> coords, float size, std::string text);
-  void sendUniforms();
+  virtual void sendUniforms();
   void copyCPoints(GLCPointset*);
   const glcpointset_t& getCPoints() const;
   bool ready();
@@ -68,7 +69,11 @@ public:
   const bool isFilled() const;
   const std::string &getName() const;
   void setThreshold(int threshold);
+  const int getThreshold() const;
   inline int size() {return m_cpoints.size();}
+  CPointsetTypes getPointsetType() const;
+
+  static int wwidth;
 
 protected:
   CShader *m_shader;
@@ -81,8 +86,6 @@ protected:
   bool m_is_filled;
   int m_threshold;
   CPointsetTypes m_pointset_type;
-public:
-  CPointsetTypes getPointsetType() const;
 };
 
 class GLCPointsetRegularPolygon : public GLCPointset {
@@ -103,6 +106,13 @@ public:
   GLCPointsetSquare(CShader *m_shader, std::string name);
 };
 
+class GLCPointsetTag : public GLCPointset {
+public:
+  GLCPointsetTag(CShader *m_shader, std::string name);
+  void display();
+  void sendUniforms();
+};
+
 class GLCPointsetManager {
 public:
   GLCPointsetManager();
@@ -113,6 +123,7 @@ public:
   void createNewCPointset();
   void deleteCPointset(std::string);
   void changePointsetType(std::string pointset_name, std::string new_type);
+  static void setW(int w);
 
   typedef typename std::map<std::string, GLCPointset *> map_type;
   typedef typename map_type::iterator iterator;
@@ -129,7 +140,7 @@ public:
 
 private:
   int m_nb_sets;
-  CShader *m_regular_polygon_shader;
+  CShader *m_regular_polygon_shader, *m_tag_shader;
   std::map<std::string, GLCPointset *> m_pointsets;
   std::string defaultName() const;
 };

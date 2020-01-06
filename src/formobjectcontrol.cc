@@ -1462,10 +1462,13 @@ void FormObjectControl::on_cpoints_set_listwidget_itemClicked(QListWidgetItem *i
   if(pointset) {
     form.cpoints_display_cbx->setChecked(pointset->isShown());
     form.shape_checkbox_filled->setChecked(pointset->isFilled());
+    form.cpoints_threshold_slider->setValue(pointset->getThreshold());
     if(pointset->getPointsetType() == CPointsetTypes::square)
       form.shape_radio_square->setChecked(true);
     if(pointset->getPointsetType() == CPointsetTypes::disk)
       form.shape_radio_disk->setChecked(true);
+    if(pointset->getPointsetType() == CPointsetTypes::tag)
+      form.shape_radio_tag->setChecked(true);
   }
 }
 // ============================================================================
@@ -1525,6 +1528,10 @@ void FormObjectControl::shapeRadioClicked() {
     }
     else if(clickedBtn->objectName() == "shape_radio_square") {
       pointset_manager->changePointsetType(pointset->getName(), "square");
+      on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState());
+    }
+    else if(clickedBtn->objectName() == "shape_radio_tag") {
+      pointset_manager->changePointsetType(pointset->getName(), "tag");
       on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState());
     }
 

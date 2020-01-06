@@ -9,6 +9,8 @@
 
 namespace glnemo {
 
+int GLCPointset::wwidth = 0;
+
 /******* GLCPoint ********/
 
 GLCPoint::GLCPoint(std::array<float, 3> coords, float size, std::string text)
@@ -65,7 +67,7 @@ const std::string &GLCPointset::getName() const {
 }
 
 void GLCPointset::addPoint(std::array<float, 3> coords, float size, std::string text) {
-  GLCPoint* cpoint = new GLCPoint(coords, size, text);
+  GLCPoint *cpoint = new GLCPoint(coords, size, text);
   m_cpoints.insert(cpoint);
   initVboData();
 }
@@ -88,11 +90,11 @@ void GLCPointset::setAttributes() {
   GLuint point_center_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "point_center");
   GLuint radius_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "radius");
   if (point_center_disk_attrib == -1) {
-    std::cerr << "Error occured when getting \"point_center\" attribute (disk shader)\n";
+    std::cerr << "Error occured when getting \"point_center\" attribute\n";
     exit(1);
   }
   if (radius_disk_attrib == -1) {
-    std::cerr << "Error occured when getting \"radius\" attribute (disk shader)\n";
+    std::cerr << "Error occured when getting \"radius\" attribute\n";
     exit(1);
   }
   glEnableVertexAttribArrayARB(point_center_disk_attrib);
@@ -144,12 +146,19 @@ const bool GLCPointset::isFilled() const {
 CPointsetTypes GLCPointset::getPointsetType() const {
   return m_pointset_type;
 }
+const int GLCPointset::getThreshold() const {
+  return m_threshold;
+}
 
 /******* GLCPointDisk ********/
 GLCPointsetDisk::GLCPointsetDisk(CShader *shader, std::string name)
         : GLCPointsetRegularPolygon(shader, name) {
   m_nb_vertices = 100;
   m_pointset_type = CPointsetTypes::disk;
+}
+
+GLCPointsetRegularPolygon::GLCPointsetRegularPolygon(CShader *m_shader, std::string name) : GLCPointset(m_shader,
+                                                                                                        name) {
 }
 
 void GLCPointsetRegularPolygon::display() {
@@ -160,7 +169,6 @@ void GLCPointsetRegularPolygon::display() {
   m_shader->start();
   glBindVertexArray(m_vao);
   int nb_instances = m_cpoints.size() * m_threshold / 100;
-
   m_shader->sendUniformi("is_filled", m_is_filled);
   sendUniforms();
   if (m_is_filled) {
@@ -180,6 +188,39 @@ GLCPointsetSquare::GLCPointsetSquare(CShader *shader, std::string name)
   m_nb_vertices = 4;
   m_pointset_type = CPointsetTypes::square;
 }
+
+/******* GLCPointTag ********/
+GLCPointsetTag::GLCPointsetTag(CShader *m_shader, std::string name) : GLCPointset(m_shader, name) {
+  m_pointset_type = CPointsetTypes::tag;
+}
+
+void GLCPointsetTag::display() {
+  if (!ready() || !m_is_shown)
+    return;
+
+  m_shader->start();
+  glBindVertexArray(m_vao);
+  int nb_instances = m_cpoints.size() * m_threshold / 100;
+
+  sendUniforms();
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, nb_instances);
+
+  glBindVertexArray(0);
+  m_shader->stop();
+}
+
+void GLCPointsetTag::sendUniforms() {
+  GLCPointset::sendUniforms();
+
+  float tagSizeOnScreen = 50; // InPixels
+
+  GLfloat mview[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, mview);
+  glm::mat4 mviewGLM = glm::make_mat4(mview);
+  m_shader->sendUniformXfv("modelviewMatrixInverse", 16, 1, (const float *) glm::value_ptr(glm::inverse(mviewGLM)));
+  m_shader->sendUniformf("screen_scale", 2 * tagSizeOnScreen / wwidth);
+}
+
 
 /******* GLCPointsetManager ********/
 
@@ -210,6 +251,8 @@ void GLCPointsetManager::loadFile(std::string filepath) {
       pointset = new GLCPointsetDisk(m_regular_polygon_shader, name);
     } else if (str_shape == "square") {
       pointset = new GLCPointsetSquare(m_regular_polygon_shader, name);
+    } else if (str_shape == "tag") {
+      pointset = new GLCPointsetTag(m_tag_shader, name);
     } else {
       std::cerr << "Unrecognized shape : " + str_shape;
       continue;
@@ -243,7 +286,16 @@ void GLCPointsetManager::initShaders() {
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
   if (!m_regular_polygon_shader->init()) {
     delete m_regular_polygon_shader;
-    std::cerr << "Failed to initialize disk shader\n";
+    std::cerr << "Failed to initialize regular polygon shader\n";
+    exit(1);
+  }
+
+  m_tag_shader = new CShader(
+          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/tag.vert",
+          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
+  if (!m_tag_shader->init()) {
+    delete m_tag_shader;
+    std::cerr << "Failed to initialize tag shader\n";
     exit(1);
   }
 }
@@ -263,7 +315,6 @@ void GLCPointsetManager::deleteCPointset(std::string pointset_name) {
   m_pointsets.erase(pointset_name);
   m_nb_sets--;
 }
-
 void GLCPointsetManager::changePointsetType(std::string pointset_name, std::string new_type) {
   auto *old_pointset = m_pointsets[pointset_name];
   GLCPointset *new_pointset;
@@ -271,7 +322,9 @@ void GLCPointsetManager::changePointsetType(std::string pointset_name, std::stri
     new_pointset = new GLCPointsetDisk(m_regular_polygon_shader, pointset_name);
   else if (new_type == "square")
     new_pointset = new GLCPointsetSquare(m_regular_polygon_shader, pointset_name);
-  // else if(new_type == )
+  else if (new_type == "tag")
+    new_pointset = new GLCPointsetTag(m_tag_shader, pointset_name);
+
   if (new_pointset) {
     new_pointset->copyCPoints(old_pointset);
     new_pointset->initVboData();
@@ -279,9 +332,7 @@ void GLCPointsetManager::changePointsetType(std::string pointset_name, std::stri
     delete old_pointset;
   }
 }
-
-GLCPointsetRegularPolygon::GLCPointsetRegularPolygon(CShader *m_shader, std::string name) : GLCPointset(m_shader,
-                                                                                                        name) {
-
+void GLCPointsetManager::setW(int w) {
+  GLCPointset::wwidth = w;
 }
 }
