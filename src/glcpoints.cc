@@ -275,6 +275,7 @@ void GLCPointsetManager::loadFile(std::string filepath) {
     pointset = newPointset(str_shape, name);
     if(!pointset)
       continue;
+    pointset->setColor((*it).value("color", std::array<float, 3> {0,0,0}));
 
     for (json::iterator data = (*it)["data"].begin(); data != (*it)["data"].end(); ++data) {
       pointset->addPoint((*data)["coords"], (*data)["radius"], std::string()); //TODO change "radius" to "size"
@@ -322,9 +323,11 @@ void GLCPointsetManager::displayAll() {
     cpointset.second->display();
 }
 
-void GLCPointsetManager::createNewCPointset() {
-  m_pointsets[defaultName()] = new GLCPointsetDisk(m_regular_polygon_shader, defaultName());
+GLCPointset* GLCPointsetManager::createNewCPointset() {
+  GLCPointsetDisk *pointset = new GLCPointsetDisk(m_regular_polygon_shader, defaultName());
+  m_pointsets[defaultName()] = pointset;
   m_nb_sets++;
+  return pointset;
 }
 
 void GLCPointsetManager::deleteCPointset(std::string pointset_name) {
@@ -337,6 +340,7 @@ void GLCPointsetManager::changePointsetType(std::string pointset_name, std::stri
   GLCPointset *new_pointset = newPointset(new_type, pointset_name);
   if (new_pointset) {
     new_pointset->copyCPoints(old_pointset);
+    new_pointset->setColor(old_pointset->getQColor());
     m_pointsets[pointset_name] = new_pointset;
     delete old_pointset;
   }

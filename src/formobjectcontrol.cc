@@ -1514,9 +1514,12 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
 // ============================================================================
 //
 void FormObjectControl::on_add_cpointset_clicked(bool) {
-  pointset_manager->createNewCPointset();
-  updateCPointsListWidget();
-
+  GLCPointset* new_pointset = pointset_manager->createNewCPointset();
+  auto item = new QListWidgetItem(QString::fromStdString(new_pointset->getName()),
+                      form.cpoints_set_listwidget);
+  item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+  form.cpoints_set_listwidget->setCurrentItem(item);
+  on_cpoints_set_listwidget_itemClicked(item);
 }
 // ============================================================================
 //

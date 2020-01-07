@@ -1365,6 +1365,9 @@ Physical value can be:
             </item>
             <item>
              <widget class="QPushButton" name="remove_cpointset">
+              <property name="toolTip">
+               <string>Delete selected cpointset (hold shift to bypass confirmation)</string>
+              </property>
               <property name="text">
                <string>-</string>
               </property>

@@ -125,7 +125,7 @@ public:
   void loadFile(std::string filepath);
   void initShaders();
   void displayAll();
-  void createNewCPointset();
+  GLCPointset* createNewCPointset();
   void deleteCPointset(std::string);
   void changePointsetType(std::string pointset_name, std::string new_type);
   static void setW(int w);
