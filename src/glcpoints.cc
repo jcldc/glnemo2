@@ -113,7 +113,7 @@ void GLCPointset::initVboData() {
 
   //maybe use reserve to preallocate,
   // m_data.reserve(4*m_cpoints.size());
-  for (auto point : m_cpoints) {
+  for (GLCPoint *point : m_cpoints) {
     m_data.push_back(point->getCoords()[0]);
     m_data.push_back(point->getCoords()[1]);
     m_data.push_back(point->getCoords()[2]);
@@ -290,7 +290,7 @@ std::string GLCPointsetManager::defaultName() const {
 
 GLCPointsetManager::~GLCPointsetManager() {
   for (auto cpointset: m_pointsets) {
-    for (auto cpoint : cpointset.second->getCPoints())
+    for (GLCPoint *cpoint : cpointset.second->getCPoints())
       delete cpoint;
     delete cpointset.second;
   }
@@ -349,9 +349,9 @@ void GLCPointsetManager::saveToFile(std::string file_path) {
   std::ofstream outfile (file_path);
   json final_obj;
   for(auto pair: *this){
-    auto set = pair.second;
+    GLCPointset *set = pair.second;
     json data_array = json::array();
-    for(auto cpoint : set->getCPoints())
+    for(GLCPoint *cpoint : set->getCPoints())
       data_array.push_back({{"coords", cpoint->getCoords()},
                                 {"radius", cpoint->getSize()}});
     json current_dict = {{"name", set->getName()},
