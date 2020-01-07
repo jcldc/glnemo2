@@ -118,6 +118,7 @@ FormObjectControl::FormObjectControl(GLCPointsetManager* _pointset_manager, QWid
   form.add_cpoint_coords_y->setValidator(double_validator);
   form.add_cpoint_coords_z->setValidator(double_validator);
   form.add_cpoint_coords_size->setValidator(double_validator);
+  form.color_picker_button->setStyleSheet("background-color: white");
 }
 
 // ============================================================================
@@ -1463,6 +1464,9 @@ void FormObjectControl::on_cpoints_set_listwidget_itemClicked(QListWidgetItem *i
     form.cpoints_display_cbx->setChecked(pointset->isShown());
     form.shape_checkbox_filled->setChecked(pointset->isFilled());
     form.cpoints_threshold_slider->setValue(pointset->getThreshold());
+    form.color_picker_button->setStyleSheet("background-color: " + pointset->getColor().name());
+
+
     if(pointset->getPointsetType() == CPointsetTypes::square)
       form.shape_radio_square->setChecked(true);
     if(pointset->getPointsetType() == CPointsetTypes::disk)
@@ -1548,6 +1552,16 @@ void FormObjectControl::on_shape_checkbox_filled_stateChanged(int state){
       pointset->setFilled(false);
     emit objectSettingsChanged();
   }
+}
+void FormObjectControl::on_color_picker_button_clicked(bool) {
+  GLCPointset *pointset = getSelectedPointset();
+  if (pointset) {
+    QColor newColor = QColorDialog::getColor();
+    form.color_picker_button->setStyleSheet("background-color: " + newColor.name());
+    pointset->setColor(newColor);
+    emit objectSettingsChanged();
+  }
+
 }
 
 }

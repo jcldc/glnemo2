@@ -72,6 +72,8 @@ public:
   const int getThreshold() const;
   inline int size() {return m_cpoints.size();}
   CPointsetTypes getPointsetType() const;
+  const QColor getColor() const;
+  void setColor(const QColor &color);
 
   static int wwidth;
 
@@ -81,7 +83,7 @@ protected:
   GLuint m_vao, m_vbo;
   std::vector<float> m_data;
   std::string m_name;
-  QColor m_color;
+  std::array<float, 3> m_color;
   bool m_is_shown;
   bool m_is_filled;
   int m_threshold;

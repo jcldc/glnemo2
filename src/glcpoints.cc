@@ -39,13 +39,13 @@ void GLCPointset::sendUniforms() {
 
   m_shader->sendUniformXfv("projMatrix", 16, 1, &proj[0]);
   m_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
+  m_shader->sendUniformXfv("color", 3, 1, m_color.data());
 }
 
 GLCPointset::GLCPointset(CShader *shader, std::string name) :
-        m_shader(shader), m_name(name) {
+        m_shader(shader), m_name(name), m_color{1,1,1} {
   m_is_shown = true;
   m_is_filled = false;
-  m_color = QColor("white");
   m_threshold = 100;
   // SHADER INIT
   glGenBuffersARB(1, &m_vbo);
@@ -148,6 +148,12 @@ CPointsetTypes GLCPointset::getPointsetType() const {
 }
 const int GLCPointset::getThreshold() const {
   return m_threshold;
+}
+const QColor GLCPointset::getColor() const {
+  return QColor(m_color[0]*255, m_color[1]*255, m_color[2]*255);
+}
+void GLCPointset::setColor(const QColor &color) {
+  m_color = {color.redF(), color.greenF(), color.blueF()};
 }
 
 /******* GLCPointDisk ********/
