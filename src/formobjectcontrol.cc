@@ -118,7 +118,7 @@ FormObjectControl::FormObjectControl(GLCPointsetManager* _pointset_manager, QWid
   form.add_cpoint_coords_y->setValidator(double_validator);
   form.add_cpoint_coords_z->setValidator(double_validator);
   form.add_cpoint_coords_size->setValidator(double_validator);
-  form.color_picker_button->setStyleSheet("background-color: white");
+  form.color_picker_button->setStyleSheet("background-color:white;QPushButton:disabled{background-color:#eeeeee;}");
 }
 
 // ============================================================================
@@ -1461,10 +1461,11 @@ void FormObjectControl::on_cpoints_display_cbx_stateChanged(int state) {
 void FormObjectControl::on_cpoints_set_listwidget_itemClicked(QListWidgetItem *item) {
   GLCPointset *pointset = getSelectedPointset();
   if(pointset) {
+    form.edit_cpointset_groupbox->setEnabled(true);
     form.cpoints_display_cbx->setChecked(pointset->isShown());
     form.shape_checkbox_filled->setChecked(pointset->isFilled());
     form.cpoints_threshold_slider->setValue(pointset->getThreshold());
-    form.color_picker_button->setStyleSheet("background-color: " + pointset->getColor().name());
+    form.color_picker_button->setStyleSheet("background-color:" + pointset->getColor().name());
 
 
     if(pointset->getPointsetType() == CPointsetTypes::square)
@@ -1562,6 +1563,10 @@ void FormObjectControl::on_color_picker_button_clicked(bool) {
     emit objectSettingsChanged();
   }
 
+}
+void FormObjectControl::on_cpoints_set_listwidget_currentRowChanged(int row) {
+  if(row == -1)
+    form.edit_cpointset_groupbox->setEnabled(false);
 }
 
 }

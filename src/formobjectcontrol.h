@@ -158,6 +158,7 @@ namespace glnemo {
     void on_load_cpoints_file_clicked(bool);
     void on_cpoints_display_cbx_stateChanged(int);
     void on_cpoints_set_listwidget_itemClicked(QListWidgetItem *);
+    void on_cpoints_set_listwidget_currentRowChanged(int);
     void on_cpoints_threshold_slider_valueChanged(int);
     void on_add_cpoint_btn_clicked(bool);
     void on_add_cpointset_clicked(bool);
