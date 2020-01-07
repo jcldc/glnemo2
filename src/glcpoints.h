@@ -72,8 +72,11 @@ public:
   const int getThreshold() const;
   inline int size() {return m_cpoints.size();}
   CPointsetTypes getPointsetType() const;
-  const QColor getColor() const;
+  const QColor getQColor() const;
+  const std::array<float, 3> &getColor() const;
   void setColor(const QColor &color);
+  void setColor(std::array<float, 3>);
+  const CPointsetTypes &getShape() const;
 
   static int wwidth;
 
@@ -140,11 +143,16 @@ public:
     return m_pointsets.at(name);
   }
 
+  void saveToFile(std::string file_path);
+
+  std::map<CPointsetTypes, std::string> shapeToStr;
+  std::map<std::string,CPointsetTypes> strToShape;
 private:
   int m_nb_sets;
   CShader *m_regular_polygon_shader, *m_tag_shader;
   std::map<std::string, GLCPointset *> m_pointsets;
   std::string defaultName() const;
+  GLCPointset *newPointset(std::string str_shape, std::string name);
 };
 
 } // namespace glnemo

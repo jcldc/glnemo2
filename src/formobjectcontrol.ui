@@ -1199,9 +1199,6 @@ Physical value can be:
                     <property name="text">
                      <string/>
                     </property>
-                    <property name="flat">
-                     <bool>false</bool>
-                    </property>
                    </widget>
                   </item>
                   <item>
@@ -1341,11 +1338,15 @@ Physical value can be:
             </property>
             <item>
              <widget class="QPushButton" name="load_cpoints_file">
-              <property name="toolTip">
-               <string>Load a cpoint description file</string>
-              </property>
               <property name="text">
-               <string>Load cpoint file</string>
+               <string>Load file</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="export_cpoints_file">
+              <property name="text">
+               <string>Export to file</string>
               </property>
              </widget>
             </item>
@@ -1364,9 +1365,6 @@ Physical value can be:
             </item>
             <item>
              <widget class="QPushButton" name="remove_cpointset">
-              <property name="toolTip">
-               <string>Delete selected cpointset</string>
-              </property>
               <property name="text">
                <string>-</string>
               </property>

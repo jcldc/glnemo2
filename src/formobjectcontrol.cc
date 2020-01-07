@@ -117,7 +117,7 @@ FormObjectControl::FormObjectControl(GLCPointsetManager* _pointset_manager, QWid
   form.add_cpoint_coords_y->setValidator(double_validator);
   form.add_cpoint_coords_z->setValidator(double_validator);
   form.add_cpoint_coords_size->setValidator(double_validator);
-  form.color_picker_button->setStyleSheet("background-color:white;QPushButton:disabled{background-color:#eeeeee;}");
+  form.color_picker_button->setStyleSheet("QPushButton:disabled{background-color:#eeeeee}");
 }
 
 // ============================================================================
@@ -1419,7 +1419,7 @@ void FormObjectControl::on_z_stretch_max_spin_valueChanged(double value)
 void FormObjectControl::on_load_cpoints_file_clicked(bool) {
   QString file_path;
   file_path = QFileDialog::getOpenFileName(
-      this, tr("Select a characteristic point description file"));
+      this, tr("Open characteristic point description file"));
   if (!file_path.isEmpty()) {
       pointset_manager->loadFile(file_path.toStdString());
       updateCPointsListWidget();
@@ -1441,6 +1441,7 @@ void FormObjectControl::updateCPointsListWidget() {
   for (auto cpoint_set : *pointset_manager) {
     auto item = new QListWidgetItem(QString::fromStdString(cpoint_set.second->getName()),
                         form.cpoints_set_listwidget);
+    item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
   }
 }
 // ============================================================================
@@ -1464,7 +1465,7 @@ void FormObjectControl::on_cpoints_set_listwidget_itemClicked(QListWidgetItem *i
     form.cpoints_display_cbx->setChecked(pointset->isShown());
     form.shape_checkbox_filled->setChecked(pointset->isFilled());
     form.cpoints_threshold_slider->setValue(pointset->getThreshold());
-    form.color_picker_button->setStyleSheet("background-color:" + pointset->getColor().name());
+    form.color_picker_button->setStyleSheet("background-color:" + pointset->getQColor().name());
 
 
     if(pointset->getPointsetType() == CPointsetTypes::square){
@@ -1581,6 +1582,14 @@ void FormObjectControl::on_color_picker_button_clicked(bool) {
 void FormObjectControl::on_cpoints_set_listwidget_currentRowChanged(int row) {
   if(row == -1)
     form.edit_cpointset_groupbox->setEnabled(false);
+}
+void FormObjectControl::on_export_cpoints_file_clicked(bool) {
+  QString file_path;
+  file_path = QFileDialog::getSaveFileName(
+      this, tr("Save cpoints description file"));
+  if (!file_path.isEmpty()) {
+      pointset_manager->saveToFile(file_path.toStdString());
+  }
 }
 
 }

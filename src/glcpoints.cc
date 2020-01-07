@@ -134,6 +134,7 @@ const glcpointset_t &GLCPointset::getCPoints() const {
 
 void GLCPointset::copyCPoints(GLCPointset *other) {
   m_cpoints = other->getCPoints();
+  initVboData();
 }
 
 void GLCPointset::setFilled(bool filled) {
@@ -149,11 +150,20 @@ CPointsetTypes GLCPointset::getPointsetType() const {
 const int GLCPointset::getThreshold() const {
   return m_threshold;
 }
-const QColor GLCPointset::getColor() const {
+const QColor GLCPointset::getQColor() const {
   return QColor(m_color[0]*255, m_color[1]*255, m_color[2]*255);
 }
 void GLCPointset::setColor(const QColor &color) {
   m_color = {color.redF(), color.greenF(), color.blueF()};
+}
+const CPointsetTypes &GLCPointset::getShape() const {
+  return m_pointset_type;
+}
+void GLCPointset::setColor(std::array<float, 3> color) {
+  m_color = color;
+}
+const std::array<float, 3> &GLCPointset::getColor() const {
+  return m_color;
 }
 
 /******* GLCPointDisk ********/
@@ -234,6 +244,14 @@ void GLCPointsetTag::sendUniforms() {
 GLCPointsetManager::GLCPointsetManager() {
   // SHADER INIT
   m_nb_sets = 0;
+
+  shapeToStr[CPointsetTypes::disk] = "disk";
+  shapeToStr[CPointsetTypes::square] = "square";
+  shapeToStr[CPointsetTypes::tag] = "tag";
+
+  for(auto sts: shapeToStr){
+    strToShape[sts.second] = sts.first;
+  }
 }
 
 void GLCPointsetManager::loadFile(std::string filepath) {
@@ -253,21 +271,14 @@ void GLCPointsetManager::loadFile(std::string filepath) {
 
     std::string str_shape = (*it)["shape"];
     std::string name((*it).value("name", defaultName()));
-    if (str_shape == "disk") {
-      pointset = new GLCPointsetDisk(m_regular_polygon_shader, name);
-    } else if (str_shape == "square") {
-      pointset = new GLCPointsetSquare(m_regular_polygon_shader, name);
-    } else if (str_shape == "tag") {
-      pointset = new GLCPointsetTag(m_tag_shader, name);
-    } else {
-      std::cerr << "Unrecognized shape : " + str_shape;
+
+    pointset = newPointset(str_shape, name);
+    if(!pointset)
       continue;
-    }
 
     for (json::iterator data = (*it)["data"].begin(); data != (*it)["data"].end(); ++data) {
       pointset->addPoint((*data)["coords"], (*data)["radius"], std::string()); //TODO change "radius" to "size"
     }
-    pointset->initVboData();
     m_pointsets[name] = pointset;
     m_nb_sets++;
   }
@@ -322,23 +333,47 @@ void GLCPointsetManager::deleteCPointset(std::string pointset_name) {
   m_nb_sets--;
 }
 void GLCPointsetManager::changePointsetType(std::string pointset_name, std::string new_type) {
-  auto *old_pointset = m_pointsets[pointset_name];
-  GLCPointset *new_pointset;
-  if (new_type == "disk")
-    new_pointset = new GLCPointsetDisk(m_regular_polygon_shader, pointset_name);
-  else if (new_type == "square")
-    new_pointset = new GLCPointsetSquare(m_regular_polygon_shader, pointset_name);
-  else if (new_type == "tag")
-    new_pointset = new GLCPointsetTag(m_tag_shader, pointset_name);
-
+  GLCPointset *old_pointset = m_pointsets[pointset_name];
+  GLCPointset *new_pointset = newPointset(new_type, pointset_name);
   if (new_pointset) {
     new_pointset->copyCPoints(old_pointset);
-    new_pointset->initVboData();
     m_pointsets[pointset_name] = new_pointset;
     delete old_pointset;
   }
 }
 void GLCPointsetManager::setW(int w) {
   GLCPointset::wwidth = w;
+}
+
+void GLCPointsetManager::saveToFile(std::string file_path) {
+  std::ofstream outfile (file_path);
+  json final_obj;
+  for(auto pair: *this){
+    auto set = pair.second;
+    json data_array = json::array();
+    for(auto cpoint : set->getCPoints())
+      data_array.push_back({{"coords", cpoint->getCoords()},
+                                {"radius", cpoint->getSize()}});
+    json current_dict = {{"name", set->getName()},
+                         {"shape", shapeToStr[set->getShape()]},
+                         {"color", set->getColor()},
+                         {"data", data_array}};
+
+    final_obj.push_back(current_dict);
+  }
+  outfile << final_obj;
+}
+
+GLCPointset *GLCPointsetManager::newPointset(std::string str_shape, std::string name) {
+  if (str_shape == "disk") {
+    return new GLCPointsetDisk(m_regular_polygon_shader, name);
+  } else if (str_shape == "square") {
+    return new GLCPointsetSquare(m_regular_polygon_shader, name);
+  } else if (str_shape == "tag") {
+    return new GLCPointsetTag(m_tag_shader, name);
+  } else {
+    std::cerr << "Unrecognized shape : " + str_shape;
+    return nullptr;
+  }
 }
 }
