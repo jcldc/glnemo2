@@ -19,8 +19,7 @@
 #include <QRegExp>
 #include <assert.h>
 #include <QFileDialog>
-#include <QStandardItemModel>
-#include <QtCore/QStringListModel>
+#include <QMessageBox>
 #include "globaloptions.h"
 #include "gltexture.h"
 
@@ -1517,9 +1516,15 @@ void FormObjectControl::on_add_cpointset_clicked(bool) {
 void FormObjectControl::on_remove_cpointset_clicked(bool) {
   GLCPointset *pointset = getSelectedPointset();
   if(pointset){
-    pointset_manager->deleteCPointset(pointset->getName());
-    updateCPointsListWidget();
-    emit objectSettingsChanged();
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Delete cpointset", QString::fromStdString("Do you really want to delete cpointset \"" + pointset->getName() + "\"?"),
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+      pointset_manager->deleteCPointset(pointset->getName());
+      updateCPointsListWidget();
+      emit objectSettingsChanged();
+    }
+
   }
 }
 
