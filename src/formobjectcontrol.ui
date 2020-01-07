@@ -1051,10 +1051,7 @@ Physical value can be:
                <item>
                 <widget class="QCheckBox" name="cpoints_display_cbx">
                  <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Enable texture effect on particles&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  <string>Toggle display cpointset</string>
                  </property>
                  <property name="text">
                   <string>Display</string>
@@ -1096,7 +1093,7 @@ p, li { white-space: pre-wrap; }
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>min density</string>
+                  <string>Threshold (percent of cpoints to show, sorted by size)</string>
                  </property>
                  <property name="maximum">
                   <number>100</number>
@@ -1138,6 +1135,9 @@ p, li { white-space: pre-wrap; }
                <layout class="QGridLayout" name="gridLayout_11">
                 <item row="0" column="1">
                  <widget class="QRadioButton" name="shape_radio_square">
+                  <property name="toolTip">
+                   <string>Change cpoints shape to square</string>
+                  </property>
                   <property name="text">
                    <string>Square</string>
                   </property>
@@ -1145,6 +1145,9 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item row="0" column="0">
                  <widget class="QRadioButton" name="shape_radio_disk">
+                  <property name="toolTip">
+                   <string>Change cpoints shape to circle</string>
+                  </property>
                   <property name="text">
                    <string>Disk</string>
                   </property>
@@ -1152,6 +1155,9 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item row="2" column="0">
                  <widget class="QRadioButton" name="shape_radio_tag">
+                  <property name="toolTip">
+                   <string>Change cpoints shape to tag</string>
+                  </property>
                   <property name="text">
                    <string>Tag</string>
                   </property>
@@ -1159,6 +1165,9 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item row="3" column="0">
                  <widget class="QCheckBox" name="shape_checkbox_filled">
+                  <property name="toolTip">
+                   <string>Toggle fill shape</string>
+                  </property>
                   <property name="text">
                    <string>Filled</string>
                   </property>
@@ -1166,6 +1175,9 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item row="2" column="1">
                  <widget class="QRadioButton" name="shape_radio_arrow">
+                  <property name="toolTip">
+                   <string>Change cpoints shape to arrow</string>
+                  </property>
                   <property name="text">
                    <string>Arrow</string>
                   </property>
@@ -1180,6 +1192,9 @@ p, li { white-space: pre-wrap; }
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
+                    </property>
+                    <property name="toolTip">
+                     <string>Set color of the selected cpointset</string>
                     </property>
                     <property name="text">
                      <string/>
@@ -1300,6 +1315,9 @@ p, li { white-space: pre-wrap; }
                       <verstretch>0</verstretch>
                      </sizepolicy>
                     </property>
+                    <property name="toolTip">
+                     <string>Add a cpoint to selected cpointset</string>
+                    </property>
                     <property name="text">
                      <string>Add</string>
                     </property>
@@ -1323,8 +1341,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <item>
              <widget class="QPushButton" name="load_cpoints_file">
+              <property name="toolTip">
+               <string>Load a cpoint description file</string>
+              </property>
               <property name="text">
-               <string>Load json file</string>
+               <string>Load cpoint file</string>
               </property>
              </widget>
             </item>
@@ -1343,6 +1364,9 @@ p, li { white-space: pre-wrap; }
             </item>
             <item>
              <widget class="QPushButton" name="remove_cpointset">
+              <property name="toolTip">
+               <string>Delete selected cpointset</string>
+              </property>
               <property name="text">
                <string>-</string>
               </property>
@@ -1355,6 +1379,9 @@ p, li { white-space: pre-wrap; }
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Create a new cpointset</string>
               </property>
               <property name="text">
                <string>+</string>

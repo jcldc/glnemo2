@@ -1467,12 +1467,18 @@ void FormObjectControl::on_cpoints_set_listwidget_itemClicked(QListWidgetItem *i
     form.color_picker_button->setStyleSheet("background-color:" + pointset->getColor().name());
 
 
-    if(pointset->getPointsetType() == CPointsetTypes::square)
+    if(pointset->getPointsetType() == CPointsetTypes::square){
       form.shape_radio_square->setChecked(true);
-    if(pointset->getPointsetType() == CPointsetTypes::disk)
+      form.shape_checkbox_filled->setEnabled(true);
+    }
+    if(pointset->getPointsetType() == CPointsetTypes::disk){
       form.shape_radio_disk->setChecked(true);
-    if(pointset->getPointsetType() == CPointsetTypes::tag)
+      form.shape_checkbox_filled->setEnabled(true);
+    }
+    if(pointset->getPointsetType() == CPointsetTypes::tag){
       form.shape_radio_tag->setChecked(true);
+      form.shape_checkbox_filled->setEnabled(false);
+    }
   }
 }
 // ============================================================================
@@ -1535,14 +1541,17 @@ void FormObjectControl::shapeRadioClicked() {
     if(clickedBtn->objectName() == "shape_radio_disk") {
       pointset_manager->changePointsetType(pointset->getName(), "disk");
       on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState());
+      form.shape_checkbox_filled->setEnabled(true);
     }
     else if(clickedBtn->objectName() == "shape_radio_square") {
       pointset_manager->changePointsetType(pointset->getName(), "square");
       on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState());
+      form.shape_checkbox_filled->setEnabled(true);
     }
     else if(clickedBtn->objectName() == "shape_radio_tag") {
       pointset_manager->changePointsetType(pointset->getName(), "tag");
       on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState());
+      form.shape_checkbox_filled->setEnabled(false);
     }
 
     emit objectSettingsChanged();
