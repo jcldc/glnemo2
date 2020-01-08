@@ -1455,9 +1455,9 @@ void FormObjectControl::on_cpoints_display_cbx_stateChanged(int state) {
   GLCPointset *pointset = getSelectedPointset();
   if (pointset) {
     if (state == Qt::Checked)
-      pointset->show();
+      pointset->setShow(true);
     else if (state == Qt::Unchecked)
-      pointset->hide();
+      pointset->setShow(false);
     emit objectSettingsChanged();
   }
 }
@@ -1549,19 +1549,18 @@ void FormObjectControl::shapeRadioClicked() {
     QRadioButton* clickedBtn = qobject_cast<QRadioButton*>(sender());
     if(clickedBtn->objectName() == "shape_radio_disk") {
       pointset_manager->changePointsetType(pointset->getName(), "disk");
-      on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState());
       form.shape_checkbox_filled->setEnabled(true);
     }
     else if(clickedBtn->objectName() == "shape_radio_square") {
       pointset_manager->changePointsetType(pointset->getName(), "square");
-      on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState());
       form.shape_checkbox_filled->setEnabled(true);
     }
     else if(clickedBtn->objectName() == "shape_radio_tag") {
       pointset_manager->changePointsetType(pointset->getName(), "tag");
-      on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState());
       form.shape_checkbox_filled->setEnabled(false);
     }
+
+    on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState()); // check if necessary
 
     emit objectSettingsChanged();
   }

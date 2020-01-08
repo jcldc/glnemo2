@@ -62,8 +62,7 @@ public:
   void copyCPoints(GLCPointset*);
   const glcpointset_t& getCPoints() const;
   bool ready();
-  void hide();
-  void show();
+  void setShow(bool show);
   bool isShown();
   void setFilled(bool);
   const bool isFilled() const;

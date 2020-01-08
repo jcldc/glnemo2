@@ -72,12 +72,9 @@ void GLCPointset::addPoint(std::array<float, 3> coords, float size, std::string 
   initVboData();
 }
 
-void GLCPointset::hide() {
-  m_is_shown = false;
-}
 
-void GLCPointset::show() {
-  m_is_shown = true;
+void GLCPointset::setShow(bool show) {
+  m_is_shown = show;
 }
 bool GLCPointset::isShown() {
   return m_is_shown;
@@ -344,6 +341,8 @@ void GLCPointsetManager::changePointsetType(std::string pointset_name, std::stri
   if (new_pointset) {
     new_pointset->copyCPoints(old_pointset);
     new_pointset->setColor(old_pointset->getQColor());
+    new_pointset->setShow(old_pointset->isShown());
+    new_pointset->setThreshold(old_pointset->getThreshold());
     m_pointsets[pointset_name] = new_pointset;
     delete old_pointset;
   }
