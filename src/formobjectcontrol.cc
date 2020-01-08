@@ -1580,7 +1580,7 @@ void FormObjectControl::on_shape_checkbox_filled_stateChanged(int state){
 void FormObjectControl::on_color_picker_button_clicked(bool) {
   GLCPointset *pointset = getSelectedPointset();
   if (pointset) {
-    QColor newColor = QColorDialog::getColor();
+    QColor newColor = QColorDialog::getColor(pointset->getQColor());
     form.color_picker_button->setStyleSheet("background-color: " + newColor.name());
     pointset->setColor(newColor);
     emit objectSettingsChanged();
