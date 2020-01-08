@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>534</width>
+    <width>468</width>
     <height>1069</height>
    </rect>
   </property>
@@ -1234,45 +1234,103 @@ Physical value can be:
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QLabel" name="label_11">
-                    <property name="text">
-                     <string>Coordinates</string>
+                   <widget class="QLabel" name="label_14">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
                     </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLineEdit" name="add_cpoint_coords_x">
-                    <property name="placeholderText">
+                    <property name="text">
                      <string>x</string>
                     </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="add_cpoint_coords_y">
-                    <property name="text">
-                     <string/>
+                   <widget class="QDoubleSpinBox" name="add_cpoint_coords_x">
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::NoButtons</enum>
                     </property>
-                    <property name="placeholderText">
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_15">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
                      <string>y</string>
                     </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="add_cpoint_coords_z">
-                    <property name="placeholderText">
+                   <widget class="QDoubleSpinBox" name="add_cpoint_coords_y">
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::NoButtons</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_16">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
                      <string>z</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="add_cpoint_coords_z">
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::NoButtons</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="add_cpoint_center_coord_btn">
+                    <property name="text">
+                     <string>Set to world center</string>
                     </property>
                    </widget>
                   </item>
                   <item>
                    <widget class="QLabel" name="label_12">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>Size</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="add_cpoint_coords_size"/>
+                   <widget class="QDoubleSpinBox" name="add_cpoint_coords_size">
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::NoButtons</enum>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>
@@ -1771,70 +1829,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>215</x>
      <y>467</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>add_cpoint_coords_x</sender>
-   <signal>returnPressed()</signal>
-   <receiver>add_cpoint_btn</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>173</x>
-     <y>633</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>436</x>
-     <y>667</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>add_cpoint_coords_y</sender>
-   <signal>returnPressed()</signal>
-   <receiver>add_cpoint_btn</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>252</x>
-     <y>633</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>436</x>
-     <y>667</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>add_cpoint_coords_z</sender>
-   <signal>returnPressed()</signal>
-   <receiver>add_cpoint_btn</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>331</x>
-     <y>633</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>436</x>
-     <y>667</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>add_cpoint_coords_size</sender>
-   <signal>returnPressed()</signal>
-   <receiver>add_cpoint_btn</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>440</x>
-     <y>633</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>436</x>
-     <y>667</y>
     </hint>
    </hints>
   </connection>

@@ -117,11 +117,6 @@ FormObjectControl::FormObjectControl(GLCPointsetManager* _pointset_manager, QWid
   connect(delegate,SIGNAL(editFinished(std::string, std::string)),this, SLOT(editFinished(std::string, std::string)));
   form.cpoints_set_listwidget->setItemDelegate(delegate);
 
-  double_validator = new QDoubleValidator(this);
-  form.add_cpoint_coords_x->setValidator(double_validator);
-  form.add_cpoint_coords_y->setValidator(double_validator);
-  form.add_cpoint_coords_z->setValidator(double_validator);
-  form.add_cpoint_coords_size->setValidator(double_validator);
   form.color_picker_button->setStyleSheet("QPushButton:disabled{background-color:#eeeeee}"); // FIXME does not work
 }
 
@@ -1499,21 +1494,17 @@ void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) 
 // ============================================================================
 //
 void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
-  std::vector<QString> inputs_val = {
-          form.add_cpoint_coords_x->text(),
-          form.add_cpoint_coords_y->text(),
-          form.add_cpoint_coords_z->text(),
-          form.add_cpoint_coords_size->text()
-  };
-  if (!std::any_of(inputs_val.begin(), inputs_val.end(), [](QString input) { return input.isEmpty(); })) {
-    GLCPointset *pointset = getSelectedPointset();
-    if (pointset) {
-      std::array<float, 3> coords = {inputs_val[0].toFloat(), inputs_val[1].toFloat(), inputs_val[2].toFloat()};
-      float size = inputs_val[3].toFloat();
-      const string &point_text = form.add_cpoint_text->text().toStdString();
-      pointset->addPoint(coords, size, point_text);
-      emit objectSettingsChanged();
-    }
+  GLCPointset *pointset = getSelectedPointset();
+  if (pointset) {
+    std::array<float, 3> coords = {
+            static_cast<float>(form.add_cpoint_coords_x->value()),
+            static_cast<float>(form.add_cpoint_coords_y->value()),
+            static_cast<float>(form.add_cpoint_coords_z->value())
+    };
+    float size = form.add_cpoint_coords_size->value();
+    const string &point_text = form.add_cpoint_text->text().toStdString();
+    pointset->addPoint(coords, size, point_text);
+    emit objectSettingsChanged();
   }
 }
 // ============================================================================
