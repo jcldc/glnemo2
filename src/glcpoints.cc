@@ -165,6 +165,9 @@ void GLCPointset::setColor(std::array<float, 3> color) {
 const std::array<float, 3> &GLCPointset::getColor() const {
   return m_color;
 }
+void GLCPointset::setName(std::string new_name) {
+  m_name = new_name;
+}
 
 /******* GLCPointDisk ********/
 GLCPointsetDisk::GLCPointsetDisk(CShader *shader, std::string name)
@@ -378,6 +381,16 @@ GLCPointset *GLCPointsetManager::newPointset(std::string str_shape, std::string 
   } else {
     std::cerr << "Unrecognized shape : " + str_shape;
     return nullptr;
+  }
+}
+void GLCPointsetManager::setPointsetName(std::string old_name, std::string new_name) {
+  if (old_name != new_name) {
+    const iterator it = m_pointsets.find(old_name);
+    if (it != m_pointsets.end()) {
+      m_pointsets[new_name] = it->second;
+      m_pointsets[new_name]->setName(new_name);
+      m_pointsets.erase(it);
+    }
   }
 }
 }

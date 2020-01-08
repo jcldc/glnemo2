@@ -68,6 +68,7 @@ public:
   void setFilled(bool);
   const bool isFilled() const;
   const std::string &getName() const;
+  void setName(std::string);
   void setThreshold(int threshold);
   const int getThreshold() const;
   inline int size() {return m_cpoints.size();}
@@ -147,6 +148,7 @@ public:
 
   std::map<CPointsetTypes, std::string> shapeToStr;
   std::map<std::string,CPointsetTypes> strToShape;
+  void setPointsetName(std::string old_name, std::string new_name);
 private:
   int m_nb_sets;
   CShader *m_regular_polygon_shader, *m_tag_shader;

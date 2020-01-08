@@ -1774,5 +1774,85 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>add_cpoint_coords_x</sender>
+   <signal>returnPressed()</signal>
+   <receiver>add_cpoint_btn</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>173</x>
+     <y>633</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>436</x>
+     <y>667</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>add_cpoint_coords_y</sender>
+   <signal>returnPressed()</signal>
+   <receiver>add_cpoint_btn</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>252</x>
+     <y>633</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>436</x>
+     <y>667</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>add_cpoint_coords_z</sender>
+   <signal>returnPressed()</signal>
+   <receiver>add_cpoint_btn</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>331</x>
+     <y>633</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>436</x>
+     <y>667</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>add_cpoint_coords_size</sender>
+   <signal>returnPressed()</signal>
+   <receiver>add_cpoint_btn</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>440</x>
+     <y>633</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>436</x>
+     <y>667</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>add_cpoint_text</sender>
+   <signal>returnPressed()</signal>
+   <receiver>add_cpoint_btn</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>667</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>436</x>
+     <y>667</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

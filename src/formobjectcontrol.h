@@ -27,8 +27,28 @@
 #include <QCloseEvent>
 #include <QMutex>
 #include <QResizeEvent>
+#include <QStyledItemDelegate>
 
 namespace glnemo {
+
+  // =========================================================================
+  // class CustomItemDelegate : needed to catch ListWidgetItems edition
+  class CustomItemDelegate : public QStyledItemDelegate {
+  Q_OBJECT
+    Q_DISABLE_COPY(CustomItemDelegate)
+  public:
+    explicit CustomItemDelegate(QObject *parent = Q_NULLPTR) : QStyledItemDelegate(parent) {
+    }
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const Q_DECL_OVERRIDE{
+      std::string previous_text = index.data().toString().toStdString();
+      QStyledItemDelegate::setModelData(editor, model, index);
+      std::string new_text = model->data(index).toString().toStdString();
+      editFinished(previous_text, new_text);
+    }
+  signals:
+    void editFinished() const;
+    void editFinished(std::string, std::string) const;
+  };
   // ============================================================================
   // class QCheckBoxTable : control the visibility of the objects from the GUI
   class QCheckBoxTable: public QCheckBox {
@@ -170,6 +190,7 @@ namespace glnemo {
     void on_shape_checkbox_filled_stateChanged(int);
     void on_color_picker_button_clicked(bool);
     void on_export_cpoints_file_clicked(bool);
+    void editFinished(std::string, std::string);
     // on gaz
     void on_gaz_check_clicked(bool);
     void on_gaz_slide_size_valueChanged(int);

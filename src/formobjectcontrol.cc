@@ -112,12 +112,17 @@ FormObjectControl::FormObjectControl(GLCPointsetManager* _pointset_manager, QWid
   form.objects_properties->setCurrentIndex(0); // set position to first tab
 
   my_mutex2 = new QMutex(QMutex::Recursive);
+
+  auto* delegate = new CustomItemDelegate(form.cpoints_set_listwidget);
+  connect(delegate,SIGNAL(editFinished(std::string, std::string)),this, SLOT(editFinished(std::string, std::string)));
+  form.cpoints_set_listwidget->setItemDelegate(delegate);
+
   double_validator = new QDoubleValidator(this);
   form.add_cpoint_coords_x->setValidator(double_validator);
   form.add_cpoint_coords_y->setValidator(double_validator);
   form.add_cpoint_coords_z->setValidator(double_validator);
   form.add_cpoint_coords_size->setValidator(double_validator);
-  form.color_picker_button->setStyleSheet("QPushButton:disabled{background-color:#eeeeee}");
+  form.color_picker_button->setStyleSheet("QPushButton:disabled{background-color:#eeeeee}"); // FIXME does not work
 }
 
 // ============================================================================
@@ -1593,6 +1598,9 @@ void FormObjectControl::on_export_cpoints_file_clicked(bool) {
   if (!file_path.isEmpty()) {
       pointset_manager->saveToFile(file_path.toStdString());
   }
+}
+void FormObjectControl::editFinished(std::string old_name, std::string new_name) {
+  pointset_manager->setPointsetName(old_name, new_name);
 }
 
 }
