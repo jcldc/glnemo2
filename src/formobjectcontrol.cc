@@ -125,8 +125,6 @@ FormObjectControl::FormObjectControl(GLCPointsetManager* _pointset_manager, QWid
 FormObjectControl::~FormObjectControl()
 {
   delete [] object_index;
-  delete double_validator;
-  //delete combobox;
 }
 // ============================================================================
 // initTableWidget()                                                           

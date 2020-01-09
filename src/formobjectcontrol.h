@@ -302,7 +302,6 @@ namespace glnemo {
     DensityHisto * dens_histo;
     DensityColorBar * dens_color_bar;
     PhysicalData * phys_select;
-    QDoubleValidator *double_validator;
 };
 
 }
