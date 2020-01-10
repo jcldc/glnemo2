@@ -271,8 +271,17 @@ void GLCPointsetManager::loadFile(std::string filepath) {
 
     std::string str_shape = (*it)["shape"];
     std::string name((*it).value("name", defaultName()));
-    while(m_pointsets[name] || name.size()>50)
-      name += " duplicate";
+    bool name_too_long = false;
+    while(m_pointsets[name])
+      if(name.size()<50)
+        name += " duplicate";
+      else{
+        name_too_long = true;
+        break;
+      }
+
+    if(name_too_long)// TODO alert user pointset was not loaded
+      continue;
 
     pointset = newPointset(str_shape, name);
     if(!pointset)
