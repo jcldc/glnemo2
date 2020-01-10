@@ -41,9 +41,11 @@ int osfile =0;
 // ============================================================================
 // Constructor                                                                 
 // create the 2 tables : Range and File                                        
-FormObjectControl::FormObjectControl(GLCPointsetManager* _pointset_manager, QWidget *parent):QDialog(parent)
+FormObjectControl::FormObjectControl(GLCPointsetManager *_pointset_manager, GlobalOptions *global_options,
+                                     QWidget *parent) : QDialog(parent)
 {
   pointset_manager = _pointset_manager;
+  go = global_options;
   ignoreCloseEvent = true;
   form.setupUi(this);
   current_data = NULL;
@@ -99,7 +101,6 @@ FormObjectControl::FormObjectControl(GLCPointsetManager* _pointset_manager, QWid
 
   //connect(combobox,SIGNAL(my_editTextChanged(const QString&, const int, const int)),
   //      this,SLOT(updateRange(const QString&, const int, const int)));
-  go = NULL;
   //form.dens_histo_view->setParent(form.tab_density);
   dens_histo = new DensityHisto(form.dens_histo_view);
   form.dens_histo_view->setScene(dens_histo);
@@ -1589,6 +1590,11 @@ void FormObjectControl::on_export_cpoints_file_clicked(bool) {
 }
 void FormObjectControl::editFinished(std::string old_name, std::string new_name) {
   pointset_manager->setPointsetName(old_name, new_name);
+}
+void FormObjectControl::on_add_cpoint_center_coord_btn_clicked(bool) {
+  form.add_cpoint_coords_x->setValue(-go->xtrans);
+  form.add_cpoint_coords_y->setValue(-go->ytrans);
+  form.add_cpoint_coords_z->setValue(-go->ztrans);
 }
 
 }

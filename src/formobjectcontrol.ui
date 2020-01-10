@@ -1254,6 +1254,12 @@ Physical value can be:
                     <property name="buttonSymbols">
                      <enum>QAbstractSpinBox::NoButtons</enum>
                     </property>
+                    <property name="minimum">
+                     <double>-100000000000000096986267123712.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>9999999999999999583119736832.000000000000000</double>
+                    </property>
                    </widget>
                   </item>
                   <item>
@@ -1276,6 +1282,12 @@ Physical value can be:
                    <widget class="QDoubleSpinBox" name="add_cpoint_coords_y">
                     <property name="buttonSymbols">
                      <enum>QAbstractSpinBox::NoButtons</enum>
+                    </property>
+                    <property name="minimum">
+                     <double>-100000000000000096986267123712.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>9999999999999999583119736832.000000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -1300,15 +1312,28 @@ Physical value can be:
                     <property name="buttonSymbols">
                      <enum>QAbstractSpinBox::NoButtons</enum>
                     </property>
+                    <property name="minimum">
+                     <double>-100000000000000096986267123712.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>9999999999999999583119736832.000000000000000</double>
+                    </property>
                    </widget>
                   </item>
                   <item>
                    <widget class="QPushButton" name="add_cpoint_center_coord_btn">
                     <property name="text">
-                     <string>Set to world center</string>
+                     <string>To center</string>
                     </property>
                    </widget>
                   </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_6">
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
                   <item>
                    <widget class="QLabel" name="label_12">
                     <property name="sizePolicy">
@@ -1332,13 +1357,6 @@ Physical value can be:
                     </property>
                    </widget>
                   </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_6">
-                  <property name="bottomMargin">
-                   <number>0</number>
-                  </property>
                   <item>
                    <widget class="QLineEdit" name="add_cpoint_text">
                     <property name="enabled">

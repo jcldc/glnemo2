@@ -388,7 +388,7 @@ void MainWindow::createForms()
   form_help   = new FormHelp(this);
   form_sshot  = new FormScreenshot(this);
   form_spart  = new FormSelectPart(this);
-  form_o_c    = new FormObjectControl(pointset_manager, this);
+  form_o_c    = new FormObjectControl(pointset_manager, store_options, this);
   form_options= new FormOptions(store_options,mutex_data,this);
   form_connect = new FormConnect(this);
   // sig/slot

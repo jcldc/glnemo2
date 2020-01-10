@@ -30,9 +30,8 @@
 #include <QStyledItemDelegate>
 
 namespace glnemo {
-
   // =========================================================================
-  // class CustomItemDelegate : needed to catch ListWidgetItems edition
+  // class CustomItemDelegate : used to catch ListWidgetItems edition signals
   class CustomItemDelegate : public QStyledItemDelegate {
   Q_OBJECT
     Q_DISABLE_COPY(CustomItemDelegate)
@@ -127,7 +126,7 @@ namespace glnemo {
   class FormObjectControl: public QDialog {
   Q_OBJECT
   public:
-  FormObjectControl(GLCPointsetManager* _pointset_manager, QWidget *parent = 0);
+  FormObjectControl(GLCPointsetManager *_pointset_manager, GlobalOptions *global_options, QWidget *parent = 0);
 
     ~FormObjectControl();
     void update(ParticlesData   * ,
@@ -191,6 +190,7 @@ namespace glnemo {
     void on_color_picker_button_clicked(bool);
     void on_export_cpoints_file_clicked(bool);
     void editFinished(std::string, std::string);
+    void on_add_cpoint_center_coord_btn_clicked(bool);
     // on gaz
     void on_gaz_check_clicked(bool);
     void on_gaz_slide_size_valueChanged(int);
