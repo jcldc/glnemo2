@@ -12,12 +12,20 @@
 #include <map>
 #include <set>
 #include <array>
+#include <ft2build.h>
+#include <glm/glm.hpp>
+#include FT_FREETYPE_H
 
 using json = nlohmann::json;
 
-#define NB_POINTS 100
-
 namespace glnemo {
+
+struct Character {
+  GLuint     TextureID;  // ID handle of the glyph texture
+  glm::ivec2 Size;       // Size of glyph
+  glm::ivec2 Bearing;    // Offset from baseline to left/top of glyph
+  GLuint     Advance;    // Offset to advance to next glyph
+};
 
 struct PPred {
   template<typename T>
@@ -84,7 +92,6 @@ protected:
   CShader *m_shader;
   glcpointset_t m_cpoints;
   GLuint m_vao, m_vbo;
-  std::vector<float> m_data;
   std::string m_name;
   std::array<float, 3> m_color;
   bool m_is_shown;
@@ -113,9 +120,17 @@ public:
 
 class GLCPointsetTag : public GLCPointset {
 public:
-  GLCPointsetTag(CShader *m_shader, std::string name);
+  GLCPointsetTag(CShader *shape_shader, CShader *text_shader, std::string name);
+  ~GLCPointsetTag();
   void display();
   void sendUniforms();
+  void renderText();
+private:
+  CShader *m_text_shader;
+  GLuint m_text_vbo;
+  GLuint m_text_vao;
+
+  std::map<GLchar, Character> Characters;
 };
 
 class GLCPointsetManager {
@@ -150,10 +165,11 @@ public:
   void setPointsetName(std::string old_name, std::string new_name);
 private:
   int m_nb_sets;
-  CShader *m_regular_polygon_shader, *m_tag_shader;
+  CShader *m_regular_polygon_shader, *m_tag_shader, *m_tag_text_shader;
   std::map<std::string, GLCPointset *> m_pointsets;
   std::string defaultName() const;
   GLCPointset *newPointset(std::string str_shape, std::string name);
+
 };
 
 } // namespace glnemo

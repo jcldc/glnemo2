@@ -9,12 +9,13 @@
 
 namespace glnemo {
 
-int GLCPointset::wwidth = 0;
+
+int GLCPointset::wwidth = 0; // useful for fixed size text tag
 
 /******* GLCPoint ********/
 
 GLCPoint::GLCPoint(std::array<float, 3> coords, float size, std::string text)
-        : m_coords(coords), m_size(size), m_text(text) {
+        : m_coords(coords), m_size(size), m_text("tpesqt") {
 }
 
 const std::array<float, 3> &GLCPoint::getCoords() const {
@@ -105,21 +106,20 @@ void GLCPointset::setAttributes() {
 }
 
 void GLCPointset::initVboData() {
-  m_data.clear();
   // DATA INIT
-
+  std::vector<float> data;
   //maybe use reserve to preallocate,
   // m_data.reserve(4*m_cpoints.size());
   for (GLCPoint *point : m_cpoints) {
-    m_data.push_back(point->getCoords()[0]);
-    m_data.push_back(point->getCoords()[1]);
-    m_data.push_back(point->getCoords()[2]);
-    m_data.push_back(point->getSize());
+    data.push_back(point->getCoords()[0]);
+    data.push_back(point->getCoords()[1]);
+    data.push_back(point->getCoords()[2]);
+    data.push_back(point->getSize());
   }
   // SEND DATA
   glBindVertexArray(m_vao);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_vbo);
-  glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * m_data.size(), m_data.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
 
   setAttributes();
   glBindVertexArray(0);
@@ -151,7 +151,7 @@ const QColor GLCPointset::getQColor() const {
   return QColor(m_color[0]*255, m_color[1]*255, m_color[2]*255);
 }
 void GLCPointset::setColor(const QColor &color) {
-  m_color = {color.redF(), color.greenF(), color.blueF()};
+  m_color = {static_cast<float>(color.redF()), static_cast<float>(color.greenF()), static_cast<float>(color.blueF())};
 }
 const CPointsetTypes &GLCPointset::getShape() const {
   return m_pointset_type;
@@ -206,8 +206,73 @@ GLCPointsetSquare::GLCPointsetSquare(CShader *shader, std::string name)
 }
 
 /******* GLCPointTag ********/
-GLCPointsetTag::GLCPointsetTag(CShader *m_shader, std::string name) : GLCPointset(m_shader, name) {
+GLCPointsetTag::GLCPointsetTag(CShader *shape_shader, CShader *text_shader, std::string name) : GLCPointset(shape_shader, name) {
   m_pointset_type = CPointsetTypes::tag;
+  m_text_shader = text_shader;
+
+  glGenVertexArrays(1, &m_text_vao);
+  glGenBuffers(1, &m_text_vbo);
+  glBindVertexArray(m_text_vao);
+  glBindBuffer(GL_ARRAY_BUFFER, m_text_vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+
+  FT_Library ft;
+  if (FT_Init_FreeType(&ft)) {
+    std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+  }
+
+  FT_Face face;
+  if (FT_New_Face(ft, ":/res/fonts/DejaVuSansMono.ttf", 0,
+                  &face)) //TODO dont forget to put in resources, use ft_open_face to open from byte stream
+  {
+    std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+  }
+
+  FT_Set_Pixel_Sizes(face, 0, 48);
+
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
+
+  for (GLubyte c = 0; c < 128; c++) {
+    // Load character glyph
+    if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+      std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+      continue;
+    }
+    // Generate texture
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RED,
+            face->glyph->bitmap.width,
+            face->glyph->bitmap.rows,
+            0,
+            GL_RED,
+            GL_UNSIGNED_BYTE,
+            face->glyph->bitmap.buffer
+    );
+    // Set texture options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // Now store character for later use
+    Character character = {
+            texture,
+            glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+            face->glyph->advance.x
+    };
+    Characters.insert(std::pair<GLchar, Character>(c, character));
+  }
+  FT_Done_Face(face);
+  FT_Done_FreeType(ft);
 }
 
 void GLCPointsetTag::display() {
@@ -223,6 +288,8 @@ void GLCPointsetTag::display() {
 
   glBindVertexArray(0);
   m_shader->stop();
+
+  renderText();
 }
 
 void GLCPointsetTag::sendUniforms() {
@@ -237,6 +304,78 @@ void GLCPointsetTag::sendUniforms() {
   m_shader->sendUniformf("screen_scale", 2 * tagSizeOnScreen / wwidth);
 }
 
+void GLCPointsetTag::renderText() {
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  // Iterate through all cpoints
+  for (GLCPoint *cpoint: m_cpoints) {
+    float y = 0;
+    float x = 0;
+    float scale = .01;
+    std::string text = cpoint->getText();
+
+    m_text_shader->start();
+
+    GLfloat proj[16];
+    glGetFloatv(GL_PROJECTION_MATRIX, proj);
+    GLfloat mview[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX, mview);
+
+    m_text_shader->sendUniformXfv("projMatrix", 16, 1, &proj[0]);
+    m_text_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
+
+    m_text_shader->sendUniformXfv("color", 3, 1, m_color.data());
+    m_text_shader->sendUniformXfv("point_center", 3, 1, cpoint->getCoords().data());
+
+    std::cout << cpoint->getSize() << "\n";
+    m_text_shader->sendUniformf("offset", cpoint->getSize());
+    scale *= cpoint->getSize();
+//
+    glActiveTextureARB(GL_TEXTURE0_ARB);
+    glBindVertexArray(m_text_vao);
+
+    // Iterate through all characters
+    std::string::const_iterator c;
+    for (c = text.begin(); c != text.end(); c++) {
+      Character ch = Characters[*c];
+
+      GLfloat xpos = x + ch.Bearing.x * scale;
+      GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+      GLfloat w = ch.Size.x * scale;
+      GLfloat h = ch.Size.y * scale;
+      // Update VBO for each character
+      GLfloat vertices[6][4] = {
+              {xpos,     ypos + h, 0.0, 0.0},
+              {xpos,     ypos,     0.0, 1.0},
+              {xpos + w, ypos,     1.0, 1.0},
+
+              {xpos,     ypos + h, 0.0, 0.0},
+              {xpos + w, ypos,     1.0, 1.0},
+              {xpos + w, ypos + h, 1.0, 0.0}
+      };
+      // Render glyph texture over quad
+      glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+      // Update content of VBO memory
+      glBindBuffer(GL_ARRAY_BUFFER, m_text_vbo);
+      glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      // Render quad
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+      x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+    }
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    m_text_shader->stop();
+  }
+
+}
+GLCPointsetTag::~GLCPointsetTag() {
+  for(auto ch : Characters)
+    glDeleteTextures(1, &ch.second.TextureID);
+}
+
 
 /******* GLCPointsetManager ********/
 
@@ -249,10 +388,12 @@ GLCPointsetManager::GLCPointsetManager() {
   shapeToStr[CPointsetTypes::square] = "square";
   shapeToStr[CPointsetTypes::tag] = "tag";
 
-  for(auto sts: shapeToStr){
+  for (auto sts: shapeToStr) {
     strToShape[sts.second] = sts.first;
   }
+
 }
+
 
 void GLCPointsetManager::loadFile(std::string filepath) {
   std::cerr << "Loading json file\n";
@@ -320,11 +461,21 @@ void GLCPointsetManager::initShaders() {
   }
 
   m_tag_shader = new CShader(
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/tag.vert",
+          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/tag_shape.vert",
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
   if (!m_tag_shader->init()) {
     delete m_tag_shader;
-    std::cerr << "Failed to initialize tag shader\n";
+    std::cerr << "Failed to initialize tag shape shader\n";
+    exit(1);
+  }
+
+  m_tag_text_shader = new CShader(
+          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/tag_text.vert",
+
+          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/tag_text.frag");
+  if (!m_tag_text_shader->init()) {
+    delete m_tag_text_shader;
+    std::cerr << "Failed to initialize tag text shader\n";
     exit(1);
   }
 }
@@ -387,7 +538,7 @@ GLCPointset *GLCPointsetManager::newPointset(std::string str_shape, std::string 
   } else if (str_shape == "square") {
     return new GLCPointsetSquare(m_regular_polygon_shader, name);
   } else if (str_shape == "tag") {
-    return new GLCPointsetTag(m_tag_shader, name);
+    return new GLCPointsetTag(m_tag_shader, m_tag_text_shader, name);
   } else {
     std::cerr << "Unrecognized shape : " + str_shape;
     return nullptr;

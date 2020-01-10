@@ -76,7 +76,9 @@
         <file>../res/shaders/velocity.frag130.cc</file>
         <file>../res/shaders/cpoints/characteristic.frag</file>
         <file>../res/shaders/cpoints/regular_polygon.vert</file>
-        <file>../res/shaders/cpoints/tag.vert</file>
+        <file>../res/shaders/cpoints/tag_shape.vert</file>
+        <file>../res/shaders/cpoints/tag_text.vert</file>
+        <file>../res/shaders/cpoints/tag_text.frag</file>
         <file>../res/camera/path_02</file>
         <file>../res/camera/path_03</file>
         <file>../res/shaders/camera.vert.cc</file>
