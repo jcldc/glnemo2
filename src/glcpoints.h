@@ -35,7 +35,8 @@ struct PPred {
 enum CPointsetTypes{
   disk,
   square,
-  tag
+  tag,
+  sphere
 };
 
 class GLCPoint {
@@ -63,8 +64,8 @@ public:
   GLCPointset(CShader *m_shader, std::string name = "");
   virtual ~GLCPointset();
   virtual void display() = 0;
-  void initVboData();
-  void setAttributes();
+  void initVboData(); // make private ?
+  virtual void setAttributes();
   void addPoint(std::array<float, 3> coords, float size, std::string text);
   virtual void sendUniforms();
   void copyCPoints(GLCPointset*);
@@ -133,6 +134,17 @@ private:
   std::map<GLchar, Character> Characters;
 };
 
+class GLCPointsetSphere : public GLCPointset {
+public:
+  GLCPointsetSphere(CShader *m_shader, std::string name);
+  void display();
+  void sendUniforms();
+//  void setAttributes();
+
+  static int subdivisions;
+  static int nb_vertex_per_sphere;
+};
+
 class GLCPointsetManager {
 public:
   GLCPointsetManager();
@@ -165,11 +177,10 @@ public:
   void setPointsetName(std::string old_name, std::string new_name);
 private:
   int m_nb_sets;
-  CShader *m_regular_polygon_shader, *m_tag_shader, *m_tag_text_shader;
+  CShader *m_regular_polygon_shader, *m_tag_shader, *m_tag_text_shader, *m_sphere_shader;
   std::map<std::string, GLCPointset *> m_pointsets;
   std::string defaultName() const;
   GLCPointset *newPointset(std::string str_shape, std::string name);
-
 };
 
 } // namespace glnemo

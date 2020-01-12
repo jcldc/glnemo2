@@ -1479,6 +1479,10 @@ void FormObjectControl::on_cpoints_set_listwidget_itemClicked(QListWidgetItem *i
       form.shape_radio_tag->setChecked(true);
       form.shape_checkbox_filled->setEnabled(false);
     }
+    if(pointset->getPointsetType() == CPointsetTypes::sphere){
+      form.shape_radio_sphere->setChecked(true);
+      form.shape_checkbox_filled->setEnabled(false);
+    }
   }
 }
 // ============================================================================
@@ -1549,6 +1553,11 @@ void FormObjectControl::shapeRadioClicked() {
       pointset_manager->changePointsetType(pointset->getName(), "tag");
       form.shape_checkbox_filled->setEnabled(false);
     }
+    else if(clickedBtn->objectName() == "shape_radio_sphere") {
+      pointset_manager->changePointsetType(pointset->getName(), "sphere");
+      form.shape_checkbox_filled->setEnabled(false);
+    }
+    on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState());
 
     on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState()); // check if necessary
 

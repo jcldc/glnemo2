@@ -1174,12 +1174,12 @@ Physical value can be:
                  </widget>
                 </item>
                 <item row="2" column="1">
-                 <widget class="QRadioButton" name="shape_radio_arrow">
+                 <widget class="QRadioButton" name="shape_radio_sphere">
                   <property name="toolTip">
                    <string>Change cpoints shape to arrow</string>
                   </property>
                   <property name="text">
-                   <string>Arrow</string>
+                   <string>Sphere</string>
                   </property>
                  </widget>
                 </item>

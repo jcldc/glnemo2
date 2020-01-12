@@ -10,7 +10,7 @@
 namespace glnemo {
 
 
-int GLCPointset::wwidth = 0; // useful for fixed size text tag
+//int GLCPointset::wwidth = 0; // useful for fixed size text tag
 
 /******* GLCPoint ********/
 
@@ -184,15 +184,15 @@ void GLCPointsetRegularPolygon::display() {
 
   m_shader->start();
   glBindVertexArray(m_vao);
-  int nb_instances = m_cpoints.size() * m_threshold / 100;
+  int nb_objects = m_cpoints.size() * m_threshold / 100;
   m_shader->sendUniformi("is_filled", m_is_filled);
   sendUniforms();
   if (m_is_filled) {
     m_shader->sendUniformi("nb_vertices", m_nb_vertices);
-    glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, m_nb_vertices, nb_instances);
+    glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, m_nb_vertices, nb_objects);
   } else {
     m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
-    glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_instances);
+    glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
   }
   glBindVertexArray(0);
   m_shader->stop();
@@ -226,7 +226,7 @@ GLCPointsetTag::GLCPointsetTag(CShader *shape_shader, CShader *text_shader, std:
   }
 
   FT_Face face;
-  if (FT_New_Face(ft, ":/res/fonts/DejaVuSansMono.ttf", 0,
+  if (FT_New_Face(ft, "res/fonts/DejaVuSansMono.ttf", 0,
                   &face)) //TODO dont forget to put in resources, use ft_open_face to open from byte stream
   {
     std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
@@ -281,10 +281,10 @@ void GLCPointsetTag::display() {
 
   m_shader->start();
   glBindVertexArray(m_vao);
-  int nb_instances = m_cpoints.size() * m_threshold / 100;
+  int nb_objects = m_cpoints.size() * m_threshold / 100;
 
   sendUniforms();
-  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, nb_instances);
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, nb_objects);
 
   glBindVertexArray(0);
   m_shader->stop();
@@ -295,13 +295,13 @@ void GLCPointsetTag::display() {
 void GLCPointsetTag::sendUniforms() {
   GLCPointset::sendUniforms();
 
-  float tagSizeOnScreen = 50; // InPixels
-
-  GLfloat mview[16];
-  glGetFloatv(GL_MODELVIEW_MATRIX, mview);
-  glm::mat4 mviewGLM = glm::make_mat4(mview);
-  m_shader->sendUniformXfv("modelviewMatrixInverse", 16, 1, (const float *) glm::value_ptr(glm::inverse(mviewGLM)));
-  m_shader->sendUniformf("screen_scale", 2 * tagSizeOnScreen / wwidth);
+//  float tagSizeOnScreen = 50; // InPixels
+//
+//  GLfloat mview[16];
+//  glGetFloatv(GL_MODELVIEW_MATRIX, mview);
+//  glm::mat4 mviewGLM = glm::make_mat4(mview);
+//  m_shader->sendUniformXfv("modelviewMatrixInverse", 16, 1, (const float *) glm::value_ptr(glm::inverse(mviewGLM)));
+//  m_shader->sendUniformf("screen_scale", 2 * tagSizeOnScreen / wwidth);
 }
 
 void GLCPointsetTag::renderText() {
@@ -375,7 +375,56 @@ GLCPointsetTag::~GLCPointsetTag() {
   for(auto ch : Characters)
     glDeleteTextures(1, &ch.second.TextureID);
 }
+/******* GLCPointSphere ********/
+int GLCPointsetSphere::subdivisions = 16;
+int GLCPointsetSphere::nb_vertex_per_sphere = subdivisions*subdivisions+subdivisions;
 
+GLCPointsetSphere::GLCPointsetSphere(CShader *m_shader, std::string name) : GLCPointset(m_shader,
+                                                                                        name) {
+  m_pointset_type = CPointsetTypes::sphere;
+
+}
+
+//void GLCPointsetSphere::setAttributes() {
+//  GLuint point_center_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "point_center");
+//  GLuint radius_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "radius");
+//  if (point_center_disk_attrib == -1) {
+//    std::cerr << "Error occured when getting \"point_center\" attribute\n";
+//    exit(1);
+//  }
+//  if (radius_disk_attrib == -1) {
+//    std::cerr << "Error occured when getting \"radius\" attribute\n";
+//    exit(1);
+//  }
+//  glEnableVertexAttribArrayARB(point_center_disk_attrib);
+//  glVertexAttribPointerARB(point_center_disk_attrib, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
+//  glVertexBindingDivisor(point_center_disk_attrib, nb_vertex_per_sphere);
+//
+//  glEnableVertexAttribArrayARB(radius_disk_attrib);
+//  glVertexAttribPointerARB(radius_disk_attrib, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
+//                           (void *) (3 * sizeof(float)));
+//  glVertexBindingDivisor(radius_disk_attrib, nb_vertex_per_sphere);
+//}
+
+void GLCPointsetSphere::display() {
+  if (!ready() || !m_is_shown)
+    return;
+
+  m_shader->start();
+  glBindVertexArray(m_vao);
+  int nb_objects = m_cpoints.size() * m_threshold / 100;
+
+  sendUniforms();
+  glDisable(GL_BLEND);
+  m_shader->sendUniformi("subdivisions", subdivisions);
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, nb_objects);
+  glEnable(GL_BLEND);
+  glBindVertexArray(0);
+  m_shader->stop();
+}
+void GLCPointsetSphere::sendUniforms() {
+  GLCPointset::sendUniforms();
+}
 
 /******* GLCPointsetManager ********/
 
@@ -387,13 +436,13 @@ GLCPointsetManager::GLCPointsetManager() {
   shapeToStr[CPointsetTypes::disk] = "disk";
   shapeToStr[CPointsetTypes::square] = "square";
   shapeToStr[CPointsetTypes::tag] = "tag";
+  shapeToStr[CPointsetTypes::sphere] = "sphere";
 
   for (auto sts: shapeToStr) {
     strToShape[sts.second] = sts.first;
   }
 
 }
-
 
 void GLCPointsetManager::loadFile(std::string filepath) {
   std::cerr << "Loading json file\n";
@@ -456,7 +505,7 @@ void GLCPointsetManager::initShaders() {
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
   if (!m_regular_polygon_shader->init()) {
     delete m_regular_polygon_shader;
-    std::cerr << "Failed to initialize regular polygon shader\n";
+    std::cerr << "Failed to initialize regular_polygon shader\n";
     exit(1);
   }
 
@@ -478,6 +527,15 @@ void GLCPointsetManager::initShaders() {
     std::cerr << "Failed to initialize tag text shader\n";
     exit(1);
   }
+
+  m_sphere_shader = new CShader(
+          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/sphere.vert",
+          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
+  if (!m_sphere_shader->init()) {
+    delete m_sphere_shader;
+    std::cerr << "Failed to initialize sphere shader\n";
+    exit(1);
+  }
 }
 
 void GLCPointsetManager::displayAll() {
@@ -491,7 +549,6 @@ GLCPointset* GLCPointsetManager::createNewCPointset() {
   m_nb_sets++;
   return pointset;
 }
-
 void GLCPointsetManager::deleteCPointset(std::string pointset_name) {
   delete m_pointsets[pointset_name];
   m_pointsets.erase(pointset_name);
@@ -509,8 +566,9 @@ void GLCPointsetManager::changePointsetType(std::string pointset_name, std::stri
     delete old_pointset;
   }
 }
+
 void GLCPointsetManager::setW(int w) {
-  GLCPointset::wwidth = w;
+//  GLCPointset::wwidth = w;
 }
 
 void GLCPointsetManager::saveToFile(std::string file_path) {
@@ -539,6 +597,8 @@ GLCPointset *GLCPointsetManager::newPointset(std::string str_shape, std::string 
     return new GLCPointsetSquare(m_regular_polygon_shader, name);
   } else if (str_shape == "tag") {
     return new GLCPointsetTag(m_tag_shader, m_tag_text_shader, name);
+  } else if (str_shape == "sphere") {
+    return new GLCPointsetSphere(m_sphere_shader, name);
   } else {
     std::cerr << "Unrecognized shape : " + str_shape;
     return nullptr;
