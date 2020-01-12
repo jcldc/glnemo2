@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>../res/fonts/Helvetica.txf</file>
         <file>../res/fonts/AvantGarde-Demi.txf</file>
+        <file>../res/fonts/DejaVuSansMono.ttf</file>
         <file>../res/colormaps/LOCS.256</file>
         <file>../res/colormaps/RB.256</file>
         <file>../res/colormaps/HO.256</file>

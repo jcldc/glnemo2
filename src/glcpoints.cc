@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <array>
+#include <QtCore/QFile>
 #include "glcpoints.h"
 #include "globaloptions.h"
 
@@ -225,10 +226,16 @@ GLCPointsetTag::GLCPointsetTag(CShader *shape_shader, CShader *text_shader, std:
     std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
   }
 
+  QFile font_file(GlobalOptions::RESPATH + "/fonts/DejaVuSansMono.ttf");
+  if (!font_file.open(QIODevice::ReadOnly)) {
+    std::cout << "Could not open font file" << std::endl;
+    exit( 1);
+  }
+  QByteArray blob = font_file.readAll();
+  const FT_Byte* data = reinterpret_cast<const FT_Byte* >(blob.data());
   FT_Face face;
-  if (FT_New_Face(ft, "res/fonts/DejaVuSansMono.ttf", 0,
-                  &face)) //TODO dont forget to put in resources, use ft_open_face to open from byte stream
-  {
+
+  if (FT_New_Memory_Face(ft, data, blob.size(), 0, &face)) {
     std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
   }
 
