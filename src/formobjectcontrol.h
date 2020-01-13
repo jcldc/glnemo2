@@ -31,7 +31,16 @@
 
 namespace glnemo {
   // =========================================================================
-  // class CustomItemDelegate : used to catch ListWidgetItems edition signals
+  // class DeletePushButton : used to delete cpointset
+  class DeletePushButton : public QPushButton {
+  Q_OBJECT
+  protected:
+    void mousePressEvent(QMouseEvent*e);
+  signals:
+    void deleteClicked(bool confirmation);
+  };
+  // =========================================================================
+  // class CustomItemDelegate : used to catch TreewidgetItems edition signals
   class CustomItemDelegate : public QStyledItemDelegate {
   Q_OBJECT
     Q_DISABLE_COPY(CustomItemDelegate)
@@ -158,7 +167,7 @@ namespace glnemo {
       form.reverse_cmap->setChecked(go->reverse_cmap);
       dens_color_bar->draw(form.dens_slide_min->value(),form.dens_slide_max->value());
     }
-    void updateCPointsListWidget();
+    void updateCPointsTreeWidget();
   private slots:
     void reject() {} // allow to de activate escape key to close the box
     // global slots
@@ -176,12 +185,11 @@ namespace glnemo {
     // cpoints tab
     void on_load_cpoints_file_clicked(bool);
     void on_cpoints_display_cbx_stateChanged(int);
-    void on_cpoints_set_listwidget_itemClicked(QListWidgetItem *);
-    void on_cpoints_set_listwidget_currentRowChanged(int);
+    void on_cpoints_set_treewidget_itemSelectionChanged();
+    void on_cpoints_set_treewidget_currentRowChanged(int);
     void on_cpoints_threshold_slider_valueChanged(int);
     void on_add_cpoint_btn_clicked(bool);
     void on_add_cpointset_clicked(bool);
-    void on_remove_cpointset_clicked(bool);
     void on_shape_radio_disk_clicked(bool) {shapeRadioClicked();};
     void on_shape_radio_square_clicked(bool) {shapeRadioClicked();};
     void on_shape_radio_tag_clicked(bool) {shapeRadioClicked();};
@@ -192,6 +200,8 @@ namespace glnemo {
     void on_export_cpoints_file_clicked(bool);
     void editFinished(std::string, std::string);
     void on_add_cpoint_center_coord_btn_clicked(bool);
+    QTreeWidgetItem* createCpointsetTreeItem(GLCPointset*);
+    void delete_cpointset(bool);
     // on gaz
     void on_gaz_check_clicked(bool);
     void on_gaz_slide_size_valueChanged(int);
@@ -261,7 +271,7 @@ namespace glnemo {
     }
 
     private:
-    GLCPointset* getSelectedPointset();
+    std::vector<GLCPointset*> getSelectedPointsets();
     void checkPhysic();
     void physicalSelected();
     void leaveEvent ( QEvent * event ) {

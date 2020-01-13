@@ -334,7 +334,6 @@ void GLCPointsetTag::renderText() {
     m_text_shader->sendUniformXfv("color", 3, 1, m_color.data());
     m_text_shader->sendUniformXfv("point_center", 3, 1, cpoint->getCoords().data());
 
-    std::cout << cpoint->getSize() << "\n";
     m_text_shader->sendUniformf("offset", cpoint->getSize());
     scale *= cpoint->getSize();
 //

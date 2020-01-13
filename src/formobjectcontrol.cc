@@ -114,11 +114,20 @@ FormObjectControl::FormObjectControl(GLCPointsetManager *_pointset_manager, Glob
 
   my_mutex2 = new QMutex(QMutex::Recursive);
 
-  auto* delegate = new CustomItemDelegate(form.cpoints_set_listwidget);
+  auto* delegate = new CustomItemDelegate(form.cpoints_set_treewidget);
   connect(delegate,SIGNAL(editFinished(std::string, std::string)),this, SLOT(editFinished(std::string, std::string)));
-  form.cpoints_set_listwidget->setItemDelegate(delegate);
+  auto customDeleteButton = new DeletePushButton();
+  customDeleteButton->setObjectName(form.delete_cpointset->objectName());
+  customDeleteButton->setToolTip(form.delete_cpointset->toolTip());
+  customDeleteButton->setText(form.delete_cpointset->text());
+  form.load_groupbox->replaceWidget(form.delete_cpointset, customDeleteButton);
+  connect(customDeleteButton,SIGNAL(deleteClicked(bool)),this, SLOT(delete_cpointset(bool)));
 
+  form.cpoints_set_treewidget->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
+  form.cpoints_set_treewidget->setItemDelegate(delegate);
   form.color_picker_button->setStyleSheet("QPushButton:disabled{background-color:#eeeeee}"); // FIXME does not work
+  form.edit_cpoint_groupbox->setVisible(false);
+
 }
 
 // ============================================================================
@@ -1421,32 +1430,34 @@ void FormObjectControl::on_load_cpoints_file_clicked(bool) {
       this, tr("Open characteristic point description file"));
   if (!file_path.isEmpty()) {
       pointset_manager->loadFile(file_path.toStdString());
-      updateCPointsListWidget();
+      updateCPointsTreeWidget();
   }
 }
 // ============================================================================
 //
-GLCPointset *FormObjectControl::getSelectedPointset() {
-  QListWidgetItem *current_item = form.cpoints_set_listwidget->currentItem();
-  if (!current_item)
-    return nullptr;
-  std::string pointset_name = current_item->text().toStdString();
-  return (*pointset_manager)[pointset_name];
+std::vector<GLCPointset*> FormObjectControl::getSelectedPointsets() {
+  QList<QTreeWidgetItem*>selected_items = form.cpoints_set_treewidget->selectedItems();
+  std::vector<GLCPointset*> selected_cpointsets;
+  for(QTreeWidgetItem* item : selected_items){
+    if(item->parent()) // cpoint selected
+      item = item->parent();
+    std::string pointset_name = item->text(0).toStdString();
+    selected_cpointsets.push_back((*pointset_manager)[pointset_name]);
+  }
+  return selected_cpointsets;
 }
 // ============================================================================
 //
-void FormObjectControl::updateCPointsListWidget() {
-  form.cpoints_set_listwidget->clear();
+void FormObjectControl::updateCPointsTreeWidget() {
+  form.cpoints_set_treewidget->clear();
   for (auto cpoint_set : *pointset_manager) {
-    auto item = new QListWidgetItem(QString::fromStdString(cpoint_set.second->getName()),
-                        form.cpoints_set_listwidget);
-    item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    createCpointsetTreeItem(cpoint_set.second);
   }
 }
 // ============================================================================
 //
 void FormObjectControl::on_cpoints_display_cbx_stateChanged(int state) {
-  GLCPointset *pointset = getSelectedPointset();
+  GLCPointset *pointset = getSelectedPointsets()[0];
   if (pointset) {
     if (state == Qt::Checked)
       pointset->setShow(true);
@@ -1457,38 +1468,52 @@ void FormObjectControl::on_cpoints_display_cbx_stateChanged(int state) {
 }
 // ============================================================================
 //
-void FormObjectControl::on_cpoints_set_listwidget_itemClicked(QListWidgetItem *item) {
-  GLCPointset *pointset = getSelectedPointset();
-  if(pointset) {
-    form.edit_cpointset_groupbox->setEnabled(true);
-    form.cpoints_display_cbx->setChecked(pointset->isShown());
-    form.shape_checkbox_filled->setChecked(pointset->isFilled());
-    form.cpoints_threshold_slider->setValue(pointset->getThreshold());
-    form.color_picker_button->setStyleSheet("background-color:" + pointset->getQColor().name());
+void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
+  QList<QTreeWidgetItem *> items = form.cpoints_set_treewidget->selectedItems();
+  if (items.size() == 1) {
+    QTreeWidgetItem* item = items.first();
+    if (!item->parent()) { // if top level item ie edit cpointset
+      form.edit_cpoint_groupbox->setVisible(false);
+      form.edit_cpointset_groupbox->setVisible(true);
+      GLCPointset *pointset = getSelectedPointsets()[0];
+      if (pointset) {
+        form.edit_cpointset_groupbox->setEnabled(true);
+        form.cpoints_display_cbx->setChecked(pointset->isShown());
+        form.shape_checkbox_filled->setChecked(pointset->isFilled());
+        form.cpoints_threshold_slider->setValue(pointset->getThreshold());
+        form.color_picker_button->setStyleSheet("background-color:" + pointset->getQColor().name());
 
 
-    if(pointset->getPointsetType() == CPointsetTypes::square){
-      form.shape_radio_square->setChecked(true);
-      form.shape_checkbox_filled->setEnabled(true);
+        if (pointset->getPointsetType() == CPointsetTypes::square) {
+          form.shape_radio_square->setChecked(true);
+          form.shape_checkbox_filled->setEnabled(true);
+        }
+        if (pointset->getPointsetType() == CPointsetTypes::disk) {
+          form.shape_radio_disk->setChecked(true);
+          form.shape_checkbox_filled->setEnabled(true);
+        }
+        if (pointset->getPointsetType() == CPointsetTypes::tag) {
+          form.shape_radio_tag->setChecked(true);
+          form.shape_checkbox_filled->setEnabled(false);
+        }
+        if (pointset->getPointsetType() == CPointsetTypes::sphere) {
+          form.shape_radio_sphere->setChecked(true);
+          form.shape_checkbox_filled->setEnabled(false);
+        }
+      }
+    } else { // else edit cpoint
+      form.edit_cpoint_groupbox->setVisible(true);
+      form.edit_cpointset_groupbox->setVisible(false);
     }
-    if(pointset->getPointsetType() == CPointsetTypes::disk){
-      form.shape_radio_disk->setChecked(true);
-      form.shape_checkbox_filled->setEnabled(true);
-    }
-    if(pointset->getPointsetType() == CPointsetTypes::tag){
-      form.shape_radio_tag->setChecked(true);
-      form.shape_checkbox_filled->setEnabled(false);
-    }
-    if(pointset->getPointsetType() == CPointsetTypes::sphere){
-      form.shape_radio_sphere->setChecked(true);
-      form.shape_checkbox_filled->setEnabled(false);
-    }
+  } else {
+    form.edit_cpoint_groupbox->setVisible(false);
+    form.edit_cpointset_groupbox->setVisible(false);
   }
 }
 // ============================================================================
 //
 void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) {
-  GLCPointset *pointset = getSelectedPointset();
+  GLCPointset *pointset = getSelectedPointsets()[0];
   if(pointset){
     pointset->setThreshold(threshold);
     emit objectSettingsChanged();
@@ -1497,7 +1522,7 @@ void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) 
 // ============================================================================
 //
 void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
-  GLCPointset *pointset = getSelectedPointset();
+  GLCPointset *pointset = getSelectedPointsets()[0];
   if (pointset) {
     std::array<float, 3> coords = {
             static_cast<float>(form.add_cpoint_coords_x->value()),
@@ -1514,23 +1539,37 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
 //
 void FormObjectControl::on_add_cpointset_clicked(bool) {
   GLCPointset* new_pointset = pointset_manager->createNewCPointset();
-  auto item = new QListWidgetItem(QString::fromStdString(new_pointset->getName()),
-                      form.cpoints_set_listwidget);
+  auto item = new QTreeWidgetItem(form.cpoints_set_treewidget, QStringList() << QString::fromStdString(new_pointset->getName()), 0);
   item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-  form.cpoints_set_listwidget->setCurrentItem(item);
-  on_cpoints_set_listwidget_itemClicked(item);
+  form.cpoints_set_treewidget->setCurrentItem(item, 0);
 }
 // ============================================================================
 //
-void FormObjectControl::on_remove_cpointset_clicked(bool) {
-  GLCPointset *pointset = getSelectedPointset();
-  if(pointset){
+void FormObjectControl::delete_cpointset(bool need_confirmation) {
+  std::vector<GLCPointset *>selected_pointsets = getSelectedPointsets();
+  if(selected_pointsets.size() == 1){
+    GLCPointset* pointset = selected_pointsets[0];
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Delete cpointset", QString::fromStdString("Do you really want to delete cpointset \"" + pointset->getName() + "\"?"),
-                                  QMessageBox::Yes|QMessageBox::No);
+    if(need_confirmation)
+      reply = QMessageBox::question(this, "Delete cpointset", QString::fromStdString("Do you really want to delete cpointset \"" + pointset->getName() + "\"?"),
+                                    QMessageBox::Yes|QMessageBox::No);
+    else reply = QMessageBox::Yes;
     if (reply == QMessageBox::Yes) {
       pointset_manager->deleteCPointset(pointset->getName());
-      updateCPointsListWidget();
+      updateCPointsTreeWidget();
+      emit objectSettingsChanged();
+    }
+  }
+  else { // multiple sets selected
+    QMessageBox::StandardButton reply;
+    if(need_confirmation)
+      reply = QMessageBox::question(this, "Delete cpointset", QString::fromStdString("Do you really want to delete " + std::to_string(selected_pointsets.size()) + " cpointsets ?"),
+                                    QMessageBox::Yes|QMessageBox::No);
+    else reply = QMessageBox::Yes;
+    if (reply == QMessageBox::Yes) {
+      for(auto pointset : selected_pointsets)
+        pointset_manager->deleteCPointset(pointset->getName());
+      updateCPointsTreeWidget();
       emit objectSettingsChanged();
     }
 
@@ -1538,7 +1577,7 @@ void FormObjectControl::on_remove_cpointset_clicked(bool) {
 }
 
 void FormObjectControl::shapeRadioClicked() {
-  GLCPointset *pointset = getSelectedPointset();
+  GLCPointset *pointset = getSelectedPointsets()[0];
   if(pointset){
     QRadioButton* clickedBtn = qobject_cast<QRadioButton*>(sender());
     if(clickedBtn->objectName() == "shape_radio_disk") {
@@ -1566,7 +1605,7 @@ void FormObjectControl::shapeRadioClicked() {
 }
 
 void FormObjectControl::on_shape_checkbox_filled_stateChanged(int state){
-  GLCPointset *pointset = getSelectedPointset();
+  GLCPointset *pointset = getSelectedPointsets()[0];
   if (pointset) {
     if (state == Qt::Checked)
       pointset->setFilled(true);
@@ -1576,7 +1615,7 @@ void FormObjectControl::on_shape_checkbox_filled_stateChanged(int state){
   }
 }
 void FormObjectControl::on_color_picker_button_clicked(bool) {
-  GLCPointset *pointset = getSelectedPointset();
+  GLCPointset *pointset = getSelectedPointsets()[0];
   if (pointset) {
     QColor newColor = QColorDialog::getColor(pointset->getQColor());
     form.color_picker_button->setStyleSheet("background-color: " + newColor.name());
@@ -1585,7 +1624,7 @@ void FormObjectControl::on_color_picker_button_clicked(bool) {
   }
 
 }
-void FormObjectControl::on_cpoints_set_listwidget_currentRowChanged(int row) {
+void FormObjectControl::on_cpoints_set_treewidget_currentRowChanged(int row) {
   if(row == -1)
     form.edit_cpointset_groupbox->setEnabled(false);
 }
@@ -1605,5 +1644,19 @@ void FormObjectControl::on_add_cpoint_center_coord_btn_clicked(bool) {
   form.add_cpoint_coords_y->setValue(-go->ytrans);
   form.add_cpoint_coords_z->setValue(-go->ztrans);
 }
+QTreeWidgetItem *FormObjectControl::createCpointsetTreeItem(GLCPointset *cpoint_set) {
+  auto cpointset_item = new QTreeWidgetItem(form.cpoints_set_treewidget, QStringList() << QString::fromStdString(cpoint_set->getName()), QTreeWidgetItem::Type);
+  cpointset_item->setFlags(Qt::ItemIsEditable | cpointset_item->flags());
+  for(GLCPoint* cpoint : cpoint_set->getCPoints())
+  {
+    auto cpoint_item = new QTreeWidgetItem(cpointset_item, QStringList() << QString::fromStdString(cpoint->getText()), QTreeWidgetItem::Type);
+    cpoint_item->setFlags(Qt::ItemIsEditable | cpoint_item->flags());
+  }
+  return cpointset_item;
+}
 
+void DeletePushButton::mousePressEvent(QMouseEvent *e) {
+  emit deleteClicked(!(e->modifiers() == Qt::ShiftModifier));
+  QPushButton::mousePressEvent(e);
+}
 }
