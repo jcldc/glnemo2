@@ -16,7 +16,7 @@ namespace glnemo {
 /******* GLCPoint ********/
 
 GLCPoint::GLCPoint(std::array<float, 3> coords, float size, std::string text)
-        : m_coords(coords), m_size(size), m_text("tpesqt") {
+        : m_coords(coords), m_size(size), m_text(text) {
 }
 
 const std::array<float, 3> &GLCPoint::getCoords() const {
@@ -28,6 +28,12 @@ const float &GLCPoint::getSize() const {
 }
 const std::string &GLCPoint::getText() const {
   return m_text;
+}
+void GLCPoint::setCoords(std::array<float, 3> coords) {
+  m_coords = coords;
+}
+void GLCPoint::setSize(float size) {
+  m_size = size;
 }
 
 
@@ -69,18 +75,29 @@ const std::string &GLCPointset::getName() const {
 }
 
 void GLCPointset::addPoint(std::array<float, 3> coords, float size, std::string text) {
-  GLCPoint *cpoint = new GLCPoint(coords, size, text);
-  m_cpoints.insert(cpoint);
-  initVboData();
+  addPoint(new GLCPoint(coords, size, text));
+  genVboData();
 }
 
+void GLCPointset::addPoints(std::vector<GLCPointData> cpoint_data_v) {
+  for(GLCPointData cpoint_data : cpoint_data_v)
+    addPoint(new GLCPoint(cpoint_data.coords, cpoint_data.size, cpoint_data.text));
+  genVboData();
+}
+
+void GLCPointset::addPoint(GLCPoint *cpoint) {
+  m_cpoints[next_id] = cpoint;
+  next_id++;
+}
 
 void GLCPointset::setShow(bool show) {
   m_is_shown = show;
 }
+
 bool GLCPointset::isShown() {
   return m_is_shown;
 }
+
 void GLCPointset::setThreshold(int threshold) {
   m_threshold = threshold < 0 ? 0 : threshold > 100 ? 100 : threshold; //clamp
 }
@@ -106,16 +123,16 @@ void GLCPointset::setAttributes() {
   glVertexBindingDivisor(radius_disk_attrib, 1);
 }
 
-void GLCPointset::initVboData() {
+void GLCPointset::genVboData() {
   // DATA INIT
   std::vector<float> data;
   //maybe use reserve to preallocate,
   // m_data.reserve(4*m_cpoints.size());
-  for (GLCPoint *point : m_cpoints) {
-    data.push_back(point->getCoords()[0]);
-    data.push_back(point->getCoords()[1]);
-    data.push_back(point->getCoords()[2]);
-    data.push_back(point->getSize());
+  for (auto point : m_cpoints) {
+    data.push_back(point.second->getCoords()[0]);
+    data.push_back(point.second->getCoords()[1]);
+    data.push_back(point.second->getCoords()[2]);
+    data.push_back(point.second->getSize());
   }
   // SEND DATA
   glBindVertexArray(m_vao);
@@ -126,19 +143,17 @@ void GLCPointset::initVboData() {
   glBindVertexArray(0);
 }
 
-const glcpointset_t &GLCPointset::getCPoints() const {
+const glcpointmap_t &GLCPointset::getCPoints() const {
   return m_cpoints;
 }
 
 void GLCPointset::copyCPoints(GLCPointset *other) {
   m_cpoints = other->getCPoints();
-  initVboData();
+  genVboData();
 }
-
 void GLCPointset::setFilled(bool filled) {
   m_is_filled = filled;
 }
-
 const bool GLCPointset::isFilled() const {
   return m_is_filled;
 }
@@ -165,6 +180,35 @@ const std::array<float, 3> &GLCPointset::getColor() const {
 }
 void GLCPointset::setName(std::string new_name) {
   m_name = new_name;
+}
+void GLCPointset::deletePoint(int id) {
+  GLCPoint* cpoint = m_cpoints[id];
+  m_cpoints.erase(id);
+  delete cpoint;
+  genVboData();
+}
+void GLCPointset::setCpointSize(int id, float size ) {
+  m_cpoints.at(id)->setSize(size);
+  genVboData();
+}
+void GLCPointset::setCpointCoords(int id, std::array<float, 3> coords) {
+  m_cpoints.at(id)->setCoords(coords);
+  genVboData();
+}
+void GLCPointset::setCpointCoordsX(int id, float x) {
+  GLCPoint *cpoint = m_cpoints.at(id);
+  cpoint->setCoords({x, cpoint->getCoords()[1],  cpoint->getCoords()[2]});
+  genVboData();
+}
+void GLCPointset::setCpointCoordsY(int id, float y) {
+  GLCPoint *cpoint = m_cpoints.at(id);
+  cpoint->setCoords({cpoint->getCoords()[0], y, cpoint->getCoords()[2]});
+  genVboData();
+}
+void GLCPointset::setCpointCoordsZ(int id, float z) {
+  GLCPoint *cpoint = m_cpoints.at(id);
+  cpoint->setCoords({cpoint->getCoords()[0],  cpoint->getCoords()[1], z});
+  genVboData();
 }
 
 /******* GLCPointDisk ********/
@@ -315,7 +359,8 @@ void GLCPointsetTag::renderText() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   // Iterate through all cpoints
-  for (GLCPoint *cpoint: m_cpoints) {
+  for (auto cpoint_pair: m_cpoints) {
+    GLCPoint *cpoint = cpoint_pair.second;
     float y = 0;
     float x = 0;
     float scale = .01;
@@ -483,10 +528,13 @@ void GLCPointsetManager::loadFile(std::string filepath) {
     if(!pointset)
       continue;
     pointset->setColor((*it).value("color", std::array<float, 3> {0,0,0}));
-
-    for (json::iterator data = (*it)["data"].begin(); data != (*it)["data"].end(); ++data) {
-      pointset->addPoint((*data)["coords"], (*data)["radius"], std::string()); //TODO change "radius" to "size"
+    std::vector<GLCPointData> cpoint_data_v;
+    auto data = (*it)["data"];
+    cpoint_data_v.resize(data.size());
+    for (std::size_t i = 0; i < data.size(); ++i) {
+      cpoint_data_v[i] = {data[i]["coords"], data[i]["radius"], std::string()}; // TODO change radius to size and 3rd field to data[i]["text"]
     }
+    pointset->addPoints(cpoint_data_v);
     m_pointsets[name] = pointset;
     m_nb_sets++;
   }
@@ -497,10 +545,10 @@ std::string GLCPointsetManager::defaultName() const {
 }
 
 GLCPointsetManager::~GLCPointsetManager() {
-  for (auto cpointset: m_pointsets) {
-    for (GLCPoint *cpoint : cpointset.second->getCPoints())
-      delete cpoint;
-    delete cpointset.second;
+  for (auto cpointset_pair: m_pointsets) {
+    for (auto cpoint_pair : cpointset_pair.second->getCPoints())
+      delete cpoint_pair.second;
+    delete cpointset_pair.second;
   }
 }
 
@@ -583,9 +631,11 @@ void GLCPointsetManager::saveToFile(std::string file_path) {
   for(auto pair: *this){
     GLCPointset *set = pair.second;
     json data_array = json::array();
-    for(GLCPoint *cpoint : set->getCPoints())
+    for(auto cpoint_pair : set->getCPoints()){
+      GLCPoint *cpoint = cpoint_pair.second;
       data_array.push_back({{"coords", cpoint->getCoords()},
                                 {"radius", cpoint->getSize()}});
+    }
     json current_dict = {{"name", set->getName()},
                          {"shape", shapeToStr[set->getShape()]},
                          {"color", set->getColor()},

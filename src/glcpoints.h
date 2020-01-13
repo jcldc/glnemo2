@@ -27,11 +27,6 @@ struct Character {
   GLuint     Advance;    // Offset to advance to next glyph
 };
 
-struct PPred {
-  template<typename T>
-  inline bool operator()(const T *a, const T *b) const { return *a < *b; }
-};
-
 enum CPointsetTypes{
   disk,
   square,
@@ -52,25 +47,39 @@ public:
   inline bool operator>=(const GLCPoint &other) const { return !(other < *this); }
 
 private:
+  void setSize(float size);
+  void setCoords(std::array<float, 3>);
+
   std::array<float, 3> m_coords;
   float m_size;
   std::string m_text;
+
+  friend class GLCPointset;
 };
 
-typedef std::multiset<GLCPoint *, PPred> glcpointset_t;
+typedef std::map<int, GLCPoint *> glcpointmap_t;
+
+struct GLCPointData {
+  std::array<float, 3> coords;
+  float size;
+  std::string text;
+};
 
 class GLCPointset {
 public:
   GLCPointset(CShader *m_shader, std::string name = "");
   virtual ~GLCPointset();
   virtual void display() = 0;
-  void initVboData(); // make private ?
   virtual void setAttributes();
-  void addPoint(std::array<float, 3> coords, float size, std::string text);
   virtual void sendUniforms();
   void copyCPoints(GLCPointset*);
-  const glcpointset_t& getCPoints() const;
   bool ready();
+
+  void addPoint(std::array<float, 3> coords, float size, std::string text);
+  void addPoints(std::vector<GLCPointData>);
+  void deletePoint(int id);
+
+  const glcpointmap_t& getCPoints() const;
   void setShow(bool show);
   bool isShown();
   void setFilled(bool);
@@ -87,11 +96,20 @@ public:
   void setColor(std::array<float, 3>);
   const CPointsetTypes &getShape() const;
 
+  void setCpointSize(int id, float size);
+  void setCpointCoords(int id, std::array<float, 3> coords);
+  void setCpointCoordsX(int id, float x);
+  void setCpointCoordsY(int id, float y);
+  void setCpointCoordsZ(int id, float z);
+
   static int wwidth;
 
 protected:
+  void addPoint(GLCPoint*);
+  void genVboData();
+
   CShader *m_shader;
-  glcpointset_t m_cpoints;
+  glcpointmap_t m_cpoints;
   GLuint m_vao, m_vbo;
   std::string m_name;
   std::array<float, 3> m_color;
@@ -99,6 +117,7 @@ protected:
   bool m_is_filled;
   int m_threshold;
   CPointsetTypes m_pointset_type;
+  int next_id = 0;
 };
 
 class GLCPointsetRegularPolygon : public GLCPointset {

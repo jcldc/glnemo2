@@ -202,6 +202,11 @@ namespace glnemo {
     void on_add_cpoint_center_coord_btn_clicked(bool);
     QTreeWidgetItem* createCpointsetTreeItem(GLCPointset*);
     void delete_cpointset(bool);
+    void on_delete_cpoint_btn_clicked(bool);
+    void on_edit_cpoint_coords_x_valueChanged(double);
+    void on_edit_cpoint_coords_y_valueChanged(double);
+    void on_edit_cpoint_coords_z_valueChanged(double);
+    void on_edit_cpoint_size_valueChanged(double);
     // on gaz
     void on_gaz_check_clicked(bool);
     void on_gaz_slide_size_valueChanged(int);
@@ -271,7 +276,8 @@ namespace glnemo {
     }
 
     private:
-    std::vector<GLCPointset*> getSelectedPointsets();
+    std::vector<GLCPointset *> getSelectedPointsets(QList<QTreeWidgetItem*>);
+    std::vector<GLCPoint *> getSelectedCPoints(QList<QTreeWidgetItem *>) const;
     void checkPhysic();
     void physicalSelected();
     void leaveEvent ( QEvent * event ) {
