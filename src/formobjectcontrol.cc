@@ -115,7 +115,8 @@ FormObjectControl::FormObjectControl(GLCPointsetManager *_pointset_manager, Glob
   my_mutex2 = new QMutex(QMutex::Recursive);
 
   auto* delegate = new CustomItemDelegate(form.cpoints_set_treewidget);
-  connect(delegate,SIGNAL(editFinished(std::string, std::string)),this, SLOT(editFinished(std::string, std::string)));
+  connect(delegate,SIGNAL(editFinished(std::string, std::string, std::string, int)),
+          this, SLOT(editFinished(std::string, std::string, std::string, int)));
   auto customDeleteButton = new DeletePushButton();
   customDeleteButton->setObjectName(form.delete_cpointset->objectName());
   customDeleteButton->setToolTip(form.delete_cpointset->toolTip());
@@ -1426,6 +1427,21 @@ void FormObjectControl::on_z_stretch_max_spin_valueChanged(double value)
 //
 // ============================================================================
 //
+void DeletePushButton::mousePressEvent(QMouseEvent *e) {
+  emit deleteClicked(!(e->modifiers() == Qt::ShiftModifier));
+  QPushButton::mousePressEvent(e);
+}
+
+void FormObjectControl::editFinished(std::string old_name, std::string new_name, std::string parent_name, int cpoint_id = 0) {
+  if(parent_name == "") //editing cpointset name
+    pointset_manager->setPointsetName(old_name, new_name);
+  else{ //editing cpoint name
+    GLCPointset * pointset = (*pointset_manager)[parent_name];
+    pointset->setCpointText(cpoint_id, new_name);
+    emit objectSettingsChanged();
+  }
+}
+
 void FormObjectControl::on_load_cpoints_file_clicked(bool) {
   QString file_path;
   file_path = QFileDialog::getOpenFileName(
@@ -1435,6 +1451,7 @@ void FormObjectControl::on_load_cpoints_file_clicked(bool) {
       updateCPointsTreeWidget();
   }
 }
+
 // ============================================================================
 //
 std::vector<GLCPointset *> FormObjectControl::getSelectedPointsets(QList<QTreeWidgetItem *> selected_items) {
@@ -1462,10 +1479,9 @@ std::vector<GLCPoint*> FormObjectControl::getSelectedCPoints(QList<QTreeWidgetIt
   }
   return selected_cpoints;
 }
-
 // ============================================================================
 //
-void FormObjectControl::updateCPointsTreeWidget() {
+void FormObjectControl::updateCPointsTreeWidget() { // TODO here keep selected item
   form.cpoints_set_treewidget->clear();
   for (auto cpoint_set : *pointset_manager) {
     createCpointsetTreeItem(cpoint_set.second);
@@ -1561,6 +1577,7 @@ void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) 
 // ============================================================================
 //
 void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
+  QTreeWidgetItem* top_level_item = form.cpoints_set_treewidget->selectedItems()[0]; // TODO improve this
   GLCPointset *pointset = getSelectedPointsets(form.cpoints_set_treewidget->selectedItems())[0];
   if (pointset) {
     std::array<float, 3> coords = {
@@ -1571,9 +1588,11 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
     float size = form.add_cpoint_coords_size->value();
     const string &point_text = form.add_cpoint_text->text().toStdString();
     pointset->addPoint(coords, size, point_text);
+    updateCPointsTreeWidget();
     emit objectSettingsChanged();
   }
 }
+
 // ============================================================================
 //
 void FormObjectControl::on_add_cpointset_clicked(bool) {
@@ -1582,6 +1601,7 @@ void FormObjectControl::on_add_cpointset_clicked(bool) {
   item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
   form.cpoints_set_treewidget->setCurrentItem(item, 0);
 }
+
 // ============================================================================
 //
 void FormObjectControl::delete_cpointset(bool need_confirmation) {
@@ -1677,16 +1697,11 @@ void FormObjectControl::on_export_cpoints_file_clicked(bool) {
   }
 }
 
-void FormObjectControl::editFinished(std::string old_name, std::string new_name) {
-  pointset_manager->setPointsetName(old_name, new_name);
-}
-
 void FormObjectControl::on_add_cpoint_center_coord_btn_clicked(bool) {
   form.add_cpoint_coords_x->setValue(-go->xtrans);
   form.add_cpoint_coords_y->setValue(-go->ytrans);
   form.add_cpoint_coords_z->setValue(-go->ztrans);
 }
-
 QTreeWidgetItem *FormObjectControl::createCpointsetTreeItem(GLCPointset *cpoint_set) {
   auto cpointset_item = new QTreeWidgetItem(form.cpoints_set_treewidget, QStringList() << QString::fromStdString(cpoint_set->getName()), QTreeWidgetItem::Type);
   cpointset_item->setFlags(Qt::ItemIsEditable | cpointset_item->flags());
@@ -1698,6 +1713,7 @@ QTreeWidgetItem *FormObjectControl::createCpointsetTreeItem(GLCPointset *cpoint_
   }
   return cpointset_item;
 }
+
 void FormObjectControl::on_delete_cpoint_btn_clicked(bool) {
   auto selected_items = form.cpoints_set_treewidget->selectedItems();
   for (QTreeWidgetItem *item : selected_items) {
@@ -1711,7 +1727,6 @@ void FormObjectControl::on_delete_cpoint_btn_clicked(bool) {
   }
   emit objectSettingsChanged();
 }
-
 void FormObjectControl::on_edit_cpoint_coords_x_valueChanged(double x) {
   QTreeWidgetItem * item = form.cpoints_set_treewidget->selectedItems()[0];
   QTreeWidgetItem * parent_item = item->parent();
@@ -1736,6 +1751,7 @@ void FormObjectControl::on_edit_cpoint_coords_z_valueChanged(double z) {
   pointset->setCpointCoordsZ(cpoint_id, z);
   emit objectSettingsChanged();
 }
+
 void FormObjectControl::on_edit_cpoint_size_valueChanged(double size) {
   QTreeWidgetItem * item = form.cpoints_set_treewidget->selectedItems()[0];
   QTreeWidgetItem * parent_item = item->parent();
@@ -1743,10 +1759,5 @@ void FormObjectControl::on_edit_cpoint_size_valueChanged(double size) {
   int cpoint_id = item->text(1).toInt();
   pointset->setCpointSize(cpoint_id, size);
   emit objectSettingsChanged();
-}
-
-void DeletePushButton::mousePressEvent(QMouseEvent *e) {
-  emit deleteClicked(!(e->modifiers() == Qt::ShiftModifier));
-  QPushButton::mousePressEvent(e);
 }
 }

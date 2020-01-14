@@ -49,6 +49,7 @@ public:
 private:
   void setSize(float size);
   void setCoords(std::array<float, 3>);
+  void setText(std::string);
 
   std::array<float, 3> m_coords;
   float m_size;
@@ -75,7 +76,7 @@ public:
   void copyCPoints(GLCPointset*);
   bool ready();
 
-  void addPoint(std::array<float, 3> coords, float size, std::string text);
+  GLCPoint * addPoint(std::array<float, 3> coords, float size, std::string text);
   void addPoints(std::vector<GLCPointData>);
   void deletePoint(int id);
 
@@ -101,6 +102,7 @@ public:
   void setCpointCoordsX(int id, float x);
   void setCpointCoordsY(int id, float y);
   void setCpointCoordsZ(int id, float z);
+  void setCpointText(int id, std::string text);
 
   static int wwidth;
 

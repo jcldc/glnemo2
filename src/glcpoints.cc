@@ -35,6 +35,9 @@ void GLCPoint::setCoords(std::array<float, 3> coords) {
 void GLCPoint::setSize(float size) {
   m_size = size;
 }
+void GLCPoint::setText(std::string text) {
+  m_text = text;
+}
 
 
 /******* GLCPointset ********/
@@ -74,18 +77,22 @@ const std::string &GLCPointset::getName() const {
   return m_name;
 }
 
-void GLCPointset::addPoint(std::array<float, 3> coords, float size, std::string text) {
-  addPoint(new GLCPoint(coords, size, text));
+GLCPoint * GLCPointset::addPoint(std::array<float, 3> coords, float size, std::string text) {
+  auto cpoint = new GLCPoint(coords, size, text);
+  addPoint(cpoint);
   genVboData();
+  return cpoint;
 }
 
-void GLCPointset::addPoints(std::vector<GLCPointData> cpoint_data_v) {
+void GLCPointset::addPoints(std::vector<GLCPointData> cpoint_data_v) { // return vector maybe
   for(GLCPointData cpoint_data : cpoint_data_v)
     addPoint(new GLCPoint(cpoint_data.coords, cpoint_data.size, cpoint_data.text));
   genVboData();
 }
 
 void GLCPointset::addPoint(GLCPoint *cpoint) {
+  if(cpoint->getText()=="")
+    cpoint->setText("CPoint " + std::to_string(next_id)); // default value
   m_cpoints[next_id] = cpoint;
   next_id++;
 }
@@ -209,6 +216,10 @@ void GLCPointset::setCpointCoordsZ(int id, float z) {
   GLCPoint *cpoint = m_cpoints.at(id);
   cpoint->setCoords({cpoint->getCoords()[0],  cpoint->getCoords()[1], z});
   genVboData();
+}
+void GLCPointset::setCpointText(int id, std::string text) {
+  GLCPoint *cpoint = m_cpoints.at(id);
+  cpoint->setText(text);
 }
 
 /******* GLCPointDisk ********/
@@ -532,7 +543,7 @@ void GLCPointsetManager::loadFile(std::string filepath) {
     auto data = (*it)["data"];
     cpoint_data_v.resize(data.size());
     for (std::size_t i = 0; i < data.size(); ++i) {
-      cpoint_data_v[i] = {data[i]["coords"], data[i]["radius"], std::string()}; // TODO change radius to size and 3rd field to data[i]["text"]
+      cpoint_data_v[i] = {data[i]["coords"], data[i]["radius"], data[i].value("text", std::string())}; // TODO change radius to size
     }
     pointset->addPoints(cpoint_data_v);
     m_pointsets[name] = pointset;

@@ -48,14 +48,19 @@ namespace glnemo {
     explicit CustomItemDelegate(QObject *parent = Q_NULLPTR) : QStyledItemDelegate(parent) {
     }
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const Q_DECL_OVERRIDE{
+      QModelIndex pa = index.parent();
+      std::string parent_text = pa.data().toString().toStdString(); // empty string if top level item (ie cpointset)
       std::string previous_text = index.data().toString().toStdString();
       QStyledItemDelegate::setModelData(editor, model, index);
       std::string new_text = model->data(index).toString().toStdString();
-      editFinished(previous_text, new_text);
+      QModelIndex target_index = model->index(index.row(), 1, pa);
+      // change data in the desired item
+      int cpoint_id = model->data(target_index).toInt();
+      editFinished(previous_text, new_text, parent_text, cpoint_id);
     }
   signals:
     void editFinished() const;
-    void editFinished(std::string, std::string) const;
+    void editFinished(std::string previous_text, std::string new_text, std::string parent_text, int id = 0) const;
   };
   // ============================================================================
   // class QCheckBoxTable : control the visibility of the objects from the GUI
@@ -198,7 +203,7 @@ namespace glnemo {
     void on_shape_checkbox_filled_stateChanged(int);
     void on_color_picker_button_clicked(bool);
     void on_export_cpoints_file_clicked(bool);
-    void editFinished(std::string, std::string);
+    void editFinished(std::string, std::string, std::string, int cpoint_id);
     void on_add_cpoint_center_coord_btn_clicked(bool);
     QTreeWidgetItem* createCpointsetTreeItem(GLCPointset*);
     void delete_cpointset(bool);
