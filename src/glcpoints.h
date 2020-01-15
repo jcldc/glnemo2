@@ -39,7 +39,7 @@ public:
   GLCPoint(std::array<float, 3> coords, float size, std::string text);
   const std::array<float, 3> &getCoords() const;
   const float &getSize() const;
-  const std::string &getText() const;
+  const std::string &getName() const;
   const int &getId() const;
 
   inline bool operator<(const GLCPoint &other) const { return m_size > other.getSize(); }
@@ -50,11 +50,11 @@ public:
 private:
   void setSize(float size);
   void setCoords(std::array<float, 3>);
-  void setText(std::string);
+  void setName(std::string name);
 
   std::array<float, 3> m_coords;
   float m_size;
-  std::string m_text;
+  std::string m_name;
   int m_id;
 
   static int next_id;

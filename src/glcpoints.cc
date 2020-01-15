@@ -21,9 +21,9 @@ GLCPoint::GLCPoint(std::array<float, 3> coords, float size, std::string text)
   next_id++;
 
   if(text=="")
-    m_text = "CPoint " + std::to_string(m_id);
+    m_name = "CPoint " + std::to_string(m_id);
   else
-    m_text = text;
+    m_name = text;
 }
 
 const std::array<float, 3> &GLCPoint::getCoords() const {
@@ -33,8 +33,8 @@ const std::array<float, 3> &GLCPoint::getCoords() const {
 const float &GLCPoint::getSize() const {
   return m_size;
 }
-const std::string &GLCPoint::getText() const {
-  return m_text;
+const std::string &GLCPoint::getName() const {
+  return m_name;
 }
 const int &GLCPoint::getId() const {
   return m_id;
@@ -45,8 +45,8 @@ void GLCPoint::setCoords(std::array<float, 3> coords) {
 void GLCPoint::setSize(float size) {
   m_size = size;
 }
-void GLCPoint::setText(std::string text) {
-  m_text = text;
+void GLCPoint::setName(std::string name) {
+  m_name = name;
 }
 
 
@@ -224,7 +224,7 @@ void CPointset::setCpointCoordsZ(int id, float z) {
 }
 void CPointset::setCpointText(int id, std::string text) {
   GLCPoint *cpoint = m_cpoints.at(id);
-  cpoint->setText(text);
+  cpoint->setName(text);
 }
 
 /******* GLCPointDisk ********/
@@ -380,7 +380,7 @@ void CPointsetTag::renderText() {
     float y = 0;
     float x = 0;
     float scale = .01;
-    std::string text = cpoint->getText();
+    std::string text = cpoint->getName();
 
     m_text_shader->start();
 

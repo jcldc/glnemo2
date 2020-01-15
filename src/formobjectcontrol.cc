@@ -1477,7 +1477,7 @@ QTreeWidgetItem *FormObjectControl::createCpointsetTreeItem(CPointset *cpoint_se
     int cpoint_id = cpoint_pair.first;
     auto cpoint_item = new QTreeWidgetItem(
             cpointset_item,
-            QStringList() << QString::fromStdString(cpoint->getText()) << QString::number(cpoint_id),
+            QStringList() << QString::fromStdString(cpoint->getName()) << QString::number(cpoint_id),
             QTreeWidgetItem::Type);
   }
   return cpointset_item;
@@ -1546,7 +1546,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
       form.edit_cpoint_coords_y->setValue(cpoint->getCoords()[1]);
       form.edit_cpoint_coords_z->setValue(cpoint->getCoords()[2]);
       form.edit_cpoint_size->setValue(cpoint->getSize());
-      form.edit_cpoint_name->setText(QString::fromStdString(cpoint->getText()));
+      form.edit_cpoint_name->setText(QString::fromStdString(cpoint->getName()));
     }
   } else { // multiple items selected
     bool cpoints = false,
@@ -1598,7 +1598,7 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
     const string &point_text = form.add_cpoint_name->text().toStdString();
     GLCPoint *cpoint = pointset->addPoint(coords, size, point_text);
     new QTreeWidgetItem(top_level_item,
-                        QStringList() << QString::fromStdString(cpoint->getText()) << QString::number(cpoint->getId()));
+                        QStringList() << QString::fromStdString(cpoint->getName()) << QString::number(cpoint->getId()));
     emit objectSettingsChanged();
   }
 }
