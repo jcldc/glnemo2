@@ -20,7 +20,7 @@ GLCPoint::GLCPoint(std::array<float, 3> coords, float size, std::string text)
   m_id = next_id;
   next_id++;
 
-  if(text=="")
+  if (text == "")
     m_name = "CPoint " + std::to_string(m_id);
   else
     m_name = text;
@@ -51,6 +51,7 @@ void GLCPoint::setName(std::string name) {
 
 
 /******* GLCPointset ********/
+CPointTextRenderer* CPointset::text_renderer = nullptr;
 
 void CPointset::sendUniforms() {
   GLfloat proj[16];
@@ -64,7 +65,7 @@ void CPointset::sendUniforms() {
 }
 
 CPointset::CPointset(CShader *shader, std::string name) :
-        m_shader(shader), m_name(name), m_color{1,1,1} {
+        m_shader(shader), m_name(name), m_color{1, 1, 1} {
   m_is_shown = true;
   m_is_filled = false;
   m_threshold = 100;
@@ -87,7 +88,7 @@ const std::string &CPointset::getName() const {
   return m_name;
 }
 
-GLCPoint * CPointset::addPoint(std::array<float, 3> coords, float size, std::string text) {
+GLCPoint *CPointset::addPoint(std::array<float, 3> coords, float size, std::string text) {
   auto cpoint = new GLCPoint(coords, size, text);
   m_cpoints[cpoint->getId()] = cpoint;
   genVboData();
@@ -95,7 +96,7 @@ GLCPoint * CPointset::addPoint(std::array<float, 3> coords, float size, std::str
 }
 
 void CPointset::addPoints(std::vector<GLCPointData> cpoint_data_v) { // return vector maybe
-  for(GLCPointData cpoint_data : cpoint_data_v){
+  for (GLCPointData cpoint_data : cpoint_data_v) {
     auto cpoint = new GLCPoint(cpoint_data.coords, cpoint_data.size, cpoint_data.text);
     m_cpoints[cpoint->getId()] = cpoint;
   }
@@ -176,7 +177,7 @@ const int CPointset::getThreshold() const {
   return m_threshold;
 }
 const QColor CPointset::getQColor() const {
-  return QColor(m_color[0]*255, m_color[1]*255, m_color[2]*255);
+  return QColor(m_color[0] * 255, m_color[1] * 255, m_color[2] * 255);
 }
 void CPointset::setColor(const QColor &color) {
   m_color = {static_cast<float>(color.redF()), static_cast<float>(color.greenF()), static_cast<float>(color.blueF())};
@@ -194,12 +195,12 @@ void CPointset::setName(std::string new_name) {
   m_name = new_name;
 }
 void CPointset::deletePoint(int id) {
-  GLCPoint* cpoint = m_cpoints[id];
+  GLCPoint *cpoint = m_cpoints[id];
   m_cpoints.erase(id);
   delete cpoint;
   genVboData();
 }
-void CPointset::setCpointSize(int id, float size ) {
+void CPointset::setCpointSize(int id, float size) {
   m_cpoints.at(id)->setSize(size);
   genVboData();
 }
@@ -209,7 +210,7 @@ void CPointset::setCpointCoords(int id, std::array<float, 3> coords) {
 }
 void CPointset::setCpointCoordsX(int id, float x) {
   GLCPoint *cpoint = m_cpoints.at(id);
-  cpoint->setCoords({x, cpoint->getCoords()[1],  cpoint->getCoords()[2]});
+  cpoint->setCoords({x, cpoint->getCoords()[1], cpoint->getCoords()[2]});
   genVboData();
 }
 void CPointset::setCpointCoordsY(int id, float y) {
@@ -219,12 +220,21 @@ void CPointset::setCpointCoordsY(int id, float y) {
 }
 void CPointset::setCpointCoordsZ(int id, float z) {
   GLCPoint *cpoint = m_cpoints.at(id);
-  cpoint->setCoords({cpoint->getCoords()[0],  cpoint->getCoords()[1], z});
+  cpoint->setCoords({cpoint->getCoords()[0], cpoint->getCoords()[1], z});
   genVboData();
 }
 void CPointset::setCpointText(int id, std::string text) {
   GLCPoint *cpoint = m_cpoints.at(id);
   cpoint->setName(text);
+}
+void CPointset::displayText() {
+  text_renderer->renderText(this);
+}
+void CPointset::setNameVisible(bool visible) {
+  m_is_name_visible = visible;
+}
+const bool CPointset::isNameVisible() {
+  return m_is_name_visible;
 }
 
 /******* GLCPointDisk ********/
@@ -267,79 +277,10 @@ CPointsetSquare::CPointsetSquare(CShader *shader, std::string name)
 }
 
 /******* GLCPointTag ********/
-CPointsetTag::CPointsetTag(CShader *shape_shader, CShader *text_shader, std::string name) : CPointset(shape_shader, name) {
+CPointsetTag::CPointsetTag(CShader *shape_shader, CShader *text_shader, std::string name) : CPointset(shape_shader,
+                                                                                                      name) {
   m_pointset_type = CPointsetTypes::tag;
-  m_text_shader = text_shader;
 
-  glGenVertexArrays(1, &m_text_vao);
-  glGenBuffers(1, &m_text_vbo);
-  glBindVertexArray(m_text_vao);
-  glBindBuffer(GL_ARRAY_BUFFER, m_text_vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
-
-  FT_Library ft;
-  if (FT_Init_FreeType(&ft)) {
-    std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
-  }
-
-  QFile font_file(GlobalOptions::RESPATH + "/fonts/DejaVuSansMono.ttf");
-  if (!font_file.open(QIODevice::ReadOnly)) {
-    std::cout << "Could not open font file" << std::endl;
-    exit( 1);
-  }
-  QByteArray blob = font_file.readAll();
-  const FT_Byte* data = reinterpret_cast<const FT_Byte* >(blob.data());
-  FT_Face face;
-
-  if (FT_New_Memory_Face(ft, data, blob.size(), 0, &face)) {
-    std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-  }
-
-  FT_Set_Pixel_Sizes(face, 0, 48);
-
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
-
-  for (GLubyte c = 0; c < 128; c++) {
-    // Load character glyph
-    if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-      std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-      continue;
-    }
-    // Generate texture
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RED,
-            face->glyph->bitmap.width,
-            face->glyph->bitmap.rows,
-            0,
-            GL_RED,
-            GL_UNSIGNED_BYTE,
-            face->glyph->bitmap.buffer
-    );
-    // Set texture options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // Now store character for later use
-    Character character = {
-            texture,
-            glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-            face->glyph->advance.x
-    };
-    Characters.insert(std::pair<GLchar, Character>(c, character));
-  }
-  FT_Done_Face(face);
-  FT_Done_FreeType(ft);
 }
 
 void CPointsetTag::display() {
@@ -355,8 +296,6 @@ void CPointsetTag::display() {
 
   glBindVertexArray(0);
   m_shader->stop();
-
-  renderText();
 }
 
 void CPointsetTag::sendUniforms() {
@@ -371,77 +310,6 @@ void CPointsetTag::sendUniforms() {
 //  m_shader->sendUniformf("screen_scale", 2 * tagSizeOnScreen / wwidth);
 }
 
-void CPointsetTag::renderText() {
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  // Iterate through all cpoints
-  for (auto cpoint_pair: m_cpoints) {
-    GLCPoint *cpoint = cpoint_pair.second;
-    float y = 0;
-    float x = 0;
-    float scale = .01;
-    std::string text = cpoint->getName();
-
-    m_text_shader->start();
-
-    GLfloat proj[16];
-    glGetFloatv(GL_PROJECTION_MATRIX, proj);
-    GLfloat mview[16];
-    glGetFloatv(GL_MODELVIEW_MATRIX, mview);
-
-    m_text_shader->sendUniformXfv("projMatrix", 16, 1, &proj[0]);
-    m_text_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
-
-    m_text_shader->sendUniformXfv("color", 3, 1, m_color.data());
-    m_text_shader->sendUniformXfv("point_center", 3, 1, cpoint->getCoords().data());
-
-    m_text_shader->sendUniformf("offset", cpoint->getSize());
-    scale *= cpoint->getSize();
-//
-    glActiveTextureARB(GL_TEXTURE0_ARB);
-    glBindVertexArray(m_text_vao);
-
-    // Iterate through all characters
-    std::string::const_iterator c;
-    for (c = text.begin(); c != text.end(); c++) {
-      Character ch = Characters[*c];
-
-      GLfloat xpos = x + ch.Bearing.x * scale;
-      GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-
-      GLfloat w = ch.Size.x * scale;
-      GLfloat h = ch.Size.y * scale;
-      // Update VBO for each character
-      GLfloat vertices[6][4] = {
-              {xpos,     ypos + h, 0.0, 0.0},
-              {xpos,     ypos,     0.0, 1.0},
-              {xpos + w, ypos,     1.0, 1.0},
-
-              {xpos,     ypos + h, 0.0, 0.0},
-              {xpos + w, ypos,     1.0, 1.0},
-              {xpos + w, ypos + h, 1.0, 0.0}
-      };
-      // Render glyph texture over quad
-      glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-      // Update content of VBO memory
-      glBindBuffer(GL_ARRAY_BUFFER, m_text_vbo);
-      glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-      // Render quad
-      glDrawArrays(GL_TRIANGLES, 0, 6);
-      // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-      x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
-    }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    m_text_shader->stop();
-  }
-
-}
-CPointsetTag::~CPointsetTag() {
-  for(auto ch : Characters)
-    glDeleteTextures(1, &ch.second.TextureID);
-}
 /******* GLCPointSphere ********/
 int CPointsetSphere::subdivisions = 12;
 int CPointsetSphere::nb_vertex_per_sphere = subdivisions * subdivisions + subdivisions;
@@ -513,7 +381,6 @@ CPointsetManager::CPointsetManager() {
   for (auto sts: shapeToStr) {
     strToShape[sts.second] = sts.first;
   }
-
 }
 
 void CPointsetManager::loadFile(std::string filepath) {
@@ -534,26 +401,27 @@ void CPointsetManager::loadFile(std::string filepath) {
     std::string str_shape = (*it)["shape"];
     std::string name((*it).value("name", defaultName()));
     bool name_too_long = false;
-    while(m_pointsets[name])
-      if(name.size()<50)
+    while (m_pointsets[name])
+      if (name.size() < 50)
         name += " duplicate";
-      else{
+      else {
         name_too_long = true;
         break;
       }
 
-    if(name_too_long)// TODO alert user pointset was not loaded
+    if (name_too_long)// TODO alert user pointset was not loaded
       continue;
 
     pointset = newPointset(str_shape, name);
-    if(!pointset)
+    if (!pointset)
       continue;
-    pointset->setColor((*it).value("color", std::array<float, 3> {0,0,0}));
+    pointset->setColor((*it).value("color", std::array<float, 3>{0, 0, 0}));
     std::vector<GLCPointData> cpoint_data_v;
     auto data = (*it)["data"];
     cpoint_data_v.resize(data.size());
     for (std::size_t i = 0; i < data.size(); ++i) {
-      cpoint_data_v[i] = {data[i]["coords"], data[i]["radius"], data[i].value("text", std::string())}; // TODO change radius to size
+      cpoint_data_v[i] = {data[i]["coords"], data[i]["radius"],
+                          data[i].value("text", std::string())}; // TODO change radius to size
     }
     pointset->addPoints(cpoint_data_v);
     m_pointsets[name] = pointset;
@@ -575,6 +443,10 @@ CPointsetManager::~CPointsetManager() {
 
 void CPointsetManager::initShaders() {
 
+  auto text_renderer = new CPointTextRenderer();
+  text_renderer->init();
+  CPointset::text_renderer = text_renderer;
+
   m_regular_polygon_shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/regular_polygon.vert",
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
@@ -593,16 +465,6 @@ void CPointsetManager::initShaders() {
     exit(1);
   }
 
-  m_tag_text_shader = new CShader(
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/tag_text.vert",
-
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/tag_text.frag");
-  if (!m_tag_text_shader->init()) {
-    delete m_tag_text_shader;
-    std::cerr << "Failed to initialize tag text shader\n";
-    exit(1);
-  }
-
   m_sphere_shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/sphere.vert",
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
@@ -614,11 +476,15 @@ void CPointsetManager::initShaders() {
 }
 
 void CPointsetManager::displayAll() {
-  for (auto cpointset: m_pointsets)
-    cpointset.second->display();
+  for (auto cpointset_pair: m_pointsets) {
+    CPointset *cpointset = cpointset_pair.second;
+    cpointset->display();
+    if(cpointset->isNameVisible())
+      cpointset->displayText();
+  }
 }
 
-CPointset* CPointsetManager::createNewCPointset() {
+CPointset *CPointsetManager::createNewCPointset() {
   CPointsetDisk *pointset = new CPointsetDisk(m_regular_polygon_shader, defaultName());
   m_pointsets[defaultName()] = pointset;
   m_nb_sets++;
@@ -637,6 +503,7 @@ void CPointsetManager::changePointsetType(std::string pointset_name, std::string
     new_pointset->setColor(old_pointset->getQColor());
     new_pointset->setShow(old_pointset->isShown());
     new_pointset->setThreshold(old_pointset->getThreshold());
+    new_pointset->setNameVisible(old_pointset->isNameVisible());
     m_pointsets[pointset_name] = new_pointset;
     delete old_pointset;
   }
@@ -647,20 +514,20 @@ void CPointsetManager::setW(int w) {
 }
 
 void CPointsetManager::saveToFile(std::string file_path) {
-  std::ofstream outfile (file_path);
+  std::ofstream outfile(file_path);
   json final_obj;
-  for(auto pair: *this){
+  for (auto pair: *this) {
     CPointset *set = pair.second;
     json data_array = json::array();
-    for(auto cpoint_pair : set->getCPoints()){
+    for (auto cpoint_pair : set->getCPoints()) {
       GLCPoint *cpoint = cpoint_pair.second;
       data_array.push_back({{"coords", cpoint->getCoords()},
-                                {"radius", cpoint->getSize()}});
+                            {"radius", cpoint->getSize()}});
     }
-    json current_dict = {{"name", set->getName()},
+    json current_dict = {{"name",  set->getName()},
                          {"shape", shapeToStr[set->getShape()]},
                          {"color", set->getColor()},
-                         {"data", data_array}};
+                         {"data",  data_array}};
 
     final_obj.push_back(current_dict);
   }
@@ -673,7 +540,7 @@ CPointset *CPointsetManager::newPointset(std::string str_shape, std::string name
   } else if (str_shape == "square") {
     return new CPointsetSquare(m_regular_polygon_shader, name);
   } else if (str_shape == "tag") {
-    return new CPointsetTag(m_tag_shader, m_tag_text_shader, name);
+    return new CPointsetTag(m_tag_shader, m_text_shader, name);
   } else if (str_shape == "sphere") {
     return new CPointsetSphere(m_sphere_shader, name);
   } else {
@@ -693,5 +560,162 @@ void CPointsetManager::setPointsetName(std::string old_name, std::string new_nam
 }
 void CPointsetManager::deleteCPoint(std::string pointset_name, int cpoint_id) {
   m_pointsets.at(pointset_name)->deletePoint(cpoint_id);
+}
+
+void CPointTextRenderer::init() {
+
+  m_text_shader = new CShader(
+          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/tag_text.vert",
+
+          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/tag_text.frag");
+  if (!m_text_shader->init()) {
+    delete m_text_shader;
+    std::cerr << "Failed to initialize tag text shader\n";
+    exit(1);
+  }
+
+  glGenVertexArrays(1, &m_text_vao);
+  glGenBuffers(1, &m_text_vbo);
+  glBindVertexArray(m_text_vao);
+  glBindBuffer(GL_ARRAY_BUFFER, m_text_vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+
+  FT_Library ft;
+  if (FT_Init_FreeType(&ft)) {
+    std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+  }
+
+  QFile font_file(GlobalOptions::RESPATH + "/fonts/DejaVuSansMono.ttf");
+  if (!font_file.open(QIODevice::ReadOnly)) {
+    std::cout << "Could not open font file" << std::endl;
+    exit(1);
+  }
+  QByteArray blob = font_file.readAll();
+  const FT_Byte *data = reinterpret_cast<const FT_Byte * >(blob.data());
+  FT_Face face;
+
+  if (FT_New_Memory_Face(ft, data, blob.size(), 0, &face)) {
+    std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+  }
+
+  FT_Set_Pixel_Sizes(face, 0, 48);
+
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
+
+  for (GLubyte c = 0; c < 128; c++) {
+    // Load character glyph
+    if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+      std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+      continue;
+    }
+    // Generate texture
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RED,
+            face->glyph->bitmap.width,
+            face->glyph->bitmap.rows,
+            0,
+            GL_RED,
+            GL_UNSIGNED_BYTE,
+            face->glyph->bitmap.buffer
+    );
+    // Set texture options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // Now store character for later use
+    Character character = {
+            texture,
+            glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+            face->glyph->advance.x
+    };
+    Characters.insert(std::pair<GLchar, Character>(c, character));
+  }
+  FT_Done_Face(face);
+  FT_Done_FreeType(ft);
+}
+
+void CPointTextRenderer::renderText(CPointset *pointset) {
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  // Iterate through all cpoints
+  for (auto cpoint_pair: pointset->getCPoints()) {
+    GLCPoint *cpoint = cpoint_pair.second;
+    float y = 0;
+    float x = 0;
+    float scale = .01;
+    std::string text = cpoint->getName();
+
+    m_text_shader->start();
+
+    GLfloat proj[16];
+    glGetFloatv(GL_PROJECTION_MATRIX, proj);
+    GLfloat mview[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX, mview);
+
+    m_text_shader->sendUniformXfv("projMatrix", 16, 1, &proj[0]);
+    m_text_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
+
+    m_text_shader->sendUniformXfv("color", 3, 1, pointset->getColor().data());
+    m_text_shader->sendUniformXfv("point_center", 3, 1, cpoint->getCoords().data());
+
+    m_text_shader->sendUniformf("offset", cpoint->getSize());
+    scale *= cpoint->getSize();
+//
+    glActiveTextureARB(GL_TEXTURE0_ARB);
+    glBindVertexArray(m_text_vao);
+
+    // Iterate through all characters
+    std::string::const_iterator c;
+    for (c = text.begin(); c != text.end(); c++) {
+      Character ch = Characters[*c];
+
+      GLfloat xpos = x + ch.Bearing.x * scale;
+      GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+      GLfloat w = ch.Size.x * scale;
+      GLfloat h = ch.Size.y * scale;
+      // Update VBO for each character
+      GLfloat vertices[6][4] = {
+              {xpos,     ypos + h, 0.0, 0.0},
+              {xpos,     ypos,     0.0, 1.0},
+              {xpos + w, ypos,     1.0, 1.0},
+
+              {xpos,     ypos + h, 0.0, 0.0},
+              {xpos + w, ypos,     1.0, 1.0},
+              {xpos + w, ypos + h, 1.0, 0.0}
+      };
+      // Render glyph texture over quad
+      glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+      // Update content of VBO memory
+      glBindBuffer(GL_ARRAY_BUFFER, m_text_vbo);
+      glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      // Render quad
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+      x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+    }
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    m_text_shader->stop();
+  }
+}
+CPointTextRenderer::~CPointTextRenderer() {
+  for (auto ch : Characters)
+    glDeleteTextures(1, &ch.second.TextureID);
+
+  glDeleteBuffers(1, &m_text_vbo);
+  glDeleteVertexArrays(1, &m_text_vao);
 }
 }

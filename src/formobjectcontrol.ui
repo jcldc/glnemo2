@@ -1386,7 +1386,7 @@ Physical value can be:
                      </widget>
                     </item>
                     <item row="4" column="1">
-                     <widget class="QCheckBox" name="shape_checkbox_name">
+                     <widget class="QCheckBox" name="shape_checkbox_name_cbx">
                       <property name="toolTip">
                        <string>Display cpoints name</string>
                       </property>

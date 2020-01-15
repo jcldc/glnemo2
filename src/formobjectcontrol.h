@@ -189,6 +189,7 @@ namespace glnemo {
     void on_edit_cpoint_size_valueChanged(double);
     void on_edit_cpointset_name_btn_clicked();
     void on_edit_cpoint_name_textChanged();
+    void on_shape_checkbox_name_cbx_stateChanged(int);
     // on gaz
     void on_gaz_check_clicked(bool);
     void on_gaz_slide_size_valueChanged(int);

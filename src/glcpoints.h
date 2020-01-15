@@ -20,6 +20,8 @@ using json = nlohmann::json;
 
 namespace glnemo {
 
+class CPointTextRenderer;
+
 struct Character {
   GLuint     TextureID;  // ID handle of the glyph texture
   glm::ivec2 Size;       // Size of glyph
@@ -77,6 +79,7 @@ public:
   virtual void display() = 0;
   virtual void setAttributes();
   virtual void sendUniforms();
+  void displayText();
   void copyCPoints(CPointset*);
   bool ready();
 
@@ -100,6 +103,8 @@ public:
   void setColor(const QColor &color);
   void setColor(std::array<float, 3>);
   const CPointsetTypes &getShape() const;
+  void setNameVisible(bool visible);
+  const bool isNameVisible();
 
   void setCpointSize(int id, float size);
   void setCpointCoords(int id, std::array<float, 3> coords);
@@ -109,6 +114,8 @@ public:
   void setCpointText(int id, std::string text);
 
   static int wwidth;
+
+  static CPointTextRenderer* text_renderer;
 
 protected:
   void genVboData();
@@ -120,6 +127,7 @@ protected:
   std::array<float, 3> m_color;
   bool m_is_shown;
   bool m_is_filled;
+  bool m_is_name_visible;
   int m_threshold;
   CPointsetTypes m_pointset_type;
 };
@@ -145,16 +153,8 @@ public:
 class CPointsetTag : public CPointset {
 public:
   CPointsetTag(CShader *shape_shader, CShader *text_shader, std::string name);
-  ~CPointsetTag();
   void display();
   void sendUniforms();
-  void renderText();
-private:
-  CShader *m_text_shader;
-  GLuint m_text_vbo;
-  GLuint m_text_vao;
-
-  std::map<GLchar, Character> Characters;
 };
 
 class CPointsetSphere : public CPointset {
@@ -205,11 +205,25 @@ public:
   void setPointsetName(std::string old_name, std::string new_name);
 private:
   int m_nb_sets;
-  CShader *m_regular_polygon_shader, *m_tag_shader, *m_tag_text_shader, *m_sphere_shader;
+  CShader *m_regular_polygon_shader, *m_tag_shader, *m_text_shader, *m_sphere_shader;
   std::map<std::string, CPointset *> m_pointsets;
   std::string defaultName() const;
   CPointset *newPointset(std::string str_shape, std::string name);
 };
 
+class CPointTextRenderer{
+public:
+  ~CPointTextRenderer();
+
+  void init();
+  void renderText(CPointset *pointset);
+
+private:
+  CShader *m_text_shader;
+  GLuint m_text_vbo;
+  GLuint m_text_vao;
+
+  std::map<GLchar, Character> Characters;
+};
 } // namespace glnemo
 #endif // GLNEMO2_GLCPOINTS_H

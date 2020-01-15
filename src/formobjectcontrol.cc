@@ -1529,6 +1529,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
           form.shape_checkbox_filled->setEnabled(false);
         }
 
+        form.shape_checkbox_name_cbx->setChecked(pointset->isNameVisible());
         form.cpoints_display_cbx->setChecked(pointset->isShown());
         form.shape_checkbox_filled->setChecked(pointset->isFilled());
         form.cpoints_threshold_slider->setValue(pointset->getThreshold());
@@ -1559,7 +1560,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
         cpoints = true;
     }
 
-    if (cpointsets && !cpoints) {// only cpointsets
+    if (cpointsets && !cpoints) { // only cpointsets
       form.edit_cpointset_parent_box->setEnabled(true);
       form.edit_cpointset_box->setEnabled(false);
       form.edit_cpoint_parent_box->setEnabled(false);
@@ -1803,6 +1804,15 @@ void FormObjectControl::on_edit_cpoint_name_textChanged() {
   auto new_name = form.edit_cpoint_name->text().toStdString();
   parent_pointset->setCpointText(cpoint_id, new_name);
   item->setData(0, Qt::DisplayRole, QString::fromStdString(new_name));
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_shape_checkbox_name_cbx_stateChanged(int state) {
+  auto item = form.cpoints_set_treewidget->selectedItems()[0];
+  auto pointset = getPointsetFromItem(item);
+  if (state == Qt::Checked)
+    pointset->setNameVisible(true);
+  else if (state == Qt::Unchecked)
+    pointset->setNameVisible(false);
   emit objectSettingsChanged();
 }
 
