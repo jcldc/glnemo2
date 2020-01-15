@@ -117,7 +117,7 @@ namespace glnemo {
   class FormObjectControl: public QDialog {
   Q_OBJECT
   public:
-  FormObjectControl(GLCPointsetManager *_pointset_manager, GlobalOptions *global_options, QWidget *parent = 0);
+  FormObjectControl(CPointsetManager *_pointset_manager, GlobalOptions *global_options, QWidget *parent = 0);
 
     ~FormObjectControl();
     void update(ParticlesData   * ,
@@ -180,7 +180,7 @@ namespace glnemo {
     void on_color_picker_button_clicked(bool);
     void on_export_cpoints_file_clicked(bool);
     void on_add_cpoint_center_coord_btn_clicked(bool);
-    QTreeWidgetItem* createCpointsetTreeItem(GLCPointset*);
+    QTreeWidgetItem* createCpointsetTreeItem(CPointset*);
     void delete_cpointsets(bool need_confirmation);
     void delete_cpoints(bool need_confirmation);
     void on_edit_cpoint_coords_x_valueChanged(double);
@@ -258,7 +258,7 @@ namespace glnemo {
     }
 
   private:
-    GLCPointset *getPointsetFromItem(QTreeWidgetItem *item);
+    CPointset *getPointsetFromItem(QTreeWidgetItem *item);
     void checkPhysic();
     void physicalSelected();
     void leaveEvent ( QEvent * event ) {
@@ -276,7 +276,7 @@ namespace glnemo {
     Ui::FormObjectControl form;
     ParticlesData * current_data;
     ParticlesObjectVector * pov;
-    GLCPointsetManager *pointset_manager;
+    CPointsetManager *pointset_manager;
     GlobalOptions * go;
     QComboBoxTable * combobox;
     QString cbox_text;

@@ -52,7 +52,7 @@ void GLCPoint::setText(std::string text) {
 
 /******* GLCPointset ********/
 
-void GLCPointset::sendUniforms() {
+void CPointset::sendUniforms() {
   GLfloat proj[16];
   glGetFloatv(GL_PROJECTION_MATRIX, proj);
   GLfloat mview[16];
@@ -63,7 +63,7 @@ void GLCPointset::sendUniforms() {
   m_shader->sendUniformXfv("color", 3, 1, m_color.data());
 }
 
-GLCPointset::GLCPointset(CShader *shader, std::string name) :
+CPointset::CPointset(CShader *shader, std::string name) :
         m_shader(shader), m_name(name), m_color{1,1,1} {
   m_is_shown = true;
   m_is_filled = false;
@@ -74,27 +74,27 @@ GLCPointset::GLCPointset(CShader *shader, std::string name) :
 
 }
 
-GLCPointset::~GLCPointset() {
+CPointset::~CPointset() {
   glDeleteBuffers(1, &m_vbo);
   glDeleteVertexArrays(1, &m_vao);
 }
 
-bool GLCPointset::ready() {
+bool CPointset::ready() {
   return m_shader != nullptr;
 }
 
-const std::string &GLCPointset::getName() const {
+const std::string &CPointset::getName() const {
   return m_name;
 }
 
-GLCPoint * GLCPointset::addPoint(std::array<float, 3> coords, float size, std::string text) {
+GLCPoint * CPointset::addPoint(std::array<float, 3> coords, float size, std::string text) {
   auto cpoint = new GLCPoint(coords, size, text);
   m_cpoints[cpoint->getId()] = cpoint;
   genVboData();
   return cpoint;
 }
 
-void GLCPointset::addPoints(std::vector<GLCPointData> cpoint_data_v) { // return vector maybe
+void CPointset::addPoints(std::vector<GLCPointData> cpoint_data_v) { // return vector maybe
   for(GLCPointData cpoint_data : cpoint_data_v){
     auto cpoint = new GLCPoint(cpoint_data.coords, cpoint_data.size, cpoint_data.text);
     m_cpoints[cpoint->getId()] = cpoint;
@@ -102,19 +102,19 @@ void GLCPointset::addPoints(std::vector<GLCPointData> cpoint_data_v) { // return
   genVboData();
 }
 
-void GLCPointset::setShow(bool show) {
+void CPointset::setShow(bool show) {
   m_is_shown = show;
 }
 
-bool GLCPointset::isShown() {
+bool CPointset::isShown() {
   return m_is_shown;
 }
 
-void GLCPointset::setThreshold(int threshold) {
+void CPointset::setThreshold(int threshold) {
   m_threshold = threshold < 0 ? 0 : threshold > 100 ? 100 : threshold; //clamp
 }
 
-void GLCPointset::setAttributes() {
+void CPointset::setAttributes() {
   GLuint point_center_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "point_center");
   GLuint radius_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "radius");
   if (point_center_disk_attrib == -1) {
@@ -135,7 +135,7 @@ void GLCPointset::setAttributes() {
   glVertexBindingDivisor(radius_disk_attrib, 1);
 }
 
-void GLCPointset::genVboData() {
+void CPointset::genVboData() {
   // DATA INIT
   std::vector<float> data;
   //maybe use reserve to preallocate,
@@ -155,90 +155,90 @@ void GLCPointset::genVboData() {
   glBindVertexArray(0);
 }
 
-const glcpointmap_t &GLCPointset::getCPoints() const {
+const glcpointmap_t &CPointset::getCPoints() const {
   return m_cpoints;
 }
 
-void GLCPointset::copyCPoints(GLCPointset *other) {
+void CPointset::copyCPoints(CPointset *other) {
   m_cpoints = other->getCPoints();
   genVboData();
 }
-void GLCPointset::setFilled(bool filled) {
+void CPointset::setFilled(bool filled) {
   m_is_filled = filled;
 }
-const bool GLCPointset::isFilled() const {
+const bool CPointset::isFilled() const {
   return m_is_filled;
 }
-CPointsetTypes GLCPointset::getPointsetType() const {
+CPointsetTypes CPointset::getPointsetType() const {
   return m_pointset_type;
 }
-const int GLCPointset::getThreshold() const {
+const int CPointset::getThreshold() const {
   return m_threshold;
 }
-const QColor GLCPointset::getQColor() const {
+const QColor CPointset::getQColor() const {
   return QColor(m_color[0]*255, m_color[1]*255, m_color[2]*255);
 }
-void GLCPointset::setColor(const QColor &color) {
+void CPointset::setColor(const QColor &color) {
   m_color = {static_cast<float>(color.redF()), static_cast<float>(color.greenF()), static_cast<float>(color.blueF())};
 }
-const CPointsetTypes &GLCPointset::getShape() const {
+const CPointsetTypes &CPointset::getShape() const {
   return m_pointset_type;
 }
-void GLCPointset::setColor(std::array<float, 3> color) {
+void CPointset::setColor(std::array<float, 3> color) {
   m_color = color;
 }
-const std::array<float, 3> &GLCPointset::getColor() const {
+const std::array<float, 3> &CPointset::getColor() const {
   return m_color;
 }
-void GLCPointset::setName(std::string new_name) {
+void CPointset::setName(std::string new_name) {
   m_name = new_name;
 }
-void GLCPointset::deletePoint(int id) {
+void CPointset::deletePoint(int id) {
   GLCPoint* cpoint = m_cpoints[id];
   m_cpoints.erase(id);
   delete cpoint;
   genVboData();
 }
-void GLCPointset::setCpointSize(int id, float size ) {
+void CPointset::setCpointSize(int id, float size ) {
   m_cpoints.at(id)->setSize(size);
   genVboData();
 }
-void GLCPointset::setCpointCoords(int id, std::array<float, 3> coords) {
+void CPointset::setCpointCoords(int id, std::array<float, 3> coords) {
   m_cpoints.at(id)->setCoords(coords);
   genVboData();
 }
-void GLCPointset::setCpointCoordsX(int id, float x) {
+void CPointset::setCpointCoordsX(int id, float x) {
   GLCPoint *cpoint = m_cpoints.at(id);
   cpoint->setCoords({x, cpoint->getCoords()[1],  cpoint->getCoords()[2]});
   genVboData();
 }
-void GLCPointset::setCpointCoordsY(int id, float y) {
+void CPointset::setCpointCoordsY(int id, float y) {
   GLCPoint *cpoint = m_cpoints.at(id);
   cpoint->setCoords({cpoint->getCoords()[0], y, cpoint->getCoords()[2]});
   genVboData();
 }
-void GLCPointset::setCpointCoordsZ(int id, float z) {
+void CPointset::setCpointCoordsZ(int id, float z) {
   GLCPoint *cpoint = m_cpoints.at(id);
   cpoint->setCoords({cpoint->getCoords()[0],  cpoint->getCoords()[1], z});
   genVboData();
 }
-void GLCPointset::setCpointText(int id, std::string text) {
+void CPointset::setCpointText(int id, std::string text) {
   GLCPoint *cpoint = m_cpoints.at(id);
   cpoint->setText(text);
 }
 
 /******* GLCPointDisk ********/
-GLCPointsetDisk::GLCPointsetDisk(CShader *shader, std::string name)
-        : GLCPointsetRegularPolygon(shader, name) {
+CPointsetDisk::CPointsetDisk(CShader *shader, std::string name)
+        : CPointsetRegularPolygon(shader, name) {
   m_nb_vertices = 100;
   m_pointset_type = CPointsetTypes::disk;
 }
 
-GLCPointsetRegularPolygon::GLCPointsetRegularPolygon(CShader *m_shader, std::string name) : GLCPointset(m_shader,
-                                                                                                        name) {
+CPointsetRegularPolygon::CPointsetRegularPolygon(CShader *m_shader, std::string name) : CPointset(m_shader,
+                                                                                                  name) {
 }
 
-void GLCPointsetRegularPolygon::display() {
+void CPointsetRegularPolygon::display() {
 
   if (!ready() || !m_is_shown)
     return;
@@ -260,14 +260,14 @@ void GLCPointsetRegularPolygon::display() {
 }
 
 /******* GLCPointSquare ********/
-GLCPointsetSquare::GLCPointsetSquare(CShader *shader, std::string name)
-        : GLCPointsetRegularPolygon(shader, name) {
+CPointsetSquare::CPointsetSquare(CShader *shader, std::string name)
+        : CPointsetRegularPolygon(shader, name) {
   m_nb_vertices = 4;
   m_pointset_type = CPointsetTypes::square;
 }
 
 /******* GLCPointTag ********/
-GLCPointsetTag::GLCPointsetTag(CShader *shape_shader, CShader *text_shader, std::string name) : GLCPointset(shape_shader, name) {
+CPointsetTag::CPointsetTag(CShader *shape_shader, CShader *text_shader, std::string name) : CPointset(shape_shader, name) {
   m_pointset_type = CPointsetTypes::tag;
   m_text_shader = text_shader;
 
@@ -342,7 +342,7 @@ GLCPointsetTag::GLCPointsetTag(CShader *shape_shader, CShader *text_shader, std:
   FT_Done_FreeType(ft);
 }
 
-void GLCPointsetTag::display() {
+void CPointsetTag::display() {
   if (!ready() || !m_is_shown)
     return;
 
@@ -359,8 +359,8 @@ void GLCPointsetTag::display() {
   renderText();
 }
 
-void GLCPointsetTag::sendUniforms() {
-  GLCPointset::sendUniforms();
+void CPointsetTag::sendUniforms() {
+  CPointset::sendUniforms();
 
 //  float tagSizeOnScreen = 50; // InPixels
 //
@@ -371,7 +371,7 @@ void GLCPointsetTag::sendUniforms() {
 //  m_shader->sendUniformf("screen_scale", 2 * tagSizeOnScreen / wwidth);
 }
 
-void GLCPointsetTag::renderText() {
+void CPointsetTag::renderText() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   // Iterate through all cpoints
@@ -438,16 +438,16 @@ void GLCPointsetTag::renderText() {
   }
 
 }
-GLCPointsetTag::~GLCPointsetTag() {
+CPointsetTag::~CPointsetTag() {
   for(auto ch : Characters)
     glDeleteTextures(1, &ch.second.TextureID);
 }
 /******* GLCPointSphere ********/
-int GLCPointsetSphere::subdivisions = 12;
-int GLCPointsetSphere::nb_vertex_per_sphere = subdivisions*subdivisions+subdivisions;
+int CPointsetSphere::subdivisions = 12;
+int CPointsetSphere::nb_vertex_per_sphere = subdivisions * subdivisions + subdivisions;
 
-GLCPointsetSphere::GLCPointsetSphere(CShader *m_shader, std::string name) : GLCPointset(m_shader,
-                                                                                        name) {
+CPointsetSphere::CPointsetSphere(CShader *m_shader, std::string name) : CPointset(m_shader,
+                                                                                  name) {
   m_pointset_type = CPointsetTypes::sphere;
 
 }
@@ -473,7 +473,7 @@ GLCPointsetSphere::GLCPointsetSphere(CShader *m_shader, std::string name) : GLCP
 //  glVertexBindingDivisor(radius_disk_attrib, nb_vertex_per_sphere);
 //}
 
-void GLCPointsetSphere::display() {
+void CPointsetSphere::display() {
   if (!ready() || !m_is_shown)
     return;
 
@@ -494,14 +494,14 @@ void GLCPointsetSphere::display() {
   glBindVertexArray(0);
   m_shader->stop();
 }
-void GLCPointsetSphere::sendUniforms() {
-  GLCPointset::sendUniforms();
+void CPointsetSphere::sendUniforms() {
+  CPointset::sendUniforms();
 }
 
 /******* GLCPointsetManager ********/
 
 
-GLCPointsetManager::GLCPointsetManager() {
+CPointsetManager::CPointsetManager() {
   // SHADER INIT
   m_nb_sets = 0;
 
@@ -516,7 +516,7 @@ GLCPointsetManager::GLCPointsetManager() {
 
 }
 
-void GLCPointsetManager::loadFile(std::string filepath) {
+void CPointsetManager::loadFile(std::string filepath) {
   std::cerr << "Loading json file\n";
   std::ifstream file(filepath);
   json json_data;
@@ -528,7 +528,7 @@ void GLCPointsetManager::loadFile(std::string filepath) {
   }
 
   for (json::iterator it = json_data.begin(); it != json_data.end(); ++it) {
-    GLCPointset *pointset;
+    CPointset *pointset;
     CShader *shader;
 
     std::string str_shape = (*it)["shape"];
@@ -561,11 +561,11 @@ void GLCPointsetManager::loadFile(std::string filepath) {
   }
 }
 
-std::string GLCPointsetManager::defaultName() const {
+std::string CPointsetManager::defaultName() const {
   return "CPoint set " + std::to_string(m_nb_sets);
 }
 
-GLCPointsetManager::~GLCPointsetManager() {
+CPointsetManager::~CPointsetManager() {
   for (auto cpointset_pair: m_pointsets) {
     for (auto cpoint_pair : cpointset_pair.second->getCPoints())
       delete cpoint_pair.second;
@@ -573,7 +573,7 @@ GLCPointsetManager::~GLCPointsetManager() {
   }
 }
 
-void GLCPointsetManager::initShaders() {
+void CPointsetManager::initShaders() {
 
   m_regular_polygon_shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/regular_polygon.vert",
@@ -613,25 +613,25 @@ void GLCPointsetManager::initShaders() {
   }
 }
 
-void GLCPointsetManager::displayAll() {
+void CPointsetManager::displayAll() {
   for (auto cpointset: m_pointsets)
     cpointset.second->display();
 }
 
-GLCPointset* GLCPointsetManager::createNewCPointset() {
-  GLCPointsetDisk *pointset = new GLCPointsetDisk(m_regular_polygon_shader, defaultName());
+CPointset* CPointsetManager::createNewCPointset() {
+  CPointsetDisk *pointset = new CPointsetDisk(m_regular_polygon_shader, defaultName());
   m_pointsets[defaultName()] = pointset;
   m_nb_sets++;
   return pointset;
 }
-void GLCPointsetManager::deleteCPointset(std::string pointset_name) {
+void CPointsetManager::deleteCPointset(std::string pointset_name) {
   auto it = m_pointsets.find(pointset_name);
   m_pointsets.erase(it);
   m_nb_sets--;
 }
-void GLCPointsetManager::changePointsetType(std::string pointset_name, std::string new_type) {
-  GLCPointset *old_pointset = m_pointsets[pointset_name];
-  GLCPointset *new_pointset = newPointset(new_type, pointset_name);
+void CPointsetManager::changePointsetType(std::string pointset_name, std::string new_type) {
+  CPointset *old_pointset = m_pointsets[pointset_name];
+  CPointset *new_pointset = newPointset(new_type, pointset_name);
   if (new_pointset) {
     new_pointset->copyCPoints(old_pointset);
     new_pointset->setColor(old_pointset->getQColor());
@@ -642,15 +642,15 @@ void GLCPointsetManager::changePointsetType(std::string pointset_name, std::stri
   }
 }
 
-void GLCPointsetManager::setW(int w) {
+void CPointsetManager::setW(int w) {
 //  GLCPointset::wwidth = w;
 }
 
-void GLCPointsetManager::saveToFile(std::string file_path) {
+void CPointsetManager::saveToFile(std::string file_path) {
   std::ofstream outfile (file_path);
   json final_obj;
   for(auto pair: *this){
-    GLCPointset *set = pair.second;
+    CPointset *set = pair.second;
     json data_array = json::array();
     for(auto cpoint_pair : set->getCPoints()){
       GLCPoint *cpoint = cpoint_pair.second;
@@ -667,21 +667,21 @@ void GLCPointsetManager::saveToFile(std::string file_path) {
   outfile << final_obj;
 }
 
-GLCPointset *GLCPointsetManager::newPointset(std::string str_shape, std::string name) {
+CPointset *CPointsetManager::newPointset(std::string str_shape, std::string name) {
   if (str_shape == "disk") {
-    return new GLCPointsetDisk(m_regular_polygon_shader, name);
+    return new CPointsetDisk(m_regular_polygon_shader, name);
   } else if (str_shape == "square") {
-    return new GLCPointsetSquare(m_regular_polygon_shader, name);
+    return new CPointsetSquare(m_regular_polygon_shader, name);
   } else if (str_shape == "tag") {
-    return new GLCPointsetTag(m_tag_shader, m_tag_text_shader, name);
+    return new CPointsetTag(m_tag_shader, m_tag_text_shader, name);
   } else if (str_shape == "sphere") {
-    return new GLCPointsetSphere(m_sphere_shader, name);
+    return new CPointsetSphere(m_sphere_shader, name);
   } else {
     std::cerr << "Unrecognized shape : " + str_shape;
     return nullptr;
   }
 }
-void GLCPointsetManager::setPointsetName(std::string old_name, std::string new_name) {
+void CPointsetManager::setPointsetName(std::string old_name, std::string new_name) {
   if (old_name != new_name) {
     const iterator it = m_pointsets.find(old_name);
     if (it != m_pointsets.end()) {
@@ -691,7 +691,7 @@ void GLCPointsetManager::setPointsetName(std::string old_name, std::string new_n
     }
   }
 }
-void GLCPointsetManager::deleteCPoint(std::string pointset_name, int cpoint_id) {
+void CPointsetManager::deleteCPoint(std::string pointset_name, int cpoint_id) {
   m_pointsets.at(pointset_name)->deletePoint(cpoint_id);
 }
 }

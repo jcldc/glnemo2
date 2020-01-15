@@ -59,7 +59,7 @@ private:
 
   static int next_id;
 
-  friend class GLCPointset;
+  friend class CPointset;
 };
 
 typedef std::map<int, GLCPoint *> glcpointmap_t;
@@ -70,14 +70,14 @@ struct GLCPointData {
   std::string text;
 };
 
-class GLCPointset {
+class CPointset {
 public:
-  GLCPointset(CShader *m_shader, std::string name = "");
-  virtual ~GLCPointset();
+  CPointset(CShader *m_shader, std::string name = "");
+  virtual ~CPointset();
   virtual void display() = 0;
   virtual void setAttributes();
   virtual void sendUniforms();
-  void copyCPoints(GLCPointset*);
+  void copyCPoints(CPointset*);
   bool ready();
 
   GLCPoint * addPoint(std::array<float, 3> coords, float size, std::string text);
@@ -124,28 +124,28 @@ protected:
   CPointsetTypes m_pointset_type;
 };
 
-class GLCPointsetRegularPolygon : public GLCPointset {
+class CPointsetRegularPolygon : public CPointset {
 public:
-  GLCPointsetRegularPolygon(CShader *m_shader, std::string name);
+  CPointsetRegularPolygon(CShader *m_shader, std::string name);
   void display();
 protected:
   int m_nb_vertices; //TODO make const with constructor
 };
 
-class GLCPointsetDisk : public GLCPointsetRegularPolygon {
+class CPointsetDisk : public CPointsetRegularPolygon {
 public:
-  GLCPointsetDisk(CShader *m_shader, std::string name);
+  CPointsetDisk(CShader *m_shader, std::string name);
 };
 
-class GLCPointsetSquare : public GLCPointsetRegularPolygon {
+class CPointsetSquare : public CPointsetRegularPolygon {
 public:
-  GLCPointsetSquare(CShader *m_shader, std::string name);
+  CPointsetSquare(CShader *m_shader, std::string name);
 };
 
-class GLCPointsetTag : public GLCPointset {
+class CPointsetTag : public CPointset {
 public:
-  GLCPointsetTag(CShader *shape_shader, CShader *text_shader, std::string name);
-  ~GLCPointsetTag();
+  CPointsetTag(CShader *shape_shader, CShader *text_shader, std::string name);
+  ~CPointsetTag();
   void display();
   void sendUniforms();
   void renderText();
@@ -157,9 +157,9 @@ private:
   std::map<GLchar, Character> Characters;
 };
 
-class GLCPointsetSphere : public GLCPointset {
+class CPointsetSphere : public CPointset {
 public:
-  GLCPointsetSphere(CShader *m_shader, std::string name);
+  CPointsetSphere(CShader *m_shader, std::string name);
   void display();
   void sendUniforms();
 //  void setAttributes();
@@ -168,20 +168,20 @@ public:
   static int nb_vertex_per_sphere;
 };
 
-class GLCPointsetManager {
+class CPointsetManager {
 public:
-  GLCPointsetManager();
-  ~GLCPointsetManager();
+  CPointsetManager();
+  ~CPointsetManager();
   void loadFile(std::string filepath);
   void initShaders();
   void displayAll();
-  GLCPointset* createNewCPointset();
+  CPointset* createNewCPointset();
   void deleteCPointset(std::string pointset_name);
   void deleteCPoint(std::string pointset_name, int cpoint_id);
   void changePointsetType(std::string pointset_name, std::string new_type);
   static void setW(int w);
 
-  typedef typename std::map<std::string, GLCPointset *> map_type;
+  typedef typename std::map<std::string, CPointset *> map_type;
   typedef typename map_type::iterator iterator;
   typedef typename map_type::const_iterator const_iterator;
 
@@ -190,10 +190,10 @@ public:
   inline iterator end() noexcept { return m_pointsets.end(); }
   inline const_iterator cend() const noexcept { return m_pointsets.cend(); }
 
-  GLCPointset *&operator[](const std::string &name) {
+  CPointset *&operator[](const std::string &name) {
     return m_pointsets[name];
   }
-  GLCPointset *&at(const std::string &name) {
+  CPointset *&at(const std::string &name) {
     return m_pointsets.at(name);
   }
 
@@ -206,9 +206,9 @@ public:
 private:
   int m_nb_sets;
   CShader *m_regular_polygon_shader, *m_tag_shader, *m_tag_text_shader, *m_sphere_shader;
-  std::map<std::string, GLCPointset *> m_pointsets;
+  std::map<std::string, CPointset *> m_pointsets;
   std::string defaultName() const;
-  GLCPointset *newPointset(std::string str_shape, std::string name);
+  CPointset *newPointset(std::string str_shape, std::string name);
 };
 
 } // namespace glnemo

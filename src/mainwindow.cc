@@ -69,7 +69,7 @@ MainWindow::MainWindow(std::string _ver)
   // Camera
   camera = new  Camera(store_options);
   // ------- openGL object ---------
-  pointset_manager = new GLCPointsetManager();
+  pointset_manager = new CPointsetManager();
   gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager);
   pointset_manager->initShaders();
   camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");

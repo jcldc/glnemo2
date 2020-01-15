@@ -242,7 +242,7 @@ class MainWindow : public QMainWindow {
     GlobalOptions * store_options;
     PluginsManage * plugins;
     ParticlesObjectVector pov,pov2;
-    GLCPointsetManager *pointset_manager;
+    CPointsetManager *pointset_manager;
     std::string cpoint_file;
     ComponentRangeVector * crv;
     void listObjects(ParticlesObjectVector& ppov);
