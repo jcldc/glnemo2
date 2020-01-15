@@ -39,29 +39,6 @@ namespace glnemo {
   signals:
     void deleteClicked(bool confirmation);
   };
-  // =========================================================================
-  // class CustomItemDelegate : used to catch TreewidgetItems edition signals
-  class CustomItemDelegate : public QStyledItemDelegate {
-  Q_OBJECT
-    Q_DISABLE_COPY(CustomItemDelegate)
-  public:
-    explicit CustomItemDelegate(QObject *parent = Q_NULLPTR) : QStyledItemDelegate(parent) {
-    }
-    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const Q_DECL_OVERRIDE{
-      QModelIndex pa = index.parent();
-      std::string parent_text = pa.data().toString().toStdString(); // empty string if top level item (ie cpointset)
-      std::string previous_text = index.data().toString().toStdString();
-      QStyledItemDelegate::setModelData(editor, model, index);
-      std::string new_text = model->data(index).toString().toStdString();
-      QModelIndex target_index = model->index(index.row(), 1, pa);
-      // change data in the desired item
-      int cpoint_id = model->data(target_index).toInt();
-      editFinished(previous_text, new_text, parent_text, cpoint_id);
-    }
-  signals:
-    void editFinished() const;
-    void editFinished(std::string previous_text, std::string new_text, std::string parent_text, int id = 0) const;
-  };
   // ============================================================================
   // class QCheckBoxTable : control the visibility of the objects from the GUI
   class QCheckBoxTable: public QCheckBox {
@@ -172,7 +149,7 @@ namespace glnemo {
       form.reverse_cmap->setChecked(go->reverse_cmap);
       dens_color_bar->draw(form.dens_slide_min->value(),form.dens_slide_max->value());
     }
-    void updateCPointsTreeWidget();
+    void initCPointsTreeWidget();
   private slots:
     void reject() {} // allow to de activate escape key to close the box
     // global slots
@@ -191,7 +168,6 @@ namespace glnemo {
     void on_load_cpoints_file_clicked(bool);
     void on_cpoints_display_cbx_stateChanged(int);
     void on_cpoints_set_treewidget_itemSelectionChanged();
-    void on_cpoints_set_treewidget_currentRowChanged(int);
     void on_cpoints_threshold_slider_valueChanged(int);
     void on_add_cpoint_btn_clicked(bool);
     void on_add_cpointset_clicked(bool);
@@ -203,15 +179,16 @@ namespace glnemo {
     void on_shape_checkbox_filled_stateChanged(int);
     void on_color_picker_button_clicked(bool);
     void on_export_cpoints_file_clicked(bool);
-    void editFinished(std::string, std::string, std::string, int cpoint_id);
     void on_add_cpoint_center_coord_btn_clicked(bool);
     QTreeWidgetItem* createCpointsetTreeItem(GLCPointset*);
-    void delete_cpointset(bool);
-    void on_delete_cpoint_btn_clicked(bool);
+    void delete_cpointsets(bool need_confirmation);
+    void delete_cpoints(bool need_confirmation);
     void on_edit_cpoint_coords_x_valueChanged(double);
     void on_edit_cpoint_coords_y_valueChanged(double);
     void on_edit_cpoint_coords_z_valueChanged(double);
     void on_edit_cpoint_size_valueChanged(double);
+    void on_edit_cpointset_name_editingFinished();
+    void on_edit_cpoint_name_textChanged();
     // on gaz
     void on_gaz_check_clicked(bool);
     void on_gaz_slide_size_valueChanged(int);
@@ -280,9 +257,10 @@ namespace glnemo {
       }
     }
 
-    private:
-    std::vector<GLCPointset *> getSelectedPointsets(QList<QTreeWidgetItem*>);
-    std::vector<GLCPoint *> getSelectedCPoints(QList<QTreeWidgetItem *>) const;
+  private:
+    std::vector<GLCPointset *> getPointsetFromItems(QList<QTreeWidgetItem *> items);
+    GLCPointset *getPointsetFromItem(QTreeWidgetItem *item);
+    std::vector<GLCPoint *> getCPointsFromItems(QList<QTreeWidgetItem *> items) const;
     void checkPhysic();
     void physicalSelected();
     void leaveEvent ( QEvent * event ) {

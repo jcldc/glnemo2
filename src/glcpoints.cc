@@ -10,13 +10,18 @@
 
 namespace glnemo {
 
-
+int GLCPoint::next_id = 0;
 //int GLCPointset::wwidth = 0; // useful for fixed size text tag
 
 /******* GLCPoint ********/
 
 GLCPoint::GLCPoint(std::array<float, 3> coords, float size, std::string text)
-        : m_coords(coords), m_size(size), m_text(text) {
+        : m_coords(coords), m_size(size) {
+  m_id = next_id;
+  next_id++;
+
+  if(text=="")
+    m_text = "CPoint " + std::to_string(m_id);
 }
 
 const std::array<float, 3> &GLCPoint::getCoords() const {
@@ -28,6 +33,9 @@ const float &GLCPoint::getSize() const {
 }
 const std::string &GLCPoint::getText() const {
   return m_text;
+}
+const int &GLCPoint::getId() const {
+  return m_id;
 }
 void GLCPoint::setCoords(std::array<float, 3> coords) {
   m_coords = coords;
@@ -79,22 +87,17 @@ const std::string &GLCPointset::getName() const {
 
 GLCPoint * GLCPointset::addPoint(std::array<float, 3> coords, float size, std::string text) {
   auto cpoint = new GLCPoint(coords, size, text);
-  addPoint(cpoint);
+  m_cpoints[cpoint->getId()] = cpoint;
   genVboData();
   return cpoint;
 }
 
 void GLCPointset::addPoints(std::vector<GLCPointData> cpoint_data_v) { // return vector maybe
-  for(GLCPointData cpoint_data : cpoint_data_v)
-    addPoint(new GLCPoint(cpoint_data.coords, cpoint_data.size, cpoint_data.text));
+  for(GLCPointData cpoint_data : cpoint_data_v){
+    auto cpoint = new GLCPoint(cpoint_data.coords, cpoint_data.size, cpoint_data.text);
+    m_cpoints[cpoint->getId()] = cpoint;
+  }
   genVboData();
-}
-
-void GLCPointset::addPoint(GLCPoint *cpoint) {
-  if(cpoint->getText()=="")
-    cpoint->setText("CPoint " + std::to_string(next_id)); // default value
-  m_cpoints[next_id] = cpoint;
-  next_id++;
 }
 
 void GLCPointset::setShow(bool show) {
@@ -477,10 +480,15 @@ void GLCPointsetSphere::display() {
   int nb_objects = m_cpoints.size() * m_threshold / 100;
 
   sendUniforms();
-  glDisable(GL_BLEND);
   m_shader->sendUniformi("subdivisions", subdivisions);
+
+//    glEnable(GL_LINE_SMOOTH);
+//    glEnable(GL_POLYGON_SMOOTH);
+//    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+//    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+//    glLineWidth (1.0);
+
   glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, nb_objects);
-  glEnable(GL_BLEND);
   glBindVertexArray(0);
   m_shader->stop();
 }

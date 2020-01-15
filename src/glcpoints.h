@@ -40,6 +40,7 @@ public:
   const std::array<float, 3> &getCoords() const;
   const float &getSize() const;
   const std::string &getText() const;
+  const int &getId() const;
 
   inline bool operator<(const GLCPoint &other) const { return m_size > other.getSize(); }
   inline bool operator>(const GLCPoint &other) const { return *this < other; }
@@ -54,6 +55,9 @@ private:
   std::array<float, 3> m_coords;
   float m_size;
   std::string m_text;
+  int m_id;
+
+  static int next_id;
 
   friend class GLCPointset;
 };
@@ -107,7 +111,6 @@ public:
   static int wwidth;
 
 protected:
-  void addPoint(GLCPoint*);
   void genVboData();
 
   CShader *m_shader;
@@ -119,7 +122,6 @@ protected:
   bool m_is_filled;
   int m_threshold;
   CPointsetTypes m_pointset_type;
-  int next_id = 0;
 };
 
 class GLCPointsetRegularPolygon : public GLCPointset {
@@ -188,8 +190,12 @@ public:
   inline const_iterator cend() const noexcept { return m_pointsets.cend(); }
 
   GLCPointset *&operator[](const std::string &name) {
+    return m_pointsets[name];
+  }
+  GLCPointset *&at(const std::string &name) {
     return m_pointsets.at(name);
   }
+
 
   void saveToFile(std::string file_path);
 

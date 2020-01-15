@@ -260,7 +260,7 @@ void MainWindow::start(std::string shot)
   gl_window->setFocus();
   if(cpoint_file != ""){
     pointset_manager->loadFile(cpoint_file);
-    form_o_c->updateCPointsTreeWidget();
+    form_o_c->initCPointsTreeWidget();
   }
   //actionMenuFileConnect();
 }
