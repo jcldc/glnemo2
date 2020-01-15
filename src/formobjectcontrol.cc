@@ -1676,9 +1676,11 @@ void FormObjectControl::on_color_picker_button_clicked(bool) {
   GLCPointset *pointset = getSelectedPointsets(form.cpoints_set_treewidget->selectedItems())[0];
   if (pointset) {
     QColor newColor = QColorDialog::getColor(pointset->getQColor());
-    form.color_picker_button->setStyleSheet("background-color: " + newColor.name());
-    pointset->setColor(newColor);
-    emit objectSettingsChanged();
+    if (newColor.spec() != QColor::Invalid) {
+      form.color_picker_button->setStyleSheet("background-color: " + newColor.name());
+      pointset->setColor(newColor);
+      emit objectSettingsChanged();
+    }
   }
 
 }
