@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>416</width>
-    <height>1020</height>
+    <height>1022</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1276,14 +1276,28 @@ Physical value can be:
                   </layout>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="edit_cpointset_name">
-                   <property name="toolTip">
-                    <string>Name of the cpoint</string>
+                  <layout class="QHBoxLayout" name="horizontalLayout_9">
+                   <property name="topMargin">
+                    <number>0</number>
                    </property>
-                   <property name="placeholderText">
-                    <string>Name</string>
-                   </property>
-                  </widget>
+                   <item>
+                    <widget class="QLineEdit" name="edit_cpointset_name">
+                     <property name="toolTip">
+                      <string>Name of the cpoint</string>
+                     </property>
+                     <property name="placeholderText">
+                      <string>Name</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="edit_cpointset_name_btn">
+                     <property name="text">
+                      <string>Edit name</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                  <item>
                   <widget class="QGroupBox" name="groupBox_11">
@@ -1429,8 +1443,14 @@ Physical value can be:
                       </item>
                       <item>
                        <widget class="QDoubleSpinBox" name="add_cpoint_coords_x">
+                        <property name="styleSheet">
+                         <string notr="true">QSpinBox::up-button{width:0px;}</string>
+                        </property>
                         <property name="buttonSymbols">
                          <enum>QAbstractSpinBox::NoButtons</enum>
+                        </property>
+                        <property name="decimals">
+                         <number>5</number>
                         </property>
                         <property name="minimum">
                          <double>-100000000000000096986267123712.000000000000000</double>
@@ -1461,6 +1481,9 @@ Physical value can be:
                         <property name="buttonSymbols">
                          <enum>QAbstractSpinBox::NoButtons</enum>
                         </property>
+                        <property name="decimals">
+                         <number>5</number>
+                        </property>
                         <property name="minimum">
                          <double>-100000000000000096986267123712.000000000000000</double>
                         </property>
@@ -1489,6 +1512,9 @@ Physical value can be:
                        <widget class="QDoubleSpinBox" name="add_cpoint_coords_z">
                         <property name="buttonSymbols">
                          <enum>QAbstractSpinBox::NoButtons</enum>
+                        </property>
+                        <property name="decimals">
+                         <number>5</number>
                         </property>
                         <property name="minimum">
                          <double>-100000000000000096986267123712.000000000000000</double>
@@ -1548,6 +1574,9 @@ Physical value can be:
                         </property>
                         <property name="buttonSymbols">
                          <enum>QAbstractSpinBox::NoButtons</enum>
+                        </property>
+                        <property name="decimals">
+                         <number>5</number>
                         </property>
                        </widget>
                       </item>
@@ -1712,13 +1741,19 @@ Physical value can be:
                          <string>Edit x coordinate of selected cpoint</string>
                         </property>
                         <property name="buttonSymbols">
-                         <enum>QAbstractSpinBox::NoButtons</enum>
+                         <enum>QAbstractSpinBox::UpDownArrows</enum>
+                        </property>
+                        <property name="decimals">
+                         <number>5</number>
                         </property>
                         <property name="minimum">
                          <double>-100000000000000096986267123712.000000000000000</double>
                         </property>
                         <property name="maximum">
                          <double>9999999999999999583119736832.000000000000000</double>
+                        </property>
+                        <property name="stepType">
+                         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
                         </property>
                        </widget>
                       </item>
@@ -1744,13 +1779,19 @@ Physical value can be:
                          <string>Edit y coordinate of selected cpoint</string>
                         </property>
                         <property name="buttonSymbols">
-                         <enum>QAbstractSpinBox::NoButtons</enum>
+                         <enum>QAbstractSpinBox::UpDownArrows</enum>
+                        </property>
+                        <property name="decimals">
+                         <number>5</number>
                         </property>
                         <property name="minimum">
                          <double>-100000000000000096986267123712.000000000000000</double>
                         </property>
                         <property name="maximum">
                          <double>9999999999999999583119736832.000000000000000</double>
+                        </property>
+                        <property name="stepType">
+                         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
                         </property>
                        </widget>
                       </item>
@@ -1776,13 +1817,19 @@ Physical value can be:
                          <string>Edit z coordinate of selected cpoint</string>
                         </property>
                         <property name="buttonSymbols">
-                         <enum>QAbstractSpinBox::NoButtons</enum>
+                         <enum>QAbstractSpinBox::UpDownArrows</enum>
+                        </property>
+                        <property name="decimals">
+                         <number>5</number>
                         </property>
                         <property name="minimum">
                          <double>-100000000000000096986267123712.000000000000000</double>
                         </property>
                         <property name="maximum">
                          <double>9999999999999999583119736832.000000000000000</double>
+                        </property>
+                        <property name="stepType">
+                         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
                         </property>
                        </widget>
                       </item>
@@ -1808,7 +1855,13 @@ Physical value can be:
                          <string>Edit size of selected cpoint</string>
                         </property>
                         <property name="buttonSymbols">
-                         <enum>QAbstractSpinBox::NoButtons</enum>
+                         <enum>QAbstractSpinBox::UpDownArrows</enum>
+                        </property>
+                        <property name="decimals">
+                         <number>5</number>
+                        </property>
+                        <property name="stepType">
+                         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
                         </property>
                        </widget>
                       </item>
@@ -2285,6 +2338,22 @@ Physical value can be:
     <hint type="destinationlabel">
      <x>436</x>
      <y>667</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>edit_cpointset_name</sender>
+   <signal>returnPressed()</signal>
+   <receiver>edit_cpointset_name_btn</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>164</x>
+     <y>398</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>341</x>
+     <y>398</y>
     </hint>
    </hints>
   </connection>

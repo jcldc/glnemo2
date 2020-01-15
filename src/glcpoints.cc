@@ -22,6 +22,8 @@ GLCPoint::GLCPoint(std::array<float, 3> coords, float size, std::string text)
 
   if(text=="")
     m_text = "CPoint " + std::to_string(m_id);
+  else
+    m_text = text;
 }
 
 const std::array<float, 3> &GLCPoint::getCoords() const {
@@ -441,7 +443,7 @@ GLCPointsetTag::~GLCPointsetTag() {
     glDeleteTextures(1, &ch.second.TextureID);
 }
 /******* GLCPointSphere ********/
-int GLCPointsetSphere::subdivisions = 16;
+int GLCPointsetSphere::subdivisions = 12;
 int GLCPointsetSphere::nb_vertex_per_sphere = subdivisions*subdivisions+subdivisions;
 
 GLCPointsetSphere::GLCPointsetSphere(CShader *m_shader, std::string name) : GLCPointset(m_shader,
@@ -688,5 +690,8 @@ void GLCPointsetManager::setPointsetName(std::string old_name, std::string new_n
       m_pointsets.erase(it);
     }
   }
+}
+void GLCPointsetManager::deleteCPoint(std::string pointset_name, int cpoint_id) {
+  m_pointsets.at(pointset_name)->deletePoint(cpoint_id);
 }
 }

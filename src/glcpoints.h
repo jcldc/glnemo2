@@ -176,7 +176,8 @@ public:
   void initShaders();
   void displayAll();
   GLCPointset* createNewCPointset();
-  void deleteCPointset(std::string);
+  void deleteCPointset(std::string pointset_name);
+  void deleteCPoint(std::string pointset_name, int cpoint_id);
   void changePointsetType(std::string pointset_name, std::string new_type);
   static void setW(int w);
 

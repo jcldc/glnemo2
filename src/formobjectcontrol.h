@@ -187,7 +187,7 @@ namespace glnemo {
     void on_edit_cpoint_coords_y_valueChanged(double);
     void on_edit_cpoint_coords_z_valueChanged(double);
     void on_edit_cpoint_size_valueChanged(double);
-    void on_edit_cpointset_name_editingFinished();
+    void on_edit_cpointset_name_btn_clicked();
     void on_edit_cpoint_name_textChanged();
     // on gaz
     void on_gaz_check_clicked(bool);
@@ -258,9 +258,7 @@ namespace glnemo {
     }
 
   private:
-    std::vector<GLCPointset *> getPointsetFromItems(QList<QTreeWidgetItem *> items);
     GLCPointset *getPointsetFromItem(QTreeWidgetItem *item);
-    std::vector<GLCPoint *> getCPointsFromItems(QList<QTreeWidgetItem *> items) const;
     void checkPhysic();
     void physicalSelected();
     void leaveEvent ( QEvent * event ) {
