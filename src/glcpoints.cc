@@ -623,8 +623,8 @@ GLCPointset* GLCPointsetManager::createNewCPointset() {
   return pointset;
 }
 void GLCPointsetManager::deleteCPointset(std::string pointset_name) {
-  delete m_pointsets[pointset_name];
-  m_pointsets.erase(pointset_name);
+  auto it = m_pointsets.find(pointset_name);
+  m_pointsets.erase(it);
   m_nb_sets--;
 }
 void GLCPointsetManager::changePointsetType(std::string pointset_name, std::string new_type) {
