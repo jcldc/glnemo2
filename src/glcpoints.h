@@ -23,13 +23,13 @@ namespace glnemo {
 class CPointTextRenderer;
 
 struct Character {
-  GLuint     TextureID;  // ID handle of the glyph texture
+  GLuint TextureID;  // ID handle of the glyph texture
   glm::ivec2 Size;       // Size of glyph
   glm::ivec2 Bearing;    // Offset from baseline to left/top of glyph
-  GLuint     Advance;    // Offset to advance to next glyph
+  GLuint Advance;    // Offset to advance to next glyph
 };
 
-enum CPointsetTypes{
+enum CPointsetTypes {
   disk,
   square,
   tag,
@@ -74,20 +74,21 @@ struct GLCPointData {
 
 class CPointset {
 public:
-  CPointset(CShader *m_shader, std::string name = "");
+  CPointset(CShader *shader, std::string name = "");
+  CPointset(CShader *shader, const CPointset &);
   virtual ~CPointset();
   virtual void display() = 0;
   virtual void setAttributes();
   virtual void sendUniforms();
   void displayText();
-  void copyCPoints(CPointset*);
+  void copyCPoints(const CPointset&);
   bool ready();
 
-  GLCPoint * addPoint(std::array<float, 3> coords, float size, std::string text);
+  GLCPoint *addPoint(std::array<float, 3> coords, float size, std::string text);
   void addPoints(std::vector<GLCPointData>);
   void deletePoint(int id);
 
-  const glcpointmap_t& getCPoints() const;
+  const glcpointmap_t &getCPoints() const;
   void setShow(bool show);
   bool isShown();
   void setFilled(bool);
@@ -96,7 +97,7 @@ public:
   void setName(std::string);
   void setThreshold(int threshold);
   const int getThreshold() const;
-  inline int size() {return m_cpoints.size();}
+  inline int size() { return m_cpoints.size(); }
   CPointsetTypes getPointsetType() const;
   const QColor getQColor() const;
   const std::array<float, 3> &getColor() const;
@@ -105,6 +106,16 @@ public:
   const CPointsetTypes &getShape() const;
   void setNameVisible(bool visible);
   const bool isNameVisible();
+  void setFillratio(float fill_ratio);
+  const float getFillratio() const;
+  void setNameSizeFactor(float name_size_factor);
+  const float getNameSizeFactor() const;
+  void setNameOffset(float name_offset);
+  const float getNameOffset() const;
+  void setNameAngle(int angle);
+  const int getNameAngle() const;
+  void setNbSphereSection(int nb_sections);
+  const int getNbSphereSections() const;
 
   void setCpointSize(int id, float size);
   void setCpointCoords(int id, std::array<float, 3> coords);
@@ -115,7 +126,7 @@ public:
 
   static int wwidth;
 
-  static CPointTextRenderer* text_renderer;
+  static CPointTextRenderer *text_renderer;
 
 protected:
   void genVboData();
@@ -129,43 +140,54 @@ protected:
   bool m_is_filled;
   bool m_is_name_visible;
   int m_threshold;
+  float m_fill_ratio;
+  float m_name_size_factor;
+  float m_name_offset;
+  int m_name_angle;
+
+  int m_nb_sphere_sections = 12;
+
   CPointsetTypes m_pointset_type;
 };
 
 class CPointsetRegularPolygon : public CPointset {
 public:
-  CPointsetRegularPolygon(CShader *m_shader, std::string name);
+  CPointsetRegularPolygon(CShader *shader, std::string name);
+  CPointsetRegularPolygon(CShader *shader, const CPointset &other);
   void display();
+  void sendUniforms();
 protected:
   int m_nb_vertices; //TODO make const with constructor
 };
 
 class CPointsetDisk : public CPointsetRegularPolygon {
 public:
-  CPointsetDisk(CShader *m_shader, std::string name);
+  CPointsetDisk(CShader *shader, std::string name);
+  CPointsetDisk(CShader *shader, const CPointset &other);
 };
 
 class CPointsetSquare : public CPointsetRegularPolygon {
 public:
-  CPointsetSquare(CShader *m_shader, std::string name);
+  CPointsetSquare(CShader *shader, std::string name);
+  CPointsetSquare(CShader *shader, const CPointset &other);
 };
 
 class CPointsetTag : public CPointset {
 public:
-  CPointsetTag(CShader *shape_shader, CShader *text_shader, std::string name);
+  CPointsetTag(CShader *shader, std::string name);
+  CPointsetTag(CShader *shader, const CPointset &other);
   void display();
   void sendUniforms();
 };
 
 class CPointsetSphere : public CPointset {
 public:
-  CPointsetSphere(CShader *m_shader, std::string name);
+  CPointsetSphere(CShader *shader, std::string name);
+  CPointsetSphere(CShader *m_shader, const CPointset &other);
   void display();
   void sendUniforms();
 //  void setAttributes();
 
-  static int subdivisions;
-  static int nb_vertex_per_sphere;
 };
 
 class CPointsetManager {
@@ -175,7 +197,7 @@ public:
   void loadFile(std::string filepath);
   void initShaders();
   void displayAll();
-  CPointset* createNewCPointset();
+  CPointset *createNewCPointset();
   void deleteCPointset(std::string pointset_name);
   void deleteCPoint(std::string pointset_name, int cpoint_id);
   void changePointsetType(std::string pointset_name, std::string new_type);
@@ -197,21 +219,21 @@ public:
     return m_pointsets.at(name);
   }
 
-
   void saveToFile(std::string file_path);
 
   std::map<CPointsetTypes, std::string> shapeToStr;
-  std::map<std::string,CPointsetTypes> strToShape;
+  std::map<std::string, CPointsetTypes> strToShape;
   void setPointsetName(std::string old_name, std::string new_name);
 private:
   int m_nb_sets;
-  CShader *m_regular_polygon_shader, *m_tag_shader, *m_text_shader, *m_sphere_shader;
+  CShader *m_regular_polygon_shader, *m_tag_shader, *m_sphere_shader;
   std::map<std::string, CPointset *> m_pointsets;
   std::string defaultName() const;
   CPointset *newPointset(std::string str_shape, std::string name);
+  CPointset *newPointset(std::string str_shape, const CPointset &);
 };
 
-class CPointTextRenderer{
+class CPointTextRenderer {
 public:
   ~CPointTextRenderer();
 

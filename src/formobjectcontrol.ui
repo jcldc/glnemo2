@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>416</width>
-    <height>1022</height>
+    <height>1044</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1023,53 +1023,6 @@ Physical value can be:
        <string>CPoints</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_10">
-       <item row="0" column="0">
-        <layout class="QHBoxLayout" name="load_groupbox">
-         <item>
-          <widget class="QPushButton" name="load_cpoints_file">
-           <property name="text">
-            <string>Load file</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="export_cpoints_file">
-           <property name="text">
-            <string>Export to file</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>78</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Help</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
        <item row="1" column="0">
         <widget class="QSplitter" name="splitter">
          <property name="orientation">
@@ -1104,45 +1057,6 @@ Physical value can be:
          </widget>
          <widget class="QWidget" name="verticalLayoutWidget">
           <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_11">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <item>
-              <spacer name="horizontalSpacer_5">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="add_cpointset">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="toolTip">
-                <string>Create a new cpointset</string>
-               </property>
-               <property name="text">
-                <string>Add set</string>
-               </property>
-               <property name="checkable">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
            <item>
             <widget class="QGroupBox" name="edit_cpointset_parent_box">
              <property name="enabled">
@@ -1300,115 +1214,6 @@ Physical value can be:
                   </layout>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_11">
-                   <property name="title">
-                    <string>Edit shape</string>
-                   </property>
-                   <layout class="QGridLayout" name="gridLayout_11">
-                    <item row="3" column="1">
-                     <layout class="QHBoxLayout" name="horizontalLayout_8">
-                      <item>
-                       <widget class="QPushButton" name="color_picker_button">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="toolTip">
-                         <string>Set color of the selected cpointset</string>
-                        </property>
-                        <property name="text">
-                         <string/>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLabel" name="label_13">
-                        <property name="text">
-                         <string>Color</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item row="3" column="0">
-                     <widget class="QRadioButton" name="shape_radio_frame">
-                      <property name="toolTip">
-                       <string>Change cpoints shape to frame</string>
-                      </property>
-                      <property name="text">
-                       <string>Frame</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="1">
-                     <widget class="QRadioButton" name="shape_radio_sphere">
-                      <property name="toolTip">
-                       <string>Change cpoints shape to sphere</string>
-                      </property>
-                      <property name="text">
-                       <string>Sphere</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QRadioButton" name="shape_radio_tag">
-                      <property name="toolTip">
-                       <string>Change cpoints shape to tag</string>
-                      </property>
-                      <property name="text">
-                       <string>Tag</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <widget class="QRadioButton" name="shape_radio_square">
-                      <property name="toolTip">
-                       <string>Change cpoints shape to square</string>
-                      </property>
-                      <property name="text">
-                       <string>Square</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="0">
-                     <widget class="QRadioButton" name="shape_radio_disk">
-                      <property name="toolTip">
-                       <string>Change cpoints shape to circle</string>
-                      </property>
-                      <property name="text">
-                       <string>Disk</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="1">
-                     <widget class="QCheckBox" name="shape_checkbox_name_cbx">
-                      <property name="toolTip">
-                       <string>Display cpoints name</string>
-                      </property>
-                      <property name="text">
-                       <string>Name</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QCheckBox" name="shape_checkbox_filled">
-                      <property name="toolTip">
-                       <string>Toggle fill shape</string>
-                      </property>
-                      <property name="text">
-                       <string>Filled</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item>
                   <widget class="QGroupBox" name="groupBox_10">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -1447,7 +1252,7 @@ Physical value can be:
                          <string notr="true">QSpinBox::up-button{width:0px;}</string>
                         </property>
                         <property name="buttonSymbols">
-                         <enum>QAbstractSpinBox::NoButtons</enum>
+                         <enum>QAbstractSpinBox::UpDownArrows</enum>
                         </property>
                         <property name="decimals">
                          <number>5</number>
@@ -1479,7 +1284,7 @@ Physical value can be:
                       <item>
                        <widget class="QDoubleSpinBox" name="add_cpoint_coords_y">
                         <property name="buttonSymbols">
-                         <enum>QAbstractSpinBox::NoButtons</enum>
+                         <enum>QAbstractSpinBox::UpDownArrows</enum>
                         </property>
                         <property name="decimals">
                          <number>5</number>
@@ -1511,7 +1316,7 @@ Physical value can be:
                       <item>
                        <widget class="QDoubleSpinBox" name="add_cpoint_coords_z">
                         <property name="buttonSymbols">
-                         <enum>QAbstractSpinBox::NoButtons</enum>
+                         <enum>QAbstractSpinBox::UpDownArrows</enum>
                         </property>
                         <property name="decimals">
                          <number>5</number>
@@ -1573,7 +1378,7 @@ Physical value can be:
                          <string>Size of the cpoint</string>
                         </property>
                         <property name="buttonSymbols">
-                         <enum>QAbstractSpinBox::NoButtons</enum>
+                         <enum>QAbstractSpinBox::UpDownArrows</enum>
                         </property>
                         <property name="decimals">
                          <number>5</number>
@@ -1593,6 +1398,263 @@ Physical value can be:
                         </property>
                         <property name="text">
                          <string>Create</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_11">
+                   <property name="title">
+                    <string>Edit shape</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_11">
+                    <item row="2" column="2">
+                     <widget class="QCheckBox" name="shape_checkbox_name_cbx">
+                      <property name="toolTip">
+                       <string>Display cpoints name</string>
+                      </property>
+                      <property name="text">
+                       <string>Show name</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="2">
+                     <layout class="QHBoxLayout" name="horizontalLayout_8">
+                      <item>
+                       <widget class="QPushButton" name="color_picker_button">
+                        <property name="maximumSize">
+                         <size>
+                          <width>30</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                        <property name="toolTip">
+                         <string>Set color of the selected cpointset</string>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_13">
+                        <property name="text">
+                         <string>Color</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="0" column="0">
+                     <widget class="QRadioButton" name="shape_radio_disk">
+                      <property name="toolTip">
+                       <string>Change cpoints shape to circle</string>
+                      </property>
+                      <property name="text">
+                       <string>Disk</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QRadioButton" name="shape_radio_frame">
+                      <property name="toolTip">
+                       <string>Change cpoints shape to frame</string>
+                      </property>
+                      <property name="text">
+                       <string>Frame</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
+                     <widget class="QCheckBox" name="shape_checkbox_filled">
+                      <property name="toolTip">
+                       <string>Toggle fill shape</string>
+                      </property>
+                      <property name="text">
+                       <string>Filled</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QRadioButton" name="shape_radio_tag">
+                      <property name="toolTip">
+                       <string>Change cpoints shape to tag</string>
+                      </property>
+                      <property name="text">
+                       <string>Tag</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QRadioButton" name="shape_radio_sphere">
+                      <property name="toolTip">
+                       <string>Change cpoints shape to sphere</string>
+                      </property>
+                      <property name="text">
+                       <string>Sphere</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="2" rowspan="2">
+                     <layout class="QVBoxLayout" name="verticalLayout_9">
+                      <item>
+                       <widget class="QLabel" name="label_23">
+                        <property name="text">
+                         <string>Name angle</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QDial" name="edit_shape_name_angle">
+                        <property name="maximum">
+                         <number>360</number>
+                        </property>
+                        <property name="pageStep">
+                         <number>5</number>
+                        </property>
+                        <property name="value">
+                         <number>135</number>
+                        </property>
+                        <property name="invertedAppearance">
+                         <bool>true</bool>
+                        </property>
+                        <property name="wrapping">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="5" column="0" colspan="3">
+                     <widget class="Line" name="line">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QRadioButton" name="shape_radio_square">
+                      <property name="toolTip">
+                       <string>Change cpoints shape to square</string>
+                      </property>
+                      <property name="text">
+                       <string>Square</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="0" rowspan="2" colspan="2">
+                     <layout class="QGridLayout" name="gridLayout_12">
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <item row="1" column="1">
+                       <widget class="QLabel" name="label_24">
+                        <property name="text">
+                         <string>Name size</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="0">
+                       <widget class="QSlider" name="edit_shape_name_offset">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="pageStep">
+                         <number>1</number>
+                        </property>
+                        <property name="value">
+                         <number>10</number>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0">
+                       <widget class="QSlider" name="edit_shape_fill_ratio">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="maximum">
+                         <number>100</number>
+                        </property>
+                        <property name="pageStep">
+                         <number>1</number>
+                        </property>
+                        <property name="value">
+                         <number>10</number>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1">
+                       <widget class="QLabel" name="label_22">
+                        <property name="text">
+                         <string>Name offset</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="1">
+                       <widget class="QLabel" name="label_17">
+                        <property name="text">
+                         <string>Fill ratio</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QSlider" name="edit_shape_name_size_factor">
+                        <property name="pageStep">
+                         <number>1</number>
+                        </property>
+                        <property name="value">
+                         <number>10</number>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="0">
+                       <widget class="QSpinBox" name="edit_shape_nb_sphere_sections">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimum">
+                         <number>4</number>
+                        </property>
+                        <property name="maximum">
+                         <number>1024</number>
+                        </property>
+                        <property name="singleStep">
+                         <number>2</number>
+                        </property>
+                        <property name="value">
+                         <number>12</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="1">
+                       <widget class="QLabel" name="label_11">
+                        <property name="text">
+                         <string>Sphere sections</string>
                         </property>
                        </widget>
                       </item>
@@ -1692,17 +1754,6 @@ Physical value can be:
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_12">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="title">
-                    <string>Edit shape</string>
-                   </property>
-                   <layout class="QGridLayout" name="gridLayout_15"/>
-                  </widget>
-                 </item>
-                 <item>
                   <widget class="QGroupBox" name="groupBox_13">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -1752,9 +1803,6 @@ Physical value can be:
                         <property name="maximum">
                          <double>9999999999999999583119736832.000000000000000</double>
                         </property>
-                        <property name="stepType">
-                         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
-                        </property>
                        </widget>
                       </item>
                       <item>
@@ -1789,9 +1837,6 @@ Physical value can be:
                         </property>
                         <property name="maximum">
                          <double>9999999999999999583119736832.000000000000000</double>
-                        </property>
-                        <property name="stepType">
-                         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
                         </property>
                        </widget>
                       </item>
@@ -1828,9 +1873,6 @@ Physical value can be:
                         <property name="maximum">
                          <double>9999999999999999583119736832.000000000000000</double>
                         </property>
-                        <property name="stepType">
-                         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
-                        </property>
                        </widget>
                       </item>
                       <item>
@@ -1859,9 +1901,6 @@ Physical value can be:
                         </property>
                         <property name="decimals">
                          <number>5</number>
-                        </property>
-                        <property name="stepType">
-                         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
                         </property>
                        </widget>
                       </item>
@@ -1991,6 +2030,66 @@ Physical value can be:
           </layout>
          </widget>
         </widget>
+       </item>
+       <item row="0" column="0">
+        <layout class="QHBoxLayout" name="load_groupbox">
+         <item>
+          <widget class="QPushButton" name="load_cpoints_file">
+           <property name="text">
+            <string>Load file</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="export_cpoints_file">
+           <property name="text">
+            <string>Export to file</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>78</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="add_cpointset">
+           <property name="toolTip">
+            <string>Create a new cpointset</string>
+           </property>
+           <property name="text">
+            <string>Add set</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Help</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

@@ -4,10 +4,10 @@ uniform int nb_vertices;
 uniform mat4 modelviewMatrix; // TODO change name
 uniform mat4 projMatrix;
 uniform bool is_filled;
+uniform float fill_ratio;
 
 in vec3 point_center;
 in float radius;
-float fill_ratio = 0.1;
 
 float PI = 3.14159265359;
 

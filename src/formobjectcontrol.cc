@@ -1530,6 +1530,9 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
         }
 
         form.shape_checkbox_name_cbx->setChecked(pointset->isNameVisible());
+        form.edit_shape_name_offset->setValue(pointset->getNameOffset()*10);
+        form.edit_shape_name_size_factor->setValue(pointset->getNameSizeFactor()*10);
+        form.edit_shape_fill_ratio->setValue(pointset->getFillratio()*100);
         form.cpoints_display_cbx->setChecked(pointset->isShown());
         form.shape_checkbox_filled->setChecked(pointset->isFilled());
         form.cpoints_threshold_slider->setValue(pointset->getThreshold());
@@ -1813,6 +1816,37 @@ void FormObjectControl::on_shape_checkbox_name_cbx_stateChanged(int state) {
     pointset->setNameVisible(true);
   else if (state == Qt::Unchecked)
     pointset->setNameVisible(false);
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_edit_shape_fill_ratio_valueChanged(int value) {
+  auto item = form.cpoints_set_treewidget->selectedItems()[0];
+  auto pointset = getPointsetFromItem(item);
+  pointset->setFillratio(value/100.);
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_edit_shape_name_size_factor_valueChanged(int name_size) {
+  auto item = form.cpoints_set_treewidget->selectedItems()[0];
+  auto pointset = getPointsetFromItem(item);
+  pointset->setNameSizeFactor(name_size/10.);
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_edit_shape_name_offset_valueChanged(int name_offset) {
+  auto item = form.cpoints_set_treewidget->selectedItems()[0];
+  auto pointset = getPointsetFromItem(item);
+  pointset->setNameOffset(name_offset/10.);
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_edit_shape_nb_sphere_sections_valueChanged(int nb_sphere_sections) {
+  auto item = form.cpoints_set_treewidget->selectedItems()[0];
+  auto pointset = getPointsetFromItem(item);
+  pointset->setNbSphereSection(nb_sphere_sections);
+  emit objectSettingsChanged();
+}
+
+void FormObjectControl::on_edit_shape_name_angle_valueChanged(int name_angle) {
+  auto item = form.cpoints_set_treewidget->selectedItems()[0];
+  auto pointset = getPointsetFromItem(item);
+  pointset->setNameAngle(name_angle-90);
   emit objectSettingsChanged();
 }
 

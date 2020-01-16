@@ -70,10 +70,34 @@ CPointset::CPointset(CShader *shader, std::string name) :
   m_is_filled = false;
   m_is_name_visible = false;
   m_threshold = 100;
+  m_fill_ratio = 0.1;
+  m_name_angle = 45;
+  m_name_offset = 1;
+  m_name_size_factor = 1;
+  m_nb_sphere_sections = 12;
   // SHADER INIT
   glGenBuffersARB(1, &m_vbo);
   glGenVertexArrays(1, &m_vao);
 
+}
+
+CPointset::CPointset(CShader *shader, const CPointset &other) {
+  m_shader = shader;
+  m_name = other.m_name;
+  m_color = other.m_color;
+  m_is_shown = other.m_is_shown;
+  m_is_filled = other.m_is_filled;
+  m_is_name_visible = other.m_is_name_visible;
+  m_threshold = other.m_threshold;
+  m_fill_ratio = other.m_fill_ratio;
+  m_name_angle = other.m_name_angle;
+  m_name_offset = other.m_name_offset;
+  m_name_size_factor = other.m_name_size_factor;
+  m_pointset_type = other.m_pointset_type;
+  // SHADER INIT
+  glGenBuffersARB(1, &m_vbo);
+  glGenVertexArrays(1, &m_vao);
+  copyCPoints(other);
 }
 
 CPointset::~CPointset() {
@@ -169,8 +193,8 @@ const glcpointmap_t &CPointset::getCPoints() const {
   return m_cpoints;
 }
 
-void CPointset::copyCPoints(CPointset *other) {
-  m_cpoints = other->getCPoints();
+void CPointset::copyCPoints(const CPointset &other) {
+  m_cpoints = other.getCPoints();
   genVboData();
 }
 void CPointset::setFilled(bool filled) {
@@ -245,6 +269,36 @@ void CPointset::setNameVisible(bool visible) {
 const bool CPointset::isNameVisible() {
   return m_is_name_visible;
 }
+void CPointset::setFillratio(float fill_ratio) {
+  m_fill_ratio = fill_ratio < 0 ? 0 : fill_ratio > 1 ? 1 : fill_ratio; //clamp
+}
+const float CPointset::getFillratio() const {
+  return m_fill_ratio;
+}
+void CPointset::setNameSizeFactor(float name_size_factor) {
+  m_name_size_factor = name_size_factor;
+}
+const float CPointset::getNameSizeFactor() const {
+  return m_name_size_factor;
+}
+void CPointset::setNameOffset(float name_offset) {
+  m_name_offset = name_offset;
+}
+const float CPointset::getNameOffset() const {
+  return m_name_offset;
+}
+void CPointset::setNameAngle(int angle) {
+  m_name_angle = angle % 360;
+}
+const int CPointset::getNameAngle() const {
+  return m_name_angle;
+}
+void CPointset::setNbSphereSection(int nb_sections) {
+  m_nb_sphere_sections = nb_sections;
+}
+const int CPointset::getNbSphereSections() const {
+  return m_nb_sphere_sections;
+}
 
 /******* GLCPointDisk ********/
 CPointsetDisk::CPointsetDisk(CShader *shader, std::string name)
@@ -252,9 +306,19 @@ CPointsetDisk::CPointsetDisk(CShader *shader, std::string name)
   m_nb_vertices = 100;
   m_pointset_type = CPointsetTypes::disk;
 }
+CPointsetDisk::CPointsetDisk(CShader *shader, const CPointset &other) : CPointsetRegularPolygon(shader, other) {
+  m_nb_vertices = 100;
+  m_pointset_type = CPointsetTypes::disk;
+}
 
-CPointsetRegularPolygon::CPointsetRegularPolygon(CShader *m_shader, std::string name) : CPointset(m_shader,
-                                                                                                  name) {
+CPointsetRegularPolygon::CPointsetRegularPolygon(CShader *shader, std::string name) : CPointset(shader,
+                                                                                                name) {
+}
+void CPointsetRegularPolygon::sendUniforms() {
+   CPointset::sendUniforms();
+
+  m_shader->sendUniformi("is_filled", m_is_filled);
+  m_shader->sendUniformf("fill_ratio", m_fill_ratio);
 }
 
 void CPointsetRegularPolygon::display() {
@@ -265,7 +329,6 @@ void CPointsetRegularPolygon::display() {
   m_shader->start();
   glBindVertexArray(m_vao);
   int nb_objects = m_cpoints.size() * m_threshold / 100;
-  m_shader->sendUniformi("is_filled", m_is_filled);
   sendUniforms();
   if (m_is_filled) {
     m_shader->sendUniformi("nb_vertices", m_nb_vertices);
@@ -277,6 +340,9 @@ void CPointsetRegularPolygon::display() {
   glBindVertexArray(0);
   m_shader->stop();
 }
+CPointsetRegularPolygon::CPointsetRegularPolygon(CShader *shader, const CPointset &other) : CPointset(shader, other) {
+
+}
 
 /******* GLCPointSquare ********/
 CPointsetSquare::CPointsetSquare(CShader *shader, std::string name)
@@ -284,12 +350,18 @@ CPointsetSquare::CPointsetSquare(CShader *shader, std::string name)
   m_nb_vertices = 4;
   m_pointset_type = CPointsetTypes::square;
 }
+CPointsetSquare::CPointsetSquare(CShader *shader, const CPointset &other) : CPointsetRegularPolygon(shader, other) {
+  m_nb_vertices = 4;
+  m_pointset_type = CPointsetTypes::square;
+}
 
 /******* GLCPointTag ********/
-CPointsetTag::CPointsetTag(CShader *shape_shader, CShader *text_shader, std::string name) : CPointset(shape_shader,
-                                                                                                      name) {
+CPointsetTag::CPointsetTag(CShader *shader, std::string name) : CPointset(shader, name) {
   m_pointset_type = CPointsetTypes::tag;
+}
 
+CPointsetTag::CPointsetTag(CShader *shader, const CPointset &other) : CPointset(shader, other) {
+  m_pointset_type = CPointsetTypes::tag;
 }
 
 void CPointsetTag::display() {
@@ -306,7 +378,6 @@ void CPointsetTag::display() {
   glBindVertexArray(0);
   m_shader->stop();
 }
-
 void CPointsetTag::sendUniforms() {
   CPointset::sendUniforms();
 
@@ -320,13 +391,13 @@ void CPointsetTag::sendUniforms() {
 }
 
 /******* GLCPointSphere ********/
-int CPointsetSphere::subdivisions = 12;
-int CPointsetSphere::nb_vertex_per_sphere = subdivisions * subdivisions + subdivisions;
-
-CPointsetSphere::CPointsetSphere(CShader *m_shader, std::string name) : CPointset(m_shader,
-                                                                                  name) {
+CPointsetSphere::CPointsetSphere(CShader *shader, std::string name) : CPointset(shader, name) {
   m_pointset_type = CPointsetTypes::sphere;
 
+}
+
+CPointsetSphere::CPointsetSphere(CShader *shader, const CPointset &other) : CPointset(shader, other) {
+  m_pointset_type = CPointsetTypes::sphere;
 }
 
 //void GLCPointsetSphere::setAttributes() {
@@ -359,14 +430,14 @@ void CPointsetSphere::display() {
   int nb_objects = m_cpoints.size() * m_threshold / 100;
 
   sendUniforms();
-  m_shader->sendUniformi("subdivisions", subdivisions);
+  m_shader->sendUniformi("subdivisions", m_nb_sphere_sections);
 
 //    glEnable(GL_LINE_SMOOTH);
 //    glEnable(GL_POLYGON_SMOOTH);
 //    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 //    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 //    glLineWidth (1.0);
-
+  int nb_vertex_per_sphere = m_nb_sphere_sections * m_nb_sphere_sections + m_nb_sphere_sections;
   glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, nb_objects);
   glBindVertexArray(0);
   m_shader->stop();
@@ -506,13 +577,8 @@ void CPointsetManager::deleteCPointset(std::string pointset_name) {
 }
 void CPointsetManager::changePointsetType(std::string pointset_name, std::string new_type) {
   CPointset *old_pointset = m_pointsets[pointset_name];
-  CPointset *new_pointset = newPointset(new_type, pointset_name);
+  CPointset *new_pointset = newPointset(new_type, *old_pointset);
   if (new_pointset) {
-    new_pointset->copyCPoints(old_pointset);
-    new_pointset->setColor(old_pointset->getQColor());
-    new_pointset->setShow(old_pointset->isShown());
-    new_pointset->setThreshold(old_pointset->getThreshold());
-    new_pointset->setNameVisible(old_pointset->isNameVisible());
     m_pointsets[pointset_name] = new_pointset;
     delete old_pointset;
   }
@@ -549,9 +615,24 @@ CPointset *CPointsetManager::newPointset(std::string str_shape, std::string name
   } else if (str_shape == "square") {
     return new CPointsetSquare(m_regular_polygon_shader, name);
   } else if (str_shape == "tag") {
-    return new CPointsetTag(m_tag_shader, m_text_shader, name);
+    return new CPointsetTag(m_tag_shader, name);
   } else if (str_shape == "sphere") {
     return new CPointsetSphere(m_sphere_shader, name);
+  } else {
+    std::cerr << "Unrecognized shape : " + str_shape;
+    return nullptr;
+  }
+}
+
+CPointset *CPointsetManager::newPointset(std::string str_shape, const CPointset& other) {
+  if (str_shape == "disk") {
+    return new CPointsetDisk(m_regular_polygon_shader, other);
+  } else if (str_shape == "square") {
+    return new CPointsetSquare(m_regular_polygon_shader, other);
+  } else if (str_shape == "tag") {
+    return new CPointsetTag(m_tag_shader, other);
+  } else if (str_shape == "sphere") {
+    return new CPointsetSphere(m_sphere_shader, other);
   } else {
     std::cerr << "Unrecognized shape : " + str_shape;
     return nullptr;
@@ -678,8 +759,11 @@ void CPointTextRenderer::renderText(CPointset *pointset) {
     m_text_shader->sendUniformXfv("color", 3, 1, pointset->getColor().data());
     m_text_shader->sendUniformXfv("point_center", 3, 1, cpoint->getCoords().data());
 
-    m_text_shader->sendUniformf("offset", cpoint->getSize());
-    scale *= cpoint->getSize();
+    float offset = cpoint->getSize() * pointset->getNameOffset();
+    m_text_shader->sendUniformf("offset", offset);
+    int angle = pointset->getNameAngle();
+    m_text_shader->sendUniformi("angle", angle);
+    scale *= cpoint->getSize() * pointset->getNameSizeFactor();
 //
     glActiveTextureARB(GL_TEXTURE0_ARB);
     glBindVertexArray(m_text_vao);
