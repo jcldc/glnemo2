@@ -68,6 +68,7 @@ CPointset::CPointset(CShader *shader, std::string name) :
         m_shader(shader), m_name(name), m_color{1, 1, 1} {
   m_is_shown = true;
   m_is_filled = false;
+  m_is_name_visible = false;
   m_threshold = 100;
   // SHADER INIT
   glGenBuffersARB(1, &m_vbo);
@@ -141,17 +142,25 @@ void CPointset::genVboData() {
   std::vector<float> data;
   //maybe use reserve to preallocate,
   // m_data.reserve(4*m_cpoints.size());
-  for (auto point : m_cpoints) {
-    data.push_back(point.second->getCoords()[0]);
-    data.push_back(point.second->getCoords()[1]);
-    data.push_back(point.second->getCoords()[2]);
-    data.push_back(point.second->getSize());
+
+  std::vector<GLCPoint*> cpoints_v;
+  for( auto it = m_cpoints.begin(); it != m_cpoints.end(); ++it ) {
+      cpoints_v.push_back( it->second );
+  }
+  std::sort(cpoints_v.begin(), cpoints_v.end(), [](GLCPoint* a, GLCPoint* b) {
+    return a->getSize() < b->getSize();
+  });
+
+  for (auto point : cpoints_v) {
+    data.push_back(point->getCoords()[0]);
+    data.push_back(point->getCoords()[1]);
+    data.push_back(point->getCoords()[2]);
+    data.push_back(point->getSize());
   }
   // SEND DATA
   glBindVertexArray(m_vao);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_vbo);
   glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
-
   setAttributes();
   glBindVertexArray(0);
 }
