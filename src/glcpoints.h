@@ -200,7 +200,7 @@ public:
   CPointset *createNewCPointset();
   void deleteCPointset(std::string pointset_name);
   void deleteCPoint(std::string pointset_name, int cpoint_id);
-  void changePointsetType(std::string pointset_name, std::string new_type);
+  CPointset * changePointsetType(std::string pointset_name, std::string new_type);
   static void setW(int w);
 
   typedef typename std::map<std::string, CPointset *> map_type;

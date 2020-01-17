@@ -1511,23 +1511,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
 
       CPointset *pointset = getPointsetFromItem(item);
       if (pointset) {
-
-        if (pointset->getPointsetType() == CPointsetTypes::square) {
-          form.shape_radio_square->setChecked(true);
-          form.shape_checkbox_filled->setEnabled(true);
-        }
-        if (pointset->getPointsetType() == CPointsetTypes::disk) {
-          form.shape_radio_disk->setChecked(true);
-          form.shape_checkbox_filled->setEnabled(true);
-        }
-        if (pointset->getPointsetType() == CPointsetTypes::tag) {
-          form.shape_radio_tag->setChecked(true);
-          form.shape_checkbox_filled->setEnabled(false);
-        }
-        if (pointset->getPointsetType() == CPointsetTypes::sphere) {
-          form.shape_radio_sphere->setChecked(true);
-          form.shape_checkbox_filled->setEnabled(false);
-        }
+        setFormState(pointset->getPointsetType());
 
         form.shape_checkbox_name_cbx->setChecked(pointset->isNameVisible());
         form.edit_shape_name_offset->setValue(pointset->getNameOffset()*10);
@@ -1694,20 +1678,19 @@ void FormObjectControl::delete_cpoints(bool need_confirmation) {
 void FormObjectControl::shapeRadioClicked() {
   std::string pointset_name = form.cpoints_set_treewidget->selectedItems()[0]->text(0).toStdString();
   QRadioButton *clickedBtn = qobject_cast<QRadioButton *>(sender());
-  if (clickedBtn->objectName() == "shape_radio_disk") {
-    pointset_manager->changePointsetType(pointset_name, "disk");
-    form.shape_checkbox_filled->setEnabled(true);
-  } else if (clickedBtn->objectName() == "shape_radio_square") {
-    pointset_manager->changePointsetType(pointset_name, "square");
-    form.shape_checkbox_filled->setEnabled(true);
-  } else if (clickedBtn->objectName() == "shape_radio_tag") {
-    pointset_manager->changePointsetType(pointset_name, "tag");
-    form.shape_checkbox_filled->setEnabled(false);
-  } else if (clickedBtn->objectName() == "shape_radio_sphere") {
-    pointset_manager->changePointsetType(pointset_name, "sphere");
-    form.shape_checkbox_filled->setEnabled(false);
-  }
-  on_shape_checkbox_filled_stateChanged(form.shape_checkbox_filled->checkState()); // check if necessary
+  CPointset* new_pointset = nullptr;
+  if (clickedBtn->objectName() == "shape_radio_disk")
+    new_pointset = pointset_manager->changePointsetType(pointset_name, "disk");
+  else if (clickedBtn->objectName() == "shape_radio_square")
+    new_pointset = pointset_manager->changePointsetType(pointset_name, "square");
+  else if (clickedBtn->objectName() == "shape_radio_tag")
+    new_pointset = pointset_manager->changePointsetType(pointset_name, "tag");
+  else if (clickedBtn->objectName() == "shape_radio_sphere")
+    new_pointset = pointset_manager->changePointsetType(pointset_name, "sphere");
+
+  if(new_pointset)
+    setFormState(new_pointset->getShape());
+
   emit objectSettingsChanged();
 }
 
@@ -1848,6 +1831,25 @@ void FormObjectControl::on_edit_shape_name_angle_valueChanged(int name_angle) {
   auto pointset = getPointsetFromItem(item);
   pointset->setNameAngle(name_angle-90);
   emit objectSettingsChanged();
+}
+void FormObjectControl::setFormState(CPointsetTypes shape) {
+  if (shape == CPointsetTypes::disk) {
+    form.shape_checkbox_filled->setEnabled(true);
+    form.edit_shape_nb_sphere_sections->setEnabled(false);
+    form.edit_shape_fill_ratio->setEnabled(true);
+  } else if (shape == CPointsetTypes::square) {
+    form.shape_checkbox_filled->setEnabled(true);
+    form.edit_shape_nb_sphere_sections->setEnabled(false);
+    form.edit_shape_fill_ratio->setEnabled(true);
+  } else if (shape == CPointsetTypes::tag) {
+    form.shape_checkbox_filled->setEnabled(false);
+    form.edit_shape_nb_sphere_sections->setEnabled(false);
+    form.edit_shape_fill_ratio->setEnabled(false);
+  } else if (shape == CPointsetTypes::sphere) {
+    form.shape_checkbox_filled->setEnabled(false);
+    form.edit_shape_nb_sphere_sections->setEnabled(true);
+    form.edit_shape_fill_ratio->setEnabled(false);
+  }
 }
 
 }

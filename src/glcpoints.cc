@@ -576,13 +576,15 @@ void CPointsetManager::deleteCPointset(std::string pointset_name) {
   m_pointsets.erase(it);
   m_nb_sets--;
 }
-void CPointsetManager::changePointsetType(std::string pointset_name, std::string new_type) {
+CPointset * CPointsetManager::changePointsetType(std::string pointset_name, std::string new_type) {
   CPointset *old_pointset = m_pointsets[pointset_name];
   CPointset *new_pointset = newPointset(new_type, *old_pointset);
   if (new_pointset) {
     m_pointsets[pointset_name] = new_pointset;
     delete old_pointset;
+    return new_pointset;
   }
+  return nullptr;
 }
 
 void CPointsetManager::setW(int w) {
