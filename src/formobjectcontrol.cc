@@ -1514,6 +1514,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
         setFormState(pointset->getPointsetType());
 
         form.shape_checkbox_name_cbx->setChecked(pointset->isNameVisible());
+        form.edit_shape_nb_sphere_sections->setValue(pointset->getNbSphereSections());
         form.edit_shape_name_offset->setValue(pointset->getNameOffset()*10);
         form.edit_shape_name_size_factor->setValue(pointset->getNameSizeFactor()*10);
         form.edit_shape_fill_ratio->setValue(pointset->getFillratio()*100);
@@ -1834,18 +1835,22 @@ void FormObjectControl::on_edit_shape_name_angle_valueChanged(int name_angle) {
 }
 void FormObjectControl::setFormState(CPointsetTypes shape) {
   if (shape == CPointsetTypes::disk) {
+    form.shape_radio_disk->setChecked(true);
     form.shape_checkbox_filled->setEnabled(true);
     form.edit_shape_nb_sphere_sections->setEnabled(false);
     form.edit_shape_fill_ratio->setEnabled(true);
   } else if (shape == CPointsetTypes::square) {
+    form.shape_radio_square->setChecked(true);
     form.shape_checkbox_filled->setEnabled(true);
     form.edit_shape_nb_sphere_sections->setEnabled(false);
     form.edit_shape_fill_ratio->setEnabled(true);
   } else if (shape == CPointsetTypes::tag) {
+    form.shape_radio_tag->setChecked(true);
     form.shape_checkbox_filled->setEnabled(false);
     form.edit_shape_nb_sphere_sections->setEnabled(false);
     form.edit_shape_fill_ratio->setEnabled(false);
   } else if (shape == CPointsetTypes::sphere) {
+    form.shape_radio_sphere->setChecked(true);
     form.shape_checkbox_filled->setEnabled(false);
     form.edit_shape_nb_sphere_sections->setEnabled(true);
     form.edit_shape_fill_ratio->setEnabled(false);
