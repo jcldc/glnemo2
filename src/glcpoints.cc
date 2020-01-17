@@ -323,10 +323,6 @@ void CPointsetRegularPolygon::sendUniforms() {
 }
 
 void CPointsetRegularPolygon::display() {
-
-  if (!ready() || !m_is_shown)
-    return;
-
   m_shader->start();
   glBindVertexArray(m_vao);
   int nb_objects = m_cpoints.size() * m_threshold / 100;
@@ -366,9 +362,6 @@ CPointsetTag::CPointsetTag(CShader *shader, const CPointset &other) : CPointset(
 }
 
 void CPointsetTag::display() {
-  if (!ready() || !m_is_shown)
-    return;
-
   m_shader->start();
   glBindVertexArray(m_vao);
   int nb_objects = m_cpoints.size() * m_threshold / 100;
@@ -423,9 +416,6 @@ CPointsetSphere::CPointsetSphere(CShader *shader, const CPointset &other) : CPoi
 //}
 
 void CPointsetSphere::display() {
-  if (!ready() || !m_is_shown)
-    return;
-
   m_shader->start();
   glBindVertexArray(m_vao);
   int nb_objects = m_cpoints.size() * m_threshold / 100;
@@ -559,9 +549,11 @@ void CPointsetManager::initShaders() {
 void CPointsetManager::displayAll() {
   for (auto cpointset_pair: m_pointsets) {
     CPointset *cpointset = cpointset_pair.second;
-    cpointset->display();
-    if(cpointset->isNameVisible())
-      cpointset->displayText();
+    if(cpointset->ready() && cpointset->isShown()){
+      cpointset->display();
+      if(cpointset->isNameVisible())
+        cpointset->displayText();
+    }
   }
 }
 
