@@ -94,6 +94,7 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
   m_name_offset = other.m_name_offset;
   m_name_size_factor = other.m_name_size_factor;
   m_pointset_type = other.m_pointset_type;
+  m_nb_sphere_sections = other.m_nb_sphere_sections;
   // SHADER INIT
   glGenBuffersARB(1, &m_vbo);
   glGenVertexArrays(1, &m_vao);
