@@ -89,8 +89,8 @@ public:
   void deletePoint(int id);
 
   const glcpointmap_t &getCPoints() const;
-  void setShow(bool show);
-  bool isShown();
+  void setVisible(bool visible);
+  bool isVisible();
   void setFilled(bool);
   const bool isFilled() const;
   const std::string &getName() const;
@@ -136,7 +136,7 @@ protected:
   GLuint m_vao, m_vbo;
   std::string m_name;
   std::array<float, 3> m_color;
-  bool m_is_shown;
+  bool m_is_visible;
   bool m_is_filled;
   bool m_is_name_visible;
   int m_threshold;

@@ -1488,9 +1488,9 @@ void FormObjectControl::on_cpoints_display_cbx_stateChanged(int state) {
   CPointset *pointset = getPointsetFromItem(form.cpoints_set_treewidget->selectedItems()[0]);
   if (pointset) {
     if (state == Qt::Checked)
-      pointset->setShow(true);
+      pointset->setVisible(true);
     else if (state == Qt::Unchecked)
-      pointset->setShow(false);
+      pointset->setVisible(false);
     emit objectSettingsChanged();
   }
 }
@@ -1517,7 +1517,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
         form.edit_shape_name_offset->setValue(pointset->getNameOffset()*10);
         form.edit_shape_name_size_factor->setValue(pointset->getNameSizeFactor()*10);
         form.edit_shape_fill_ratio->setValue(pointset->getFillratio()*100);
-        form.cpoints_display_cbx->setChecked(pointset->isShown());
+        form.cpoints_display_cbx->setChecked(pointset->isVisible());
         form.shape_checkbox_filled->setChecked(pointset->isFilled());
         form.cpoints_threshold_slider->setValue(pointset->getThreshold());
         form.color_picker_button->setStyleSheet("background-color:" + pointset->getQColor().name());

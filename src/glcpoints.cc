@@ -66,7 +66,7 @@ void CPointset::sendUniforms() {
 
 CPointset::CPointset(CShader *shader, std::string name) :
         m_shader(shader), m_name(name), m_color{1, 1, 1} {
-  m_is_shown = true;
+  m_is_visible = true;
   m_is_filled = false;
   m_is_name_visible = false;
   m_threshold = 100;
@@ -85,7 +85,7 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
   m_shader = shader;
   m_name = other.m_name;
   m_color = other.m_color;
-  m_is_shown = other.m_is_shown;
+  m_is_visible = other.m_is_visible;
   m_is_filled = other.m_is_filled;
   m_is_name_visible = other.m_is_name_visible;
   m_threshold = other.m_threshold;
@@ -129,12 +129,12 @@ void CPointset::addPoints(std::vector<GLCPointData> cpoint_data_v) { // return v
   genVboData();
 }
 
-void CPointset::setShow(bool show) {
-  m_is_shown = show;
+void CPointset::setVisible(bool visible) {
+  m_is_visible = visible;
 }
 
-bool CPointset::isShown() {
-  return m_is_shown;
+bool CPointset::isVisible() {
+  return m_is_visible;
 }
 
 void CPointset::setThreshold(int threshold) {
@@ -549,7 +549,7 @@ void CPointsetManager::initShaders() {
 void CPointsetManager::displayAll() {
   for (auto cpointset_pair: m_pointsets) {
     CPointset *cpointset = cpointset_pair.second;
-    if(cpointset->ready() && cpointset->isShown()){
+    if(cpointset->ready() && cpointset->isVisible()){
       cpointset->display();
       if(cpointset->isNameVisible())
         cpointset->displayText();
