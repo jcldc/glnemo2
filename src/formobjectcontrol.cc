@@ -1485,7 +1485,10 @@ QTreeWidgetItem *FormObjectControl::createCpointsetTreeItem(CPointset *cpoint_se
 // ============================================================================
 //
 void FormObjectControl::on_cpoints_display_cbx_stateChanged(int state) {
-  CPointset *pointset = getPointsetFromItem(form.cpoints_set_treewidget->selectedItems()[0]);
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
   if (pointset) {
     if (state == Qt::Checked)
       pointset->setVisible(true);
@@ -1504,7 +1507,8 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
     form.edit_cpointset_parent_box->setEnabled(false);
   } else if (items.size() == 1) {
     QTreeWidgetItem *item = items.first();
-    if (!item->parent()) { // if top level item ie a cpointset is selected
+
+    if (!item->parent()) { // if top level item ie if a cpointset is selected
       form.edit_cpointset_parent_box->setEnabled(true);
       form.edit_cpointset_box->setEnabled(true);
       form.edit_cpoint_parent_box->setEnabled(false);
@@ -1513,7 +1517,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
       if (pointset) {
         setFormState(pointset->getPointsetType());
 
-        form.shape_checkbox_name_cbx->setChecked(pointset->isNameVisible());
+        form.shape_show_name_cbx->setChecked(pointset->isNameVisible());
         form.edit_shape_nb_sphere_sections->setValue(pointset->getNbSphereSections());
         form.edit_shape_name_offset->setValue(pointset->getNameOffset()*10);
         form.edit_shape_name_size_factor->setValue(pointset->getNameSizeFactor()*10);
@@ -1528,7 +1532,8 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
 
       form.edit_cpoint_box->setEnabled(true);
       form.edit_cpoint_parent_box->setEnabled(true);
-      form.edit_cpointset_parent_box->setEnabled(false);
+      form.edit_cpointset_parent_box->setEnabled(true);
+      form.edit_cpointset_box->setEnabled(true);
       int cpoint_id = item->text(1).toInt();
       GLCPoint *cpoint = getPointsetFromItem(item->parent())->getCPoints().at(cpoint_id);
       form.edit_cpoint_coords_x->setValue(cpoint->getCoords()[0]);
@@ -1565,7 +1570,11 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
 // ============================================================================
 //
 void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) {
-  CPointset *pointset = getPointsetFromItem(form.cpoints_set_treewidget->selectedItems()[0]);
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+
+  CPointset *pointset = getPointsetFromItem(item);
   if (pointset) {
     pointset->setThreshold(threshold);
     emit objectSettingsChanged();
@@ -1575,8 +1584,10 @@ void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) 
 // ============================================================================
 //
 void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
-  QTreeWidgetItem *top_level_item = form.cpoints_set_treewidget->selectedItems()[0]; // TODO improve this
-  CPointset *pointset = getPointsetFromItem(top_level_item);
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
   if (pointset) {
     std::array<float, 3> coords = {
             static_cast<float>(form.add_cpoint_coords_x->value()),
@@ -1586,7 +1597,7 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
     float size = form.add_cpoint_coords_size->value();
     const string &point_text = form.add_cpoint_name->text().toStdString();
     GLCPoint *cpoint = pointset->addPoint(coords, size, point_text);
-    new QTreeWidgetItem(top_level_item,
+    new QTreeWidgetItem(item,
                         QStringList() << QString::fromStdString(cpoint->getName()) << QString::number(cpoint->getId()));
     emit objectSettingsChanged();
   }
@@ -1677,17 +1688,20 @@ void FormObjectControl::delete_cpoints(bool need_confirmation) {
 }
 
 void FormObjectControl::shapeRadioClicked() {
-  std::string pointset_name = form.cpoints_set_treewidget->selectedItems()[0]->text(0).toStdString();
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
   QRadioButton *clickedBtn = qobject_cast<QRadioButton *>(sender());
   CPointset* new_pointset = nullptr;
   if (clickedBtn->objectName() == "shape_radio_disk")
-    new_pointset = pointset_manager->changePointsetType(pointset_name, "disk");
+    new_pointset = pointset_manager->changePointsetType(pointset, "disk");
   else if (clickedBtn->objectName() == "shape_radio_square")
-    new_pointset = pointset_manager->changePointsetType(pointset_name, "square");
+    new_pointset = pointset_manager->changePointsetType(pointset, "square");
   else if (clickedBtn->objectName() == "shape_radio_tag")
-    new_pointset = pointset_manager->changePointsetType(pointset_name, "tag");
+    new_pointset = pointset_manager->changePointsetType(pointset, "tag");
   else if (clickedBtn->objectName() == "shape_radio_sphere")
-    new_pointset = pointset_manager->changePointsetType(pointset_name, "sphere");
+    new_pointset = pointset_manager->changePointsetType(pointset, "sphere");
 
   if(new_pointset)
     setFormState(new_pointset->getShape());
@@ -1696,7 +1710,10 @@ void FormObjectControl::shapeRadioClicked() {
 }
 
 void FormObjectControl::on_shape_checkbox_filled_stateChanged(int state) {
-  CPointset *pointset = getPointsetFromItem(form.cpoints_set_treewidget->selectedItems()[0]);
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
   if (state == Qt::Checked)
     pointset->setFilled(true);
   else if (state == Qt::Unchecked)
@@ -1705,7 +1722,10 @@ void FormObjectControl::on_shape_checkbox_filled_stateChanged(int state) {
 }
 
 void FormObjectControl::on_color_picker_button_clicked(bool) {
-  CPointset *pointset = getPointsetFromItem(form.cpoints_set_treewidget->selectedItems()[0]);
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
   if (pointset) {
     QColor newColor = QColorDialog::getColor(pointset->getQColor());
     if (newColor.spec() != QColor::Invalid) {
@@ -1766,9 +1786,10 @@ void FormObjectControl::on_edit_cpoint_size_valueChanged(double size) {
   emit objectSettingsChanged();
 }
 void FormObjectControl::on_edit_cpointset_name_btn_clicked() {
-  auto items = form.cpoints_set_treewidget->selectedItems();
-  auto item = items[0];
-  auto pointset = getPointsetFromItem(item);
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
   auto new_name = form.edit_cpointset_name->text().toStdString();
   if (new_name != pointset->getName()) {
     try {
@@ -1793,9 +1814,11 @@ void FormObjectControl::on_edit_cpoint_name_textChanged() {
   item->setData(0, Qt::DisplayRole, QString::fromStdString(new_name));
   emit objectSettingsChanged();
 }
-void FormObjectControl::on_shape_checkbox_name_cbx_stateChanged(int state) {
-  auto item = form.cpoints_set_treewidget->selectedItems()[0];
-  auto pointset = getPointsetFromItem(item);
+void FormObjectControl::on_shape_show_name_cbx_stateChanged(int state) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
   if (state == Qt::Checked)
     pointset->setNameVisible(true);
   else if (state == Qt::Unchecked)
@@ -1803,33 +1826,43 @@ void FormObjectControl::on_shape_checkbox_name_cbx_stateChanged(int state) {
   emit objectSettingsChanged();
 }
 void FormObjectControl::on_edit_shape_fill_ratio_valueChanged(int value) {
-  auto item = form.cpoints_set_treewidget->selectedItems()[0];
-  auto pointset = getPointsetFromItem(item);
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
   pointset->setFillratio(value/100.);
   emit objectSettingsChanged();
 }
 void FormObjectControl::on_edit_shape_name_size_factor_valueChanged(int name_size) {
-  auto item = form.cpoints_set_treewidget->selectedItems()[0];
-  auto pointset = getPointsetFromItem(item);
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
   pointset->setNameSizeFactor(name_size/10.);
   emit objectSettingsChanged();
 }
 void FormObjectControl::on_edit_shape_name_offset_valueChanged(int name_offset) {
-  auto item = form.cpoints_set_treewidget->selectedItems()[0];
-  auto pointset = getPointsetFromItem(item);
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
   pointset->setNameOffset(name_offset/10.);
   emit objectSettingsChanged();
 }
 void FormObjectControl::on_edit_shape_nb_sphere_sections_valueChanged(int nb_sphere_sections) {
-  auto item = form.cpoints_set_treewidget->selectedItems()[0];
-  auto pointset = getPointsetFromItem(item);
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
   pointset->setNbSphereSection(nb_sphere_sections);
   emit objectSettingsChanged();
 }
 
 void FormObjectControl::on_edit_shape_name_angle_valueChanged(int name_angle) {
-  auto item = form.cpoints_set_treewidget->selectedItems()[0];
-  auto pointset = getPointsetFromItem(item);
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
   pointset->setNameAngle(name_angle-90);
   emit objectSettingsChanged();
 }

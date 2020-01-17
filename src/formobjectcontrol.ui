@@ -1413,7 +1413,7 @@ Physical value can be:
                    </property>
                    <layout class="QGridLayout" name="gridLayout_11">
                     <item row="2" column="2">
-                     <widget class="QCheckBox" name="shape_checkbox_name_cbx">
+                     <widget class="QCheckBox" name="shape_show_name_cbx">
                       <property name="toolTip">
                        <string>Display cpoints name</string>
                       </property>
