@@ -1597,8 +1597,8 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
     float size = form.add_cpoint_coords_size->value();
     const string &point_text = form.add_cpoint_name->text().toStdString();
     GLCPoint *cpoint = pointset->addPoint(coords, size, point_text);
-    new QTreeWidgetItem(item,
-                        QStringList() << QString::fromStdString(cpoint->getName()) << QString::number(cpoint->getId()));
+    auto new_item = new QTreeWidgetItem(QStringList() << QString::fromStdString(cpoint->getName()) << QString::number(cpoint->getId()));
+    item->insertChild(0, new_item);
     emit objectSettingsChanged();
   }
 }
