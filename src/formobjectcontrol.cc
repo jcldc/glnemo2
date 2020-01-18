@@ -1591,17 +1591,19 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
     item = item->parent();
   CPointset *pointset = getPointsetFromItem(item);
   if (pointset) {
-    std::array<float, 3> coords = {
-            static_cast<float>(form.add_cpoint_coords_x->value()),
-            static_cast<float>(form.add_cpoint_coords_y->value()),
-            static_cast<float>(form.add_cpoint_coords_z->value())
-    };
     float size = form.add_cpoint_coords_size->value();
-    const string &point_text = form.add_cpoint_name->text().toStdString();
-    GLCPoint *cpoint = pointset->addPoint(coords, size, point_text);
-    auto new_item = new QTreeWidgetItem(QStringList() << QString::fromStdString(cpoint->getName()) << QString::number(cpoint->getId()));
-    item->insertChild(0, new_item);
-    emit objectSettingsChanged();
+    if(size > 0){
+      std::array<float, 3> coords = {
+              static_cast<float>(form.add_cpoint_coords_x->value()),
+              static_cast<float>(form.add_cpoint_coords_y->value()),
+              static_cast<float>(form.add_cpoint_coords_z->value())
+      };
+      const string &point_text = form.add_cpoint_name->text().toStdString();
+      GLCPoint *cpoint = pointset->addPoint(coords, size, point_text);
+      auto new_item = new QTreeWidgetItem(QStringList() << QString::fromStdString(cpoint->getName()) << QString::number(cpoint->getId()));
+      item->insertChild(0, new_item);
+      emit objectSettingsChanged();
+    }
   }
 }
 
@@ -1856,7 +1858,7 @@ void FormObjectControl::on_edit_shape_nb_sphere_sections_valueChanged(int nb_sph
   if(item->parent())
     item = item->parent();
   CPointset *pointset = getPointsetFromItem(item);
-  pointset->setNbSphereSection(nb_sphere_sections);
+  pointset->setNbSphereSections(nb_sphere_sections);
   emit objectSettingsChanged();
 }
 

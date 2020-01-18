@@ -114,7 +114,7 @@ public:
   const float getNameOffset() const;
   void setNameAngle(int angle);
   const int getNameAngle() const;
-  void setNbSphereSection(int nb_sections);
+  void setNbSphereSections(int nb_sections);
   const int getNbSphereSections() const;
 
   void setCpointSize(int id, float size);

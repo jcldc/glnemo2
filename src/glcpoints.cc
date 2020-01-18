@@ -294,7 +294,7 @@ void CPointset::setNameAngle(int angle) {
 const int CPointset::getNameAngle() const {
   return m_name_angle;
 }
-void CPointset::setNbSphereSection(int nb_sections) {
+void CPointset::setNbSphereSections(int nb_sections) {
   m_nb_sphere_sections = nb_sections;
 }
 const int CPointset::getNbSphereSections() const {
@@ -485,12 +485,23 @@ int CPointsetManager::loadFile(std::string filepath) {
     pointset = newPointset(str_shape, name);
     if (!pointset)
       continue;
-    pointset->setColor((*it).value("color", std::array<float, 3>{0, 0, 0}));
+
+    // set optional fields
+    pointset->setColor((*it).value("color", pointset->getColor()));
+    pointset->setVisible((*it).value("is_visible", pointset->isVisible()));
+    pointset->setNbSphereSections((*it).value("nb_sphere_section", pointset->getNbSphereSections()));
+    pointset->setNameOffset((*it).value("name_offset", pointset->getNameOffset()));
+    pointset->setFillratio((*it).value("fill_ratio", pointset->getFillratio()));
+    pointset->setNameSizeFactor((*it).value("name_size_factor", pointset->getNameSizeFactor()));
+    pointset->setNameAngle((*it).value("name_angle", pointset->getNameAngle()));
+    pointset->setNameVisible((*it).value("is_name_visible", pointset->isNameVisible()));
+    pointset->setFilled((*it).value("is_filled", pointset->isFilled()));
+
     std::vector<GLCPointData> cpoint_data_v;
     auto data = (*it)["data"];
     cpoint_data_v.resize(data.size());
     for (std::size_t i = 0; i < data.size(); ++i) {
-      cpoint_data_v[i] = {data[i]["coords"], data[i]["radius"],
+      cpoint_data_v[i] = {data[i]["coords"], data[i]["size"],
                           data[i].value("text", std::string())}; // TODO change radius to size
     }
     pointset->addPoints(cpoint_data_v);
@@ -591,12 +602,20 @@ void CPointsetManager::saveToFile(std::string file_path) {
     for (auto cpoint_pair : set->getCPoints()) {
       GLCPoint *cpoint = cpoint_pair.second;
       data_array.push_back({{"coords", cpoint->getCoords()},
-                            {"radius", cpoint->getSize()}});
+                                {"size", cpoint->getSize()}});
     }
-    json current_dict = {{"name",  set->getName()},
+    json current_dict = {{"name", set->getName()},
                          {"shape", shapeToStr[set->getShape()]},
+                         {"is_visible", set->isVisible()},
                          {"color", set->getColor()},
-                         {"data",  data_array}};
+                         {"fill_ratio", set->getFillratio()},
+                         {"name_size_factor", set->getNameSizeFactor()},
+                         {"name_offset", set->getNameOffset()},
+                         {"nb_sphere_sections", set->getNbSphereSections()},
+                         {"name_angle", set->getNameAngle()},
+                         {"is_name_visible", set->isNameVisible()},
+                         {"is_filled", set->isFilled()},
+                         {"data",  data_array}}; //show name
 
     final_obj.push_back(current_dict);
   }
