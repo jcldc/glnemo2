@@ -454,15 +454,14 @@ CPointsetManager::CPointsetManager() {
   }
 }
 
-void CPointsetManager::loadFile(std::string filepath) {
+int CPointsetManager::loadFile(std::string filepath) {
   std::cerr << "Loading json file\n";
   std::ifstream file(filepath);
   json json_data;
   try {
     file >> json_data;
   } catch (json::exception) {
-    std::cerr << "Failed to parse file " + filepath << "\n";
-    return;
+    return -1;
   }
 
   for (json::iterator it = json_data.begin(); it != json_data.end(); ++it) {
@@ -480,7 +479,7 @@ void CPointsetManager::loadFile(std::string filepath) {
         break;
       }
 
-    if (name_too_long)// TODO alert user pointset was not loaded
+    if (name_too_long)
       continue;
 
     pointset = newPointset(str_shape, name);
@@ -498,6 +497,7 @@ void CPointsetManager::loadFile(std::string filepath) {
     m_pointsets[name] = pointset;
     m_nb_sets++;
   }
+  return 0;
 }
 
 std::string CPointsetManager::defaultName() const {

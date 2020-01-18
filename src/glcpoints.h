@@ -194,7 +194,7 @@ class CPointsetManager {
 public:
   CPointsetManager();
   ~CPointsetManager();
-  void loadFile(std::string filepath);
+  int loadFile(std::string filepath);
   void initShaders();
   void displayAll();
   CPointset *createNewCPointset();

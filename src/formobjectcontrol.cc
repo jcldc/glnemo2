@@ -1442,8 +1442,10 @@ void FormObjectControl::on_load_cpoints_file_clicked(bool) {
   file_path = QFileDialog::getOpenFileName(
           this, tr("Open characteristic point description file"));
   if (!file_path.isEmpty()) {
-    pointset_manager->loadFile(file_path.toStdString());
-    initCPointsTreeWidget();
+    if(!pointset_manager->loadFile(file_path.toStdString()))
+      initCPointsTreeWidget();
+    else
+      QMessageBox::critical(this->window(), "Error", "Could not parse file " + file_path);
   }
 }
 // ============================================================================
