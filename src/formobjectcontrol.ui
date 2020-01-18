@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>416</width>
-    <height>1044</height>
+    <height>1122</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1382,6 +1382,9 @@ Physical value can be:
                         </property>
                         <property name="decimals">
                          <number>5</number>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
                         </property>
                        </widget>
                       </item>
