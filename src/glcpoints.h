@@ -20,6 +20,7 @@ using json = nlohmann::json;
 
 namespace glnemo {
 
+
 class CPointTextRenderer;
 
 struct Character {
@@ -29,7 +30,7 @@ struct Character {
   GLuint Advance;    // Offset to advance to next glyph
 };
 
-enum CPointsetTypes {
+enum CPointsetShapes {
   disk,
   square,
   tag,
@@ -88,6 +89,9 @@ public:
   void addPoints(std::vector<GLCPointData>);
   void deletePoint(int id);
 
+  json toJson();
+  void fromJson(json j);
+
   const glcpointmap_t &getCPoints() const;
   void setVisible(bool visible);
   bool isVisible();
@@ -98,12 +102,12 @@ public:
   void setThreshold(int threshold);
   const int getThreshold() const;
   inline int size() { return m_cpoints.size(); }
-  CPointsetTypes getPointsetType() const;
+  CPointsetShapes getPointsetShape() const;
   const QColor getQColor() const;
   const std::array<float, 3> &getColor() const;
   void setColor(const QColor &color);
   void setColor(std::array<float, 3>);
-  const CPointsetTypes &getShape() const;
+  const CPointsetShapes &getShape() const;
   void setNameVisible(bool visible);
   const bool isNameVisible();
   void setFillratio(float fill_ratio);
@@ -126,6 +130,9 @@ public:
 
   static int wwidth;
 
+  static std::map<CPointsetShapes, std::string> shapeToStr;
+  static std::map<std::string, CPointsetShapes> strToShape;
+
   static CPointTextRenderer *text_renderer;
 
 protected:
@@ -147,7 +154,7 @@ protected:
 
   int m_nb_sphere_sections = 12;
 
-  CPointsetTypes m_pointset_type;
+  CPointsetShapes m_shape;
 };
 
 class CPointsetRegularPolygon : public CPointset {
@@ -200,7 +207,7 @@ public:
   CPointset *createNewCPointset();
   void deleteCPointset(std::string pointset_name);
   void deleteCPoint(std::string pointset_name, int cpoint_id);
-  CPointset * changePointsetType(CPointset *pointset, std::string new_type);
+  CPointset * changePointsetShape(CPointset *pointset, std::string new_shape);
   static void setW(int w);
 
   typedef typename std::map<std::string, CPointset *> map_type;
@@ -221,8 +228,6 @@ public:
 
   void saveToFile(std::string file_path);
 
-  std::map<CPointsetTypes, std::string> shapeToStr;
-  std::map<std::string, CPointsetTypes> strToShape;
   void setPointsetName(std::string old_name, std::string new_name);
 private:
   int m_nb_sets;

@@ -10,6 +10,9 @@
 
 namespace glnemo {
 
+std::map<CPointsetShapes, std::string> CPointset::shapeToStr;
+std::map<std::string, CPointsetShapes> CPointset::strToShape;
+
 int GLCPoint::next_id = 0;
 //int GLCPointset::wwidth = 0; // useful for fixed size text tag
 
@@ -93,7 +96,7 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
   m_name_angle = other.m_name_angle;
   m_name_offset = other.m_name_offset;
   m_name_size_factor = other.m_name_size_factor;
-  m_pointset_type = other.m_pointset_type;
+  m_shape = other.m_shape;
   m_nb_sphere_sections = other.m_nb_sphere_sections;
   // SHADER INIT
   glGenBuffersARB(1, &m_vbo);
@@ -204,8 +207,8 @@ void CPointset::setFilled(bool filled) {
 const bool CPointset::isFilled() const {
   return m_is_filled;
 }
-CPointsetTypes CPointset::getPointsetType() const {
-  return m_pointset_type;
+CPointsetShapes CPointset::getPointsetShape() const {
+  return m_shape;
 }
 const int CPointset::getThreshold() const {
   return m_threshold;
@@ -216,8 +219,8 @@ const QColor CPointset::getQColor() const {
 void CPointset::setColor(const QColor &color) {
   m_color = {static_cast<float>(color.redF()), static_cast<float>(color.greenF()), static_cast<float>(color.blueF())};
 }
-const CPointsetTypes &CPointset::getShape() const {
-  return m_pointset_type;
+const CPointsetShapes &CPointset::getShape() const {
+  return m_shape;
 }
 void CPointset::setColor(std::array<float, 3> color) {
   m_color = color;
@@ -300,16 +303,60 @@ void CPointset::setNbSphereSections(int nb_sections) {
 const int CPointset::getNbSphereSections() const {
   return m_nb_sphere_sections;
 }
+json CPointset::toJson() {
+  json cpoint_data = json::array();
+  for (auto cpoint_pair : m_cpoints) {
+    GLCPoint *cpoint = cpoint_pair.second;
+    cpoint_data.push_back({{"coords", cpoint->getCoords()},
+                           {"size",   cpoint->getSize()}});
+  }
+  json cpointset_json = {{"name",               m_name},
+                         {"shape",               shapeToStr[m_shape]},
+                         {"is_visible",         m_is_visible},
+                         {"color",              m_color},
+                         {"fill_ratio",         m_fill_ratio},
+                         {"name_size_factor",   m_name_size_factor},
+                         {"name_offset",        m_name_offset},
+                         {"nb_sphere_sections", m_nb_sphere_sections},
+                         {"name_angle",         m_name_angle},
+                         {"is_name_visible",    m_is_name_visible},
+                         {"is_filled",          m_is_filled},
+                         {"data",               cpoint_data}}; //show name
+
+  return cpointset_json;
+}
+void CPointset::fromJson(json j) {
+
+    // set optional fields
+    m_color = j.value("color", m_color);
+    m_is_visible = j.value("is_visible", m_is_visible);
+    m_nb_sphere_sections = j.value("nb_sphere_section", m_nb_sphere_sections);
+    m_name_offset = j.value("name_offset", m_name_offset);
+    m_fill_ratio = j.value("fill_ratio", m_fill_ratio);
+    m_name_size_factor = j.value("name_size_factor", m_name_size_factor);
+    m_name_angle = j.value("name_angle", m_name_angle);
+    m_is_name_visible  = j.value("is_name_visible", m_is_name_visible);
+    m_is_filled = j.value("is_filled", m_is_filled);
+
+    std::vector<GLCPointData> cpoint_data_v;
+    auto data = j["data"];
+    cpoint_data_v.resize(data.size());
+    for (std::size_t i = 0; i < data.size(); ++i) {
+      cpoint_data_v[i] = {data[i]["coords"], data[i]["size"],
+                          data[i].value("text", std::string())}; // TODO change radius to size
+    }
+    addPoints(cpoint_data_v);
+}
 
 /******* GLCPointDisk ********/
 CPointsetDisk::CPointsetDisk(CShader *shader, std::string name)
         : CPointsetRegularPolygon(shader, name) {
   m_nb_vertices = 100;
-  m_pointset_type = CPointsetTypes::disk;
+  m_shape = CPointsetShapes::disk;
 }
 CPointsetDisk::CPointsetDisk(CShader *shader, const CPointset &other) : CPointsetRegularPolygon(shader, other) {
   m_nb_vertices = 100;
-  m_pointset_type = CPointsetTypes::disk;
+  m_shape = CPointsetShapes::disk;
 }
 
 CPointsetRegularPolygon::CPointsetRegularPolygon(CShader *shader, std::string name) : CPointset(shader,
@@ -345,20 +392,20 @@ CPointsetRegularPolygon::CPointsetRegularPolygon(CShader *shader, const CPointse
 CPointsetSquare::CPointsetSquare(CShader *shader, std::string name)
         : CPointsetRegularPolygon(shader, name) {
   m_nb_vertices = 4;
-  m_pointset_type = CPointsetTypes::square;
+  m_shape = CPointsetShapes::square;
 }
 CPointsetSquare::CPointsetSquare(CShader *shader, const CPointset &other) : CPointsetRegularPolygon(shader, other) {
   m_nb_vertices = 4;
-  m_pointset_type = CPointsetTypes::square;
+  m_shape = CPointsetShapes::square;
 }
 
 /******* GLCPointTag ********/
 CPointsetTag::CPointsetTag(CShader *shader, std::string name) : CPointset(shader, name) {
-  m_pointset_type = CPointsetTypes::tag;
+  m_shape = CPointsetShapes::tag;
 }
 
 CPointsetTag::CPointsetTag(CShader *shader, const CPointset &other) : CPointset(shader, other) {
-  m_pointset_type = CPointsetTypes::tag;
+  m_shape = CPointsetShapes::tag;
 }
 
 void CPointsetTag::display() {
@@ -386,12 +433,12 @@ void CPointsetTag::sendUniforms() {
 
 /******* GLCPointSphere ********/
 CPointsetSphere::CPointsetSphere(CShader *shader, std::string name) : CPointset(shader, name) {
-  m_pointset_type = CPointsetTypes::sphere;
+  m_shape = CPointsetShapes::sphere;
 
 }
 
 CPointsetSphere::CPointsetSphere(CShader *shader, const CPointset &other) : CPointset(shader, other) {
-  m_pointset_type = CPointsetTypes::sphere;
+  m_shape = CPointsetShapes::sphere;
 }
 
 //void GLCPointsetSphere::setAttributes() {
@@ -444,13 +491,13 @@ CPointsetManager::CPointsetManager() {
   // SHADER INIT
   m_nb_sets = 0;
 
-  shapeToStr[CPointsetTypes::disk] = "disk";
-  shapeToStr[CPointsetTypes::square] = "square";
-  shapeToStr[CPointsetTypes::tag] = "tag";
-  shapeToStr[CPointsetTypes::sphere] = "sphere";
+  CPointset::shapeToStr[CPointsetShapes::disk] = "disk";
+  CPointset::shapeToStr[CPointsetShapes::square] = "square";
+  CPointset::shapeToStr[CPointsetShapes::tag] = "tag";
+  CPointset::shapeToStr[CPointsetShapes::sphere] = "sphere";
 
-  for (auto sts: shapeToStr) {
-    strToShape[sts.second] = sts.first;
+  for (auto sts: CPointset::shapeToStr) {
+    CPointset::strToShape[sts.second] = sts.first;
   }
 }
 
@@ -486,25 +533,7 @@ int CPointsetManager::loadFile(std::string filepath) {
     if (!pointset)
       continue;
 
-    // set optional fields
-    pointset->setColor((*it).value("color", pointset->getColor()));
-    pointset->setVisible((*it).value("is_visible", pointset->isVisible()));
-    pointset->setNbSphereSections((*it).value("nb_sphere_section", pointset->getNbSphereSections()));
-    pointset->setNameOffset((*it).value("name_offset", pointset->getNameOffset()));
-    pointset->setFillratio((*it).value("fill_ratio", pointset->getFillratio()));
-    pointset->setNameSizeFactor((*it).value("name_size_factor", pointset->getNameSizeFactor()));
-    pointset->setNameAngle((*it).value("name_angle", pointset->getNameAngle()));
-    pointset->setNameVisible((*it).value("is_name_visible", pointset->isNameVisible()));
-    pointset->setFilled((*it).value("is_filled", pointset->isFilled()));
-
-    std::vector<GLCPointData> cpoint_data_v;
-    auto data = (*it)["data"];
-    cpoint_data_v.resize(data.size());
-    for (std::size_t i = 0; i < data.size(); ++i) {
-      cpoint_data_v[i] = {data[i]["coords"], data[i]["size"],
-                          data[i].value("text", std::string())}; // TODO change radius to size
-    }
-    pointset->addPoints(cpoint_data_v);
+    pointset->fromJson(*it);
     m_pointsets[name] = pointset;
     m_nb_sets++;
   }
@@ -579,8 +608,8 @@ void CPointsetManager::deleteCPointset(std::string pointset_name) {
   m_pointsets.erase(it);
   m_nb_sets--;
 }
-CPointset * CPointsetManager::changePointsetType(CPointset *pointset, std::string new_type) {
-  CPointset *new_pointset = newPointset(new_type, *pointset);
+CPointset * CPointsetManager::changePointsetShape(CPointset *pointset, std::string new_shape) {
+  CPointset *new_pointset = newPointset(new_shape, *pointset);
   if (new_pointset) {
     m_pointsets[pointset->getName()] = new_pointset;
     delete pointset;
@@ -595,31 +624,12 @@ void CPointsetManager::setW(int w) {
 
 void CPointsetManager::saveToFile(std::string file_path) {
   std::ofstream outfile(file_path);
-  json final_obj;
+  json cpointset_json;
   for (auto pair: *this) {
     CPointset *set = pair.second;
-    json data_array = json::array();
-    for (auto cpoint_pair : set->getCPoints()) {
-      GLCPoint *cpoint = cpoint_pair.second;
-      data_array.push_back({{"coords", cpoint->getCoords()},
-                                {"size", cpoint->getSize()}});
-    }
-    json current_dict = {{"name", set->getName()},
-                         {"shape", shapeToStr[set->getShape()]},
-                         {"is_visible", set->isVisible()},
-                         {"color", set->getColor()},
-                         {"fill_ratio", set->getFillratio()},
-                         {"name_size_factor", set->getNameSizeFactor()},
-                         {"name_offset", set->getNameOffset()},
-                         {"nb_sphere_sections", set->getNbSphereSections()},
-                         {"name_angle", set->getNameAngle()},
-                         {"is_name_visible", set->isNameVisible()},
-                         {"is_filled", set->isFilled()},
-                         {"data",  data_array}}; //show name
-
-    final_obj.push_back(current_dict);
+    cpointset_json.push_back(set->toJson());
   }
-  outfile << final_obj;
+  outfile << cpointset_json;
 }
 
 CPointset *CPointsetManager::newPointset(std::string str_shape, std::string name) {
