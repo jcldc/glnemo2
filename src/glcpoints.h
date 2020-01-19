@@ -159,42 +159,46 @@ protected:
 
 class CPointsetRegularPolygon : public CPointset {
 public:
-  CPointsetRegularPolygon(CShader *shader, std::string name);
-  CPointsetRegularPolygon(CShader *shader, const CPointset &other);
+  CPointsetRegularPolygon(std::string name);
+  CPointsetRegularPolygon(const CPointset &other);
   void display();
   void sendUniforms();
+
+  static CShader *shader;
 protected:
   int m_nb_vertices; //TODO make const with constructor
 };
 
 class CPointsetDisk : public CPointsetRegularPolygon {
 public:
-  CPointsetDisk(CShader *shader, std::string name);
-  CPointsetDisk(CShader *shader, const CPointset &other);
+  CPointsetDisk(std::string name);
+  CPointsetDisk(const CPointset &other);
 };
 
 class CPointsetSquare : public CPointsetRegularPolygon {
 public:
-  CPointsetSquare(CShader *shader, std::string name);
-  CPointsetSquare(CShader *shader, const CPointset &other);
+  CPointsetSquare(std::string name);
+  CPointsetSquare(const CPointset &other);
 };
 
 class CPointsetTag : public CPointset {
 public:
-  CPointsetTag(CShader *shader, std::string name);
-  CPointsetTag(CShader *shader, const CPointset &other);
+  CPointsetTag(std::string name);
+  CPointsetTag(const CPointset &other);
   void display();
   void sendUniforms();
+
+  static CShader *shader;
 };
 
 class CPointsetSphere : public CPointset {
 public:
-  CPointsetSphere(CShader *shader, std::string name);
-  CPointsetSphere(CShader *m_shader, const CPointset &other);
+  CPointsetSphere(std::string name);
+  CPointsetSphere(const CPointset &other);
   void display();
   void sendUniforms();
 //  void setAttributes();
-
+  static CShader *shader;
 };
 
 class CPointsetManager {
@@ -231,7 +235,6 @@ public:
   void setPointsetName(std::string old_name, std::string new_name);
 private:
   int m_nb_sets;
-  CShader *m_regular_polygon_shader, *m_tag_shader, *m_sphere_shader;
   std::map<std::string, CPointset *> m_pointsets;
   std::string defaultName() const;
   CPointset *newPointset(std::string str_shape, std::string name);

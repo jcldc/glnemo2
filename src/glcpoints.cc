@@ -13,6 +13,10 @@ namespace glnemo {
 std::map<CPointsetShapes, std::string> CPointset::shapeToStr;
 std::map<std::string, CPointsetShapes> CPointset::strToShape;
 
+CShader* CPointsetRegularPolygon::shader = nullptr;
+CShader* CPointsetTag::shader = nullptr;
+CShader* CPointsetSphere::shader = nullptr;
+
 int GLCPoint::next_id = 0;
 //int GLCPointset::wwidth = 0; // useful for fixed size text tag
 
@@ -304,6 +308,8 @@ const int CPointset::getNbSphereSections() const {
   return m_nb_sphere_sections;
 }
 json CPointset::toJson() {
+  CPointsetSphere default_set("default");
+
   json cpoint_data = json::array();
   for (auto cpoint_pair : m_cpoints) {
     GLCPoint *cpoint = cpoint_pair.second;
@@ -311,17 +317,30 @@ json CPointset::toJson() {
                            {"size",   cpoint->getSize()}});
   }
   json cpointset_json = {{"name",               m_name},
-                         {"shape",               shapeToStr[m_shape]},
+                         {"shape",              shapeToStr[m_shape]},
                          {"is_visible",         m_is_visible},
-                         {"color",              m_color},
-                         {"fill_ratio",         m_fill_ratio},
-                         {"name_size_factor",   m_name_size_factor},
-                         {"name_offset",        m_name_offset},
-                         {"nb_sphere_sections", m_nb_sphere_sections},
-                         {"name_angle",         m_name_angle},
-                         {"is_name_visible",    m_is_name_visible},
-                         {"is_filled",          m_is_filled},
-                         {"data",               cpoint_data}}; //show name
+                         {"data", cpoint_data}}; //show name
+
+  // serialize only if different than default value
+
+  if(m_color != default_set.getColor())
+    cpointset_json["color"] = m_color;
+  if(m_color != default_set.getColor())
+    cpointset_json["color"] = m_color;
+  if(m_fill_ratio != default_set.getFillratio())
+    cpointset_json["fill_ratio"] = m_fill_ratio;
+  if(m_name_size_factor != default_set.getNameSizeFactor())
+    cpointset_json["name_size_factor"] = m_name_size_factor;
+  if(m_name_offset != default_set.getNameOffset())
+    cpointset_json["name_offset"] = m_name_offset;
+  if(m_nb_sphere_sections != default_set.getNbSphereSections())
+    cpointset_json["nb_sphere_sections"] = m_nb_sphere_sections;
+  if(m_name_angle != default_set.getNameAngle())
+    cpointset_json["name_angle"] = m_name_angle;
+  if(m_is_name_visible != default_set.isNameVisible())
+    cpointset_json["is_name_visible"] = m_is_name_visible;
+  if(m_is_filled != default_set.isFilled())
+    cpointset_json["is_filled"] = m_is_filled;
 
   return cpointset_json;
 }
@@ -349,26 +368,28 @@ void CPointset::fromJson(json j) {
 }
 
 /******* GLCPointDisk ********/
-CPointsetDisk::CPointsetDisk(CShader *shader, std::string name)
-        : CPointsetRegularPolygon(shader, name) {
+CPointsetDisk::CPointsetDisk(std::string name)
+        : CPointsetRegularPolygon(name) {
   m_nb_vertices = 100;
   m_shape = CPointsetShapes::disk;
 }
-CPointsetDisk::CPointsetDisk(CShader *shader, const CPointset &other) : CPointsetRegularPolygon(shader, other) {
+CPointsetDisk::CPointsetDisk(const CPointset &other) : CPointsetRegularPolygon(other) {
   m_nb_vertices = 100;
   m_shape = CPointsetShapes::disk;
 }
 
-CPointsetRegularPolygon::CPointsetRegularPolygon(CShader *shader, std::string name) : CPointset(shader,
-                                                                                                name) {
+CPointsetRegularPolygon::CPointsetRegularPolygon(std::string name) : CPointset(shader, name) {
 }
+
+CPointsetRegularPolygon::CPointsetRegularPolygon(const CPointset &other) : CPointset(shader, other) {
+}
+
 void CPointsetRegularPolygon::sendUniforms() {
    CPointset::sendUniforms();
 
   m_shader->sendUniformi("is_filled", m_is_filled);
   m_shader->sendUniformf("fill_ratio", m_fill_ratio);
 }
-
 void CPointsetRegularPolygon::display() {
   m_shader->start();
   glBindVertexArray(m_vao);
@@ -384,27 +405,24 @@ void CPointsetRegularPolygon::display() {
   glBindVertexArray(0);
   m_shader->stop();
 }
-CPointsetRegularPolygon::CPointsetRegularPolygon(CShader *shader, const CPointset &other) : CPointset(shader, other) {
-
-}
 
 /******* GLCPointSquare ********/
-CPointsetSquare::CPointsetSquare(CShader *shader, std::string name)
-        : CPointsetRegularPolygon(shader, name) {
+CPointsetSquare::CPointsetSquare(std::string name)
+        : CPointsetRegularPolygon(name) {
   m_nb_vertices = 4;
   m_shape = CPointsetShapes::square;
 }
-CPointsetSquare::CPointsetSquare(CShader *shader, const CPointset &other) : CPointsetRegularPolygon(shader, other) {
+CPointsetSquare::CPointsetSquare(const CPointset &other) : CPointsetRegularPolygon(other) {
   m_nb_vertices = 4;
   m_shape = CPointsetShapes::square;
 }
 
 /******* GLCPointTag ********/
-CPointsetTag::CPointsetTag(CShader *shader, std::string name) : CPointset(shader, name) {
+CPointsetTag::CPointsetTag(std::string name) : CPointset(shader, name) {
   m_shape = CPointsetShapes::tag;
 }
 
-CPointsetTag::CPointsetTag(CShader *shader, const CPointset &other) : CPointset(shader, other) {
+CPointsetTag::CPointsetTag(const CPointset &other) : CPointset(shader, other) {
   m_shape = CPointsetShapes::tag;
 }
 
@@ -432,12 +450,11 @@ void CPointsetTag::sendUniforms() {
 }
 
 /******* GLCPointSphere ********/
-CPointsetSphere::CPointsetSphere(CShader *shader, std::string name) : CPointset(shader, name) {
+CPointsetSphere::CPointsetSphere(std::string name) : CPointset(shader, name) {
   m_shape = CPointsetShapes::sphere;
-
 }
 
-CPointsetSphere::CPointsetSphere(CShader *shader, const CPointset &other) : CPointset(shader, other) {
+CPointsetSphere::CPointsetSphere(const CPointset &other) :CPointset(shader, other) {
   m_shape = CPointsetShapes::sphere;
 }
 
@@ -558,29 +575,29 @@ void CPointsetManager::initShaders() {
   text_renderer->init();
   CPointset::text_renderer = text_renderer;
 
-  m_regular_polygon_shader = new CShader(
+  CPointsetRegularPolygon::shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/regular_polygon.vert",
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
-  if (!m_regular_polygon_shader->init()) {
-    delete m_regular_polygon_shader;
+  if (!CPointsetRegularPolygon::shader->init()) {
+    delete CPointsetRegularPolygon::shader;
     std::cerr << "Failed to initialize regular_polygon shader\n";
     exit(1);
   }
 
-  m_tag_shader = new CShader(
+  CPointsetTag::shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/tag_shape.vert",
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
-  if (!m_tag_shader->init()) {
-    delete m_tag_shader;
+  if (!CPointsetTag::shader->init()) {
+    delete CPointsetTag::shader;
     std::cerr << "Failed to initialize tag shape shader\n";
     exit(1);
   }
 
-  m_sphere_shader = new CShader(
+  CPointsetSphere::shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/sphere.vert",
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
-  if (!m_sphere_shader->init()) {
-    delete m_sphere_shader;
+  if (!CPointsetSphere::shader->init()) {
+    delete CPointsetSphere::shader;
     std::cerr << "Failed to initialize sphere shader\n";
     exit(1);
   }
@@ -598,7 +615,7 @@ void CPointsetManager::displayAll() {
 }
 
 CPointset *CPointsetManager::createNewCPointset() {
-  CPointsetDisk *pointset = new CPointsetDisk(m_regular_polygon_shader, defaultName());
+  CPointsetDisk *pointset = new CPointsetDisk(defaultName());
   m_pointsets[defaultName()] = pointset;
   m_nb_sets++;
   return pointset;
@@ -634,13 +651,13 @@ void CPointsetManager::saveToFile(std::string file_path) {
 
 CPointset *CPointsetManager::newPointset(std::string str_shape, std::string name) {
   if (str_shape == "disk") {
-    return new CPointsetDisk(m_regular_polygon_shader, name);
+    return new CPointsetDisk(name);
   } else if (str_shape == "square") {
-    return new CPointsetSquare(m_regular_polygon_shader, name);
+    return new CPointsetSquare(name);
   } else if (str_shape == "tag") {
-    return new CPointsetTag(m_tag_shader, name);
+    return new CPointsetTag(name);
   } else if (str_shape == "sphere") {
-    return new CPointsetSphere(m_sphere_shader, name);
+    return new CPointsetSphere(name);
   } else {
     std::cerr << "Unrecognized shape : " + str_shape;
     return nullptr;
@@ -649,13 +666,13 @@ CPointset *CPointsetManager::newPointset(std::string str_shape, std::string name
 
 CPointset *CPointsetManager::newPointset(std::string str_shape, const CPointset& other) {
   if (str_shape == "disk") {
-    return new CPointsetDisk(m_regular_polygon_shader, other);
+    return new CPointsetDisk(other);
   } else if (str_shape == "square") {
-    return new CPointsetSquare(m_regular_polygon_shader, other);
+    return new CPointsetSquare(other);
   } else if (str_shape == "tag") {
-    return new CPointsetTag(m_tag_shader, other);
+    return new CPointsetTag(other);
   } else if (str_shape == "sphere") {
-    return new CPointsetSphere(m_sphere_shader, other);
+    return new CPointsetSphere(other);
   } else {
     std::cerr << "Unrecognized shape : " + str_shape;
     return nullptr;
