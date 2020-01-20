@@ -72,7 +72,8 @@ void CPointset::sendUniforms() {
 }
 
 CPointset::CPointset(CShader *shader, std::string name) :
-        m_shader(shader), m_name(name), m_color{1, 1, 1} {
+        m_shader(shader), m_name(name) {
+  m_color = {0.2, 0.5, 0.8};
   m_is_visible = true;
   m_is_filled = false;
   m_is_name_visible = false;
@@ -314,7 +315,8 @@ json CPointset::toJson() {
   for (auto cpoint_pair : m_cpoints) {
     GLCPoint *cpoint = cpoint_pair.second;
     cpoint_data.push_back({{"coords", cpoint->getCoords()},
-                           {"size",   cpoint->getSize()}});
+                           {"size",   cpoint->getSize()},
+                           {"name", cpoint->getName()}});
   }
   json cpointset_json = {{"name",               m_name},
                          {"shape",              shapeToStr[m_shape]},
@@ -362,7 +364,7 @@ void CPointset::fromJson(json j) {
     cpoint_data_v.resize(data.size());
     for (std::size_t i = 0; i < data.size(); ++i) {
       cpoint_data_v[i] = {data[i]["coords"], data[i]["size"],
-                          data[i].value("text", std::string())}; // TODO change radius to size
+                          data[i].value("name", std::string())};
     }
     addPoints(cpoint_data_v);
 }
