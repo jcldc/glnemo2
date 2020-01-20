@@ -143,9 +143,9 @@ void copy_item_cvt(stream ostr, stream istr, string tag, string *cvt)
         else if (streq(type,DoubleType)) {
             if (streq(cp,"d2f")) {		/* convert double to float */
                 dprintf(1,"Converting %s in %s\n",cp,tag);
-                ipt = makeitem(FloatType,tag,NULL,dims);    /* silly */
+                ipt = makeitem(FloatTypeNemo, tag, NULL, dims);    /* silly */
                 convert_d2f(eltcnt(ipt,0),(double*)bufin,(float*)bufin);
-	        put_data_sub(ostr, tag, FloatType, bufin,  dims, FALSE); 
+	        put_data_sub(ostr, tag, FloatTypeNemo, bufin, dims, FALSE);
                 freeitem(ipt,FALSE);
 	    } else if (streq(cp,"d2h")) {
                 dprintf(1,"Converting %s in %s\n",cp,tag);
@@ -157,7 +157,7 @@ void copy_item_cvt(stream ostr, stream istr, string tag, string *cvt)
             	warning("Cannot convert %s yet in %s",cp,tag);
 	        put_data_sub(ostr, tag, type, bufin,  dims, FALSE); 
 	    }
-	} else if (streq(type,FloatType)) {
+	} else if (streq(type, FloatTypeNemo)) {
             if (streq(cp,"f2d")) {		/* convert float to double */
                 dprintf(1,"Converting %s in %s\n",cp,tag);
                 ipt = makeitem(DoubleType,tag,NULL,dims);    /* silly */
@@ -193,12 +193,12 @@ void copy_item_cvt(stream ostr, stream istr, string tag, string *cvt)
                 freeitem(ipt,0);
 	    } else if (streq(cp,"h2f")) {
                 dprintf(1,"Converting %s in %s\n",cp,tag);
-                ipt = makeitem(FloatType,tag,NULL,dims);    /* silly */
+                ipt = makeitem(FloatTypeNemo, tag, NULL, dims);    /* silly */
                 bufout = (byte *) allocate(datlen(ipt,0));
                 if (bufout == NULL)
                	    error("copy_item_cvt: item %s: (h2f) not enuf memory", tag);
                 convert_h2f(eltcnt(ipt,0),(halfp*)bufin,(float*)bufout);
-	        put_data_sub(ostr, tag, FloatType, bufout,  dims, FALSE); 
+	        put_data_sub(ostr, tag, FloatTypeNemo, bufout, dims, FALSE);
                 freeitem(ipt,0);
             } else {
             	warning("Cannot convert %s yet in %s",cp,tag);
@@ -285,7 +285,7 @@ void put_tes(stream str, string tag)
 
 void put_string(stream str, string tag, string dat)
 {
-    put_data(str, tag, CharType, dat, xstrlen(dat, 1), 0);
+    put_data(str, tag, CharTypeNemo, dat, xstrlen(dat, 1), 0);
 }
 
 /*
@@ -717,7 +717,7 @@ string get_string(
     if (ipt == NULL)				/* check input succeeded    */
 	error("get_string: at EOF");
     dp = ItemDim(ipt);				/* get list of dimensions   */
-    if (! streq(ItemTyp(ipt), CharType) ||	/* check type of item       */
+    if (! streq(ItemTyp(ipt), CharTypeNemo) ||	/* check type of item       */
 	  dp == NULL || *dp++ == 0 || *dp != 0)	/* and shape of data        */
 	error("get_string: item %s: not plural char", tag);
     dlen = datlen(ipt,0);
@@ -1194,9 +1194,9 @@ local copyproc copyfun(string srctyp, string destyp)
 {
     if (streq(srctyp, destyp))
 	return copydata;
-    if (streq(srctyp, FloatType) && streq(destyp, DoubleType))
+    if (streq(srctyp, FloatTypeNemo) && streq(destyp, DoubleType))
 	return (copyproc) copydata_f2d;
-    if (streq(srctyp, DoubleType) && streq(destyp, FloatType))
+    if (streq(srctyp, DoubleType) && streq(destyp, FloatTypeNemo))
 	return (copyproc) copydata_d2f;
     return NULL;
 } /* copyfun */
@@ -1411,18 +1411,18 @@ local void freeitem(
  */
 
 local typlen tl_tab[] = {
-    { AnyType,	  sizeof(byte),   },
-    { CharType,	  sizeof(char),   },
-    { ByteType,	  sizeof(byte),   },
-    { ShortType,  sizeof(short),  },
-    { IntType,	  sizeof(int),    },
-    { LongType,	  sizeof(long),   },
-    { HalfpType,  sizeof(short),  },
-    { FloatType,  sizeof(float),  },
-    { DoubleType, sizeof(double), },
-    { SetType,    0,              },
-    { TesType,	  0,              },
-    { NULL,	  0,              },
+    {AnyType,       sizeof(byte),   },
+    {CharTypeNemo,  sizeof(char),   },
+    {ByteType,      sizeof(byte),   },
+    {ShortType,     sizeof(short),  },
+    {IntType,       sizeof(int),    },
+    {LongType,      sizeof(long),   },
+    {HalfpType,     sizeof(short),  },
+    {FloatTypeNemo, sizeof(float),  },
+    {DoubleType,    sizeof(double), },
+    {SetType,    0,              },
+    {TesType,	  0,              },
+    {NULL,	  0,              },
 };
 
 local int baselen(string typ)
@@ -1448,7 +1448,7 @@ local string findtype(string *a, string type)
         cp = a[i];
         if (streq(type,DoubleType) && *cp=='d')
             return cp;
-        else if (streq(type,FloatType) && *cp=='f')
+        else if (streq(type, FloatTypeNemo) && *cp == 'f')
             return cp;
         else if (streq(type,HalfpType) && *cp=='h')
             return cp;
