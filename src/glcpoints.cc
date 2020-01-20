@@ -604,13 +604,19 @@ void CPointsetManager::initShaders() {
 }
 
 void CPointsetManager::displayAll() {
+  glDisable(GL_BLEND);
+  glEnable(GL_DEPTH_TEST);
   for (auto cpointset_pair: m_pointsets) {
     CPointset *cpointset = cpointset_pair.second;
-    if(cpointset->ready() && cpointset->isVisible()){
+    if (cpointset->ready() && cpointset->isVisible()) {
       cpointset->display();
-      if(cpointset->isNameVisible())
-        cpointset->displayText();
     }
+  }
+  glDisable(GL_DEPTH_TEST);
+  for (auto cpointset_pair: m_pointsets) {
+    CPointset *cpointset = cpointset_pair.second;
+    if (cpointset->isNameVisible())
+      cpointset->displayText();
   }
 }
 
