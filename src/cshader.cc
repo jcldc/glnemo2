@@ -63,7 +63,7 @@ void CShader::sendUniformXfv(const char * s,const int _dim, const int _count, co
   GLint loc = glGetUniformLocation(m_program, s);
   if (loc == -1) {
     std::cerr << "Error occured when sending \""<<s<<"\" to shader..\n";
-    exit(1);
+//    exit(1);
   }
   switch (_dim) {
   case 1: glUniform1fv(loc,_count,_v); break;// 
@@ -83,7 +83,7 @@ void CShader::sendUniformf(const char * s,const float _v)
   GLint loc = glGetUniformLocation(m_program, s);
   if (loc == -1) {
     std::cerr << "CShader::sendUniformf Error occured when sending \""<<s<<"\" to shader..\n";
-    exit(1);
+//    exit(1);
   }
   glUniform1f(loc, _v);  
 }
@@ -94,7 +94,7 @@ void CShader::sendUniformi(const char * s,const int _v)
   GLint loc = glGetUniformLocation(m_program, s);
   if (loc == -1) {
     std::cerr << "CShader::sendUniformi Error occured when sending \""<<s<<"\" to shader..\n";
-    exit(1);
+//    exit(1);
   }
   glUniform1i(loc, _v);  
 }

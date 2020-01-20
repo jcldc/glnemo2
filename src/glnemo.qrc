@@ -2,7 +2,8 @@
     <qresource prefix="/">
         <file>../res/fonts/Helvetica.txf</file>
         <file>../res/fonts/AvantGarde-Demi.txf</file>
-        <file>../res/fonts/DejaVuSansMono.ttf</file>
+        <file>../res/fonts/dejavu_sans_mono_typeface.json</file>
+        <file>../res/fonts/dejavu_sans_mono_typeface.png</file>
         <file>../res/colormaps/LOCS.256</file>
         <file>../res/colormaps/RB.256</file>
         <file>../res/colormaps/HO.256</file>
@@ -78,8 +79,8 @@
         <file>../res/shaders/cpoints/characteristic.frag</file>
         <file>../res/shaders/cpoints/regular_polygon.vert</file>
         <file>../res/shaders/cpoints/tag_shape.vert</file>
-        <file>../res/shaders/cpoints/tag_text.vert</file>
-        <file>../res/shaders/cpoints/tag_text.frag</file>
+        <file>../res/shaders/cpoints/text.vert</file>
+        <file>../res/shaders/cpoints/text.frag</file>
         <file>../res/shaders/cpoints/sphere.vert</file>
         <file>../res/camera/path_02</file>
         <file>../res/camera/path_03</file>

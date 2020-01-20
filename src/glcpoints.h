@@ -12,9 +12,7 @@
 #include <map>
 #include <set>
 #include <array>
-#include <ft2build.h>
 #include <glm/glm.hpp>
-#include FT_FREETYPE_H
 
 using json = nlohmann::json;
 
@@ -24,10 +22,10 @@ namespace glnemo {
 class CPointTextRenderer;
 
 struct Character {
-  GLuint TextureID;  // ID handle of the glyph texture
+  glm::vec<4, glm::vec2> TexCoords;  // normalized character position in texture, order : bottom left, top left, top right, bottom right
   glm::ivec2 Size;       // Size of glyph
   glm::ivec2 Bearing;    // Offset from baseline to left/top of glyph
-  GLuint Advance;    // Offset to advance to next glyph
+  int     Advance;    // Offset to advance to next glyph
 };
 
 enum CPointsetShapes {
@@ -252,8 +250,9 @@ private:
   CShader *m_text_shader;
   GLuint m_text_vbo;
   GLuint m_text_vao;
+  GLuint m_texture;
 
-  std::map<GLchar, Character> Characters;
+  std::map<int, Character> characters;
 };
 } // namespace glnemo
 #endif // GLNEMO2_GLCPOINTS_H

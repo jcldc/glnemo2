@@ -355,6 +355,7 @@ void GLWindow::initLight()
 long int CPT=0;
 void GLWindow::paintGL()
 {
+    auto t1 = std::chrono::high_resolution_clock::now();
   CPT++; 
   //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
   //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
@@ -596,6 +597,11 @@ void GLWindow::paintGL()
   nframe++; // count frames
   //glDrawPixels(gldata.width(), gldata.height(), GL_RGBA, GL_UNSIGNED_BYTE, gldata.bits());
   emit doneRendering();
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+
+//    std::cout << ((float)duration)/1000 << "\n";
 }
 // ============================================================================
 void GLWindow::initShader()
