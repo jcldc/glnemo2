@@ -567,13 +567,13 @@ CPointsetManager::~CPointsetManager() {
       delete cpoint_pair.second;
     delete cpointset_pair.second;
   }
+  delete CPointset::text_renderer;
 }
 
 void CPointsetManager::initShaders() {
 
-  auto text_renderer = new CPointTextRenderer();
-  text_renderer->init();
-  CPointset::text_renderer = text_renderer;
+  CPointset::text_renderer = new CPointTextRenderer();
+  CPointset::text_renderer->init();
 
   CPointsetRegularPolygon::shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/regular_polygon.vert",
