@@ -87,7 +87,6 @@ find_package(Qt5Gui)
 FIND_PACKAGE(HDF5 COMPONENTS CXX REQUIRED)
 # find OpenGL package
 find_package(OpenGL REQUIRED)
-find_package(Freetype REQUIRED)
 
 # contains the full path to the top level directory of your build tree 
 MESSAGE( STATUS "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
@@ -157,7 +156,6 @@ include_directories (${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5Ope
 include_directories(/usr/include/CCfits /opt/local/include /opt/local/include/CCfits  /usr/include/cfitsio /usr/local/include/CCfits)
 include_directories(/usr/include/tirpc)
 include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 ${HDF5_INCLUDE_DIRS})
-include_directories(${FREETYPE_INCLUDE_DIRS})
 
 if (APPLE)
   include_directories(/usr/include/malloc /usr/X11/include)
@@ -229,7 +227,7 @@ if (EXISTS "/usr/lib64/libtirpc.so")
 else()
    set (TIRPC "")
 endif()
-target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${TIRPC}  ${HDF5_CXX_LIBRARIES} ${FREETYPE_LIBRARIES} )
+target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${TIRPC}  ${HDF5_CXX_LIBRARIES} )
 
 qt5_use_modules(glnemo2 Gui Widgets Core OpenGL Network PrintSupport)
 
