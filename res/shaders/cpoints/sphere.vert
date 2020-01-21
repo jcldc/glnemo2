@@ -5,14 +5,20 @@ uniform mat4 modelviewMatrix; // TODO change name
 uniform mat4 projMatrix;
 uniform bool is_filled;
 uniform int subdivisions;
+uniform bool second_pass;
+uniform ivec2 screen_dims;
 
 in vec3 point_center;
 in float radius;
+in float is_selected;
+
+flat out float selected;
 
 float PI = 3.14159265359;
 
 void main()
 {
+    selected = is_selected;
     vec3 spherePos;
     int i,j;
     float x_angle, y_angle;
@@ -47,5 +53,16 @@ void main()
     }
 
     vec3 vertex_pos = point_center+spherePos;
-    gl_Position = projMatrix * modelviewMatrix*vec4(vertex_pos,1);
+    vec4 vpos = projMatrix * modelviewMatrix*vec4(vertex_pos,1);
+
+
+    if (second_pass){
+        float outline_width = 5; //px
+        vec2 normal = normalize((projMatrix*modelviewMatrix*vec4(spherePos, 1)).xy);
+        vec2 offset = normal / screen_dims * outline_width * vpos.w;
+
+        vpos.xy += offset;
+    }
+
+    gl_Position = vpos;
 }

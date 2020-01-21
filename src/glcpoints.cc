@@ -20,7 +20,8 @@ CShader *CPointsetTag::shader = nullptr;
 CShader *CPointsetSphere::shader = nullptr;
 
 int GLCPoint::next_id = 0;
-//int GLCPointset::wwidth = 0; // useful for fixed size text tag
+int CPointset::wheight = 0;
+int CPointset::wwidth = 0;
 
 /******* GLCPoint ********/
 
@@ -28,6 +29,7 @@ GLCPoint::GLCPoint(std::array<float, 3> coords, float size, std::string text)
         : m_coords(coords), m_size(size) {
   m_id = next_id;
   next_id++;
+  m_is_selected = false;
 
   if (text == "")
     m_name = "CPoint " + std::to_string(m_id);
@@ -48,6 +50,9 @@ const std::string &GLCPoint::getName() const {
 const int &GLCPoint::getId() const {
   return m_id;
 }
+const bool GLCPoint::isSelected() const {
+  return m_is_selected;
+}
 void GLCPoint::setCoords(std::array<float, 3> coords) {
   m_coords = coords;
 }
@@ -56,6 +61,9 @@ void GLCPoint::setSize(float size) {
 }
 void GLCPoint::setName(std::string name) {
   m_name = name;
+}
+void GLCPoint::setSelected(bool selected) {
+  m_is_selected = selected;
 }
 
 
@@ -71,6 +79,7 @@ void CPointset::sendUniforms() {
   m_shader->sendUniformXfv("projMatrix", 16, 1, &proj[0]);
   m_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
   m_shader->sendUniformXfv("color", 3, 1, m_color.data());
+  m_shader->sendUniformXiv("screen_dims", 2, 1, std::array<int, 2>({wwidth, wheight}).data());
 }
 
 CPointset::CPointset(CShader *shader, std::string name) :
@@ -154,6 +163,7 @@ void CPointset::setThreshold(int threshold) {
 void CPointset::setAttributes() {
   GLuint point_center_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "point_center");
   GLuint radius_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "radius");
+  GLuint is_selected_attrib = glGetAttribLocation(m_shader->getProgramId(), "is_selected");
   if (point_center_disk_attrib == -1) {
     std::cerr << "Error occured when getting \"point_center\" attribute\n";
     exit(1);
@@ -162,14 +172,22 @@ void CPointset::setAttributes() {
     std::cerr << "Error occured when getting \"radius\" attribute\n";
     exit(1);
   }
+  if (is_selected_attrib == -1) {
+    std::cerr << "Error occured when getting \"is_selected\" attribute\n";
+    exit(1);
+  }
   glEnableVertexAttribArrayARB(point_center_disk_attrib);
-  glVertexAttribPointerARB(point_center_disk_attrib, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
+  glVertexAttribPointerARB(point_center_disk_attrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
   glVertexBindingDivisor(point_center_disk_attrib, 1);
 
   glEnableVertexAttribArrayARB(radius_disk_attrib);
-  glVertexAttribPointerARB(radius_disk_attrib, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
+  glVertexAttribPointerARB(radius_disk_attrib, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                            (void *) (3 * sizeof(float)));
   glVertexBindingDivisor(radius_disk_attrib, 1);
+
+  glEnableVertexAttribArrayARB(is_selected_attrib);
+  glVertexAttribPointerARB(is_selected_attrib, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (4 * sizeof(float)));
+  glVertexBindingDivisor(is_selected_attrib, 1);
 }
 
 void CPointset::genVboData() {
@@ -191,6 +209,7 @@ void CPointset::genVboData() {
     data.push_back(point->getCoords()[1]);
     data.push_back(point->getCoords()[2]);
     data.push_back(point->getSize());
+    data.push_back(point->isSelected());
   }
   // SEND DATA
   glBindVertexArray(m_vao);
@@ -371,6 +390,16 @@ void CPointset::fromJson(json j) {
     addPoints(cpoint_data_v);
 }
 
+void CPointset::setSelected(bool selected) {
+  for(auto cpoint_pair: m_cpoints)
+    cpoint_pair.second->setSelected(selected);
+  genVboData();
+}
+void CPointset::setCPointSelected(int id, bool selected) {
+  m_cpoints.at(id)->setSelected(selected);
+  genVboData();
+}
+
 /******* GLCPointDisk ********/
 CPointsetDisk::CPointsetDisk(std::string name)
         : CPointsetRegularPolygon(name) {
@@ -395,9 +424,27 @@ void CPointsetRegularPolygon::sendUniforms() {
   m_shader->sendUniformf("fill_ratio", m_fill_ratio);
 }
 void CPointsetRegularPolygon::display() {
+  int nb_objects = m_cpoints.size() * m_threshold / 100;
+
+
   m_shader->start();
   glBindVertexArray(m_vao);
-  int nb_objects = m_cpoints.size() * m_threshold / 100;
+  sendUniforms();
+  m_shader->sendUniformi("second_pass",false);
+  if (m_is_filled) {
+    m_shader->sendUniformi("nb_vertices", m_nb_vertices);
+    glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, m_nb_vertices, nb_objects);
+  } else {
+    m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
+    glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
+  }
+  glBindVertexArray(0);
+  m_shader->stop();
+
+
+  m_shader->start();
+  glBindVertexArray(m_vao);
+  m_shader->sendUniformi("second_pass",true);
   sendUniforms();
   if (m_is_filled) {
     m_shader->sendUniformi("nb_vertices", m_nb_vertices);
@@ -408,6 +455,7 @@ void CPointsetRegularPolygon::display() {
   }
   glBindVertexArray(0);
   m_shader->stop();
+
 }
 
 /******* GLCPointSquare ********/
@@ -484,22 +532,29 @@ CPointsetSphere::CPointsetSphere(const CPointset &other) : CPointset(shader, oth
 //}
 
 void CPointsetSphere::display() {
+
+  int nb_objects = m_cpoints.size() * m_threshold / 100;
+  int nb_vertex_per_sphere = m_nb_sphere_sections * m_nb_sphere_sections + m_nb_sphere_sections;
+
   m_shader->start();
   glBindVertexArray(m_vao);
-  int nb_objects = m_cpoints.size() * m_threshold / 100;
-
   sendUniforms();
+  m_shader->sendUniformi("second_pass",false);
   m_shader->sendUniformi("subdivisions", m_nb_sphere_sections);
-
-//    glEnable(GL_LINE_SMOOTH);
-//    glEnable(GL_POLYGON_SMOOTH);
-//    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-//    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-//    glLineWidth (1.0);
-  int nb_vertex_per_sphere = m_nb_sphere_sections * m_nb_sphere_sections + m_nb_sphere_sections;
   glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, nb_objects);
   glBindVertexArray(0);
   m_shader->stop();
+
+  m_shader->start();
+  glBindVertexArray(m_vao);
+  sendUniforms();
+  m_shader->sendUniformi("second_pass",true);
+  m_shader->sendUniformi("subdivisions", m_nb_sphere_sections);
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, nb_objects);
+  glBindVertexArray(0);
+  m_shader->stop();
+  
+
 }
 void CPointsetSphere::sendUniforms() {
   CPointset::sendUniforms();
@@ -645,8 +700,9 @@ CPointset *CPointsetManager::changePointsetShape(CPointset *pointset, std::strin
   return nullptr;
 }
 
-void CPointsetManager::setW(int w) {
-//  GLCPointset::wwidth = w;
+void CPointsetManager::setScreenDim(int wwidth, int wheight) {
+  CPointset::wwidth = wwidth;
+  CPointset::wheight = wheight;
 }
 
 void CPointsetManager::saveToFile(std::string file_path) {
@@ -700,6 +756,10 @@ void CPointsetManager::setPointsetName(std::string old_name, std::string new_nam
 }
 void CPointsetManager::deleteCPoint(std::string pointset_name, int cpoint_id) {
   m_pointsets.at(pointset_name)->deletePoint(cpoint_id);
+}
+void CPointsetManager::unselectAll() {
+  for(auto cpointset_pair: m_pointsets)
+    cpointset_pair.second->setSelected(false);
 }
 
 void CPointTextRenderer::init() {

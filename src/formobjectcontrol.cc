@@ -1502,6 +1502,7 @@ void FormObjectControl::on_cpoints_display_cbx_stateChanged(int state) {
 // ============================================================================
 //
 void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
+  pointset_manager->unselectAll();
   QList<QTreeWidgetItem *> items = form.cpoints_set_treewidget->selectedItems();
 
   if (items.size() == 0) {
@@ -1529,6 +1530,8 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
         form.cpoints_threshold_slider->setValue(pointset->getThreshold());
         form.color_picker_button->setStyleSheet("background-color:" + pointset->getQColor().name());
         form.edit_cpointset_name->setText(QString::fromStdString(pointset->getName()));
+        
+        pointset->setSelected(true);
       }
     } else { // else a cpoint is selected
 
@@ -1537,22 +1540,33 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
       form.edit_cpointset_parent_box->setEnabled(true);
       form.edit_cpointset_box->setEnabled(true);
       int cpoint_id = item->text(1).toInt();
-      GLCPoint *cpoint = getPointsetFromItem(item->parent())->getCPoints().at(cpoint_id);
+      CPointset *pointset = getPointsetFromItem(item->parent());
+      GLCPoint *cpoint = pointset->getCPoints().at(cpoint_id);
       form.edit_cpoint_coords_x->setValue(cpoint->getCoords()[0]);
       form.edit_cpoint_coords_y->setValue(cpoint->getCoords()[1]);
       form.edit_cpoint_coords_z->setValue(cpoint->getCoords()[2]);
       form.edit_cpoint_size->setValue(cpoint->getSize());
       form.edit_cpoint_name->setText(QString::fromStdString(cpoint->getName()));
+      pointset->setCPointSelected(cpoint_id, true);
     }
   } else { // multiple items selected
     bool cpoints = false,
             cpointsets = false;
 
     for (auto item : items) {
-      if (!item->parent())
+      if (!item->parent()){
         cpointsets = true;
-      else
+
+        auto cpointset = getPointsetFromItem(item);
+        cpointset->setSelected(true);
+      }
+      else{
         cpoints = true;
+
+        auto cpointset = getPointsetFromItem(item->parent());
+        int cpoint_id = item->text(1).toInt();
+        cpointset->setCPointSelected(cpoint_id, true);
+      }
     }
 
     if (cpointsets && !cpoints) { // only cpointsets
@@ -1568,6 +1582,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
       form.edit_cpoint_parent_box->setEnabled(false);
     }
   }
+  emit objectSettingsChanged();
 }
 // ============================================================================
 //

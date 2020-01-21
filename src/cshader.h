@@ -26,6 +26,7 @@ public:
   void sendUniformf(const char *,const float v1);
   void sendUniformi(const char *,const int   v1);  
   void sendUniformXfv(const char *,const int _dim, const int _count, const float * _v);
+  void sendUniformXiv(const char * s,const int _dim, const int _count, const int * _v);
   GLhandleARB getProgramId() {
     return m_program;
   }

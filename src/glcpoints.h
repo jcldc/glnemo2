@@ -42,6 +42,7 @@ public:
   const float &getSize() const;
   const std::string &getName() const;
   const int &getId() const;
+  const bool isSelected() const;
 
   inline bool operator<(const GLCPoint &other) const { return m_size > other.getSize(); }
   inline bool operator>(const GLCPoint &other) const { return *this < other; }
@@ -52,11 +53,13 @@ private:
   void setSize(float size);
   void setCoords(std::array<float, 3>);
   void setName(std::string name);
+  void setSelected(bool selected);
 
   std::array<float, 3> m_coords;
   float m_size;
   std::string m_name;
   int m_id;
+  bool m_is_selected;
 
   static int next_id;
 
@@ -86,6 +89,8 @@ public:
   GLCPoint *addPoint(std::array<float, 3> coords, float size, std::string text);
   void addPoints(std::vector<GLCPointData>);
   void deletePoint(int id);
+  void setSelected(bool selected);
+  void setCPointSelected(int id, bool selected);
 
   json toJson();
   void fromJson(json j);
@@ -127,6 +132,7 @@ public:
   void setCpointText(int id, std::string text);
 
   static int wwidth;
+  static int wheight;
 
   static std::map<CPointsetShapes, std::string> shapeToStr;
   static std::map<std::string, CPointsetShapes> strToShape;
@@ -210,7 +216,8 @@ public:
   void deleteCPointset(std::string pointset_name);
   void deleteCPoint(std::string pointset_name, int cpoint_id);
   CPointset * changePointsetShape(CPointset *pointset, std::string new_shape);
-  static void setW(int w);
+  static void setScreenDim(int wwidth, int wheight);
+  void unselectAll();
 
   typedef typename std::map<std::string, CPointset *> map_type;
   typedef typename map_type::iterator iterator;
