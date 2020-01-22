@@ -62,8 +62,11 @@ void GLCPoint::setSize(float size) {
 void GLCPoint::setName(std::string name) {
   m_name = name;
 }
-void GLCPoint::setSelected(bool selected) {
-  m_is_selected = selected;
+void GLCPoint::select() {
+  m_is_selected = true;
+}
+void GLCPoint::unselect() {
+  m_is_selected = false;
 }
 
 
@@ -94,9 +97,12 @@ CPointset::CPointset(CShader *shader, std::string name) :
   m_name_offset = 1;
   m_name_size_factor = 1;
   m_nb_sphere_sections = 12;
+  m_nb_selected = 0;
   // SHADER INIT
   glGenBuffersARB(1, &m_vbo);
+  glGenBuffersARB(1, &m_selected_vbo);
   glGenVertexArrays(1, &m_vao);
+  glGenVertexArrays(1, &m_selected_vao);
 
 }
 
@@ -114,9 +120,12 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
   m_name_size_factor = other.m_name_size_factor;
   m_shape = other.m_shape;
   m_nb_sphere_sections = other.m_nb_sphere_sections;
+  m_nb_selected = other.m_nb_selected;
   // SHADER INIT
   glGenBuffersARB(1, &m_vbo);
+  glGenBuffersARB(1, &m_selected_vbo);
   glGenVertexArrays(1, &m_vao);
+  glGenVertexArrays(1, &m_selected_vao);
   copyCPoints(other);
 }
 
@@ -163,7 +172,6 @@ void CPointset::setThreshold(int threshold) {
 void CPointset::setAttributes() {
   GLuint point_center_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "point_center");
   GLuint radius_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "radius");
-  GLuint is_selected_attrib = glGetAttribLocation(m_shader->getProgramId(), "is_selected");
   if (point_center_disk_attrib == -1) {
     std::cerr << "Error occured when getting \"point_center\" attribute\n";
     exit(1);
@@ -172,27 +180,19 @@ void CPointset::setAttributes() {
     std::cerr << "Error occured when getting \"radius\" attribute\n";
     exit(1);
   }
-  if (is_selected_attrib == -1) {
-    std::cerr << "Error occured when getting \"is_selected\" attribute\n";
-    exit(1);
-  }
   glEnableVertexAttribArrayARB(point_center_disk_attrib);
-  glVertexAttribPointerARB(point_center_disk_attrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
+  glVertexAttribPointerARB(point_center_disk_attrib, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
   glVertexBindingDivisor(point_center_disk_attrib, 1);
 
   glEnableVertexAttribArrayARB(radius_disk_attrib);
-  glVertexAttribPointerARB(radius_disk_attrib, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+  glVertexAttribPointerARB(radius_disk_attrib, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
                            (void *) (3 * sizeof(float)));
   glVertexBindingDivisor(radius_disk_attrib, 1);
-
-  glEnableVertexAttribArrayARB(is_selected_attrib);
-  glVertexAttribPointerARB(is_selected_attrib, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (4 * sizeof(float)));
-  glVertexBindingDivisor(is_selected_attrib, 1);
 }
 
 void CPointset::genVboData() {
   // DATA INIT
-  std::vector<float> data;
+  std::vector<float> data, selected_data;
   //maybe use reserve to preallocate,
   // m_data.reserve(4*m_cpoints.size());
 
@@ -209,12 +209,21 @@ void CPointset::genVboData() {
     data.push_back(point->getCoords()[1]);
     data.push_back(point->getCoords()[2]);
     data.push_back(point->getSize());
-    data.push_back(point->isSelected());
+    if (point->isSelected()) {
+      selected_data.push_back(point->getCoords()[0]);
+      selected_data.push_back(point->getCoords()[1]);
+      selected_data.push_back(point->getCoords()[2]);
+      selected_data.push_back(point->getSize());
+    }
   }
   // SEND DATA
   glBindVertexArray(m_vao);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_vbo);
   glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
+  setAttributes(); // needed only once at init ?
+  glBindVertexArray(m_selected_vao);
+  glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_selected_vbo);
+  glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * selected_data.size(), selected_data.data(), GL_STATIC_DRAW);
   setAttributes();
   glBindVertexArray(0);
 }
@@ -337,7 +346,7 @@ json CPointset::toJson() {
     GLCPoint *cpoint = cpoint_pair.second;
     cpoint_data.push_back({{"coords", cpoint->getCoords()},
                            {"size",   cpoint->getSize()},
-                           {"name", cpoint->getName()}});
+                           {"name",   cpoint->getName()}});
   }
   json cpointset_json = {{"name",       m_name},
                          {"shape",      shapeToStr[m_shape]},
@@ -380,23 +389,39 @@ void CPointset::fromJson(json j) {
   m_is_name_visible = j.value("is_name_visible", m_is_name_visible);
   m_is_filled = j.value("is_filled", m_is_filled);
 
-    std::vector<GLCPointData> cpoint_data_v;
-    auto data = j["data"];
-    cpoint_data_v.resize(data.size());
-    for (std::size_t i = 0; i < data.size(); ++i) {
-      cpoint_data_v[i] = {data[i]["coords"], data[i]["size"],
-                          data[i].value("name", std::string())};
-    }
-    addPoints(cpoint_data_v);
+  std::vector<GLCPointData> cpoint_data_v;
+  auto data = j["data"];
+  cpoint_data_v.resize(data.size());
+  for (std::size_t i = 0; i < data.size(); ++i) {
+    cpoint_data_v[i] = {data[i]["coords"], data[i]["size"],
+                        data[i].value("name", std::string())};
+  }
+  addPoints(cpoint_data_v);
 }
 
-void CPointset::setSelected(bool selected) {
-  for(auto cpoint_pair: m_cpoints)
-    cpoint_pair.second->setSelected(selected);
+void CPointset::select() {
+  for (auto cpoint_pair: m_cpoints)
+    cpoint_pair.second->select();
+  m_nb_selected = m_cpoints.size();
   genVboData();
 }
-void CPointset::setCPointSelected(int id, bool selected) {
-  m_cpoints.at(id)->setSelected(selected);
+
+void CPointset::unselect() {
+  for (auto cpoint_pair: m_cpoints)
+    cpoint_pair.second->unselect();
+  m_nb_selected = 0;
+  genVboData();
+}
+
+void CPointset::selectCPoint(int id) {
+  m_cpoints.at(id)->select();
+  m_nb_selected++;
+  genVboData();
+}
+
+void CPointset::unselectCPoint(int id) {
+  m_cpoints.at(id)->unselect();
+  m_nb_selected--;
   genVboData();
 }
 
@@ -425,12 +450,10 @@ void CPointsetRegularPolygon::sendUniforms() {
 }
 void CPointsetRegularPolygon::display() {
   int nb_objects = m_cpoints.size() * m_threshold / 100;
-
-
   m_shader->start();
   glBindVertexArray(m_vao);
   sendUniforms();
-  m_shader->sendUniformi("second_pass",false);
+  m_shader->sendUniformi("second_pass", false);
   if (m_is_filled) {
     m_shader->sendUniformi("nb_vertices", m_nb_vertices);
     glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, m_nb_vertices, nb_objects);
@@ -443,8 +466,8 @@ void CPointsetRegularPolygon::display() {
 
 
   m_shader->start();
-  glBindVertexArray(m_vao);
-  m_shader->sendUniformi("second_pass",true);
+  glBindVertexArray(m_selected_vao);
+  m_shader->sendUniformi("second_pass", true);
   sendUniforms();
   if (m_is_filled) {
     m_shader->sendUniformi("nb_vertices", m_nb_vertices);
@@ -539,21 +562,40 @@ void CPointsetSphere::display() {
   m_shader->start();
   glBindVertexArray(m_vao);
   sendUniforms();
-  m_shader->sendUniformi("second_pass",false);
+  m_shader->sendUniformi("second_pass", false);
   m_shader->sendUniformi("subdivisions", m_nb_sphere_sections);
   glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, nb_objects);
   glBindVertexArray(0);
   m_shader->stop();
 
   m_shader->start();
-  glBindVertexArray(m_vao);
+  glBindVertexArray(m_selected_vao);
   sendUniforms();
-  m_shader->sendUniformi("second_pass",true);
   m_shader->sendUniformi("subdivisions", m_nb_sphere_sections);
-  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, nb_objects);
+
+  glEnable(GL_STENCIL_TEST);
+//  for (int i = 0; i < m_nb_selected; ++i) {
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDepthMask(GL_FALSE);
+    glStencilFunc(GL_NEVER, 1, 0xFF);
+    glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);  // draw 1s on test fail (always)
+    glStencilMask(0xFF);
+    glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
+    m_shader->sendUniformi("second_pass", false);
+    glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, nb_vertex_per_sphere, m_nb_selected);
+//
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDepthMask(GL_TRUE);
+    glStencilMask(0x00);
+    glStencilFunc(GL_EQUAL, 0, 0xFF);
+    m_shader->sendUniformi("second_pass", true);
+    glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, m_nb_selected);
+//  }
+  glDisable(GL_STENCIL_TEST);
+
   glBindVertexArray(0);
   m_shader->stop();
-  
+
 
 }
 void CPointsetSphere::sendUniforms() {
@@ -629,14 +671,21 @@ CPointsetManager::~CPointsetManager() {
   delete CPointset::text_renderer;
 }
 
-void CPointsetManager::initShaders() {
+void CPointsetManager::initShaders(bool glsl_130) {
+  std::string glsl_version;
+  if(glsl_130)
+    glsl_version = "130";
+  else
+    glsl_version = "120";
+
+  std::string shader_dir = "/shaders/cpoints_" + glsl_version;
 
   CPointset::text_renderer = new CPointTextRenderer();
-  CPointset::text_renderer->init();
+  CPointset::text_renderer->init(shader_dir);
 
   CPointsetRegularPolygon::shader = new CShader(
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/regular_polygon.vert",
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
+          GlobalOptions::RESPATH.toStdString() + shader_dir + "/regular_polygon.vert",
+          GlobalOptions::RESPATH.toStdString() + shader_dir + "/characteristic.frag");
   if (!CPointsetRegularPolygon::shader->init()) {
     delete CPointsetRegularPolygon::shader;
     std::cerr << "Failed to initialize regular_polygon shader\n";
@@ -644,8 +693,8 @@ void CPointsetManager::initShaders() {
   }
 
   CPointsetTag::shader = new CShader(
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/tag_shape.vert",
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
+          GlobalOptions::RESPATH.toStdString() + shader_dir + "/tag_shape.vert",
+          GlobalOptions::RESPATH.toStdString() + shader_dir + "/characteristic.frag");
   if (!CPointsetTag::shader->init()) {
     delete CPointsetTag::shader;
     std::cerr << "Failed to initialize tag shape shader\n";
@@ -653,8 +702,8 @@ void CPointsetManager::initShaders() {
   }
 
   CPointsetSphere::shader = new CShader(
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/sphere.vert",
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/characteristic.frag");
+          GlobalOptions::RESPATH.toStdString() + shader_dir + "/sphere.vert",
+          GlobalOptions::RESPATH.toStdString() + shader_dir + "/characteristic.frag");
   if (!CPointsetSphere::shader->init()) {
     delete CPointsetSphere::shader;
     std::cerr << "Failed to initialize sphere shader\n";
@@ -754,21 +803,23 @@ void CPointsetManager::setPointsetName(std::string old_name, std::string new_nam
     }
   }
 }
+
 void CPointsetManager::deleteCPoint(std::string pointset_name, int cpoint_id) {
   m_pointsets.at(pointset_name)->deletePoint(cpoint_id);
 }
+
 void CPointsetManager::unselectAll() {
-  for(auto cpointset_pair: m_pointsets)
-    cpointset_pair.second->setSelected(false);
+  for (auto cpointset_pair: m_pointsets)
+    cpointset_pair.second->unselect();
 }
 
-void CPointTextRenderer::init() {
+void CPointTextRenderer::init(std::string shader_dir) {
 
   // initialize shader
   m_text_shader = new CShader(
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/text.vert",
+          GlobalOptions::RESPATH.toStdString() + shader_dir + "/text.vert",
 
-          GlobalOptions::RESPATH.toStdString() + "/shaders/cpoints/text.frag");
+          GlobalOptions::RESPATH.toStdString() + shader_dir + "/text.frag");
   if (!m_text_shader->init()) {
     delete m_text_shader;
     std::cerr << "Failed to initialize tag text shader\n";
@@ -842,11 +893,11 @@ void CPointTextRenderer::init() {
     float norm_y = symbol["y"].get<float>() / texture_height;
 
     Character character = {
-            glm::vec<4, glm::vec2>(
-                    glm::vec2(norm_x, norm_y),
-                    glm::vec2(norm_x, norm_y + norm_height),
-                    glm::vec2(norm_x + norm_width, norm_y + norm_height),
-                    glm::vec2(norm_x + norm_width, norm_y)
+            std::array<std::array<float, 2>, 4>({
+                    std::array<float, 2>({norm_x, norm_y}),
+                    std::array<float, 2>({norm_x, norm_y + norm_height}),
+                    std::array<float, 2>({norm_x + norm_width, norm_y + norm_height}),
+                    std::array<float, 2>({norm_x + norm_width, norm_y})}
             ),
             glm::ivec2(symbol["width"], symbol["height"]),
             glm::ivec2(0, symbol["yoffset"]),
@@ -895,25 +946,25 @@ void CPointTextRenderer::renderText(CPointset *pointset) {
 
     Character x = characters['x'];
 
-    float baseline =  -(x.Size.y + x.Bearing.y) * scale;
+    float baseline = -(x.Size.y + x.Bearing.y) * scale;
 
     for (c = text.begin(); c != text.end(); c++) {
       Character ch = characters[*c];
 
-      ypos =  -(ch.Size.y + ch.Bearing.y) * scale - baseline;
+      ypos = -(ch.Size.y + ch.Bearing.y) * scale - baseline;
 
       GLfloat w = ch.Size.x * scale;
       GLfloat h = ch.Size.y * scale;
 
       // Update VBO for each character
       GLfloat vertices[6][4] = {
-              {xpos,     ypos + h, ch.TexCoords.x.x, ch.TexCoords.x.y}, //lower left
-              {xpos,     ypos,     ch.TexCoords.y.x, ch.TexCoords.y.y}, //top left
-              {xpos + w, ypos,     ch.TexCoords.z.x, ch.TexCoords.z.y}, //top right
+              {xpos,     ypos + h, ch.TexCoords[0][0], ch.TexCoords[0][1]}, //lower left
+              {xpos,     ypos,     ch.TexCoords[1][0], ch.TexCoords[1][1]}, //top left
+              {xpos + w, ypos,     ch.TexCoords[2][0], ch.TexCoords[2][1]}, //top right
 
-              {xpos,     ypos + h, ch.TexCoords.x.x, ch.TexCoords.x.y}, //lower left
-              {xpos + w, ypos,     ch.TexCoords.z.x, ch.TexCoords.z.y}, //top right
-              {xpos + w, ypos + h, ch.TexCoords.w.x, ch.TexCoords.w.y}  //bottom right
+              {xpos,     ypos + h, ch.TexCoords[0][0], ch.TexCoords[0][1]}, //lower left
+              {xpos + w, ypos,     ch.TexCoords[2][0], ch.TexCoords[2][1]}, //top right
+              {xpos + w, ypos + h, ch.TexCoords[3][0], ch.TexCoords[3][1]}  //bottom right
       };
       // Render glyph texture over quad
       // Update content of VBO memory

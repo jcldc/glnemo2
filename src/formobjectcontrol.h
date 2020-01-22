@@ -125,6 +125,7 @@ namespace glnemo {
                 GlobalOptions         * ,
 	        bool reset_table=true  );
     void init(QMutex * _m) { mutex_data = _m;}
+    void disableCpointsTab();
   signals:
   void objectSettingsChanged();
   void objectUpdateVel(const int);

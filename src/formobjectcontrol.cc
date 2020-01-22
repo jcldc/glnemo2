@@ -1531,7 +1531,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
         form.color_picker_button->setStyleSheet("background-color:" + pointset->getQColor().name());
         form.edit_cpointset_name->setText(QString::fromStdString(pointset->getName()));
         
-        pointset->setSelected(true);
+        pointset->select();
       }
     } else { // else a cpoint is selected
 
@@ -1547,7 +1547,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
       form.edit_cpoint_coords_z->setValue(cpoint->getCoords()[2]);
       form.edit_cpoint_size->setValue(cpoint->getSize());
       form.edit_cpoint_name->setText(QString::fromStdString(cpoint->getName()));
-      pointset->setCPointSelected(cpoint_id, true);
+      pointset->selectCPoint(cpoint_id);
     }
   } else { // multiple items selected
     bool cpoints = false,
@@ -1558,14 +1558,14 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
         cpointsets = true;
 
         auto cpointset = getPointsetFromItem(item);
-        cpointset->setSelected(true);
+        cpointset->select();
       }
       else{
         cpoints = true;
 
         auto cpointset = getPointsetFromItem(item->parent());
         int cpoint_id = item->text(1).toInt();
-        cpointset->setCPointSelected(cpoint_id, true);
+        cpointset->selectCPoint(cpoint_id);
       }
     }
 
@@ -1907,6 +1907,10 @@ void FormObjectControl::setFormState(CPointsetShapes shape) {
     form.edit_shape_nb_sphere_sections->setEnabled(true);
     form.edit_shape_fill_ratio->setEnabled(false);
   }
+}
+void FormObjectControl::disableCpointsTab() {
+  form.tab_cpoints->setEnabled(false);
+  form.tab_cpoints->setToolTip("Your GPU does not support this feature (OpenGL > 3.0 or EXT_gpu_shader4 is needed)");
 }
 
 }

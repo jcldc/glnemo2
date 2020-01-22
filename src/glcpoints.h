@@ -22,7 +22,7 @@ namespace glnemo {
 class CPointTextRenderer;
 
 struct Character {
-  glm::vec<4, glm::vec2> TexCoords;  // normalized character position in texture, order : bottom left, top left, top right, bottom right
+  std::array<std::array<float, 2>, 4> TexCoords;  // normalized character position in texture, order : bottom left, top left, top right, bottom right
   glm::ivec2 Size;       // Size of glyph
   glm::ivec2 Bearing;    // Offset from baseline to left/top of glyph
   int     Advance;    // Offset to advance to next glyph
@@ -53,7 +53,8 @@ private:
   void setSize(float size);
   void setCoords(std::array<float, 3>);
   void setName(std::string name);
-  void setSelected(bool selected);
+  void select();
+  void unselect();
 
   std::array<float, 3> m_coords;
   float m_size;
@@ -89,8 +90,10 @@ public:
   GLCPoint *addPoint(std::array<float, 3> coords, float size, std::string text);
   void addPoints(std::vector<GLCPointData>);
   void deletePoint(int id);
-  void setSelected(bool selected);
-  void setCPointSelected(int id, bool selected);
+  void select();
+  void unselect();
+  void selectCPoint(int id);
+  void unselectCPoint(int id);
 
   json toJson();
   void fromJson(json j);
@@ -144,7 +147,7 @@ protected:
 
   CShader *m_shader;
   glcpointmap_t m_cpoints;
-  GLuint m_vao, m_vbo;
+  GLuint m_vao, m_selected_vao, m_vbo, m_selected_vbo;
   std::string m_name;
   std::array<float, 3> m_color;
   bool m_is_visible;
@@ -155,6 +158,7 @@ protected:
   float m_name_size_factor;
   float m_name_offset;
   int m_name_angle;
+  int m_nb_selected;
 
   int m_nb_sphere_sections = 12;
 
@@ -210,7 +214,7 @@ public:
   CPointsetManager();
   ~CPointsetManager();
   int loadFile(std::string filepath);
-  void initShaders();
+  void initShaders(bool glsl_130);
   void displayAll();
   CPointset *createNewCPointset();
   void deleteCPointset(std::string pointset_name);
@@ -250,7 +254,7 @@ class CPointTextRenderer {
 public:
   ~CPointTextRenderer();
 
-  void init();
+  void init(std::string shader_dir);
   void renderText(CPointset *pointset);
 
 private:

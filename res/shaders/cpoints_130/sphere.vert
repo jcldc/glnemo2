@@ -1,4 +1,4 @@
-#version 140
+#version 130
 
 uniform int nb_vertices;
 uniform mat4 modelviewMatrix; // TODO change name
@@ -10,15 +10,11 @@ uniform ivec2 screen_dims;
 
 in vec3 point_center;
 in float radius;
-in float is_selected;
-
-flat out float selected;
 
 float PI = 3.14159265359;
 
 void main()
 {
-    selected = is_selected;
     vec3 spherePos;
     int i,j;
     float x_angle, y_angle;
@@ -57,7 +53,7 @@ void main()
 
 
     if (second_pass){
-        float outline_width = 5; //px
+        float outline_width = 4; //px
         vec2 normal = normalize((projMatrix*modelviewMatrix*vec4(spherePos, 1)).xy);
         vec2 offset = normal / screen_dims * outline_width * vpos.w;
 

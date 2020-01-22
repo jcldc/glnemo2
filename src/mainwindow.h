@@ -288,6 +288,8 @@ class MainWindow : public QMainWindow {
     Camera * camera;
     // Selected Physical quantitie from the command line
     int selphys;
+    bool is_cpoints_enabled;
+    bool glsl_130;
     signals:
     void endOfSnapshot(const int);
 };

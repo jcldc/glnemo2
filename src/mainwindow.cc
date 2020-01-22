@@ -49,6 +49,8 @@ MainWindow::MainWindow(std::string _ver)
   version = _ver;
   mutex_data = new QMutex(QMutex::Recursive); // Recursive: a thread can lock a mutex more than
                                               // once time, but mustunlock it as much as it
+  is_cpoints_enabled = false;
+  glsl_130 = false;
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
   // application name + release
@@ -63,6 +65,19 @@ MainWindow::MainWindow(std::string _ver)
   // Plugins
   plugins = new PluginsManage();
 
+  if(GL_VERSION_2_0){
+    is_cpoints_enabled = true;
+    glsl_130 = true;
+  }
+  else if(GLEW_EXT_gpu_shader4){
+    is_cpoints_enabled = true;
+    glsl_130 = false;
+  }
+  else{
+    is_cpoints_enabled = false;
+    glsl_130 = false;
+  }
+
   // parse parameters
   parseNemoParameters();
 
@@ -71,13 +86,17 @@ MainWindow::MainWindow(std::string _ver)
   // ------- openGL object ---------
   pointset_manager = new CPointsetManager();
   gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager);
-  pointset_manager->initShaders();
+  if(is_cpoints_enabled)
+    pointset_manager->initShaders(glsl_130);
+
   camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
   // colormap object
   colormap  = new Colormap(store_options);
 
   // ----- build GUI ------------
   createForms();
+  if(!is_cpoints_enabled)
+    form_o_c->disableCpointsTab();
   createDockWindows();
   createActions();
   createMenus();
@@ -1180,7 +1199,8 @@ void MainWindow::parseNemoParameters()
   store_options->col_z_grid  = QColor(getparam((char *) "xzg_color"));
   store_options->col_cube    = QColor(getparam((char *) "cube_color"));
 
-  cpoint_file = getparam((char*) "cpoint_file");
+  if(is_cpoints_enabled)
+    cpoint_file = getparam((char*) "cpoint_file");
 
   if (store_options->port) {;} // do nothing (remove compiler warning)
 

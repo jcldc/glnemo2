@@ -8,13 +8,9 @@ uniform bool second_pass;
 
 in vec3 point_center;
 in float radius;
-in float is_selected;
-
-flat out float selected;
 
 void main()
 {
-    selected = is_selected;
     vec2 relativePos;
     if (gl_VertexID == 0){
         gl_Position = projMatrix*modelviewMatrix*vec4(point_center, 1);
