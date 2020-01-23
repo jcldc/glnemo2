@@ -65,7 +65,7 @@ MainWindow::MainWindow(std::string _ver)
   // Plugins
   plugins = new PluginsManage();
 
-  if(GL_VERSION_2_0){
+  if(GL_VERSION_3_0){
     is_cpoints_enabled = true;
     glsl_130 = true;
   }
