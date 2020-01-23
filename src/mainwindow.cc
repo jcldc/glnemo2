@@ -65,19 +65,6 @@ MainWindow::MainWindow(std::string _ver)
   // Plugins
   plugins = new PluginsManage();
 
-  if(GL_VERSION_3_0){
-    is_cpoints_enabled = true;
-    glsl_130 = true;
-  }
-  else if(GLEW_EXT_gpu_shader4){
-    is_cpoints_enabled = true;
-    glsl_130 = false;
-  }
-  else{
-    is_cpoints_enabled = false;
-    glsl_130 = false;
-  }
-
   // parse parameters
   parseNemoParameters();
 
@@ -86,6 +73,26 @@ MainWindow::MainWindow(std::string _ver)
   // ------- openGL object ---------
   pointset_manager = new CPointsetManager();
   gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager);
+
+  int gl_major, gl_minor;
+  glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
+  glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
+
+  int gl_version = 10*gl_major+gl_minor;
+
+  if(gl_version > 30){
+    is_cpoints_enabled = true;
+    glsl_130 = true;
+  }
+  else if(gl_version == 21 && GLEW_EXT_gpu_shader4){
+    is_cpoints_enabled = true;
+    glsl_130 = false;
+  }
+  else{
+    is_cpoints_enabled = false;
+    glsl_130 = false;
+  }
+
   if(is_cpoints_enabled)
     pointset_manager->initShaders(glsl_130);
 
@@ -277,7 +284,7 @@ void MainWindow::start(std::string shot)
   }
 
   gl_window->setFocus();
-  if(cpoint_file != ""){
+  if(cpoint_file != "" && is_cpoints_enabled){
     pointset_manager->loadFile(cpoint_file);
     form_o_c->initCPointsTreeWidget();
   }
@@ -1199,8 +1206,7 @@ void MainWindow::parseNemoParameters()
   store_options->col_z_grid  = QColor(getparam((char *) "xzg_color"));
   store_options->col_cube    = QColor(getparam((char *) "cube_color"));
 
-  if(is_cpoints_enabled)
-    cpoint_file = getparam((char*) "cpoint_file");
+  cpoint_file = getparam((char*) "cpoint_file");
 
   if (store_options->port) {;} // do nothing (remove compiler warning)
 
