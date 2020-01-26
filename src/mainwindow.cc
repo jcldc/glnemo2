@@ -189,6 +189,8 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_options,SIGNAL(update_gcb_font()),gl_window->gl_colorbar,SLOT(updateFont()));
   // open cpoint help page
   connect(form_o_c, SIGNAL(cpointHelpClicked()), form_help, SLOT(showCpointHelp()));
+  connect(gl_window, SIGNAL(selectTreeWidgetItem(int)), form_o_c, SLOT(selectTreeWidgetItem(int)));
+  connect(gl_window, SIGNAL(unselectTreeWidgetItem(int)), form_o_c, SLOT(unselectTreeWidgetItem(int)));
   // --------- init some stuffs
   initVariables();
   startTimers();
@@ -757,6 +759,11 @@ void MainWindow::createActions()
   transz_action->setShortcut(tr("Alt+Z"));
   connect( transz_action, SIGNAL( triggered() ), this, SLOT( actionTranslateZ() ) );
   addAction(transz_action);
+  // Unselect all cpoints
+  unselect_cpoints = new QAction(this);
+  unselect_cpoints->setShortcut(Qt::Key_Escape);
+  connect( unselect_cpoints, SIGNAL( triggered() ), this, SLOT( actionUnselectCPoints() ) );
+  addAction(unselect_cpoints);
 }
 
 // -----------------------------------------------------------------------------
@@ -1851,6 +1858,13 @@ void MainWindow::actionTranslateZ()
   trans = !trans; // toggle translation
   if (trans)  auto_transz_timer->start(50);
   else        auto_transz_timer->stop();
+}
+// -----------------------------------------------------------------------------
+// actionUnselectCPoints()
+void MainWindow::actionUnselectCPoints()
+{
+  pointset_manager->unselectAll();
+  form_o_c->clearSelection();
 }
 // -----------------------------------------------------------------------------
 // actionPlay()

@@ -1633,6 +1633,8 @@ void FormObjectControl::delete_cpointsets(bool need_confirmation) {
   auto items = form.cpoints_set_treewidget->selectedItems();
   if (items.size() == 1) {
     QTreeWidgetItem *item = items[0];
+    if(item->parent())
+      item = item->parent();
     std::string pointset_name = item->text(0).toStdString();
     QMessageBox::StandardButton reply;
     if (need_confirmation)
@@ -1653,9 +1655,18 @@ void FormObjectControl::delete_cpointsets(bool need_confirmation) {
     else reply = QMessageBox::Yes;
     if (reply == QMessageBox::Yes) {
       for (auto item : items){
-        std::string pointset_name = item->text(0).toStdString();
-        pointset_manager->deleteCPointset(pointset_name);
-        delete item;
+        if(item->parent()){
+          item = item->parent();
+          std::string pointset_name = item->text(0).toStdString();
+          pointset_manager->deleteCPointset(pointset_name);
+          delete item;
+          break;
+        }
+        else{
+          std::string pointset_name = item->text(0).toStdString();
+          pointset_manager->deleteCPointset(pointset_name);
+          delete item;
+        }
       }
       emit objectSettingsChanged();
     }
@@ -1902,6 +1913,24 @@ void FormObjectControl::setFormState(CPointset *pointset) {
 void FormObjectControl::disableCpointsTab() {
   form.tab_cpoints->setEnabled(false);
   form.tab_cpoints->setToolTip("Your GPU does not support this feature (OpenGL > 3.0 or EXT_gpu_shader4 is needed)");
+}
+void FormObjectControl::clearSelection() {
+  form.cpoints_set_treewidget->clearSelection();
+}
+void FormObjectControl::selectTreeWidgetItem(int cpoint_id) {
+  auto item_matched = form.cpoints_set_treewidget->findItems(QString::number(cpoint_id), Qt::MatchExactly | Qt::MatchRecursive,1);
+  if(!item_matched.empty()){
+    auto item = item_matched[0];
+    item->parent()->setExpanded(true);
+    form.cpoints_set_treewidget->setItemSelected(item, true);
+  }
+}
+void FormObjectControl::unselectTreeWidgetItem(int cpoint_id) {
+  auto item_matched = form.cpoints_set_treewidget->findItems(QString::number(cpoint_id), Qt::MatchExactly | Qt::MatchRecursive,1);
+  if(!item_matched.empty()){
+    auto item = item_matched[0];
+    form.cpoints_set_treewidget->setItemSelected(item, false);
+  }
 }
 
 }

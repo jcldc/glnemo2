@@ -126,6 +126,7 @@ namespace glnemo {
 	        bool reset_table=true  );
     void init(QMutex * _m) { mutex_data = _m;}
     void disableCpointsTab();
+    void clearSelection();
   signals:
   void objectSettingsChanged();
   void objectUpdateVel(const int);
@@ -152,6 +153,8 @@ namespace glnemo {
       dens_color_bar->draw(form.dens_slide_min->value(),form.dens_slide_max->value());
     }
     void initCPointsTreeWidget();
+    void selectTreeWidgetItem(int cpoint_id);
+    void unselectTreeWidgetItem(int cpoint_id);
   private slots:
     void reject() {} // allow to de activate escape key to close the box
     // global slots

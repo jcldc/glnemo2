@@ -119,6 +119,7 @@ class MainWindow : public QMainWindow {
     void actionTranslateX();
     void actionTranslateY();
     void actionTranslateZ();
+    void actionUnselectCPoints();
     void actionToggleOsd();
     void actionToggleRotationScreen();
     void actionToggleCamera();
@@ -221,6 +222,7 @@ class MainWindow : public QMainWindow {
     QAction * transx_action, * transy_action, * transz_action;
     // Z sorting
     QAction * zsorting_action;
+    QAction * unselect_cpoints;
     // OpenGL setting dialog box
     //DlgGLSettings * box_gl_settings;
     // Forms

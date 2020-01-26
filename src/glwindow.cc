@@ -59,6 +59,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   is_mouse_pressed   = FALSE;
   is_mouse_zoom      = FALSE;
   is_key_pressed     = FALSE;
+  is_a_key_pressed   = FALSE;
   is_shift_pressed   = FALSE;
   is_pressed_ctrl    = FALSE;
   gpv.clear();
@@ -836,6 +837,46 @@ void GLWindow::mouseReleaseEvent( QMouseEvent *e )
     osd->updateDisplay();
     if ( !store_options->duplicate_mem) mutex_data->unlock();
   }
+ if(is_a_key_pressed){
+    if(e->button() == Qt::LeftButton)
+    {
+      int i = 0;
+      GLdouble x, y, z;
+      gluUnProject(e->x(),wheight-e->y(), 0.0005, mModel2,mProj, viewport, &x, &y, &z);
+      glm::vec3 near({x,y,z});
+
+      GLdouble x2, y2, z2;
+      gluUnProject(e->x(), wheight-e->y(), (GLfloat)DOF, mModel2,mProj, viewport, &x2, &y2, &z2);
+      glm::vec3 far({x2,y2,z2});
+
+      glm::vec3 ray = glm::normalize(far - near);
+
+      for(const auto& cpointset : *cpointset_manager){
+        for(const auto& cpoint_pair : cpointset.second->getCPoints()){
+          auto cpoint = cpoint_pair.second;
+          auto coords = cpoint->getCoords();
+          glm::vec3 oc = near - glm::vec3{coords[0], coords[1], coords[2]};
+          float a = glm::dot(ray, ray);
+          float b = 2.0f * glm::dot(oc, ray);
+          float radius = cpoint->getSize();
+          float c = dot(oc,oc) - radius*radius;
+          float discriminant = b*b - 4*a*c;
+          if(discriminant > 0){
+            if (cpoint->isSelected()) {
+              cpointset.second->unselectCPoint(cpoint->getId());
+              emit unselectTreeWidgetItem(cpoint->getId());
+            } else {
+              cpointset.second->selectCPoint(cpoint->getId());
+              emit selectTreeWidgetItem(cpoint->getId());
+            }
+            goto end;
+          }
+        }
+      }
+end:
+    updateGL();
+    }
+  }
   setCursor(Qt::ArrowCursor);
   emit sigKeyMouse( is_key_pressed, is_mouse_pressed);
   //!draw_box->show();
@@ -848,7 +889,7 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
 {
   int dx=0,dy=0,dz=0;
   setFocus();
-  if (is_pressed_left_button) {
+  if (is_pressed_left_button && !is_a_key_pressed) {
     // offset displcacement
     dx = e->x()-last_posx;
     dy = e->y()-last_posy;
@@ -878,7 +919,7 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
       }
   }
   if ( !gl_select->isEnable()) {
-    if ( is_pressed_right_button) {
+    if ( is_pressed_right_button && !is_a_key_pressed) {
       // offset displcacement
       dz = e->x()-last_posz;
       // save last position
@@ -937,6 +978,7 @@ void GLWindow::keyPressEvent(QKeyEvent * k)
   }
   if (k->key() == Qt::Key_A) {
     is_key_pressed = TRUE;
+    is_a_key_pressed = TRUE;
     //!glbox->toggleLineAliased();
   }
   if (k->key() == Qt::Key_Plus) {
@@ -973,6 +1015,9 @@ void GLWindow::keyReleaseEvent(QKeyEvent * k)
     is_mouse_zoom  = FALSE;
     gl_select->reset();
     updateGL();
+  }
+  if (k->key() == Qt::Key_A) {
+    is_a_key_pressed = FALSE;
   }
   is_key_pressed = FALSE;
   emit sigKeyMouse( is_key_pressed, is_mouse_pressed);
