@@ -174,6 +174,8 @@ GLWindow::~GLWindow()
     if (shader) delete shader;
     if (vel_shader) delete vel_shader;
   }
+  delete gl_colorbar;
+  delete osd;
 //  if (p_data)
 //    delete p_data;
   std::cerr << "Destructor GLWindow::~GLWindow()\n";
@@ -344,7 +346,7 @@ void GLWindow::updateGrid(bool ugl)
   if (ugl) updateGL();
 }
 // ============================================================================
-// init Light                                                                  
+// init Light
 void GLWindow::initLight()
 {
 }

@@ -142,6 +142,8 @@ FormObjectControl::FormObjectControl(CPointsetManager *_pointset_manager, Global
 FormObjectControl::~FormObjectControl()
 {
   delete [] object_index;
+  delete dens_histo;
+  delete dens_color_bar;
 }
 // ============================================================================
 // initTableWidget()                                                           

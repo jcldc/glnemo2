@@ -310,7 +310,9 @@ MainWindow::~MainWindow()
   delete current_data;
    std::cerr << "<<  MainWindow::~MainWindow()\n";
   if (user_select) delete user_select;
-
+  delete colormap;
+  delete mutex_data;
+  delete camera;
 }
 // -----------------------------------------------------------------------------
 // dropEvent
