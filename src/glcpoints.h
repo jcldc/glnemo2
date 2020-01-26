@@ -246,6 +246,7 @@ private:
   int m_nb_sets;
   std::map<std::string, CPointset *> m_pointsets;
   std::string defaultName() const;
+  std::string defaultShape() const;
   CPointset *newPointset(std::string str_shape, std::string name);
   CPointset *newPointset(std::string str_shape, const CPointset &);
 };

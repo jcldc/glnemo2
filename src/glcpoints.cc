@@ -625,35 +625,34 @@ int CPointsetManager::loadFile(std::string filepath) {
   json json_data;
   try {
     file >> json_data;
-  } catch (json::exception) {
+
+    for (auto & it : json_data) {
+      CPointset *pointset;
+      CShader *shader;
+      std::string str_shape = it.value("shape", defaultShape());
+      std::string name(it.value("name", defaultName()));
+      bool name_too_long = false;
+      while (m_pointsets[name])
+        if (name.size() < 50)
+          name += " duplicate";
+        else {
+          name_too_long = true;
+          break;
+        }
+
+      if (name_too_long)
+        continue;
+
+      pointset = newPointset(str_shape, name);
+      if (!pointset)
+        continue;
+
+      pointset->fromJson(it);
+      m_pointsets[name] = pointset;
+      m_nb_sets++;
+    }
+  } catch (json::exception&) {
     return -1;
-  }
-
-  for (json::iterator it = json_data.begin(); it != json_data.end(); ++it) {
-    CPointset *pointset;
-    CShader *shader;
-
-    std::string str_shape = (*it)["shape"];
-    std::string name((*it).value("name", defaultName()));
-    bool name_too_long = false;
-    while (m_pointsets[name])
-      if (name.size() < 50)
-        name += " duplicate";
-      else {
-        name_too_long = true;
-        break;
-      }
-
-    if (name_too_long)
-      continue;
-
-    pointset = newPointset(str_shape, name);
-    if (!pointset)
-      continue;
-
-    pointset->fromJson(*it);
-    m_pointsets[name] = pointset;
-    m_nb_sets++;
   }
   return 0;
 }
@@ -811,6 +810,9 @@ void CPointsetManager::deleteCPoint(std::string pointset_name, int cpoint_id) {
 void CPointsetManager::unselectAll() {
   for (auto cpointset_pair: m_pointsets)
     cpointset_pair.second->unselect();
+}
+std::string CPointsetManager::defaultShape() const {
+  return "disk";
 }
 
 void CPointTextRenderer::init(std::string shader_dir) {
