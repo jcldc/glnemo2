@@ -1596,11 +1596,8 @@ void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) 
 //
 void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
   QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
-  bool select_created = false;
   if(item->parent())
     item = item->parent();
-  else
-    select_created = true;
   CPointset *pointset = getPointsetFromItem(item);
   if (pointset) {
     float size = form.add_cpoint_coords_size->value();
@@ -1613,9 +1610,10 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
       const string &point_text = form.add_cpoint_name->text().toStdString();
       GLCPoint *cpoint = pointset->addPoint(coords, size, point_text);
       auto new_item = new QTreeWidgetItem(QStringList() << QString::fromStdString(cpoint->getName()) << QString::number(cpoint->getId()));
-      if(select_created)
-        pointset->selectCPoint(cpoint->getId());
+      pointset_manager->unselectAll();
+      pointset->selectCPoint(cpoint->getId());
       item->insertChild(0, new_item);
+      form.cpoints_set_treewidget->setCurrentItem(new_item);
       emit objectSettingsChanged();
     }
   }
