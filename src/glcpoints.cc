@@ -342,13 +342,12 @@ json CPointset::toJson() {
   }
   json cpointset_json = {{"name",       m_name},
                          {"shape",      shapeToStr[m_shape]},
-                         {"is_visible", m_is_visible},
                          {"data",       cpoint_data}}; //show name
 
   // serialize only if different than default value
 
-  if (m_color != default_set.getColor())
-    cpointset_json["color"] = m_color;
+  if (m_is_visible != default_set.isVisible())
+    cpointset_json["is_visible"] = m_is_visible;
   if (m_color != default_set.getColor())
     cpointset_json["color"] = m_color;
   if (m_fill_ratio != default_set.getFillratio())
