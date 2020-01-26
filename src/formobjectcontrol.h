@@ -178,7 +178,6 @@ namespace glnemo {
     void on_shape_radio_tag_clicked(bool) {shapeRadioClicked();};
     void on_shape_radio_sphere_clicked(bool) {shapeRadioClicked();};
     void shapeRadioClicked();
-    void on_shape_checkbox_filled_stateChanged(int);
     void on_color_picker_button_clicked(bool);
     void on_export_cpoints_file_clicked(bool);
     void on_add_cpoint_center_coord_btn_clicked(bool);

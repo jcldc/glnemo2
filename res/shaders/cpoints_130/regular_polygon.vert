@@ -3,7 +3,6 @@
 uniform int nb_vertices;
 uniform mat4 modelviewMatrix; // TODO change name
 uniform mat4 projMatrix;
-uniform bool is_filled;
 uniform float fill_ratio;
 uniform bool second_pass;
 uniform ivec2 screen_dims;
@@ -18,7 +17,7 @@ void main()
     float angle;
     vec3 relativePos;
     vec4 vpos;
-    if (mod(gl_VertexID, 2) == 1 && !is_filled){
+    if (mod(gl_VertexID, 2) == 1){
         angle = 2*PI/nb_vertices*(gl_VertexID - 1)-PI/4;
         float inner_radius = radius-radius*fill_ratio;
         relativePos = vec3(inner_radius*cos(angle), inner_radius*sin(angle), 0);

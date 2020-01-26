@@ -101,8 +101,6 @@ public:
   const glcpointmap_t &getCPoints() const;
   void setVisible(bool visible);
   bool isVisible();
-  void setFilled(bool);
-  const bool isFilled() const;
   const std::string &getName() const;
   void setName(std::string);
   void setThreshold(int threshold);
@@ -151,7 +149,6 @@ protected:
   std::string m_name;
   std::array<float, 3> m_color;
   bool m_is_visible;
-  bool m_is_filled;
   bool m_is_name_visible;
   int m_threshold;
   float m_fill_ratio;

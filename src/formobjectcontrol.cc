@@ -1725,18 +1725,6 @@ void FormObjectControl::shapeRadioClicked() {
   emit objectSettingsChanged();
 }
 
-void FormObjectControl::on_shape_checkbox_filled_stateChanged(int state) {
-  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
-  if(item->parent())
-    item = item->parent();
-  CPointset *pointset = getPointsetFromItem(item);
-  if (state == Qt::Checked)
-    pointset->setFilled(true);
-  else if (state == Qt::Unchecked)
-    pointset->setFilled(false);
-  emit objectSettingsChanged();
-}
-
 void FormObjectControl::on_color_picker_button_clicked(bool) {
   QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
   if(item->parent())
@@ -1886,22 +1874,18 @@ void FormObjectControl::setFormState(CPointset *pointset) {
   CPointsetShapes shape = pointset->getShape();
   if (shape == CPointsetShapes::disk) {
     form.shape_radio_disk->setChecked(true);
-    form.shape_checkbox_filled->setEnabled(true);
     form.edit_shape_nb_sphere_sections->setEnabled(false);
     form.edit_shape_fill_ratio->setEnabled(true);
   } else if (shape == CPointsetShapes::square) {
     form.shape_radio_square->setChecked(true);
-    form.shape_checkbox_filled->setEnabled(true);
     form.edit_shape_nb_sphere_sections->setEnabled(false);
     form.edit_shape_fill_ratio->setEnabled(true);
   } else if (shape == CPointsetShapes::tag) {
     form.shape_radio_tag->setChecked(true);
-    form.shape_checkbox_filled->setEnabled(false);
     form.edit_shape_nb_sphere_sections->setEnabled(false);
     form.edit_shape_fill_ratio->setEnabled(false);
   } else if (shape == CPointsetShapes::sphere) {
     form.shape_radio_sphere->setChecked(true);
-    form.shape_checkbox_filled->setEnabled(false);
     form.edit_shape_nb_sphere_sections->setEnabled(true);
     form.edit_shape_fill_ratio->setEnabled(false);
   }
@@ -1911,7 +1895,6 @@ void FormObjectControl::setFormState(CPointset *pointset) {
   form.edit_shape_name_size_factor->setValue(pointset->getNameSizeFactor()*10);
   form.edit_shape_fill_ratio->setValue(pointset->getFillratio()*100);
   form.cpoints_display_cbx->setChecked(pointset->isVisible());
-  form.shape_checkbox_filled->setChecked(pointset->isFilled());
   form.cpoints_threshold_slider->setValue(pointset->getThreshold());
   form.color_picker_button->setStyleSheet("background-color:" + pointset->getQColor().name());
   form.edit_cpointset_name->setText(QString::fromStdString(pointset->getName()));

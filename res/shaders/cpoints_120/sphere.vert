@@ -3,7 +3,6 @@
 uniform int nb_vertices;
 uniform mat4 modelviewMatrix; // TODO change name
 uniform mat4 projMatrix;
-uniform bool is_filled;
 uniform int subdivisions;
 uniform bool second_pass;
 uniform ivec2 screen_dims;

@@ -89,7 +89,6 @@ CPointset::CPointset(CShader *shader, std::string name) :
         m_shader(shader), m_name(name) {
   m_color = {0.2, 0.5, 0.8};
   m_is_visible = true;
-  m_is_filled = false;
   m_is_name_visible = false;
   m_threshold = 100;
   m_fill_ratio = 0.1;
@@ -111,7 +110,6 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
   m_name = other.m_name;
   m_color = other.m_color;
   m_is_visible = other.m_is_visible;
-  m_is_filled = other.m_is_filled;
   m_is_name_visible = other.m_is_name_visible;
   m_threshold = other.m_threshold;
   m_fill_ratio = other.m_fill_ratio;
@@ -235,12 +233,6 @@ const glcpointmap_t &CPointset::getCPoints() const {
 void CPointset::copyCPoints(const CPointset &other) {
   m_cpoints = other.getCPoints();
   genVboData();
-}
-void CPointset::setFilled(bool filled) {
-  m_is_filled = filled;
-}
-const bool CPointset::isFilled() const {
-  return m_is_filled;
 }
 CPointsetShapes CPointset::getPointsetShape() const {
   return m_shape;
@@ -371,8 +363,6 @@ json CPointset::toJson() {
     cpointset_json["name_angle"] = m_name_angle;
   if (m_is_name_visible != default_set.isNameVisible())
     cpointset_json["is_name_visible"] = m_is_name_visible;
-  if (m_is_filled != default_set.isFilled())
-    cpointset_json["is_filled"] = m_is_filled;
 
   return cpointset_json;
 }
@@ -387,7 +377,6 @@ void CPointset::fromJson(json j) {
   m_name_size_factor = j.value("name_size_factor", m_name_size_factor);
   m_name_angle = j.value("name_angle", m_name_angle);
   m_is_name_visible = j.value("is_name_visible", m_is_name_visible);
-  m_is_filled = j.value("is_filled", m_is_filled);
 
   std::vector<GLCPointData> cpoint_data_v;
   auto data = j["data"];
@@ -445,7 +434,6 @@ CPointsetRegularPolygon::CPointsetRegularPolygon(const CPointset &other) : CPoin
 void CPointsetRegularPolygon::sendUniforms() {
   CPointset::sendUniforms();
 
-  m_shader->sendUniformi("is_filled", m_is_filled);
   m_shader->sendUniformf("fill_ratio", m_fill_ratio);
 }
 void CPointsetRegularPolygon::display() {
@@ -454,13 +442,8 @@ void CPointsetRegularPolygon::display() {
   glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
-  if (m_is_filled) {
-    m_shader->sendUniformi("nb_vertices", m_nb_vertices);
-    glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, m_nb_vertices, nb_objects);
-  } else {
-    m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
-    glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
-  }
+  m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
+  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
   glBindVertexArray(0);
   m_shader->stop();
 
@@ -469,13 +452,8 @@ void CPointsetRegularPolygon::display() {
   glBindVertexArray(m_selected_vao);
   m_shader->sendUniformi("second_pass", true);
   sendUniforms();
-  if (m_is_filled) {
-    m_shader->sendUniformi("nb_vertices", m_nb_vertices);
-    glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, m_nb_vertices, nb_objects);
-  } else {
-    m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
-    glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
-  }
+  m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
+  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
   glBindVertexArray(0);
   m_shader->stop();
 
