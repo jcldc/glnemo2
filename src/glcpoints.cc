@@ -371,7 +371,7 @@ void CPointset::fromJson(json j) {
   // set optional fields
   m_color = j.value("color", m_color);
   m_is_visible = j.value("is_visible", m_is_visible);
-  m_nb_sphere_sections = j.value("nb_sphere_section", m_nb_sphere_sections);
+  m_nb_sphere_sections = j.value("nb_sphere_sections", m_nb_sphere_sections);
   m_name_offset = j.value("name_offset", m_name_offset);
   m_fill_ratio = j.value("fill_ratio", m_fill_ratio);
   m_name_size_factor = j.value("name_size_factor", m_name_size_factor);
