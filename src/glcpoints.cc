@@ -540,43 +540,35 @@ void CPointsetSphere::display() {
   glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
-  m_shader->sendUniformi("subdivisions", m_nb_sphere_sections);
   glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, nb_objects);
-  glBindVertexArray(0);
-  m_shader->stop();
 
-  m_shader->start();
   glBindVertexArray(m_selected_vao);
-  sendUniforms();
-  m_shader->sendUniformi("subdivisions", m_nb_sphere_sections);
-
   glEnable(GL_STENCIL_TEST);
-//  for (int i = 0; i < m_nb_selected; ++i) {
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glDepthMask(GL_FALSE);
-    glStencilFunc(GL_NEVER, 1, 0xFF);
-    glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);  // draw 1s on test fail (always)
-    glStencilMask(0xFF);
-    glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
-    m_shader->sendUniformi("second_pass", false);
-    glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, nb_vertex_per_sphere, m_nb_selected);
-//
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glDepthMask(GL_TRUE);
-    glStencilMask(0x00);
-    glStencilFunc(GL_EQUAL, 0, 0xFF);
-    m_shader->sendUniformi("second_pass", true);
-    glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, m_nb_selected);
-//  }
-  glDisable(GL_STENCIL_TEST);
+  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  glDepthMask(GL_FALSE);
+  glStencilFunc(GL_NEVER, 1, 0xFF);
+  glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);  // draw 1s on test fail (always)
+  glStencilMask(0xFF);
+  glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
+  m_shader->sendUniformi("second_pass", false);
+  glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, nb_vertex_per_sphere, m_nb_selected);
 
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glDepthMask(GL_TRUE);
+  glStencilMask(0x00);
+  glStencilFunc(GL_EQUAL, 0, 0xFF);
+  m_shader->sendUniformi("second_pass", true);
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, m_nb_selected);
+  glDisable(GL_STENCIL_TEST);
   glBindVertexArray(0);
+
   m_shader->stop();
 
 
 }
 void CPointsetSphere::sendUniforms() {
   CPointset::sendUniforms();
+  m_shader->sendUniformi("subdivisions", m_nb_sphere_sections);
 }
 
 /******* GLCPointsetManager ********/
