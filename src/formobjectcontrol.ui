@@ -2077,10 +2077,7 @@ Physical value can be:
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
+          <widget class="QPushButton" name="cpoint_help">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>

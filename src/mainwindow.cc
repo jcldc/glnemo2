@@ -187,7 +187,8 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_options,SIGNAL(update_gl()),gl_window,SLOT(updateGL()));
   // options GL colorbar tab
   connect(form_options,SIGNAL(update_gcb_font()),gl_window->gl_colorbar,SLOT(updateFont()));
-
+  // open cpoint help page
+  connect(form_o_c, SIGNAL(cpointHelpClicked()), form_help, SLOT(showCpointHelp()));
   // --------- init some stuffs
   initVariables();
   startTimers();

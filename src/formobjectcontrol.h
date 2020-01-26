@@ -144,6 +144,7 @@ namespace glnemo {
   void reverseColorMap(const bool);
   void customColormap();
   void changeBoundaryPhys(const int, const bool b);
+  void cpointHelpClicked();
   public slots:
     void changeColorMap() {
       form.dynamic_cmap->setChecked(go->dynamic_cmap);
@@ -197,6 +198,7 @@ namespace glnemo {
     void on_edit_shape_nb_sphere_sections_valueChanged(int);
     void on_edit_shape_name_angle_valueChanged(int);
     void setFormState(CPointset *pointset);
+    void on_cpoint_help_clicked() {emit cpointHelpClicked();};
     // on gaz
     void on_gaz_check_clicked(bool);
     void on_gaz_slide_size_valueChanged(int);
