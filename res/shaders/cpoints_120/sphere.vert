@@ -52,7 +52,7 @@ void main()
 
 
     if (second_pass){
-        float outline_width = 4; //px
+        float outline_width = 2; //px
         vec2 normal = normalize((vpos-projMatrix * modelviewMatrix*vec4(point_center,1)).xy);
         vec2 offset = normal / screen_dims * outline_width * vpos.w;
 
