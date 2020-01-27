@@ -1930,6 +1930,15 @@ void FormObjectControl::unselectTreeWidgetItem(int cpoint_id) {
   auto item_matched = form.cpoints_set_treewidget->findItems(QString::number(cpoint_id), Qt::MatchExactly | Qt::MatchRecursive,1);
   if(!item_matched.empty()){
     auto item = item_matched[0];
+    auto parent = item->parent();
+    if(parent && parent->isSelected()){
+      parent->setSelected(false);
+      for (int i = 0; i < parent->childCount (); i++)
+      {
+          QTreeWidgetItem *child = parent->child(i);
+          child->setSelected(true);
+      }
+    }
     form.cpoints_set_treewidget->setItemSelected(item, false);
   }
 }
