@@ -1,4 +1,4 @@
-#version 130
+#version 120
 attribute vec4 vertex; // <vec2 pos, vec2 tex>
 varying vec2 TexCoords;
 

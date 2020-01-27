@@ -1,4 +1,5 @@
 #version 120
+#extension GL_EXT_gpu_shader4 : require
 
 uniform int nb_vertices;
 uniform mat4 modelviewMatrix; // TODO change name
