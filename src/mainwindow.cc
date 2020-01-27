@@ -191,6 +191,7 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_o_c, SIGNAL(cpointHelpClicked()), form_help, SLOT(showCpointHelp()));
   connect(gl_window, SIGNAL(selectTreeWidgetItem(int)), form_o_c, SLOT(selectTreeWidgetItem(int)));
   connect(gl_window, SIGNAL(unselectTreeWidgetItem(int)), form_o_c, SLOT(unselectTreeWidgetItem(int)));
+  connect(gl_window, SIGNAL(unselectTreeWidgetAll()), form_o_c, SLOT(unselectTreeWidgetAll()));
   // --------- init some stuffs
   initVariables();
   startTimers();
@@ -1864,7 +1865,7 @@ void MainWindow::actionTranslateZ()
 void MainWindow::actionUnselectCPoints()
 {
   pointset_manager->unselectAll();
-  form_o_c->clearSelection();
+  form_o_c->unselectTreeWidgetAll();
 }
 // -----------------------------------------------------------------------------
 // actionPlay()

@@ -873,9 +873,12 @@ void GLWindow::mouseReleaseEvent( QMouseEvent *e )
           }
         }
       }
+    } else if(e->button() == Qt::RightButton){
+      cpointset_manager->unselectAll();
+      emit unselectTreeWidgetAll();
+    }
 end:
     updateGL();
-    }
   }
   setCursor(Qt::ArrowCursor);
   emit sigKeyMouse( is_key_pressed, is_mouse_pressed);

@@ -1655,14 +1655,14 @@ void FormObjectControl::delete_cpointsets(bool need_confirmation) {
     else reply = QMessageBox::Yes;
     if (reply == QMessageBox::Yes) {
       for (auto item : items){
-        if(item->parent()){
+        if(item->parent()){ // delete only the parent set of the first cpoint selected and break
           item = item->parent();
           std::string pointset_name = item->text(0).toStdString();
           pointset_manager->deleteCPointset(pointset_name);
           delete item;
           break;
         }
-        else{
+        else{ // delete all cpoint selected
           std::string pointset_name = item->text(0).toStdString();
           pointset_manager->deleteCPointset(pointset_name);
           delete item;
@@ -1914,7 +1914,7 @@ void FormObjectControl::disableCpointsTab() {
   form.tab_cpoints->setEnabled(false);
   form.tab_cpoints->setToolTip("Your GPU does not support this feature (OpenGL > 3.0 or EXT_gpu_shader4 is needed)");
 }
-void FormObjectControl::clearSelection() {
+void FormObjectControl::unselectTreeWidgetAll() {
   form.cpoints_set_treewidget->clearSelection();
 }
 void FormObjectControl::selectTreeWidgetItem(int cpoint_id) {

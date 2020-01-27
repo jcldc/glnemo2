@@ -83,6 +83,7 @@ public:
     void doneRendering();
     void selectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetItem(int cpoint_id);
+    void unselectTreeWidgetAll();
 public slots:
    void  update(ParticlesData   * ,
                 ParticlesObjectVector * ,
