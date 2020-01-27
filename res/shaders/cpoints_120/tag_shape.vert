@@ -1,4 +1,5 @@
 #version 120
+#extension GL_EXT_gpu_shader4 : require
 
 uniform mat4 model_view_matrix;
 //uniform mat4 model_view_matrixInverse;

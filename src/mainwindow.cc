@@ -74,17 +74,11 @@ MainWindow::MainWindow(std::string _ver)
   pointset_manager = new CPointsetManager();
   gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager);
 
-  int gl_major, gl_minor;
-  glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
-  glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
-
-  int gl_version = 10*gl_major+gl_minor;
-
-  if(gl_version > 30){
+  if(glewIsSupported("GL_VERSION_3_0")){
     is_cpoints_enabled = true;
     glsl_130 = true;
   }
-  else if(gl_version == 21 && GLEW_EXT_gpu_shader4){
+  else if(glewIsSupported("GL_VERSION_2_1  GL_EXT_gpu_shader4")){
     is_cpoints_enabled = true;
     glsl_130 = false;
   }

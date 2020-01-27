@@ -10,6 +10,12 @@
 #include "glcpoints.h"
 #include "globaloptions.h"
 
+#if defined(__APPLE__)
+#define glGenVertexArrays glGenVertexArraysAPPLE
+#define glBindVertexArray glBindVertexArrayAPPLE
+#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+#endif
+
 namespace glnemo {
 
 std::map<CPointsetShapes, std::string> CPointset::shapeToStr;
@@ -180,12 +186,12 @@ void CPointset::setAttributes() {
   }
   glEnableVertexAttribArrayARB(point_center_disk_attrib);
   glVertexAttribPointerARB(point_center_disk_attrib, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
-  glVertexBindingDivisor(point_center_disk_attrib, 1);
+  glVertexAttribDivisorARB(point_center_disk_attrib, 1);
 
   glEnableVertexAttribArrayARB(radius_disk_attrib);
   glVertexAttribPointerARB(radius_disk_attrib, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
                            (void *) (3 * sizeof(float)));
-  glVertexBindingDivisor(radius_disk_attrib, 1);
+  glVertexAttribDivisorARB(radius_disk_attrib, 1);
 }
 
 void CPointset::genVboData() {
@@ -217,11 +223,11 @@ void CPointset::genVboData() {
   // SEND DATA
   glBindVertexArray(m_vao);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_vbo);
-  glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
+  glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
   setAttributes(); // needed only once at init ?
   glBindVertexArray(m_selected_vao);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_selected_vbo);
-  glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * selected_data.size(), selected_data.data(), GL_STATIC_DRAW);
+  glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(float) * selected_data.size(), selected_data.data(), GL_STATIC_DRAW);
   setAttributes();
   glBindVertexArray(0);
 }
