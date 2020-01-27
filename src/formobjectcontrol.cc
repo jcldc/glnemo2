@@ -1506,7 +1506,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
   pointset_manager->unselectAll();
   QList<QTreeWidgetItem *> items = form.cpoints_set_treewidget->selectedItems();
 
-  if (items.size() == 0) {
+  if (items.empty()) {
     form.edit_cpoint_parent_box->setEnabled(false);
     form.edit_cpointset_parent_box->setEnabled(false);
   } else if (items.size() == 1) {
@@ -1813,7 +1813,7 @@ void FormObjectControl::on_edit_cpointset_name_btn_clicked() {
                                       QString::fromStdString("CPointset " + new_name + " already exists"));
       form.edit_cpointset_name->setText(QString::fromStdString(pointset->getName()));
       emit objectSettingsChanged();
-    } catch (std::out_of_range) {
+    } catch (std::out_of_range&) {
       pointset_manager->setPointsetName(pointset->getName(), new_name);
       item->setData(0, Qt::DisplayRole, QString::fromStdString(new_name));
     }
@@ -1838,6 +1838,7 @@ void FormObjectControl::on_shape_show_name_cbx_stateChanged(int state) {
     pointset->setNameVisible(true);
   else if (state == Qt::Unchecked)
     pointset->setNameVisible(false);
+
   emit objectSettingsChanged();
 }
 void FormObjectControl::on_edit_shape_fill_ratio_valueChanged(int value) {
