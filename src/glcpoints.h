@@ -37,12 +37,12 @@ enum CPointsetShapes {
 
 class GLCPoint {
 public:
-  GLCPoint(std::array<float, 3> coords, float size, std::string text);
+  GLCPoint(std::array<float, 3> coords, float size, const std::string& text);
   const std::array<float, 3> &getCoords() const;
   const float &getSize() const;
   const std::string &getName() const;
   const int &getId() const;
-  const bool isSelected() const;
+  bool isSelected() const;
 
   inline bool operator<(const GLCPoint &other) const { return m_size > other.getSize(); }
   inline bool operator>(const GLCPoint &other) const { return *this < other; }
@@ -52,7 +52,7 @@ public:
 private:
   void setSize(float size);
   void setCoords(std::array<float, 3>);
-  void setName(std::string name);
+  void setName(const std::string &name);
   void select();
   void unselect();
 
@@ -77,7 +77,7 @@ struct GLCPointData {
 
 class CPointset {
 public:
-  CPointset(CShader *shader, std::string name = "");
+  explicit CPointset(CShader *shader, const std::string &name);
   CPointset(CShader *shader, const CPointset &);
   virtual ~CPointset();
   virtual void display() = 0;
@@ -87,8 +87,8 @@ public:
   void copyCPoints(const CPointset&);
   bool ready();
 
-  GLCPoint *addPoint(std::array<float, 3> coords, float size, std::string text);
-  void addPoints(std::vector<GLCPointData>);
+  GLCPoint *addPoint(std::array<float, 3> coords, float size, const std::string &text);
+  void addPoints(const std::vector<GLCPointData>&);
   void deletePoint(int id);
   void select();
   void unselect();
@@ -101,38 +101,36 @@ public:
   const glcpointmap_t &getCPoints() const;
   void setVisible(bool visible);
   bool isVisible();
-  void setFilled(bool);
-  const bool isFilled() const;
   const std::string &getName() const;
-  void setName(std::string);
+  void setName(const std::string &new_name);
   void setThreshold(int threshold);
-  const int getThreshold() const;
+  int getThreshold() const;
   inline int size() { return m_cpoints.size(); }
   CPointsetShapes getPointsetShape() const;
-  const QColor getQColor() const;
+  QColor getQColor() const;
   const std::array<float, 3> &getColor() const;
   void setColor(const QColor &color);
   void setColor(std::array<float, 3>);
   const CPointsetShapes &getShape() const;
   void setNameVisible(bool visible);
-  const bool isNameVisible();
+  bool isNameVisible();
   void setFillratio(float fill_ratio);
-  const float getFillratio() const;
+  float getFillratio() const;
   void setNameSizeFactor(float name_size_factor);
-  const float getNameSizeFactor() const;
+  float getNameSizeFactor() const;
   void setNameOffset(float name_offset);
-  const float getNameOffset() const;
+  float getNameOffset() const;
   void setNameAngle(int angle);
-  const int getNameAngle() const;
+  int getNameAngle() const;
   void setNbSphereSections(int nb_sections);
-  const int getNbSphereSections() const;
+  int getNbSphereSections() const;
 
   void setCpointSize(int id, float size);
   void setCpointCoords(int id, std::array<float, 3> coords);
   void setCpointCoordsX(int id, float x);
   void setCpointCoordsY(int id, float y);
   void setCpointCoordsZ(int id, float z);
-  void setCpointText(int id, std::string text);
+  void setCpointText(int id, const std::string &text);
 
   static int wwidth;
   static int wheight;
@@ -151,7 +149,6 @@ protected:
   std::string m_name;
   std::array<float, 3> m_color;
   bool m_is_visible;
-  bool m_is_filled;
   bool m_is_name_visible;
   int m_threshold;
   float m_fill_ratio;
@@ -167,10 +164,10 @@ protected:
 
 class CPointsetRegularPolygon : public CPointset {
 public:
-  CPointsetRegularPolygon(std::string name);
-  CPointsetRegularPolygon(const CPointset &other);
-  void display();
-  void sendUniforms();
+  explicit CPointsetRegularPolygon(const std::string &name);
+  explicit CPointsetRegularPolygon(const CPointset &other);
+  void display() override;
+  void sendUniforms() override;
 
   static CShader *shader;
 protected:
@@ -179,32 +176,32 @@ protected:
 
 class CPointsetDisk : public CPointsetRegularPolygon {
 public:
-  CPointsetDisk(std::string name);
-  CPointsetDisk(const CPointset &other);
+  explicit CPointsetDisk(const std::string &name);
+  explicit CPointsetDisk(const CPointset &other);
 };
 
 class CPointsetSquare : public CPointsetRegularPolygon {
 public:
-  CPointsetSquare(std::string name);
-  CPointsetSquare(const CPointset &other);
+  explicit CPointsetSquare(const std::string &name);
+  explicit CPointsetSquare(const CPointset &other);
 };
 
 class CPointsetTag : public CPointset {
 public:
-  CPointsetTag(std::string name);
-  CPointsetTag(const CPointset &other);
-  void display();
-  void sendUniforms();
+  explicit CPointsetTag(const std::string &name);
+  explicit CPointsetTag(const CPointset &other);
+  void display() override;
+  void sendUniforms() override;
 
   static CShader *shader;
 };
 
 class CPointsetSphere : public CPointset {
 public:
-  CPointsetSphere(std::string name);
-  CPointsetSphere(const CPointset &other);
-  void display();
-  void sendUniforms();
+  explicit CPointsetSphere(const std::string &name);
+  explicit CPointsetSphere(const CPointset &other);
+  void display() override;
+  void sendUniforms() override;
 //  void setAttributes();
   static CShader *shader;
 };
@@ -213,13 +210,13 @@ class CPointsetManager {
 public:
   CPointsetManager();
   ~CPointsetManager();
-  int loadFile(std::string filepath);
-  void initShaders(bool glsl_130);
+  int loadFile(const std::string &filepath);
+  static void initShaders(bool glsl_130);
   void displayAll();
   CPointset *createNewCPointset();
-  void deleteCPointset(std::string pointset_name);
-  void deleteCPoint(std::string pointset_name, int cpoint_id);
-  CPointset * changePointsetShape(CPointset *pointset, std::string new_shape);
+  void deleteCPointset(const std::string &pointset_name);
+  void deleteCPoint(const std::string &pointset_name, int cpoint_id);
+  CPointset * changePointsetShape(CPointset *pointset, const std::string &new_shape);
   static void setScreenDim(int wwidth, int wheight);
   void unselectAll();
 
@@ -239,22 +236,23 @@ public:
     return m_pointsets.at(name);
   }
 
-  void saveToFile(std::string file_path);
+  void saveToFile(const std::string &file_path);
 
-  void setPointsetName(std::string old_name, std::string new_name);
+  void setPointsetName(const std::string &old_name, const std::string &new_name);
 private:
   int m_nb_sets;
   std::map<std::string, CPointset *> m_pointsets;
   std::string defaultName() const;
-  CPointset *newPointset(std::string str_shape, std::string name);
-  CPointset *newPointset(std::string str_shape, const CPointset &);
+  static std::string defaultShape() ;
+  static CPointset *newPointset(const std::string &str_shape, const std::string &name);
+  static CPointset *newPointset(const std::string &str_shape, const CPointset &other);
 };
 
 class CPointTextRenderer {
 public:
   ~CPointTextRenderer();
 
-  void init(std::string shader_dir);
+  void init(const std::string &shader_dir);
   void renderText(CPointset *pointset);
 
 private:

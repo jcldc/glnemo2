@@ -81,6 +81,8 @@ public:
     void leaveEvent();
     void sigMouseXY(const int x, const int y);
     void doneRendering();
+    void selectTreeWidgetItem(int cpoint_id);
+    void unselectTreeWidgetItem(int cpoint_id);
 public slots:
    void  update(ParticlesData   * ,
                 ParticlesObjectVector * ,
@@ -214,6 +216,7 @@ private:
   bool is_mouse_pressed;
   bool is_mouse_zoom;
   bool is_key_pressed;
+  bool is_a_key_pressed;
   bool is_ctrl_pressed;
 
   void translateAlongAxis(const int);

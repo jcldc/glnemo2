@@ -31,13 +31,13 @@ int CPointset::wwidth = 0;
 
 /******* GLCPoint ********/
 
-GLCPoint::GLCPoint(std::array<float, 3> coords, float size, std::string text)
+GLCPoint::GLCPoint(std::array<float, 3> coords, float size, const std::string& text)
         : m_coords(coords), m_size(size) {
   m_id = next_id;
   next_id++;
   m_is_selected = false;
 
-  if (text == "")
+  if (text.empty())
     m_name = "CPoint " + std::to_string(m_id);
   else
     m_name = text;
@@ -56,7 +56,7 @@ const std::string &GLCPoint::getName() const {
 const int &GLCPoint::getId() const {
   return m_id;
 }
-const bool GLCPoint::isSelected() const {
+bool GLCPoint::isSelected() const {
   return m_is_selected;
 }
 void GLCPoint::setCoords(std::array<float, 3> coords) {
@@ -65,7 +65,7 @@ void GLCPoint::setCoords(std::array<float, 3> coords) {
 void GLCPoint::setSize(float size) {
   m_size = size;
 }
-void GLCPoint::setName(std::string name) {
+void GLCPoint::setName(const std::string &name) {
   m_name = name;
 }
 void GLCPoint::select() {
@@ -91,11 +91,10 @@ void CPointset::sendUniforms() {
   m_shader->sendUniformXiv("screen_dims", 2, 1, std::array<int, 2>({wwidth, wheight}).data());
 }
 
-CPointset::CPointset(CShader *shader, std::string name) :
+CPointset::CPointset(CShader *shader, const std::string &name) :
         m_shader(shader), m_name(name) {
   m_color = {0.2, 0.5, 0.8};
   m_is_visible = true;
-  m_is_filled = false;
   m_is_name_visible = false;
   m_threshold = 100;
   m_fill_ratio = 0.1;
@@ -117,7 +116,6 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
   m_name = other.m_name;
   m_color = other.m_color;
   m_is_visible = other.m_is_visible;
-  m_is_filled = other.m_is_filled;
   m_is_name_visible = other.m_is_name_visible;
   m_threshold = other.m_threshold;
   m_fill_ratio = other.m_fill_ratio;
@@ -148,15 +146,15 @@ const std::string &CPointset::getName() const {
   return m_name;
 }
 
-GLCPoint *CPointset::addPoint(std::array<float, 3> coords, float size, std::string text) {
+GLCPoint *CPointset::addPoint(std::array<float, 3> coords, float size, const std::string &text) {
   auto cpoint = new GLCPoint(coords, size, text);
   m_cpoints[cpoint->getId()] = cpoint;
   genVboData();
   return cpoint;
 }
 
-void CPointset::addPoints(std::vector<GLCPointData> cpoint_data_v) { // return vector maybe
-  for (GLCPointData cpoint_data : cpoint_data_v) {
+void CPointset::addPoints(const std::vector<GLCPointData>& cpoint_data_v) { // return vector maybe
+  for (const GLCPointData& cpoint_data : cpoint_data_v) {
     auto cpoint = new GLCPoint(cpoint_data.coords, cpoint_data.size, cpoint_data.text);
     m_cpoints[cpoint->getId()] = cpoint;
   }
@@ -203,8 +201,8 @@ void CPointset::genVboData() {
   // m_data.reserve(4*m_cpoints.size());
 
   std::vector<GLCPoint *> cpoints_v;
-  for (auto it = m_cpoints.begin(); it != m_cpoints.end(); ++it) {
-    cpoints_v.push_back(it->second);
+  for (auto & m_cpoint : m_cpoints) {
+    cpoints_v.push_back(m_cpoint.second);
   }
   std::sort(cpoints_v.begin(), cpoints_v.end(), [](GLCPoint *a, GLCPoint *b) {
     return a->getSize() < b->getSize();
@@ -242,19 +240,13 @@ void CPointset::copyCPoints(const CPointset &other) {
   m_cpoints = other.getCPoints();
   genVboData();
 }
-void CPointset::setFilled(bool filled) {
-  m_is_filled = filled;
-}
-const bool CPointset::isFilled() const {
-  return m_is_filled;
-}
 CPointsetShapes CPointset::getPointsetShape() const {
   return m_shape;
 }
-const int CPointset::getThreshold() const {
+int CPointset::getThreshold() const {
   return m_threshold;
 }
-const QColor CPointset::getQColor() const {
+QColor CPointset::getQColor() const {
   return QColor(m_color[0] * 255, m_color[1] * 255, m_color[2] * 255);
 }
 void CPointset::setColor(const QColor &color) {
@@ -269,7 +261,7 @@ void CPointset::setColor(std::array<float, 3> color) {
 const std::array<float, 3> &CPointset::getColor() const {
   return m_color;
 }
-void CPointset::setName(std::string new_name) {
+void CPointset::setName(const std::string &new_name) {
   m_name = new_name;
 }
 void CPointset::deletePoint(int id) {
@@ -301,7 +293,7 @@ void CPointset::setCpointCoordsZ(int id, float z) {
   cpoint->setCoords({cpoint->getCoords()[0], cpoint->getCoords()[1], z});
   genVboData();
 }
-void CPointset::setCpointText(int id, std::string text) {
+void CPointset::setCpointText(int id, const std::string &text) {
   GLCPoint *cpoint = m_cpoints.at(id);
   cpoint->setName(text);
 }
@@ -311,37 +303,37 @@ void CPointset::displayText() {
 void CPointset::setNameVisible(bool visible) {
   m_is_name_visible = visible;
 }
-const bool CPointset::isNameVisible() {
+bool CPointset::isNameVisible() {
   return m_is_name_visible;
 }
 void CPointset::setFillratio(float fill_ratio) {
   m_fill_ratio = fill_ratio < 0 ? 0 : fill_ratio > 1 ? 1 : fill_ratio; //clamp
 }
-const float CPointset::getFillratio() const {
+float CPointset::getFillratio() const {
   return m_fill_ratio;
 }
 void CPointset::setNameSizeFactor(float name_size_factor) {
   m_name_size_factor = name_size_factor;
 }
-const float CPointset::getNameSizeFactor() const {
+float CPointset::getNameSizeFactor() const {
   return m_name_size_factor;
 }
 void CPointset::setNameOffset(float name_offset) {
   m_name_offset = name_offset;
 }
-const float CPointset::getNameOffset() const {
+float CPointset::getNameOffset() const {
   return m_name_offset;
 }
 void CPointset::setNameAngle(int angle) {
   m_name_angle = angle % 360;
 }
-const int CPointset::getNameAngle() const {
+int CPointset::getNameAngle() const {
   return m_name_angle;
 }
 void CPointset::setNbSphereSections(int nb_sections) {
   m_nb_sphere_sections = nb_sections;
 }
-const int CPointset::getNbSphereSections() const {
+int CPointset::getNbSphereSections() const {
   return m_nb_sphere_sections;
 }
 json CPointset::toJson() {
@@ -356,13 +348,12 @@ json CPointset::toJson() {
   }
   json cpointset_json = {{"name",       m_name},
                          {"shape",      shapeToStr[m_shape]},
-                         {"is_visible", m_is_visible},
                          {"data",       cpoint_data}}; //show name
 
   // serialize only if different than default value
 
-  if (m_color != default_set.getColor())
-    cpointset_json["color"] = m_color;
+  if (m_is_visible != default_set.isVisible())
+    cpointset_json["is_visible"] = m_is_visible;
   if (m_color != default_set.getColor())
     cpointset_json["color"] = m_color;
   if (m_fill_ratio != default_set.getFillratio())
@@ -377,8 +368,6 @@ json CPointset::toJson() {
     cpointset_json["name_angle"] = m_name_angle;
   if (m_is_name_visible != default_set.isNameVisible())
     cpointset_json["is_name_visible"] = m_is_name_visible;
-  if (m_is_filled != default_set.isFilled())
-    cpointset_json["is_filled"] = m_is_filled;
 
   return cpointset_json;
 }
@@ -387,13 +376,12 @@ void CPointset::fromJson(json j) {
   // set optional fields
   m_color = j.value("color", m_color);
   m_is_visible = j.value("is_visible", m_is_visible);
-  m_nb_sphere_sections = j.value("nb_sphere_section", m_nb_sphere_sections);
+  m_nb_sphere_sections = j.value("nb_sphere_sections", m_nb_sphere_sections);
   m_name_offset = j.value("name_offset", m_name_offset);
   m_fill_ratio = j.value("fill_ratio", m_fill_ratio);
   m_name_size_factor = j.value("name_size_factor", m_name_size_factor);
   m_name_angle = j.value("name_angle", m_name_angle);
   m_is_name_visible = j.value("is_name_visible", m_is_name_visible);
-  m_is_filled = j.value("is_filled", m_is_filled);
 
   std::vector<GLCPointData> cpoint_data_v;
   auto data = j["data"];
@@ -432,7 +420,7 @@ void CPointset::unselectCPoint(int id) {
 }
 
 /******* GLCPointDisk ********/
-CPointsetDisk::CPointsetDisk(std::string name)
+CPointsetDisk::CPointsetDisk(const std::string &name)
         : CPointsetRegularPolygon(name) {
   m_nb_vertices = 100;
   m_shape = CPointsetShapes::disk;
@@ -442,7 +430,7 @@ CPointsetDisk::CPointsetDisk(const CPointset &other) : CPointsetRegularPolygon(o
   m_shape = CPointsetShapes::disk;
 }
 
-CPointsetRegularPolygon::CPointsetRegularPolygon(std::string name) : CPointset(shader, name) {
+CPointsetRegularPolygon::CPointsetRegularPolygon(const std::string &name) : CPointset(shader, name) {
 }
 
 CPointsetRegularPolygon::CPointsetRegularPolygon(const CPointset &other) : CPointset(shader, other) {
@@ -451,7 +439,6 @@ CPointsetRegularPolygon::CPointsetRegularPolygon(const CPointset &other) : CPoin
 void CPointsetRegularPolygon::sendUniforms() {
   CPointset::sendUniforms();
 
-  m_shader->sendUniformi("is_filled", m_is_filled);
   m_shader->sendUniformf("fill_ratio", m_fill_ratio);
 }
 void CPointsetRegularPolygon::display() {
@@ -460,13 +447,8 @@ void CPointsetRegularPolygon::display() {
   glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
-  if (m_is_filled) {
-    m_shader->sendUniformi("nb_vertices", m_nb_vertices);
-    glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, m_nb_vertices, nb_objects);
-  } else {
-    m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
-    glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
-  }
+  m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
+  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
   glBindVertexArray(0);
   m_shader->stop();
 
@@ -475,20 +457,15 @@ void CPointsetRegularPolygon::display() {
   glBindVertexArray(m_selected_vao);
   m_shader->sendUniformi("second_pass", true);
   sendUniforms();
-  if (m_is_filled) {
-    m_shader->sendUniformi("nb_vertices", m_nb_vertices);
-    glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, m_nb_vertices, nb_objects);
-  } else {
-    m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
-    glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
-  }
+  m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
+  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
   glBindVertexArray(0);
   m_shader->stop();
 
 }
 
 /******* GLCPointSquare ********/
-CPointsetSquare::CPointsetSquare(std::string name)
+CPointsetSquare::CPointsetSquare(const std::string &name)
         : CPointsetRegularPolygon(name) {
   m_nb_vertices = 4;
   m_shape = CPointsetShapes::square;
@@ -499,7 +476,7 @@ CPointsetSquare::CPointsetSquare(const CPointset &other) : CPointsetRegularPolyg
 }
 
 /******* GLCPointTag ********/
-CPointsetTag::CPointsetTag(std::string name) : CPointset(shader, name) {
+CPointsetTag::CPointsetTag(const std::string &name) : CPointset(shader, name) {
   m_shape = CPointsetShapes::tag;
 }
 
@@ -531,7 +508,7 @@ void CPointsetTag::sendUniforms() {
 }
 
 /******* GLCPointSphere ********/
-CPointsetSphere::CPointsetSphere(std::string name) : CPointset(shader, name) {
+CPointsetSphere::CPointsetSphere(const std::string &name) : CPointset(shader, name) {
   m_shape = CPointsetShapes::sphere;
 }
 
@@ -569,43 +546,35 @@ void CPointsetSphere::display() {
   glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
-  m_shader->sendUniformi("subdivisions", m_nb_sphere_sections);
   glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, nb_objects);
-  glBindVertexArray(0);
-  m_shader->stop();
 
-  m_shader->start();
   glBindVertexArray(m_selected_vao);
-  sendUniforms();
-  m_shader->sendUniformi("subdivisions", m_nb_sphere_sections);
-
   glEnable(GL_STENCIL_TEST);
-//  for (int i = 0; i < m_nb_selected; ++i) {
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glDepthMask(GL_FALSE);
-    glStencilFunc(GL_NEVER, 1, 0xFF);
-    glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);  // draw 1s on test fail (always)
-    glStencilMask(0xFF);
-    glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
-    m_shader->sendUniformi("second_pass", false);
-    glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, nb_vertex_per_sphere, m_nb_selected);
-//
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glDepthMask(GL_TRUE);
-    glStencilMask(0x00);
-    glStencilFunc(GL_EQUAL, 0, 0xFF);
-    m_shader->sendUniformi("second_pass", true);
-    glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, m_nb_selected);
-//  }
-  glDisable(GL_STENCIL_TEST);
+  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  glDepthMask(GL_FALSE);
+  glStencilFunc(GL_NEVER, 1, 0xFF);
+  glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);  // draw 1s on test fail (always)
+  glStencilMask(0xFF);
+  glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
+  m_shader->sendUniformi("second_pass", false);
+  glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, nb_vertex_per_sphere, m_nb_selected);
 
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glDepthMask(GL_TRUE);
+  glStencilMask(0x00);
+  glStencilFunc(GL_EQUAL, 0, 0xFF);
+  m_shader->sendUniformi("second_pass", true);
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, m_nb_selected);
+  glDisable(GL_STENCIL_TEST);
   glBindVertexArray(0);
+
   m_shader->stop();
 
 
 }
 void CPointsetSphere::sendUniforms() {
   CPointset::sendUniforms();
+  m_shader->sendUniformi("subdivisions", m_nb_sphere_sections);
 }
 
 /******* GLCPointsetManager ********/
@@ -620,46 +589,45 @@ CPointsetManager::CPointsetManager() {
   CPointset::shapeToStr[CPointsetShapes::tag] = "tag";
   CPointset::shapeToStr[CPointsetShapes::sphere] = "sphere";
 
-  for (auto sts: CPointset::shapeToStr) {
+  for (const auto& sts: CPointset::shapeToStr) {
     CPointset::strToShape[sts.second] = sts.first;
   }
 }
 
-int CPointsetManager::loadFile(std::string filepath) {
+int CPointsetManager::loadFile(const std::string &filepath) {
   std::cerr << "Loading json file\n";
   std::ifstream file(filepath);
   json json_data;
   try {
     file >> json_data;
-  } catch (json::exception) {
+
+    for (auto & it : json_data) {
+      CPointset *pointset;
+      CShader *shader;
+      std::string str_shape = it.value("shape", defaultShape());
+      std::string name(it.value("name", defaultName()));
+      bool name_too_long = false;
+      while (m_pointsets[name])
+        if (name.size() < 50)
+          name += " duplicate";
+        else {
+          name_too_long = true;
+          break;
+        }
+
+      if (name_too_long)
+        continue;
+
+      pointset = newPointset(str_shape, name);
+      if (!pointset)
+        continue;
+
+      pointset->fromJson(it);
+      m_pointsets[name] = pointset;
+      m_nb_sets++;
+    }
+  } catch (json::exception&) {
     return -1;
-  }
-
-  for (json::iterator it = json_data.begin(); it != json_data.end(); ++it) {
-    CPointset *pointset;
-    CShader *shader;
-
-    std::string str_shape = (*it)["shape"];
-    std::string name((*it).value("name", defaultName()));
-    bool name_too_long = false;
-    while (m_pointsets[name])
-      if (name.size() < 50)
-        name += " duplicate";
-      else {
-        name_too_long = true;
-        break;
-      }
-
-    if (name_too_long)
-      continue;
-
-    pointset = newPointset(str_shape, name);
-    if (!pointset)
-      continue;
-
-    pointset->fromJson(*it);
-    m_pointsets[name] = pointset;
-    m_nb_sets++;
   }
   return 0;
 }
@@ -669,7 +637,7 @@ std::string CPointsetManager::defaultName() const {
 }
 
 CPointsetManager::~CPointsetManager() {
-  for (auto cpointset_pair: m_pointsets) {
+  for (const auto& cpointset_pair: m_pointsets) {
     for (auto cpoint_pair : cpointset_pair.second->getCPoints())
       delete cpoint_pair.second;
     delete cpointset_pair.second;
@@ -720,14 +688,14 @@ void CPointsetManager::initShaders(bool glsl_130) {
 void CPointsetManager::displayAll() {
   glDisable(GL_BLEND);
   glEnable(GL_DEPTH_TEST);
-  for (auto cpointset_pair: m_pointsets) {
+  for (const auto& cpointset_pair: m_pointsets) {
     CPointset *cpointset = cpointset_pair.second;
     if (cpointset->ready() && cpointset->isVisible()) {
       cpointset->display();
     }
   }
   glDisable(GL_DEPTH_TEST);
-  for (auto cpointset_pair: m_pointsets) {
+  for (const auto& cpointset_pair: m_pointsets) {
     CPointset *cpointset = cpointset_pair.second;
     if (cpointset->isNameVisible())
       cpointset->displayText();
@@ -735,17 +703,17 @@ void CPointsetManager::displayAll() {
 }
 
 CPointset *CPointsetManager::createNewCPointset() {
-  CPointsetDisk *pointset = new CPointsetDisk(defaultName());
+  auto *pointset = new CPointsetDisk(defaultName());
   m_pointsets[defaultName()] = pointset;
   m_nb_sets++;
   return pointset;
 }
-void CPointsetManager::deleteCPointset(std::string pointset_name) {
+void CPointsetManager::deleteCPointset(const std::string &pointset_name) {
   auto it = m_pointsets.find(pointset_name);
   m_pointsets.erase(it);
   m_nb_sets--;
 }
-CPointset *CPointsetManager::changePointsetShape(CPointset *pointset, std::string new_shape) {
+CPointset *CPointsetManager::changePointsetShape(CPointset *pointset, const std::string &new_shape) {
   CPointset *new_pointset = newPointset(new_shape, *pointset);
   if (new_pointset) {
     m_pointsets[pointset->getName()] = new_pointset;
@@ -760,17 +728,17 @@ void CPointsetManager::setScreenDim(int wwidth, int wheight) {
   CPointset::wheight = wheight;
 }
 
-void CPointsetManager::saveToFile(std::string file_path) {
+void CPointsetManager::saveToFile(const std::string &file_path) {
   std::ofstream outfile(file_path);
   json cpointset_json;
-  for (auto pair: *this) {
+  for (const auto& pair: m_pointsets) {
     CPointset *set = pair.second;
     cpointset_json.push_back(set->toJson());
   }
   outfile << cpointset_json;
 }
 
-CPointset *CPointsetManager::newPointset(std::string str_shape, std::string name) {
+CPointset *CPointsetManager::newPointset(const std::string &str_shape, const std::string &name) {
   if (str_shape == "disk") {
     return new CPointsetDisk(name);
   } else if (str_shape == "square") {
@@ -785,7 +753,7 @@ CPointset *CPointsetManager::newPointset(std::string str_shape, std::string name
   }
 }
 
-CPointset *CPointsetManager::newPointset(std::string str_shape, const CPointset &other) {
+CPointset *CPointsetManager::newPointset(const std::string &str_shape, const CPointset &other) {
   if (str_shape == "disk") {
     return new CPointsetDisk(other);
   } else if (str_shape == "square") {
@@ -799,7 +767,7 @@ CPointset *CPointsetManager::newPointset(std::string str_shape, const CPointset 
     return nullptr;
   }
 }
-void CPointsetManager::setPointsetName(std::string old_name, std::string new_name) {
+void CPointsetManager::setPointsetName(const std::string &old_name, const std::string &new_name) {
   if (old_name != new_name) {
     const iterator it = m_pointsets.find(old_name);
     if (it != m_pointsets.end()) {
@@ -810,7 +778,7 @@ void CPointsetManager::setPointsetName(std::string old_name, std::string new_nam
   }
 }
 
-void CPointsetManager::deleteCPoint(std::string pointset_name, int cpoint_id) {
+void CPointsetManager::deleteCPoint(const std::string &pointset_name, int cpoint_id) {
   m_pointsets.at(pointset_name)->deletePoint(cpoint_id);
 }
 
@@ -818,8 +786,11 @@ void CPointsetManager::unselectAll() {
   for (auto cpointset_pair: m_pointsets)
     cpointset_pair.second->unselect();
 }
+std::string CPointsetManager::defaultShape() {
+  return "disk";
+}
 
-void CPointTextRenderer::init(std::string shader_dir) {
+void CPointTextRenderer::init(const std::string &shader_dir) {
 
   // initialize shader
   m_text_shader = new CShader(
@@ -857,7 +828,7 @@ void CPointTextRenderer::init(std::string shader_dir) {
   json json_font;
   try {
     json_font = json::parse(font_description_stream.readAll().toStdString());
-  } catch (json::exception) {
+  } catch (json::exception&) {
     std::cerr << "Failed to parse file " + font_description_file.fileName().toStdString() << "\n";
     exit(1);
   }

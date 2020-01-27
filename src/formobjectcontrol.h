@@ -126,6 +126,7 @@ namespace glnemo {
 	        bool reset_table=true  );
     void init(QMutex * _m) { mutex_data = _m;}
     void disableCpointsTab();
+    void clearSelection();
   signals:
   void objectSettingsChanged();
   void objectUpdateVel(const int);
@@ -144,6 +145,7 @@ namespace glnemo {
   void reverseColorMap(const bool);
   void customColormap();
   void changeBoundaryPhys(const int, const bool b);
+  void cpointHelpClicked();
   public slots:
     void changeColorMap() {
       form.dynamic_cmap->setChecked(go->dynamic_cmap);
@@ -151,6 +153,8 @@ namespace glnemo {
       dens_color_bar->draw(form.dens_slide_min->value(),form.dens_slide_max->value());
     }
     void initCPointsTreeWidget();
+    void selectTreeWidgetItem(int cpoint_id);
+    void unselectTreeWidgetItem(int cpoint_id);
   private slots:
     void reject() {} // allow to de activate escape key to close the box
     // global slots
@@ -177,7 +181,6 @@ namespace glnemo {
     void on_shape_radio_tag_clicked(bool) {shapeRadioClicked();};
     void on_shape_radio_sphere_clicked(bool) {shapeRadioClicked();};
     void shapeRadioClicked();
-    void on_shape_checkbox_filled_stateChanged(int);
     void on_color_picker_button_clicked(bool);
     void on_export_cpoints_file_clicked(bool);
     void on_add_cpoint_center_coord_btn_clicked(bool);
@@ -196,7 +199,8 @@ namespace glnemo {
     void on_edit_shape_name_offset_valueChanged(int);
     void on_edit_shape_nb_sphere_sections_valueChanged(int);
     void on_edit_shape_name_angle_valueChanged(int);
-    void setFormState(CPointsetShapes shape);
+    void setFormState(CPointset *pointset);
+    void on_cpoint_help_clicked() {emit cpointHelpClicked();};
     // on gaz
     void on_gaz_check_clicked(bool);
     void on_gaz_slide_size_valueChanged(int);

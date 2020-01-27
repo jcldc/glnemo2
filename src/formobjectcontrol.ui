@@ -1415,86 +1415,6 @@ Physical value can be:
                     <string>Edit shape</string>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_11">
-                    <item row="2" column="2">
-                     <widget class="QCheckBox" name="shape_show_name_cbx">
-                      <property name="toolTip">
-                       <string>Display cpoints name</string>
-                      </property>
-                      <property name="text">
-                       <string>Show name</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="2">
-                     <layout class="QHBoxLayout" name="horizontalLayout_8">
-                      <item>
-                       <widget class="QPushButton" name="color_picker_button">
-                        <property name="maximumSize">
-                         <size>
-                          <width>30</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                        <property name="toolTip">
-                         <string>Set color of the selected cpointset</string>
-                        </property>
-                        <property name="text">
-                         <string/>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLabel" name="label_13">
-                        <property name="text">
-                         <string>Color</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item row="0" column="0">
-                     <widget class="QRadioButton" name="shape_radio_disk">
-                      <property name="toolTip">
-                       <string>Change cpoints shape to circle</string>
-                      </property>
-                      <property name="text">
-                       <string>Disk</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="0">
-                     <widget class="QRadioButton" name="shape_radio_frame">
-                      <property name="toolTip">
-                       <string>Change cpoints shape to frame</string>
-                      </property>
-                      <property name="text">
-                       <string>Frame</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="2">
-                     <widget class="QCheckBox" name="shape_checkbox_filled">
-                      <property name="toolTip">
-                       <string>Toggle fill shape</string>
-                      </property>
-                      <property name="text">
-                       <string>Filled</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QRadioButton" name="shape_radio_tag">
-                      <property name="toolTip">
-                       <string>Change cpoints shape to tag</string>
-                      </property>
-                      <property name="text">
-                       <string>Tag</string>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="2" column="1">
                      <widget class="QRadioButton" name="shape_radio_sphere">
                       <property name="toolTip">
@@ -1505,7 +1425,7 @@ Physical value can be:
                       </property>
                      </widget>
                     </item>
-                    <item row="7" column="2" rowspan="2">
+                    <item row="6" column="2" rowspan="2">
                      <layout class="QVBoxLayout" name="verticalLayout_9">
                       <item>
                        <widget class="QLabel" name="label_23">
@@ -1535,10 +1455,13 @@ Physical value can be:
                       </item>
                      </layout>
                     </item>
-                    <item row="5" column="0" colspan="3">
-                     <widget class="Line" name="line">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
+                    <item row="0" column="0">
+                     <widget class="QRadioButton" name="shape_radio_disk">
+                      <property name="toolTip">
+                       <string>Change cpoints shape to circle</string>
+                      </property>
+                      <property name="text">
+                       <string>Disk</string>
                       </property>
                      </widget>
                     </item>
@@ -1552,7 +1475,7 @@ Physical value can be:
                       </property>
                      </widget>
                     </item>
-                    <item row="7" column="0" rowspan="2" colspan="2">
+                    <item row="6" column="0" rowspan="2" colspan="2">
                      <layout class="QGridLayout" name="gridLayout_12">
                       <property name="topMargin">
                        <number>0</number>
@@ -1662,6 +1585,63 @@ Physical value can be:
                        </widget>
                       </item>
                      </layout>
+                    </item>
+                    <item row="2" column="2">
+                     <widget class="QCheckBox" name="shape_show_name_cbx">
+                      <property name="toolTip">
+                       <string>Display cpoints name</string>
+                      </property>
+                      <property name="text">
+                       <string>Show name</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="2">
+                     <layout class="QHBoxLayout" name="horizontalLayout_8">
+                      <item>
+                       <widget class="QPushButton" name="color_picker_button">
+                        <property name="maximumSize">
+                         <size>
+                          <width>30</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                        <property name="toolTip">
+                         <string>Set color of the selected cpointset</string>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_13">
+                        <property name="text">
+                         <string>Color</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QRadioButton" name="shape_radio_tag">
+                      <property name="toolTip">
+                       <string>Change cpoints shape to tag</string>
+                      </property>
+                      <property name="text">
+                       <string>Tag</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0" colspan="3">
+                     <widget class="Line" name="line">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                     </widget>
                     </item>
                    </layout>
                   </widget>
@@ -2077,10 +2057,7 @@ Physical value can be:
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
+          <widget class="QPushButton" name="cpoint_help">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
