@@ -79,8 +79,8 @@ void CPointset::sendUniforms() {
   GLfloat mview[16];
   glGetFloatv(GL_MODELVIEW_MATRIX, mview);
 
-  m_shader->sendUniformXfv("projMatrix", 16, 1, &proj[0]);
-  m_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
+  m_shader->sendUniformXfv("proj_matrix", 16, 1, &proj[0]);
+  m_shader->sendUniformXfv("model_view_matrix", 16, 1, &mview[0]);
   m_shader->sendUniformXfv("color", 3, 1, m_color.data());
   m_shader->sendUniformXiv("screen_dims", 2, 1, std::array<int, 2>({wwidth, wheight}).data());
 }
@@ -497,7 +497,7 @@ void CPointsetTag::sendUniforms() {
 //  GLfloat mview[16];
 //  glGetFloatv(GL_MODELVIEW_MATRIX, mview);
 //  glm::mat4 mviewGLM = glm::make_mat4(mview);
-//  m_shader->sendUniformXfv("modelviewMatrixInverse", 16, 1, (const float *) glm::value_ptr(glm::inverse(mviewGLM)));
+//  m_shader->sendUniformXfv("model_view_matrixInverse", 16, 1, (const float *) glm::value_ptr(glm::inverse(mviewGLM)));
 //  m_shader->sendUniformf("screen_scale", 2 * tagSizeOnScreen / wwidth);
 }
 
@@ -896,8 +896,8 @@ void CPointTextRenderer::renderText(CPointset *pointset) {
     GLfloat mview[16];
     glGetFloatv(GL_MODELVIEW_MATRIX, mview);
 
-    m_text_shader->sendUniformXfv("projMatrix", 16, 1, &proj[0]);
-    m_text_shader->sendUniformXfv("modelviewMatrix", 16, 1, &mview[0]);
+    m_text_shader->sendUniformXfv("proj_matrix", 16, 1, &proj[0]);
+    m_text_shader->sendUniformXfv("model_view_matrix", 16, 1, &mview[0]);
 
     m_text_shader->sendUniformXfv("color", 3, 1, pointset->getColor().data());
     m_text_shader->sendUniformXfv("point_center", 3, 1, cpoint->getCoords().data());

@@ -1,8 +1,8 @@
 #version 130
 
 uniform int nb_vertices;
-uniform mat4 modelviewMatrix; // TODO change name
-uniform mat4 projMatrix;
+uniform mat4 model_view_matrix;
+uniform mat4 proj_matrix;
 uniform int subdivisions;
 uniform bool second_pass;
 uniform ivec2 screen_dims;
@@ -48,12 +48,12 @@ void main()
     }
 
     vec3 vertex_pos = point_center+spherePos;
-    vec4 vpos = projMatrix * modelviewMatrix*vec4(vertex_pos,1);
+    vec4 vpos = proj_matrix * model_view_matrix*vec4(vertex_pos,1);
 
 
     if (second_pass){
         float outline_width = 2; //px
-        vec2 normal = normalize((vpos-projMatrix * modelviewMatrix*vec4(point_center,1)).xy);
+        vec2 normal = normalize((vpos-proj_matrix * model_view_matrix*vec4(point_center,1)).xy);
         vec2 offset = normal / screen_dims * outline_width * vpos.w;
 
         vpos.xy += offset;
