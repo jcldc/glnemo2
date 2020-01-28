@@ -1540,7 +1540,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
       pointset->selectCPoint(cpoint_id);
     }
   } else { // multiple items selected
-    bool cpoints = false, cpointsets = false;
+    bool cpoints = false, cpointsets = false, different_sets = false;
     CPointset* previous_parent = nullptr;
 
     for (auto item : items) {
@@ -1558,7 +1558,7 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
         if(!previous_parent) // assign to first parent
           previous_parent = parent;
         if(parent != previous_parent) // check if all cpoints are from the same set
-          cpointsets = true;
+          different_sets = true;
         previous_parent = parent;
       }
     }
@@ -1571,6 +1571,8 @@ void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
       form.edit_cpointset_parent_box->setEnabled(true);
       form.edit_cpoint_parent_box->setEnabled(true);
       form.edit_cpoint_box->setEnabled(false);
+      if(different_sets)
+        form.edit_cpointset_parent_box->setEnabled(false);
     } else { //both types selected
       form.edit_cpointset_parent_box->setEnabled(false);
       form.edit_cpoint_parent_box->setEnabled(false);
@@ -1932,6 +1934,7 @@ void FormObjectControl::unselectTreeWidgetItem(int cpoint_id) {
     auto item = item_matched[0];
     auto parent = item->parent();
     if(parent && parent->isSelected()){
+      item->parent()->setExpanded(true);
       parent->setSelected(false);
       for (int i = 0; i < parent->childCount (); i++)
       {
