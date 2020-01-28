@@ -886,11 +886,13 @@ std::pair<CPointset *, GLCPoint*> CPointsetManager::getClickedCpoint(double *mod
   CPointset* closest_cpoint_parent_set = nullptr;
   for (const auto &cpointset_pair : m_pointsets) {
     auto cpointset = cpointset_pair.second;
-    std::pair<GLCPoint*, float> cpoint_dist = cpointset->getClickedCPoint(model, proj, click_coords, viewport, dof);
-    if(cpoint_dist.second < closest_cpoint_dist){
-      closest_cpoint = cpoint_dist.first;
-      closest_cpoint_dist = cpoint_dist.second;
-      closest_cpoint_parent_set = cpointset;
+    if (cpointset->isVisible()) {
+      std::pair<GLCPoint *, float> cpoint_dist = cpointset->getClickedCPoint(model, proj, click_coords, viewport, dof);
+      if (cpoint_dist.second < closest_cpoint_dist) {
+        closest_cpoint = cpoint_dist.first;
+        closest_cpoint_dist = cpoint_dist.second;
+        closest_cpoint_parent_set = cpointset;
+      }
     }
   }
   return {closest_cpoint_parent_set, closest_cpoint};
