@@ -418,6 +418,38 @@ void CPointset::unselectCPoint(int id) {
   m_nb_selected--;
   genVboData();
 }
+std::pair<GLCPoint *, float> CPointset::getClickedCPoint(double *model, double *proj, glm::vec2 click_coords,
+                                          int *viewport, int dof) {
+
+  float closest_cpoint_dist = dof; //DOF
+  GLCPoint *closest_cpoint = nullptr;
+  glm::mat4 m(glm::make_mat4(model));
+  glm::mat4 p(glm::make_mat4(proj));
+
+  for (const auto &cpoint_pair : m_cpoints) {
+    auto cpoint = cpoint_pair.second;
+    auto coords = cpoint->getCoords();
+    glm::vec4 center(coords[0], coords[1], coords[2], 1);
+    glm::vec4 center_vp = p * m * center;
+    float cpoint_dist = center_vp.w;
+    center_vp /= center_vp.w;
+    glm::vec4 center_world = m * center;
+    glm::vec4 radius_pos = center_world + glm::vec4(cpoint->getSize(), 0, 0, 0);
+    glm::vec4 radius_vp = p * radius_pos;
+    radius_vp /= radius_vp.w;
+    glm::vec2 radius_px = {(radius_vp.x + 1) / 2. * wwidth, -(radius_vp.y - 1) / 2. * wheight};
+    glm::vec2 center_px = {(center_vp.x + 1) / 2. * wwidth, -(center_vp.y - 1) / 2. * wheight};
+
+    float radius_len = glm::length(radius_px - center_px);
+
+    if (glm::length(click_coords - center_px) < radius_len && cpoint_dist < closest_cpoint_dist) {
+      closest_cpoint = cpoint;
+      closest_cpoint_dist = cpoint_dist;
+    }
+  }
+  return {closest_cpoint, closest_cpoint_dist};
+}
+
 
 /******* GLCPointDisk ********/
 CPointsetDisk::CPointsetDisk(const std::string &name)
@@ -516,26 +548,40 @@ CPointsetSphere::CPointsetSphere(const CPointset &other) : CPointset(shader, oth
   m_shape = CPointsetShapes::sphere;
 }
 
-//void GLCPointsetSphere::setAttributes() {
-//  GLuint point_center_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "point_center");
-//  GLuint radius_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "radius");
-//  if (point_center_disk_attrib == -1) {
-//    std::cerr << "Error occured when getting \"point_center\" attribute\n";
-//    exit(1);
-//  }
-//  if (radius_disk_attrib == -1) {
-//    std::cerr << "Error occured when getting \"radius\" attribute\n";
-//    exit(1);
-//  }
-//  glEnableVertexAttribArrayARB(point_center_disk_attrib);
-//  glVertexAttribPointerARB(point_center_disk_attrib, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
-//  glVertexBindingDivisor(point_center_disk_attrib, nb_vertex_per_sphere);
-//
-//  glEnableVertexAttribArrayARB(radius_disk_attrib);
-//  glVertexAttribPointerARB(radius_disk_attrib, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
-//                           (void *) (3 * sizeof(float)));
-//  glVertexBindingDivisor(radius_disk_attrib, nb_vertex_per_sphere);
-//}
+
+std::pair<GLCPoint *, float> CPointsetSphere::getClickedCPoint(double *model, double *proj, glm::vec2 click_coords,
+                                          int *viewport, int dof) {
+
+  GLdouble x, y, z;
+  gluUnProject(click_coords.x, wheight - click_coords.y, 0.0005, model, proj, viewport, &x, &y, &z);
+  glm::vec3 near({x, y, z});
+
+  GLdouble x2, y2, z2;
+  gluUnProject(click_coords.x, wheight - click_coords.y, (GLfloat) dof, model, proj, viewport, &x2, &y2, &z2);
+  glm::vec3 far({x2, y2, z2});
+
+  glm::vec3 ray = glm::normalize(far - near);
+
+  float closest_cpoint_dist = dof; //DOF
+  GLCPoint *closest_cpoint = nullptr;
+  for (const auto &cpoint_pair : m_cpoints) {
+    auto cpoint = cpoint_pair.second;
+    auto coords = cpoint->getCoords();
+    glm::vec3 oc = near - glm::vec3{coords[0], coords[1], coords[2]};
+    float a = glm::dot(ray, ray);
+    float b = 2.0f * glm::dot(oc, ray);
+    float radius = cpoint->getSize();
+    float c = dot(oc, oc) - radius * radius;
+    float discriminant = b * b - 4 * a * c;
+    float cpoint_dist = -(-b - sqrt(discriminant)) / (2.0 * a);
+    if (discriminant > 0 && cpoint_dist < closest_cpoint_dist) {
+      closest_cpoint = cpoint;
+      closest_cpoint_dist = cpoint_dist;
+    }
+  }
+
+  return {closest_cpoint, closest_cpoint_dist};
+}
 
 void CPointsetSphere::display() {
 
@@ -790,67 +836,18 @@ std::string CPointsetManager::defaultShape() {
   return "disk";
 }
 std::pair<CPointset *, GLCPoint*> CPointsetManager::getClickedCpoint(double *model, double *proj, glm::vec2 click_coords,
-                                                          glm::vec2 window_size,
                                                           int *viewport, int dof) {
 
-  glm::mat4 m(glm::make_mat4(model));
-  glm::mat4 p(glm::make_mat4(proj));
-  int wheight = window_size.y;
-  int wwidth = window_size.x;
-  GLdouble x, y, z;
-  gluUnProject(click_coords.x, wheight - click_coords.y, 0.0005, model, proj, viewport, &x, &y, &z);
-  glm::vec3 near({x, y, z});
-
-  GLdouble x2, y2, z2;
-  gluUnProject(click_coords.x, wheight - click_coords.y, (GLfloat) dof, model, proj, viewport, &x2, &y2, &z2);
-  glm::vec3 far({x2, y2, z2});
-
-  glm::vec3 ray = glm::normalize(far - near);
-
-  float closest_cpoint_dist = dof; //DOF
+  float closest_cpoint_dist = dof;
   GLCPoint* closest_cpoint = nullptr;
   CPointset* closest_cpoint_parent_set = nullptr;
-
   for (const auto &cpointset_pair : m_pointsets) {
     auto cpointset = cpointset_pair.second;
-    for (const auto &cpoint_pair : cpointset->getCPoints()) {
-      auto cpoint = cpoint_pair.second;
-      auto coords = cpoint->getCoords();
-      if (cpointset->getShape() == CPointsetShapes::sphere) {
-        glm::vec3 oc = near - glm::vec3{coords[0], coords[1], coords[2]};
-        float a = glm::dot(ray, ray);
-        float b = 2.0f * glm::dot(oc, ray);
-        float radius = cpoint->getSize();
-        float c = dot(oc, oc) - radius * radius;
-        float discriminant = b * b - 4 * a * c;
-        float cpoint_dist = -(-b - sqrt(discriminant)) / (2.0*a);
-        if (discriminant > 0 && cpoint_dist < closest_cpoint_dist) {
-          closest_cpoint = cpoint;
-          closest_cpoint_parent_set = cpointset;
-          closest_cpoint_dist = cpoint_dist;
-        }
-      }
-//      else if (cpointset->getShape() == CPointsetShapes::square){} //TODO
-      else{
-        glm::vec4 center(coords[0], coords[1], coords[2], 1);
-        glm::vec4 center_vp = p * m * center;
-        float cpoint_dist = center_vp.w;
-        center_vp /= center_vp.w;
-        glm::vec4 center_world = m * center;
-        glm::vec4 radius_pos = center_world + glm::vec4(cpoint->getSize(), 0, 0, 0);
-        glm::vec4 radius_vp = p * radius_pos;
-        radius_vp /= radius_vp.w;
-        glm::vec2 radius_px = {(radius_vp.x + 1) / 2. * wwidth, -(radius_vp.y - 1) / 2. * wheight};
-        glm::vec2 center_px = {(center_vp.x + 1) / 2. * wwidth, -(center_vp.y - 1) / 2. * wheight};
-
-        float radius_len = glm::length(radius_px - center_px);
-
-        if (glm::length(click_coords - center_px) < radius_len && cpoint_dist < closest_cpoint_dist) {
-          closest_cpoint = cpoint;
-          closest_cpoint_parent_set = cpointset;
-          closest_cpoint_dist = cpoint_dist;
-        }
-      }
+    std::pair<GLCPoint*, float> cpoint_dist = cpointset->getClickedCPoint(model, proj, click_coords, viewport, dof);
+    if(cpoint_dist.second < closest_cpoint_dist){
+      closest_cpoint = cpoint_dist.first;
+      closest_cpoint_dist = cpoint_dist.second;
+      closest_cpoint_parent_set = cpointset;
     }
   }
   return {closest_cpoint_parent_set, closest_cpoint};

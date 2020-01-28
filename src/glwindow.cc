@@ -838,8 +838,9 @@ void GLWindow::mouseReleaseEvent(QMouseEvent *e) {
   }
   if (is_a_key_pressed) {
     if (e->button() == Qt::LeftButton) {
-      std::pair<CPointset*, GLCPoint*> cpoint_pair = cpointset_manager->getClickedCpoint(mModel2, mProj, {e->x(), e->y()},
-                                                                     {wwidth, wheight}, viewport, DOF);
+      std::pair<CPointset*, GLCPoint*> cpoint_pair = cpointset_manager->getClickedCpoint(mModel2, mProj,
+                                                                                         {e->x(), e->y()}, viewport,
+                                                                                         DOF);
       auto closest_cpoint_parent_set = cpoint_pair.first;
       auto closest_cpoint = cpoint_pair.second;
       if(closest_cpoint){

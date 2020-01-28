@@ -94,6 +94,8 @@ public:
   void unselect();
   void selectCPoint(int id);
   void unselectCPoint(int id);
+  virtual std::pair<GLCPoint*, float> getClickedCPoint(double *model, double *proj, glm::vec2 click_coords,
+                                          int *viewport, int dof);
 
   json toJson();
   void fromJson(json j);
@@ -184,6 +186,8 @@ class CPointsetSquare : public CPointsetRegularPolygon {
 public:
   explicit CPointsetSquare(const std::string &name);
   explicit CPointsetSquare(const CPointset &other);
+  std::pair<GLCPoint*, float> getClickedCPoint(double *model, double *proj, glm::vec2 click_coords,
+                                          int *viewport, int dof) override;
 };
 
 class CPointsetTag : public CPointset {
@@ -202,6 +206,9 @@ public:
   explicit CPointsetSphere(const CPointset &other);
   void display() override;
   void sendUniforms() override;
+  std::pair<GLCPoint*, float> getClickedCPoint(double *model, double *proj, glm::vec2 click_coords,
+                                          int *viewport, int dof) override;
+
 //  void setAttributes();
   static CShader *shader;
 };
@@ -219,7 +226,7 @@ public:
   CPointset * changePointsetShape(CPointset *pointset, const std::string &new_shape);
   static void setScreenDim(int wwidth, int wheight);
   void unselectAll();
-  std::pair<CPointset *, GLCPoint*> getClickedCpoint(double *model, double *proj, glm::vec2 click_coords, glm::vec2 window_size,
+  std::pair<CPointset *, GLCPoint*> getClickedCpoint(double *model, double *proj, glm::vec2 click_coords,
                                           int *viewport, int dof);
 
   typedef typename std::map<std::string, CPointset *> map_type;
