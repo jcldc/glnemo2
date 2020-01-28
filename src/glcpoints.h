@@ -219,6 +219,8 @@ public:
   CPointset * changePointsetShape(CPointset *pointset, const std::string &new_shape);
   static void setScreenDim(int wwidth, int wheight);
   void unselectAll();
+  std::pair<CPointset *, GLCPoint*> getClickedCpoint(double *model, double *proj, glm::vec2 click_coords, glm::vec2 window_size,
+                                          int *viewport, int dof);
 
   typedef typename std::map<std::string, CPointset *> map_type;
   typedef typename map_type::iterator iterator;

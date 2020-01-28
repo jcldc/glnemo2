@@ -838,67 +838,10 @@ void GLWindow::mouseReleaseEvent(QMouseEvent *e) {
   }
   if (is_a_key_pressed) {
     if (e->button() == Qt::LeftButton) {
-
-      glm::mat4 m(glm::make_mat4(mModel2));
-      glm::mat4 p(glm::make_mat4(mProj));
-
-      GLdouble x, y, z;
-      gluUnProject(e->x(), wheight - e->y(), 0.0005, mModel2, mProj, viewport, &x, &y, &z);
-      glm::vec3 near({x, y, z});
-
-      GLdouble x2, y2, z2;
-      gluUnProject(e->x(), wheight - e->y(), (GLfloat) DOF, mModel2, mProj, viewport, &x2, &y2, &z2);
-      glm::vec3 far({x2, y2, z2});
-
-      glm::vec3 ray = glm::normalize(far - near);
-
-      GLCPoint* closest_cpoint = nullptr;
-      CPointset* closest_cpoint_parent_set = nullptr;
-
-      for (const auto &cpointset_pair : *cpointset_manager) {
-        auto cpointset = cpointset_pair.second;
-        float closest_cpoint_dist = DOF;
-        for (const auto &cpoint_pair : cpointset->getCPoints()) {
-          auto cpoint = cpoint_pair.second;
-          auto coords = cpoint->getCoords();
-          if (cpointset->getShape() == CPointsetShapes::sphere) {
-            glm::vec3 oc = near - glm::vec3{coords[0], coords[1], coords[2]};
-            float a = glm::dot(ray, ray);
-            float b = 2.0f * glm::dot(oc, ray);
-            float radius = cpoint->getSize();
-            float c = dot(oc, oc) - radius * radius;
-            float discriminant = b * b - 4 * a * c;
-            float cpoint_dist = -(-b - sqrt(discriminant)) / (2.0*a);
-            if (discriminant > 0 && cpoint_dist < closest_cpoint_dist) {
-              closest_cpoint = cpoint;
-              closest_cpoint_parent_set = cpointset;
-              closest_cpoint_dist = cpoint_dist;
-            }
-          }
-//          else if (cpointset->getShape() == CPointsetShapes::square){} //TODO
-          else{
-            glm::vec4 center(coords[0], coords[1], coords[2], 1);
-            glm::vec4 center_vp = p * m * center;
-            float cpoint_dist = center_vp.w;
-            center_vp /= center_vp.w;
-            glm::vec4 center_world = m * center;
-            glm::vec4 radius_pos = center_world + glm::vec4(cpoint->getSize(), 0, 0, 0);
-            glm::vec4 radius_vp = p * radius_pos;
-            radius_vp /= radius_vp.w;
-            glm::vec2 radius_px = {(radius_vp.x + 1) / 2. * wwidth, -(radius_vp.y - 1) / 2. * wheight};
-            glm::vec2 center_px = {(center_vp.x + 1) / 2. * wwidth, -(center_vp.y - 1) / 2. * wheight};
-
-            float radius_len = glm::length(radius_px - center_px);
-            glm::vec2 mouse_pos = {e->x(), e->y()};
-
-            if (glm::length(mouse_pos - glm::vec2(center_px.x, center_px.y)) < radius_len && cpoint_dist < closest_cpoint_dist) {
-              closest_cpoint = cpoint;
-              closest_cpoint_parent_set = cpointset;
-              closest_cpoint_dist = cpoint_dist;
-            }
-          }
-        }
-      }
+      std::pair<CPointset*, GLCPoint*> cpoint_pair = cpointset_manager->getClickedCpoint(mModel2, mProj, {e->x(), e->y()},
+                                                                     {wwidth, wheight}, viewport, DOF);
+      auto closest_cpoint_parent_set = cpoint_pair.first;
+      auto closest_cpoint = cpoint_pair.second;
       if(closest_cpoint){
         if (closest_cpoint->isSelected()) {
           closest_cpoint_parent_set->unselectCPoint(closest_cpoint->getId());
