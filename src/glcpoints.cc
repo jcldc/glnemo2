@@ -506,6 +506,49 @@ CPointsetSquare::CPointsetSquare(const CPointset &other) : CPointsetRegularPolyg
   m_nb_vertices = 4;
   m_shape = CPointsetShapes::square;
 }
+std::pair<GLCPoint *, float>
+CPointsetSquare::getClickedCPoint(double *model, double *proj, glm::vec2 click_coords, int *viewport, int dof) {
+
+  float closest_cpoint_dist = dof; //DOF
+  GLCPoint *closest_cpoint = nullptr;
+  glm::mat4 m(glm::make_mat4(model));
+  glm::mat4 p(glm::make_mat4(proj));
+
+
+  for (const auto &cpoint_pair : m_cpoints) {
+    glm::vec2 click = click_coords;
+    auto cpoint = cpoint_pair.second;
+    auto coords = cpoint->getCoords();
+    glm::vec4 center(coords[0], coords[1], coords[2], 1);
+    glm::vec4 center_vp = p * m * center;
+    float cpoint_dist = center_vp.w;
+    center_vp /= center_vp.w;
+    glm::vec4 center_world = m * center;
+    float side = sqrt(cpoint->getSize()*cpoint->getSize()*2);
+    glm::vec4 right_pos = center_world + glm::vec4(side, 0, 0, 0);
+    glm::vec4 top_pos = center_world + glm::vec4(0, side, 0, 0);
+    glm::vec4 right_vp = p * right_pos;
+    glm::vec4 top_vp = p * top_pos;
+    right_vp /= right_vp.w;
+    top_vp /= top_vp.w;
+    glm::vec2 right_px = glm::vec2((right_vp.x + 1) / 2. * wwidth, -(right_vp.y - 1) / 2. * wheight);
+    glm::vec2 top_px = glm::vec2((top_vp.x + 1) / 2. * wwidth, -(top_vp.y - 1) / 2. * wheight);
+    glm::vec2 center_px = glm::vec2((center_vp.x + 1) / 2. * wwidth, -(center_vp.y - 1) / 2. * wheight);
+    glm::vec2 right_vec = right_px - center_px;
+    glm::vec2 top_vec = top_px - center_px;
+    glm::vec2 click_vec = center_px + glm::vec2(right_vec.x, -right_vec.x)/2.f - click;
+
+    if (glm::dot(click_vec, right_vec) < glm::dot(right_vec, right_vec)
+    && glm::dot(click_vec, right_vec) > 0
+    && glm::dot(click_vec, top_vec) < glm::dot(top_vec, top_vec)
+    && glm::dot(click_vec, top_vec) > 0
+    && cpoint_dist < closest_cpoint_dist) {
+      closest_cpoint = cpoint;
+      closest_cpoint_dist = cpoint_dist;
+    }
+  }
+  return {closest_cpoint, closest_cpoint_dist};
+}
 
 /******* GLCPointTag ********/
 CPointsetTag::CPointsetTag(const std::string &name) : CPointset(shader, name) {
