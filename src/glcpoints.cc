@@ -490,7 +490,7 @@ void CPointsetRegularPolygon::display() {
   m_shader->sendUniformi("second_pass", true);
   sendUniforms();
   m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
-  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
+  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, m_nb_selected);
   glBindVertexArray(0);
   m_shader->stop();
 
