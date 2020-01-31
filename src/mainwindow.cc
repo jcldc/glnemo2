@@ -70,9 +70,10 @@ MainWindow::MainWindow(std::string _ver)
 
   // Camera
   camera = new  Camera(store_options);
+  new_camera = new NewCamera();
   // ------- openGL object ---------
   pointset_manager = new CPointsetManager();
-  gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager);
+  gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager, new_camera);
 
   if(glewIsSupported("GL_VERSION_3_0")){
     is_cpoints_enabled = true;
@@ -310,6 +311,7 @@ MainWindow::~MainWindow()
   delete colormap;
   delete mutex_data;
   delete camera;
+  delete new_camera;
 }
 // -----------------------------------------------------------------------------
 // dropEvent

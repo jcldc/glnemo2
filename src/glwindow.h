@@ -31,6 +31,7 @@
 #include "glaxesobject.h"
 #include "camera.h"
 #include "glcpoints.h"
+#include "new_camera.h"
 
 
 class fntTexFont;
@@ -42,7 +43,7 @@ class GlobalOptions;
 class GLWindow : public QGLWidget {
   Q_OBJECT
 public:
-    GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, CPointsetManager *);
+    GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, CPointsetManager *, NewCamera*);
     ~GLWindow();
 
     void bestZoomFit();
@@ -229,6 +230,7 @@ private:
       last_posx, last_posy, last_posz;
   float last_xrot, last_yrot, last_zrot;
   float last_urot, last_vrot, last_wrot;
+  float last_zoom;
   int   i_umat, i_vmat, i_wmat; // index of the SCENE/Object rotation matrix
   
   void setRotationScreen( const int x, const int y, const int z );
@@ -298,6 +300,7 @@ private:
   GLOctree * tree;
   // Camera
   Camera * camera;
+  NewCamera * new_camera;
 };
 } // namespace glnemo
 

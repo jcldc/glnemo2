@@ -39,6 +39,7 @@
 #include "componentrange.h"
 #include "userselection.h"
 #include "colormap.h"
+#include "new_camera.h"
 
 
 // prototypes
@@ -288,6 +289,7 @@ class MainWindow : public QMainWindow {
     Colormap * colormap;
     // Camera
     Camera * camera;
+    NewCamera * new_camera;
     // Selected Physical quantitie from the command line
     int selphys;
     bool is_cpoints_enabled;

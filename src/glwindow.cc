@@ -46,13 +46,14 @@ namespace glnemo {
 // BEWARE when parent constructor QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 // is called, we get antialiasing during screenshot capture but we can loose    
 // performance during rendering. You have been warned !!!!!                     
-GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
+GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager, NewCamera* _new_camera) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
   // copy parameters
   parent        = _parent;
   store_options = _go;
   camera        = _camera;
-    cpointset_manager = _pointset_manager;
+  cpointset_manager = _pointset_manager;
+  new_camera = _new_camera;
   //setAttribute(Qt::WA_NoSystemBackground);
   // reset coordinates
   resetEvents(true);
@@ -81,6 +82,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   last_xrot = last_urot = 0.;
   last_yrot = last_vrot = 0.;
   last_zrot = last_wrot = 0.;
+  last_zoom = 0.;
   // SCENE/object matrix index
   i_umat = 0;
   i_vmat = 1;
@@ -414,6 +416,7 @@ void GLWindow::paintGL()
     last_urot = store_options->urot;
     last_vrot = store_options->vrot;
     last_wrot = store_options->wrot;
+    last_zoom = store_options->zoom;
     glMultMatrixd (mScene);
     glGetDoublev (GL_MODELVIEW_MATRIX, mScene);
   }
@@ -425,25 +428,27 @@ void GLWindow::paintGL()
 
   // the following code compute OpenGL rotation 
   // around XYZ screen axes
+  new_camera->setZoom(abs(store_options->zoom));
+  float dzoom = store_options->zoom - last_zoom;
+
   if (rx!=0 ||
       ry!=0 ||
-      rz!=0) {
-    glLoadIdentity();
-    // rotate only around the screen axes about the delta angle from the previous
-    // rotation, otherwise it mess up the rotation
-    glRotatef( rx, 1.0, 0.0, 0.0 );
-    glRotatef( ry, 0.0, 1.0, 0.0 );
-    glRotatef( rz, 0.0, 0.0, 1.0 );
+      rz!=0 ||
+      dzoom!=0) {
+    new_camera->rotate(rx, ry, rz);
     last_xrot = store_options->xrot;
     last_yrot = store_options->yrot;
     last_zrot = store_options->zrot;
-    
-    glMultMatrixd (mScreen); // apply previous rotations on the current one
-    glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // save screen rotation matrix
+    const auto *pSource = (const float*)glm::value_ptr(inverse(new_camera->getMatrix()));
+    for (int i = 0; i < 16; ++i)
+        mScreen[i] = pSource[i];
   }
-  if (reset_screen_rotation) { 
-    glLoadIdentity ();
-    glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // set to Identity
+  if (reset_screen_rotation) {
+    store_options->zoom = 4;
+    new_camera->reset();
+    const auto *pSource = (const float*)glm::value_ptr(inverse(new_camera->getMatrix()));
+    for (int i = 0; i < 16; ++i)
+        mScreen[i] = pSource[i];
     reset_screen_rotation=false;
   }
   if (reset_scene_rotation) { 
@@ -455,10 +460,6 @@ void GLWindow::paintGL()
 
   glLoadIdentity (); // reset OGL rotations
   // set camera
-  if ( store_options->perspective) {
-    camera->setEye(0.0,  0.0,  -store_options->zoom);
-    camera->moveTo();
-  }
   glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mRot);
   
   // apply screen rotation on the whole system
@@ -1016,9 +1017,9 @@ void GLWindow::setRotationScreen( const int x, const int y, const int z )
   osd->setText(GLObjectOsd::Rot,xRot,yRot,zRot);
   osd->updateDisplay();
   // save values
-  store_options->xrot =xRot;
-  store_options->yrot =yRot;
-  store_options->zrot =zRot;
+  store_options->xrot =x;
+  store_options->yrot =y;
+  store_options->zrot =z;
   updateGL();
 }
 // ============================================================================
