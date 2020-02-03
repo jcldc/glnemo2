@@ -600,7 +600,7 @@ void MainWindow::createActions()
 
   // screenshot
   screenshot_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/camera.png"),tr("Take a screenshot"),this);
-  screenshot_action->setShortcut(tr("S"));
+  screenshot_action->setShortcut(tr("shift+S")); // TODO decide a shortcut or keep S
   screenshot_action->setStatusTip(tr("Take a screenshot"));
   connect(screenshot_action, SIGNAL( triggered() ), this, SLOT(actionScreenshot()) );
 
@@ -761,6 +761,11 @@ void MainWindow::createActions()
   unselect_cpoints->setShortcut(Qt::Key_Escape);
   connect( unselect_cpoints, SIGNAL( triggered() ), this, SLOT( actionUnselectCPoints() ) );
   addAction(unselect_cpoints);
+  // Toggle camera mode
+  toggle_camera_mode_action = new QAction(this);
+  toggle_camera_mode_action->setShortcut(tr("d"));
+  connect(toggle_camera_mode_action, SIGNAL(triggered() ), this, SLOT(actionToggleCameraMode() ) );
+  addAction(toggle_camera_mode_action);
 }
 
 // -----------------------------------------------------------------------------
@@ -1862,6 +1867,13 @@ void MainWindow::actionUnselectCPoints()
 {
   pointset_manager->unselectAll();
   form_o_c->unselectTreeWidgetAll();
+}
+// -----------------------------------------------------------------------------
+// actionToggleCameraMode()
+void MainWindow::actionToggleCameraMode()
+{
+  new_camera->toggleCameraMode();
+  gl_window->forcePaintGL();
 }
 // -----------------------------------------------------------------------------
 // actionPlay()

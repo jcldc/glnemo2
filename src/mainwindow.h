@@ -121,6 +121,13 @@ class MainWindow : public QMainWindow {
     void actionTranslateY();
     void actionTranslateZ();
     void actionUnselectCPoints();
+    void actionToggleCameraMode();
+    // void actionMoveCameraFront();
+    // void actionMoveCameraBack();
+    // void actionMoveCameraLeft();
+    // void actionMoveCameraRight();
+    // void actionRotateCameraCW();
+    // void actionRotateCameraCCW();
     void actionToggleOsd();
     void actionToggleRotationScreen();
     void actionToggleCamera();
@@ -224,6 +231,7 @@ class MainWindow : public QMainWindow {
     // Z sorting
     QAction * zsorting_action;
     QAction * unselect_cpoints;
+    QAction * toggle_camera_mode_action;
     // OpenGL setting dialog box
     //DlgGLSettings * box_gl_settings;
     // Forms

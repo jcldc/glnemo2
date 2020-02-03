@@ -425,11 +425,11 @@ void GLWindow::paintGL()
   float rx=store_options->xrot-last_xrot;
   float ry=store_options->yrot-last_yrot;
   float rz=store_options->zrot-last_zrot;
+  float dzoom = store_options->zoom - last_zoom;
 
   // the following code compute OpenGL rotation 
   // around XYZ screen axes
-  new_camera->setZoom(abs(store_options->zoom));
-  float dzoom = store_options->zoom - last_zoom;
+  // new_camera->setZoom(abs(store_options->zoom));
 
   if (rx!=0 ||
       ry!=0 ||
@@ -891,7 +891,10 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
       }
       else {
         if (is_mouse_zoom) {
-          setZoom(-dx);
+          if(dx > 0)
+            mouseWheelDown();
+          else if(dx < 0)
+            mouseWheelUp();
         }
         else {
           // total rotation
@@ -940,8 +943,10 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
 // manage zoom according to wheel event
 void GLWindow::wheelEvent(QWheelEvent * e)
 {
-  setZoom(e->delta());
-  //!options_form->downloadOptions(store_options);
+  if(e->delta() > 0)
+    mouseWheelUp();
+  else if(e->delta() < 0)
+    mouseWheelDown();
 }
 // ============================================================================
 // manage keyboard press events
@@ -965,12 +970,12 @@ void GLWindow::keyPressEvent(QKeyEvent * k)
   }
   if (k->key() == Qt::Key_Plus) {
     is_key_pressed = TRUE;
-    setZoom(-1);
+    mouseWheelDown();
     //!statusBar()->message("Zoom IN");
   }
   if (k->key() == Qt::Key_Minus) {
     is_key_pressed = TRUE;
-    setZoom(1);
+    mouseWheelUp();
     //!statusBar()->message("Zoom OUT");
   }
   if (k->key() == Qt::Key_Shift) {
@@ -979,6 +984,11 @@ void GLWindow::keyPressEvent(QKeyEvent * k)
       is_translation=FALSE;
       is_mouse_zoom=TRUE;
     }
+  }
+  if(k->key() == Qt::Key_W){
+    is_key_pressed = TRUE;
+    if(new_camera->getCameraMode() == CameraMode::free)
+      new_camera->moveForward(16);
   }
   emit sigKeyMouse( is_key_pressed, is_mouse_pressed);
   //!options_form->downloadOptions(store_options);
@@ -1169,7 +1179,32 @@ void GLWindow::updateOsdZrt(bool ugl)
   }
 
 }
-
+void GLWindow::mouseWheelUp()
+{
+  const CameraMode mode = new_camera->getCameraMode();
+  if(mode == arcball){
+    float new_zoom = new_camera->increaseZoom();
+    store_options->zoom = new_zoom;
+    store_options->zoomo = new_zoom;
+    osdZoom();
+  }
+  // else{
+  //   store_options->speed = new_camera->increaseSpeed();
+  // }
+}
+void GLWindow::mouseWheelDown()
+{
+  const CameraMode mode = new_camera->getCameraMode();
+  if(mode == arcball){
+    float new_zoom = new_camera->decreaseZoom();
+    store_options->zoom = new_zoom;
+    store_options->zoomo = new_zoom;
+    osdZoom();
+  }
+  // else{
+  //   store_options->speed = new_camera->decreaseSpeed();
+  // }
+}
 // ============================================================================
 // setup zoom according to a z value
 void GLWindow::setZoom(const int z)

@@ -5,7 +5,6 @@
 #ifndef GLNEMO2_NEW_CAMERA_H
 #define GLNEMO2_NEW_CAMERA_H
 
-#include <QObject>
 #include <glm/glm.hpp>
 #include <glm/detail/type_quat.hpp>
 #include "globject.h"
@@ -30,9 +29,9 @@ public:
   bool isMatrixClean() const;
   const mat4 &getViewMatrix();
 protected:
-  virtual void buildMatrix() = 0;
+  virtual void buildMatrix();
   static quat fromAxisAngle(vec3 axis, double angle);
-  quat m_rotation;
+  quat m_orientation;
   vec3 m_position;
   mat4 m_view_matrix;
   bool m_matrix_clean;
@@ -44,10 +43,11 @@ public:
   void rotate(float, float, float) override;
   float getZoom() const;
   void setZoom(float zoom);
+  float increaseZoom();
+  float decreaseZoom();
   void reset() override ;
 
 private:
-  void buildMatrix() override;
   float m_zoom;
 };
 
@@ -56,9 +56,13 @@ public:
   FreeCamera() = default;
   void rotate(float, float, float) override;
   void reset() override {};
+  void moveForward(float dt);
+  void moveBackward(float dt);
+  void moveLeft(float dt);
+  void moveRight(float dt);
 
 private:
-  void buildMatrix() override;
+  float m_speed;
 };
 
 class NewCamera {
@@ -70,6 +74,16 @@ public:
   const quat &getRotation();
   const mat4 &getMatrix();
   void setZoom(float zoom);
+  void toggleCameraMode();
+  const CameraMode &getCameraMode() const;
+  // float increaseSpeed();
+  // float decreaseSpeed();
+  float increaseZoom();
+  float decreaseZoom();
+  void moveForward(float dt);
+  void moveBackward(float dt);
+  void moveLeft(float dt);
+  void moveRight(float dt);
 private:
   FreeCamera *m_free_camera;
   ArcballCamera *m_arcball_camera;

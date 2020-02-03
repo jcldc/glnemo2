@@ -239,6 +239,8 @@ private:
   void setTranslation( const int x, const int y, const int z );
   void setZoom(const int z);
   void setZoom(const float z);
+  void mouseWheelUp();
+  void mouseWheelDown();
   int zoom_dynam;
   // gl matrix
   GLdouble mProj[16], mModel[16], mModel2[16],

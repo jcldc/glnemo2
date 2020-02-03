@@ -12,12 +12,12 @@ using namespace glm;
 namespace glnemo {
 
 BaseCamera::BaseCamera() {
-  m_rotation = quat();
-  m_position = {4, 4, 4};
+  m_position = {0, 0, 4};
+  m_orientation = fromAxisAngle(-m_position, 0);
 }
 
 const quat &BaseCamera::getRotation() const {
-  return m_rotation;
+  return m_orientation;
 }
 
 bool BaseCamera::isMatrixClean() const {
@@ -30,6 +30,14 @@ const mat4 &BaseCamera::getViewMatrix() {
   return m_view_matrix;
 }
 
+void BaseCamera::buildMatrix() {
+  mat4 t(1.f);
+  t = translate(t, m_position);
+  mat4 r = mat4_cast(m_orientation);
+  m_view_matrix = t * r;
+  m_matrix_clean = true;
+}
+
 quat BaseCamera::fromAxisAngle(vec3 axis, double angle) {
   quat out;
   //x, y, and z form a normalized vector which is now the axis of rotation.
@@ -40,27 +48,17 @@ quat BaseCamera::fromAxisAngle(vec3 axis, double angle) {
   return normalize(out);
 }
 
+/********* ArcBall Camera ************/
 ArcballCamera::ArcballCamera() {
   m_zoom = 4;
 }
 
-void ArcballCamera::buildMatrix() {
-  m_position = m_rotation * vec3(0, 0, m_zoom);
-
-  mat4 t(1.f);
-  t = translate(t, m_position);
-  mat4 r = mat4_cast(m_rotation);
-  m_view_matrix = t * r;
-  m_matrix_clean = true;
-}
-
 void ArcballCamera::rotate(float x, float y, float z) {
-  if (z != 0) std::cout << z << "\n";
-  quat rot_x = fromAxisAngle(m_rotation * vec3(1, 0, 0), -x);
-  quat rot_y = fromAxisAngle(m_rotation * vec3(0, 1, 0), -y);
+  quat rot_x = fromAxisAngle(m_orientation * vec3(1, 0, 0), -x);
+  quat rot_y = fromAxisAngle(m_orientation * vec3(0, 1, 0), -y);
   quat rot_z = fromAxisAngle(normalize(-m_position), z);
-  std::cout << rot_z.x << " " << rot_z.y << " " << rot_z.z << " " << rot_z.w << "\n";
-  m_rotation = normalize(rot_x * rot_y * rot_z * m_rotation);
+  m_orientation = normalize(rot_x * rot_y * rot_z * m_orientation);
+  m_position = m_orientation * vec3(0, 0, m_zoom);
   m_matrix_clean = false;
 }
 
@@ -72,24 +70,53 @@ void ArcballCamera::setZoom(float zoom) {
   m_zoom = zoom;
 }
 
+float ArcballCamera::increaseZoom() {
+  m_zoom *= 1.1;
+  return m_zoom;
+}
+
+float ArcballCamera::decreaseZoom() {
+  m_zoom *= 0.9;
+  return m_zoom;
+}
+
 void ArcballCamera::reset() {
-  m_rotation = quat(1.f, 0, 0, 0);
+  m_orientation = quat(1.f, 0, 0, 0);
   m_zoom = 4;
   m_position = {0, 0, m_zoom};
   m_matrix_clean = false;
 }
 
-////////////////
+/********* Free Camera ************/
 void FreeCamera::rotate(float x, float y, float z) {
+  quat rot_x = fromAxisAngle(m_orientation * vec3(1, 0, 0), -x);
+  quat rot_y = fromAxisAngle(m_orientation * vec3(0, 1, 0), -y);
+  quat rot_z = fromAxisAngle(m_orientation * vec3(0, 0, 1), -z);
+  m_orientation = normalize(rot_x * rot_y * rot_z * m_orientation);
   m_matrix_clean = false;
 }
 
-void FreeCamera::buildMatrix() {
-
+void FreeCamera::moveForward(float dt) {
+    m_position += m_orientation*vec3(0, 0, 1) / (float)(1 / (m_speed * dt / 30.0));
+    m_matrix_clean = false;
 }
-////////////////////
 
+void FreeCamera::moveRight(float dt) {
+    m_position += m_orientation*vec3(1, 0, 0) / (float)(1 / (m_speed * dt / 30.0));
+    m_matrix_clean = false;
+}
 
+void FreeCamera::moveLeft(float dt) {
+    m_position += m_orientation*vec3(-1, 0, 0) / (float)(1 / (m_speed * dt / 30.0));
+    m_matrix_clean = false;
+}
+
+void FreeCamera::moveBackward(float dt) {
+    m_position += m_orientation*vec3(0, 0, -1) / (float)(1 / (m_speed * dt / 30.0));
+    m_matrix_clean = false;
+}
+
+/********* Camera ************/
 NewCamera::NewCamera() {
   m_free_camera = new FreeCamera();
   m_arcball_camera = new ArcballCamera();
@@ -121,6 +148,54 @@ void NewCamera::rotate(float x, float y, float z) {
 void NewCamera::setZoom(float zoom) {
   if (m_mode == CameraMode::arcball)
     m_arcball_camera->setZoom(zoom);
+}
+
+const CameraMode &NewCamera::getCameraMode() const {
+  return m_mode;
+}
+
+// float NewCamera::increaseSpeed(){
+//   float new_speed = *1.1;
+// }
+// float NewCamera::decreaseSpeed(){
+//   return val*0.9;
+// }
+
+float NewCamera::increaseZoom(){
+  return m_arcball_camera->increaseZoom();
+}
+float NewCamera::decreaseZoom(){
+  return m_arcball_camera->decreaseZoom();
+}
+
+void NewCamera::toggleCameraMode() {
+  if(m_mode == CameraMode::arcball){
+    m_current_camera = m_free_camera;
+    m_mode = CameraMode::free;
+  } else {
+    m_current_camera = m_arcball_camera;
+    m_mode = CameraMode::arcball;
+  }
+}
+
+void NewCamera::moveForward(float dt) {
+  if(m_mode == CameraMode::free)
+    m_free_camera->moveForward(dt);
+}
+
+void NewCamera::moveBackward(float dt) {
+  if(m_mode == CameraMode::free)
+    m_free_camera->moveBackward(dt);
+}
+
+void NewCamera::moveLeft(float dt) {
+  if(m_mode == CameraMode::free)
+    m_free_camera->moveLeft(dt);
+}
+
+void NewCamera::moveRight(float dt) {
+  if(m_mode == CameraMode::free)
+    m_free_camera->moveRight(dt);
 }
 
 }
