@@ -1041,17 +1041,19 @@ Physical value can be:
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <attribute name="headerVisible">
-           <bool>false</bool>
-          </attribute>
           <column>
            <property name="text">
-            <string notr="true">name</string>
+            <string notr="true">Name</string>
            </property>
           </column>
           <column>
            <property name="text">
             <string>id</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Nb cpoints</string>
            </property>
           </column>
          </widget>

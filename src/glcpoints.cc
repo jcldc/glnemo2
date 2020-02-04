@@ -28,6 +28,7 @@ CShader *CPointsetSphere::shader = nullptr;
 int GLCPoint::next_id = 0;
 int CPointset::wheight = 0;
 int CPointset::wwidth = 0;
+const std::array<float, 3> CPointset::selected_color = {1, 0.3, 0.3};
 
 /******* GLCPoint ********/
 
@@ -88,7 +89,7 @@ void CPointset::sendUniforms() {
   m_shader->sendUniformXfv("proj_matrix", 16, 1, &proj[0]);
   m_shader->sendUniformXfv("model_view_matrix", 16, 1, &mview[0]);
   m_shader->sendUniformXfv("color", 3, 1, m_color.data());
-  m_shader->sendUniformXiv("screen_dims", 2, 1, std::array<int, 2>({wwidth, wheight}).data());
+  m_shader->sendUniformXfv("selected_color", 3, 1, selected_color.data());
 }
 
 CPointset::CPointset(CShader *shader, const std::string &name) :
@@ -450,6 +451,10 @@ std::pair<GLCPoint *, float> CPointset::getClickedCPoint(double *model, double *
   return {closest_cpoint, closest_cpoint_dist};
 }
 
+int CPointset::getNbCpoints() const {
+  return m_cpoints.size();
+}
+
 
 /******* GLCPointDisk ********/
 CPointsetDisk::CPointsetDisk(const std::string &name)
@@ -472,6 +477,8 @@ void CPointsetRegularPolygon::sendUniforms() {
   CPointset::sendUniforms();
 
   m_shader->sendUniformf("fill_ratio", m_fill_ratio);
+  m_shader->sendUniformXiv("screen_dims", 2, 1, std::array<int, 2>({wwidth, wheight}).data());
+
 }
 void CPointsetRegularPolygon::display() {
   int nb_objects = m_cpoints.size() * m_threshold / 100;
@@ -560,15 +567,27 @@ CPointsetTag::CPointsetTag(const CPointset &other) : CPointset(shader, other) {
 }
 
 void CPointsetTag::display() {
-  m_shader->start();
-  glBindVertexArray(m_vao);
+
   int nb_objects = m_cpoints.size() * m_threshold / 100;
 
+  glLineWidth(1);
+  m_shader->start();
+  glBindVertexArray(m_selected_vao);
   sendUniforms();
+  m_shader->sendUniformi("second_pass", true);
   glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, nb_objects);
-
   glBindVertexArray(0);
   m_shader->stop();
+
+  m_shader->start();
+  glBindVertexArray(m_vao);
+  sendUniforms();
+  m_shader->sendUniformi("second_pass", false);
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, nb_objects);
+  glBindVertexArray(0);
+  m_shader->stop();
+
+
 }
 void CPointsetTag::sendUniforms() {
   CPointset::sendUniforms();
@@ -631,6 +650,9 @@ void CPointsetSphere::display() {
   int nb_objects = m_cpoints.size() * m_threshold / 100;
   int nb_vertex_per_sphere = m_nb_sphere_sections * m_nb_sphere_sections + m_nb_sphere_sections;
 
+  glLineWidth(1);
+  glEnable(GL_BLEND);
+
   m_shader->start();
   glBindVertexArray(m_vao);
   sendUniforms();
@@ -640,7 +662,7 @@ void CPointsetSphere::display() {
   glBindVertexArray(m_selected_vao);
   glEnable(GL_STENCIL_TEST);
   glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-  glDepthMask(GL_FALSE);
+  glDepthMask(GL_TRUE);
   glStencilFunc(GL_NEVER, 1, 0xFF);
   glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);  // draw 1s on test fail (always)
   glStencilMask(0xFF);
@@ -664,6 +686,7 @@ void CPointsetSphere::display() {
 void CPointsetSphere::sendUniforms() {
   CPointset::sendUniforms();
   m_shader->sendUniformi("subdivisions", m_nb_sphere_sections);
+  m_shader->sendUniformXiv("screen_dims", 2, 1, std::array<int, 2>({wwidth, wheight}).data());
 }
 
 /******* GLCPointsetManager ********/
@@ -671,7 +694,7 @@ void CPointsetSphere::sendUniforms() {
 
 CPointsetManager::CPointsetManager() {
   // SHADER INIT
-  m_nb_sets = 0;
+  m_next_set_id = 0;
 
   CPointset::shapeToStr[CPointsetShapes::disk] = "disk";
   CPointset::shapeToStr[CPointsetShapes::square] = "square";
@@ -713,7 +736,7 @@ int CPointsetManager::loadFile(const std::string &filepath) {
 
       pointset->fromJson(it);
       m_pointsets[name] = pointset;
-      m_nb_sets++;
+      m_next_set_id++;
     }
   } catch (json::exception&) {
     return -1;
@@ -722,7 +745,7 @@ int CPointsetManager::loadFile(const std::string &filepath) {
 }
 
 std::string CPointsetManager::defaultName() const {
-  return "CPoint set " + std::to_string(m_nb_sets);
+  return "CPoint set " + std::to_string(m_next_set_id);
 }
 
 CPointsetManager::~CPointsetManager() {
@@ -757,7 +780,7 @@ void CPointsetManager::initShaders(bool glsl_130) {
 
   CPointsetTag::shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + shader_dir + "/tag_shape.vert",
-          GlobalOptions::RESPATH.toStdString() + shader_dir + "/characteristic.frag");
+          GlobalOptions::RESPATH.toStdString() + shader_dir + "/tag_shape.frag");
   if (!CPointsetTag::shader->init()) {
     delete CPointsetTag::shader;
     std::cerr << "Failed to initialize tag shape shader\n";
@@ -775,16 +798,16 @@ void CPointsetManager::initShaders(bool glsl_130) {
 }
 
 void CPointsetManager::displayAll() {
-  glDisable(GL_BLEND);
-  glEnable(GL_DEPTH_TEST);
   for (const auto& cpointset_pair: m_pointsets) {
+    glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
     CPointset *cpointset = cpointset_pair.second;
     if (cpointset->ready() && cpointset->isVisible()) {
       cpointset->display();
     }
   }
-  glDisable(GL_DEPTH_TEST);
   for (const auto& cpointset_pair: m_pointsets) {
+    glDisable(GL_DEPTH_TEST);
     CPointset *cpointset = cpointset_pair.second;
     if (cpointset->isNameVisible())
       cpointset->displayText();
@@ -794,13 +817,12 @@ void CPointsetManager::displayAll() {
 CPointset *CPointsetManager::createNewCPointset() {
   auto *pointset = new CPointsetDisk(defaultName());
   m_pointsets[defaultName()] = pointset;
-  m_nb_sets++;
+  m_next_set_id++;
   return pointset;
 }
 void CPointsetManager::deleteCPointset(const std::string &pointset_name) {
   auto it = m_pointsets.find(pointset_name);
   m_pointsets.erase(it);
-  m_nb_sets--;
 }
 CPointset *CPointsetManager::changePointsetShape(CPointset *pointset, const std::string &new_shape) {
   CPointset *new_pointset = newPointset(new_shape, *pointset);
@@ -1000,7 +1022,7 @@ void CPointTextRenderer::renderText(CPointset *pointset) {
   for (auto cpoint_pair: pointset->getCPoints()) {
     GLCPoint *cpoint = cpoint_pair.second;
     float xpos = 0, ypos = 0;
-    float scale = .01;
+    float scale = .004;
     std::string text = cpoint->getName();
 
     m_text_shader->start();
