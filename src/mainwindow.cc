@@ -37,6 +37,8 @@
 
 #include "ftmio.h"
 #include "nemo.h"
+#include "glnemoexception.h"
+
 namespace glnemo {
 #define ICONSIZE 25
 // -----------------------------------------------------------------------------
@@ -283,8 +285,12 @@ void MainWindow::start(std::string shot)
 
   gl_window->setFocus();
   if(cpoint_file != "" && is_cpoints_enabled){
-    pointset_manager->loadFile(cpoint_file);
-    form_o_c->initCPointsTreeWidget();
+    try{
+      pointset_manager->loadFile(cpoint_file);
+      form_o_c->initCPointsTreeWidget();
+    }
+    catch(glnemoException &e){
+    }
   }
   //actionMenuFileConnect();
 }

@@ -9,6 +9,7 @@
 #include <QtGui/QImage>
 #include "glcpoints.h"
 #include "globaloptions.h"
+#include "glnemoexception.h"
 
 #if defined(__APPLE__)
 #define glGenVertexArrays glGenVertexArraysAPPLE
@@ -374,6 +375,22 @@ json CPointset::toJson() {
 }
 void CPointset::fromJson(json j) {
 
+  // check json format
+  auto data = j["data"];
+  for (auto & cpoint : data) {
+    auto coords = cpoint["coords"];
+    for (auto &coord : coords) {
+      if (coord.type() != json::value_t::number_float) {
+        throw glnemoException("\"coordinate\" field should be an array of floats. Check your json file.");
+      }
+    }
+    auto size = cpoint["size"];
+    if (size.type() != json::value_t::number_float) {
+      throw glnemoException("\"size\" field should be a float. Check your json file.");
+    }
+  }
+
+
   // set optional fields
   m_color = j.value("color", m_color);
   m_is_visible = j.value("is_visible", m_is_visible);
@@ -385,11 +402,11 @@ void CPointset::fromJson(json j) {
   m_is_name_visible = j.value("is_name_visible", m_is_name_visible);
 
   std::vector<GLCPointData> cpoint_data_v;
-  auto data = j["data"];
   cpoint_data_v.resize(data.size());
   for (std::size_t i = 0; i < data.size(); ++i) {
-    cpoint_data_v[i] = {data[i]["coords"], data[i]["size"],
-                        data[i].value("name", std::string())};
+    auto coords = data[i]["coords"];
+    auto size = data[i]["size"];
+    cpoint_data_v[i] = {coords, size, data[i].value("name", std::string())};
   }
   addPoints(cpoint_data_v);
 }
@@ -706,8 +723,8 @@ CPointsetManager::CPointsetManager() {
   }
 }
 
-int CPointsetManager::loadFile(const std::string &filepath) {
-  std::cerr << "Loading json file\n";
+void CPointsetManager::loadFile(const std::string &filepath) {
+  std::cerr << "Loading cpoint json file\n";
   std::ifstream file(filepath);
   json json_data;
   try {
@@ -719,7 +736,7 @@ int CPointsetManager::loadFile(const std::string &filepath) {
       std::string str_shape = it.value("shape", defaultShape());
       std::string name(it.value("name", defaultName()));
       bool name_too_long = false;
-      while (m_pointsets[name])
+      while (m_pointsets.find(name) != m_pointsets.end())
         if (name.size() < 50)
           name += " duplicate";
         else {
@@ -738,10 +755,9 @@ int CPointsetManager::loadFile(const std::string &filepath) {
       m_pointsets[name] = pointset;
       m_next_set_id++;
     }
-  } catch (json::exception&) {
-    return -1;
+  } catch (json::exception& e) {
+    throw glnemoException(e.what());
   }
-  return 0;
 }
 
 std::string CPointsetManager::defaultName() const {
