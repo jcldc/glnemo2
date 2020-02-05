@@ -16,7 +16,7 @@ BaseCamera::BaseCamera() {
   m_orientation = fromAxisAngle(-m_position, 0);
 }
 
-const quat &BaseCamera::getRotation() const {
+const quat &BaseCamera::getOrientation() const {
   return m_orientation;
 }
 
@@ -46,6 +46,10 @@ quat BaseCamera::fromAxisAngle(vec3 axis, double angle) {
   out.y = axis.y * sinf(angle*PI/360);
   out.z = axis.z * sinf(angle*PI/360);
   return normalize(out);
+}
+
+const vec3 &BaseCamera::getPosition() const {
+  return m_position;
 }
 
 /********* ArcBall Camera ************/
@@ -124,8 +128,8 @@ NewCamera::NewCamera() {
   m_mode = CameraMode::arcball;
 }
 
-const quat &NewCamera::getRotation() {
-  return m_current_camera->getRotation();
+const quat &NewCamera::getOrientation() {
+  return m_current_camera->getOrientation();
 }
 
 NewCamera::~NewCamera() {
@@ -196,6 +200,10 @@ void NewCamera::moveLeft(float dt) {
 void NewCamera::moveRight(float dt) {
   if(m_mode == CameraMode::free)
     m_free_camera->moveRight(dt);
+}
+
+const vec3 &NewCamera::getPosition() const {
+  return m_current_camera->getPosition();
 }
 
 }

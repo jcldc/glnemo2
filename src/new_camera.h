@@ -25,9 +25,10 @@ public:
   ~BaseCamera() = default;
   virtual void reset() = 0;
   virtual void rotate(float, float, float) = 0;
-  virtual const quat &getRotation() const;
+  virtual const quat &getOrientation() const;
   bool isMatrixClean() const;
   const mat4 &getViewMatrix();
+  const vec3 &getPosition() const;
 protected:
   virtual void buildMatrix();
   static quat fromAxisAngle(vec3 axis, double angle);
@@ -71,8 +72,9 @@ public:
   ~NewCamera();
   void reset();
   void rotate(float, float, float);
-  const quat &getRotation();
+  const quat &getOrientation();
   const mat4 &getMatrix();
+  const vec3 &getPosition() const;
   void setZoom(float zoom);
   void toggleCameraMode();
   const CameraMode &getCameraMode() const;

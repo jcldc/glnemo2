@@ -226,8 +226,8 @@ private:
   // transformations (rotation, translation)
   bool is_translation;
   int  x_mouse, y_mouse, z_mouse,
-      tx_mouse,ty_mouse,tz_mouse,
       last_posx, last_posy, last_posz;
+  float tx_mouse,ty_mouse,tz_mouse;
   float last_xrot, last_yrot, last_zrot;
   float last_urot, last_vrot, last_wrot;
   float last_zoom;
@@ -235,8 +235,8 @@ private:
   
   void setRotationScreen( const int x, const int y, const int z );
   void setRotationScene ( const int u, const int v, const int w );
-  void getPixelTranslation(int *x, int *y, int *z);
-  void setTranslation( const int x, const int y, const int z );
+  void getPixelTranslation(float *x, float *y, float *z);
+  void setTranslation(const float x, const float y, const float z );
   void setZoom(const int z);
   void setZoom(const float z);
   void mouseWheelUp();

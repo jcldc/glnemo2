@@ -886,8 +886,15 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
     else
       if (is_translation) {
         // total rotation
-        tx_mouse+=dx;
-        ty_mouse+=dy;
+        glm::quat camera_orientation = new_camera->getOrientation();
+        glm::vec3 right = camera_orientation*vec3(-dx, 0, 0);
+        glm::vec3 up = camera_orientation*vec3(0, dy, 0);
+        tx_mouse+=right.x;
+        ty_mouse-=right.y;
+        tz_mouse-=right.z;
+        tx_mouse+=up.x;
+        ty_mouse-=up.y;
+        tz_mouse-=up.z;
       }
       else {
         if (is_mouse_zoom) {
@@ -910,7 +917,11 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
       // save last position
       last_posz = e->x();
       if (is_translation) {
-        tz_mouse-=dz; // total rotation
+        glm::quat camera_orientation = new_camera->getOrientation();
+        glm::vec3 front = camera_orientation*vec3(0, 0, dz);
+        tx_mouse+=front.x;
+        ty_mouse-=front.y;
+        tz_mouse-=front.z;
       }
       else {
         z_mouse-=dz;  // total translation
@@ -1124,18 +1135,18 @@ void GLWindow::translateAlongAxis(const int axis)
 // GLBox::getPixelTranslation()
 // return x,y,z pixel translation according to current translation viewport
 // coordinates and zoom
-void GLWindow::getPixelTranslation(int *x, int *y, int *z)
+void GLWindow::getPixelTranslation(float *x, float *y, float *z)
 {
   GLint	Viewport[4];
   glGetIntegerv(GL_VIEWPORT,Viewport);
-  *x = (int) (-store_options->xtrans * Viewport[2]/store_options->zoom);
-  *y = (int) ( store_options->ytrans * Viewport[3]/store_options->zoom);
-  *z = (int) ( store_options->ztrans * Viewport[2]/store_options->zoom);
+  *x = (float) (-store_options->xtrans * Viewport[2]/store_options->zoom);
+  *y = (float) ( store_options->ytrans * Viewport[3]/store_options->zoom);
+  *z = (float) ( store_options->ztrans * Viewport[2]/store_options->zoom);
 }
 // ============================================================================
 // GLBox::setTranslation()
 // Set the translation angle
-void GLWindow::setTranslation( const int x, const int y, const int z )
+void GLWindow::setTranslation(const float x, const float y, const float z )
 {
   GLint	Viewport[4];
   glGetIntegerv(GL_VIEWPORT,Viewport);
