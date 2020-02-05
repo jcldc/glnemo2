@@ -1383,7 +1383,13 @@ Physical value can be:
                          <enum>QAbstractSpinBox::UpDownArrows</enum>
                         </property>
                         <property name="decimals">
-                         <number>5</number>
+                         <number>4</number>
+                        </property>
+                        <property name="minimum">
+                         <double>0.000000000000000</double>
+                        </property>
+                        <property name="maximum">
+                         <double>100000.000000000000000</double>
                         </property>
                         <property name="value">
                          <double>1.000000000000000</double>
@@ -1885,7 +1891,10 @@ Physical value can be:
                          <enum>QAbstractSpinBox::UpDownArrows</enum>
                         </property>
                         <property name="decimals">
-                         <number>5</number>
+                         <number>4</number>
+                        </property>
+                        <property name="maximum">
+                         <double>100000.000000000000000</double>
                         </property>
                        </widget>
                       </item>
