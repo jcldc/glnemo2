@@ -1,4 +1,4 @@
-FROM ubuntu:17.10
+FROM ubuntu:19.10
 
 RUN apt-get -y update && \
     apt-get -y upgrade && \

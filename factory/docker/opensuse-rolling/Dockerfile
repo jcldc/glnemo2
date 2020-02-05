@@ -1,7 +1,7 @@
-FROM opensuse:42.1 
+FROM opensuse/tumbleweed
 
 RUN zypper -n update &&\
-zypper -n install gcc-c++ gcc cmake &&\
+zypper -n install gcc-c++ gcc cmake libtirpc-devel &&\
 zypper -n install libqt5-qtbase-devel &&\
 zypper -n install cfitsio-devel zlib-devel &&\
 zypper -n install glu-devel &&\
