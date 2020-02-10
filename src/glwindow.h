@@ -30,6 +30,7 @@
 #include "glcolorbar.h"
 #include "glaxesobject.h"
 #include "camera.h"
+#include <GL/glu.h>
 
 
 class fntTexFont;
@@ -278,8 +279,10 @@ private:
   bool is_shift_pressed;
   // bench
   int nframe;
+  int vr_nb_frames;
+  bool vr;
   // Shaders
-  CShader * shader, * vel_shader;
+  CShader * shader, * vel_shader, * vr_shader;
   void initShader();
   unsigned int m_vertexShader, m_pixelShader;
 
