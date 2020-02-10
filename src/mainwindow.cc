@@ -1583,6 +1583,8 @@ void MainWindow::startAutoScreenshot()
 // -----------------------------------------------------------------------------
 // takeScreenshot()
 void MainWindow::takeScreenshot(const int width, const int height, std::string name) {
+  bool axes_enable = store_options->axes_enable;
+  bool show_osd = store_options->show_osd;
   if (width != 0 && height != 0) { // valid dimensions
     QSize size, sizegl;
     sizegl = gl_window->size();   // get the current Ogl windows's size
@@ -1604,17 +1606,30 @@ void MainWindow::takeScreenshot(const int width, const int height, std::string n
                            size.width(),size.height());   // bc width() and height() are used by
     // renderText
 #endif
-
+    std::map<CubemapFace, QImage> cubemap;
+    QImage img;
     //std::cerr << "GLWINDOW width = " << gl_window->width() << "\n";
-    gl_window->setFBO(true);                              // activate Frame Buffer Object
     gl_window->setFBOSize(size.width(), size.height());    // set the offscreen rendering size
+    if(true) { // if vr
+      store_options->axes_enable = false;
+      store_options->show_osd = false;
+      new_camera->setCameraMode(CameraMode::free);
+      for (CubemapFace face = first; face != last; face = static_cast<CubemapFace>(face + 1)) {
+        new_camera->setOrientation(face);
+        gl_window->setFBO(true);                              // activate Frame Buffer Object
+        //!!!gl_window->updateGL();                                // draw in FBO
+        gl_window->forcePaintGL();  // draw in FBO
+        // use force for screenshot from CLI
 
-    //!!!gl_window->updateGL();                                // draw in FBO
-    gl_window->forcePaintGL();  // draw in FBO
-    // use force for screenshot from CLI
+        cubemap[face] = ((gl_window->grabFrameBufferObject()).mirrored()).rgbSwapped(); // convert FBO to img
+      }
+    }
+    else{
+      gl_window->forcePaintGL();  // draw in FBO
+      // use force for screenshot from CLI
 
-    QImage img = (((gl_window->grabFrameBufferObject()).mirrored()).rgbSwapped()); // convert FBO to img
-
+      img = (((gl_window->grabFrameBufferObject()).mirrored()).rgbSwapped()); // convert FBO to img
+    }
     gl_window->resize(sizegl.width(), sizegl.height());    // revert to the previous Ogl windows's size
     //!!gl_window->updateGL();
 
@@ -1632,7 +1647,17 @@ void MainWindow::takeScreenshot(const int width, const int height, std::string n
       QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "",
                                                       tr("Images (*.png *.jpg)"));
       if (!fileName.isEmpty()) {
-        img.save(fileName);
+        if (true) { // if vr
+          for (CubemapFace face = first; face != last; face = static_cast<CubemapFace>(face + 1)){
+            if(cubemap[face].save(fileName+QString::number(face)+".png"))
+              std::cout << "saved ok\n";
+            else
+              std::cout << "failed to save image\n";
+          }
+        }
+        else{
+          img.save(fileName);
+        }
         //resize(width(),height());
       }
     } else {          // screenshot from the command line
@@ -1643,9 +1668,17 @@ void MainWindow::takeScreenshot(const int width, const int height, std::string n
       //std::cerr << "takescreenshot name ="<<name<<"\n";
       //std::cerr << "base_frame_ext="<<store_options->base_frame_ext.toStdString()<<"\n";
       //img.save(QString(name.c_str()),(store_options->base_frame_ext.toStdString()).c_str(),quality);
-      img.save(QString(name.c_str()), 0, quality);
+      if (true) { // if vr
+        for (CubemapFace face = first; face != last; face = static_cast<CubemapFace>(face + 1))
+          cubemap[face].save(QString(name.c_str()) + "_" + face);
+      }
+      else{
+        img.save(QString(name.c_str()), 0, quality);
+      }
     }
   }
+  store_options->axes_enable = axes_enable;
+  store_options->show_osd = show_osd;
 }
 // -----------------------------------------------------------------------------
 // actionRotate around SCREEN axis

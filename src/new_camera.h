@@ -27,7 +27,7 @@ enum CubemapFace {
   left,
   top,
   bottom,
-  last = bottom
+  last
 };
 
 class BaseCamera {
@@ -94,6 +94,7 @@ public:
   void setOrientation(CubemapFace face);
   void setZoom(float zoom);
   void toggleCameraMode();
+  void setCameraMode(CameraMode);
   const CameraMode &getCameraMode() const;
   // float increaseSpeed();
   // float decreaseSpeed();

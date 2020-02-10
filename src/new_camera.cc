@@ -49,10 +49,10 @@ void BaseCamera::buildMatrices() {
 quat BaseCamera::fromAxisAngle(vec3 axis, double angle) {
   quat out;
   //x, y, and z form a normalized vector which is now the axis of rotation.
-  out.w = cosf(angle*PI/360);
-  out.x = axis.x * sinf(angle*PI/360);
-  out.y = axis.y * sinf(angle*PI/360);
-  out.z = axis.z * sinf(angle*PI/360);
+  out.w = cosf(angle * PI / 360);
+  out.x = axis.x * sinf(angle * PI / 360);
+  out.y = axis.y * sinf(angle * PI / 360);
+  out.z = axis.z * sinf(angle * PI / 360);
   return normalize(out);
 }
 
@@ -114,23 +114,23 @@ void FreeCamera::setOrientation(quat orientation) {
 }
 
 void FreeCamera::moveForward(float dt) {
-    m_position += m_orientation*vec3(0, 0, 1) / (float)(1 / (m_speed * dt / 30.0));
-    m_matrix_clean = false;
+  m_position += m_orientation * vec3(0, 0, 1) / (float) (1 / (m_speed * dt / 30.0));
+  m_matrix_clean = false;
 }
 
 void FreeCamera::moveRight(float dt) {
-    m_position += m_orientation*vec3(1, 0, 0) / (float)(1 / (m_speed * dt / 30.0));
-    m_matrix_clean = false;
+  m_position += m_orientation * vec3(1, 0, 0) / (float) (1 / (m_speed * dt / 30.0));
+  m_matrix_clean = false;
 }
 
 void FreeCamera::moveLeft(float dt) {
-    m_position += m_orientation*vec3(-1, 0, 0) / (float)(1 / (m_speed * dt / 30.0));
-    m_matrix_clean = false;
+  m_position += m_orientation * vec3(-1, 0, 0) / (float) (1 / (m_speed * dt / 30.0));
+  m_matrix_clean = false;
 }
 
 void FreeCamera::moveBackward(float dt) {
-    m_position += m_orientation*vec3(0, 0, -1) / (float)(1 / (m_speed * dt / 30.0));
-    m_matrix_clean = false;
+  m_position += m_orientation * vec3(0, 0, -1) / (float) (1 / (m_speed * dt / 30.0));
+  m_matrix_clean = false;
 }
 
 void FreeCamera::reset() {
@@ -189,16 +189,16 @@ const CameraMode &NewCamera::getCameraMode() const {
 }
 
 // }
-float NewCamera::increaseZoom(){
+float NewCamera::increaseZoom() {
   return m_arcball_camera->increaseZoom();
 }
 
-float NewCamera::decreaseZoom(){
+float NewCamera::decreaseZoom() {
   return m_arcball_camera->decreaseZoom();
 }
 
 void NewCamera::toggleCameraMode() {
-  if(m_mode == CameraMode::arcball){
+  if (m_mode == CameraMode::arcball) {
     m_current_camera = m_free_camera;
     m_mode = CameraMode::free;
   } else {
@@ -208,22 +208,22 @@ void NewCamera::toggleCameraMode() {
 }
 
 void NewCamera::moveForward(float dt) {
-  if(m_mode == CameraMode::free)
+  if (m_mode == CameraMode::free)
     m_free_camera->moveForward(dt);
 }
 
 void NewCamera::moveBackward(float dt) {
-  if(m_mode == CameraMode::free)
+  if (m_mode == CameraMode::free)
     m_free_camera->moveBackward(dt);
 }
 
 void NewCamera::moveLeft(float dt) {
-  if(m_mode == CameraMode::free)
+  if (m_mode == CameraMode::free)
     m_free_camera->moveLeft(dt);
 }
 
 void NewCamera::moveRight(float dt) {
-  if(m_mode == CameraMode::free)
+  if (m_mode == CameraMode::free)
     m_free_camera->moveRight(dt);
 }
 
@@ -232,18 +232,18 @@ const vec3 &NewCamera::getPosition() const {
 }
 
 void NewCamera::setOrientation(quat orientation) {
-  if(m_mode == CameraMode::free)
+  if (m_mode == CameraMode::free)
     m_free_camera->setOrientation(orientation);
 }
 
 void NewCamera::setOrientation(CubemapFace face) {
-  if(m_mode == CameraMode::free){
-    switch (face){
+  if (m_mode == CameraMode::free) {
+    switch (face) {
       case CubemapFace::top:
-        m_free_camera->setOrientation(quat(vec3(PI/2, 0, 0)));
+        m_free_camera->setOrientation(quat(vec3(PI / 2, 0, 0)));
         break;
       case CubemapFace::bottom:
-        m_free_camera->setOrientation(quat(vec3(-PI/2, 0, 0)));
+        m_free_camera->setOrientation(quat(vec3(-PI / 2, 0, 0)));
         break;
       case CubemapFace::front:
         m_free_camera->setOrientation(quat(vec3(0, 0, 0)));
@@ -252,12 +252,22 @@ void NewCamera::setOrientation(CubemapFace face) {
         m_free_camera->setOrientation(quat(vec3(0, PI, 0)));
         break;
       case CubemapFace::left:
-        m_free_camera->setOrientation(quat(vec3(0,  PI/2, 0)));
+        m_free_camera->setOrientation(quat(vec3(0, PI / 2, 0)));
         break;
       case CubemapFace::right:
-        m_free_camera->setOrientation(quat(vec3(0, -PI/2, 0)));
+        m_free_camera->setOrientation(quat(vec3(0, -PI / 2, 0)));
         break;
     }
+  }
+}
+
+void NewCamera::setCameraMode(CameraMode mode) {
+  if (mode == CameraMode::free) {
+    m_current_camera = m_free_camera;
+    m_mode = CameraMode::free;
+  } else {
+    m_current_camera = m_arcball_camera;
+    m_mode = CameraMode::arcball;
   }
 }
 

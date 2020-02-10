@@ -578,8 +578,11 @@ void GLWindow::paintGL()
 
 
     if (obj_has_physic) {
-      if (fbo) // offscreen rendering activated
-        gl_colorbar->display(texWidth,texHeight);
+      if (fbo) { // offscreen rendering activated
+        if(!vr){
+          gl_colorbar->display(texWidth,texHeight);
+        }
+      }
       else
         gl_colorbar->display(QGLWidget::width(),QGLWidget::height());
     }
@@ -606,13 +609,9 @@ void GLWindow::paintGL()
   // reset viewport to the windows size because axes object modidy it
   glViewport(0, 0, wwidth, wheight);
   if (fbo && GLWindow::GLSL_support) {
-    if (vr_nb_frames > 5)
       fbo = false;
-    else {
-      vr_nb_frames++;
 
       if (vr && vr_shader) {
-        new_camera->setOrientation(static_cast<CubemapFace>(vr_nb_frames));
         glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
         glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
         glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
@@ -630,10 +629,7 @@ void GLWindow::paintGL()
       glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits());
       // Make the window the target
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-
-    }
   }
-
 
   if ( !store_options->duplicate_mem) mutex_data->unlock();
 
@@ -779,12 +775,12 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
   glLoadIdentity();
 
   if (store_options->perspective) {
-    gluPerspective(45.,ratio,0.0005,(float) DOF);
+    gluPerspective(90.,ratio,0.0005,(float) DOF);
 //    double mp[16];
 //    glGetDoublev(GL_PROJECTION_MATRIX, (GLdouble *) mp);
 //    for (int i=0;i<16;i++) std::cerr << "// "<< mp[i];
 //    std::cerr << "\n";
-    const GLfloat zNear = 0.0005, zFar = (GLfloat) DOF, fov = 45.0;
+    const GLfloat zNear = 0.0005, zFar = (GLfloat) DOF, fov = 90.0;
     store_options->mat4_proj = glm::mat4();
     store_options->mat4_proj = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
   }
