@@ -1,9 +1,12 @@
-FROM centos:6.6
+FROM opensuse/leap:15.1
 
-RUN yum -y install epel-release &&\
-rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6 &&\
-yum -y update &&\
-yum -y install qt5-qtbase-devel.x86_64 make cmake gcc-c++ subversion cfitsio-devel mesa-libGLU-devel.x86_64 zlib-devel rpm-build wget tar hdf5-devel &&\
+RUN zypper -n update &&\
+zypper -n install gcc-c++ gcc cmake &&\
+zypper -n install libqt5-qtbase-devel &&\
+zypper -n install cfitsio-devel zlib-devel &&\
+zypper -n install glu-devel &&\
+zypper -n install git glm-devel subversion rpm-build &&\
+zypper -n install wget hdf5-devel &&\
 wget http://heasarc.gsfc.nasa.gov/fitsio/ccfits/CCfits-2.4.tar.gz && tar zxvf CCfits-2.4.tar.gz && chown -R root:root CCfits && cd CCfits && ./configure --enable-static=yes --enable-shared=no --with-cfitsio-include=/usr/include/cfitsio && make && make install && cd .. && rm -rf CCfits CCfits-2.4.tar.gz
 
 cmd ["/bin/bash"]

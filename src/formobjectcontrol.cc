@@ -22,6 +22,7 @@
 #include <QMessageBox>
 #include "globaloptions.h"
 #include "gltexture.h"
+#include "glnemoexception.h"
 
 namespace glnemo {
 #define RT_VISIB 0
@@ -1443,10 +1444,13 @@ void FormObjectControl::on_load_cpoints_file_clicked(bool) {
   file_path = QFileDialog::getOpenFileName(
           this, tr("Open characteristic point description file"));
   if (!file_path.isEmpty()) {
-    if(!pointset_manager->loadFile(file_path.toStdString()))
+    try{
+      pointset_manager->loadFile(file_path.toStdString());
       initCPointsTreeWidget();
-    else
-      QMessageBox::critical(this->window(), "Error", "Could not parse file " + file_path);
+    }
+    catch(glnemoException &e){
+      QMessageBox::critical(this->window(), "Error", "Could not parse file " + file_path + "\nError : " + e.what());
+    }
   }
 }
 // ============================================================================
@@ -1472,7 +1476,7 @@ void FormObjectControl::initCPointsTreeWidget() {
 QTreeWidgetItem *FormObjectControl::createCpointsetTreeItem(CPointset *cpoint_set) {
   auto cpointset_item = new QTreeWidgetItem(
           form.cpoints_set_treewidget,
-          QStringList() << QString::fromStdString(cpoint_set->getName()),
+          QStringList() << QString::fromStdString(cpoint_set->getName())<< QString()<< QString::number(cpoint_set->getNbCpoints()),
           QTreeWidgetItem::Type);
 
   for (auto const &cpoint_pair : cpoint_set->getCPoints()) {
@@ -1597,10 +1601,10 @@ void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) 
 // ============================================================================
 //
 void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
-  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
-  if(item->parent())
-    item = item->parent();
-  CPointset *pointset = getPointsetFromItem(item);
+  QTreeWidgetItem *cpointset_item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(cpointset_item->parent())
+    cpointset_item = cpointset_item->parent();
+  CPointset *pointset = getPointsetFromItem(cpointset_item);
   if (pointset) {
     float size = form.add_cpoint_coords_size->value();
     if(size > 0){
@@ -1614,7 +1618,9 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
       auto new_item = new QTreeWidgetItem(QStringList() << QString::fromStdString(cpoint->getName()) << QString::number(cpoint->getId()));
       pointset_manager->unselectAll();
       pointset->selectCPoint(cpoint->getId());
-      item->insertChild(0, new_item);
+      cpointset_item->insertChild(0, new_item);
+      cpointset_item->setText(2, QString::number(pointset->getNbCpoints()));
+
       form.cpoints_set_treewidget->setCurrentItem(new_item);
       emit objectSettingsChanged();
     }
@@ -1626,7 +1632,7 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
 void FormObjectControl::on_add_cpointset_clicked(bool) {
   CPointset *new_pointset = pointset_manager->createNewCPointset();
   auto item = new QTreeWidgetItem(form.cpoints_set_treewidget,
-                                  QStringList() << QString::fromStdString(new_pointset->getName()), 0);
+                                  QStringList() << QString::fromStdString(new_pointset->getName())<< QString() << QString::number(new_pointset->getNbCpoints()), 0);
   form.cpoints_set_treewidget->setCurrentItem(item, 0);
 }
 // ============================================================================
@@ -1692,6 +1698,7 @@ void FormObjectControl::delete_cpoints(bool need_confirmation) {
       int cpoint_id = item->text(1).toInt();
       std::string parent_pointset_name = item->parent()->text(0).toStdString();
       pointset_manager->deleteCPoint(parent_pointset_name, cpoint_id);
+      item->parent()->setText(2, QString::number(pointset_manager->at(parent_pointset_name)->getNbCpoints()));
       delete item;
       emit objectSettingsChanged();
     }
@@ -1708,6 +1715,7 @@ void FormObjectControl::delete_cpoints(bool need_confirmation) {
         auto parent_pointset_name = item->parent()->text(0).toStdString();
         int cpoint_id = item->text(1).toInt();
         pointset_manager->deleteCPoint(parent_pointset_name, cpoint_id);
+        item->parent()->setText(2, QString::number(pointset_manager->at(parent_pointset_name)->getNbCpoints()));
         delete item;
       }
       emit objectSettingsChanged();

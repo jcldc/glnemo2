@@ -85,6 +85,8 @@
         <file>../res/shaders/cpoints_130/characteristic.frag</file>
         <file>../res/shaders/cpoints_130/regular_polygon.vert</file>
         <file>../res/shaders/cpoints_130/tag_shape.vert</file>
+        <file>../res/shaders/cpoints_130/tag_shape.frag</file>
+        <file>../res/shaders/cpoints_120/tag_shape.frag</file>
         <file>../res/shaders/cpoints_130/text.vert</file>
         <file>../res/shaders/cpoints_130/text.frag</file>
         <file>../res/shaders/cpoints_130/sphere.vert</file>

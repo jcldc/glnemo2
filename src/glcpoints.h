@@ -126,6 +126,7 @@ public:
   int getNameAngle() const;
   void setNbSphereSections(int nb_sections);
   int getNbSphereSections() const;
+  int getNbCpoints() const;
 
   void setCpointSize(int id, float size);
   void setCpointCoords(int id, std::array<float, 3> coords);
@@ -158,10 +159,10 @@ protected:
   float m_name_offset;
   int m_name_angle;
   int m_nb_selected;
-
   int m_nb_sphere_sections = 12;
-
   CPointsetShapes m_shape;
+
+  static const std::array<float, 3> selected_color;
 };
 
 class CPointsetRegularPolygon : public CPointset {
@@ -217,7 +218,7 @@ class CPointsetManager {
 public:
   CPointsetManager();
   ~CPointsetManager();
-  int loadFile(const std::string &filepath);
+  void loadFile(const std::string &filepath);
   static void initShaders(bool glsl_130);
   void displayAll();
   CPointset *createNewCPointset();
@@ -249,7 +250,7 @@ public:
 
   void setPointsetName(const std::string &old_name, const std::string &new_name);
 private:
-  int m_nb_sets;
+  int m_next_set_id;
   std::map<std::string, CPointset *> m_pointsets;
   std::string defaultName() const;
   static std::string defaultShape() ;
