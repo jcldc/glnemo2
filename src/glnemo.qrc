@@ -90,6 +90,8 @@
         <file>../res/shaders/cpoints_130/text.vert</file>
         <file>../res/shaders/cpoints_130/text.frag</file>
         <file>../res/shaders/cpoints_130/sphere.vert</file>
+        <file>../res/shaders/vr.vert</file>
+        <file>../res/shaders/vr.frag</file>
         <file>../res/camera/path_02</file>
         <file>../res/camera/path_03</file>
         <file>../res/shaders/camera.vert.cc</file>
