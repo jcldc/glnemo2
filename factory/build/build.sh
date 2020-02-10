@@ -17,5 +17,5 @@ cmake ..
 make -j 8
 strip bin/glnemo2
 make package
-cp -p *.rpm *.deb /works/glnemo2
+cp -p -- *.rpm *.deb /works/glnemo2
 
