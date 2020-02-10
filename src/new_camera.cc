@@ -14,6 +14,7 @@ namespace glnemo {
 BaseCamera::BaseCamera() {
   m_position = {0, 0, 4};
   m_orientation = fromAxisAngle(-m_position, 0);
+  m_matrix_clean = false;
 }
 
 const quat &BaseCamera::getOrientation() const {
@@ -26,15 +27,22 @@ bool BaseCamera::isMatrixClean() const {
 
 const mat4 &BaseCamera::getViewMatrix() {
   if (!m_matrix_clean)
-    buildMatrix();
+    buildMatrices();
   return m_view_matrix;
 }
 
-void BaseCamera::buildMatrix() {
+const mat4 &BaseCamera::getOrientationMatrix() {
+  if (!m_matrix_clean)
+    buildMatrices();
+  return m_orientation_matrix;
+}
+
+void BaseCamera::buildMatrices() {
   mat4 t(1.f);
   t = translate(t, m_position);
   mat4 r = mat4_cast(m_orientation);
   m_view_matrix = t * r;
+  m_orientation_matrix = r;
   m_matrix_clean = true;
 }
 
@@ -100,6 +108,11 @@ void FreeCamera::rotate(float x, float y, float z) {
   m_matrix_clean = false;
 }
 
+void FreeCamera::setOrientation(quat orientation) {
+  m_orientation = orientation;
+  m_matrix_clean = false;
+}
+
 void FreeCamera::moveForward(float dt) {
     m_position += m_orientation*vec3(0, 0, 1) / (float)(1 / (m_speed * dt / 30.0));
     m_matrix_clean = false;
@@ -120,6 +133,13 @@ void FreeCamera::moveBackward(float dt) {
     m_matrix_clean = false;
 }
 
+void FreeCamera::reset() {
+  m_orientation = quat(1.f, 0, 0, 0);
+  m_position = {0, 0, 4};
+  m_matrix_clean = false;
+}
+
+
 /********* Camera ************/
 NewCamera::NewCamera() {
   m_free_camera = new FreeCamera();
@@ -137,8 +157,18 @@ NewCamera::~NewCamera() {
   delete m_arcball_camera;
 }
 
-const mat4 &NewCamera::getMatrix() {
+const mat4 &NewCamera::getViewMatrix() {
   return m_current_camera->getViewMatrix();
+}
+
+// float NewCamera::increaseSpeed(){
+//   float new_speed = *1.1;
+// }
+// float NewCamera::decreaseSpeed(){
+//   return val*0.9;
+
+const mat4 &NewCamera::getOrientationMatrix() {
+  return m_current_camera->getOrientationMatrix();
 }
 
 void NewCamera::reset() {
@@ -158,16 +188,11 @@ const CameraMode &NewCamera::getCameraMode() const {
   return m_mode;
 }
 
-// float NewCamera::increaseSpeed(){
-//   float new_speed = *1.1;
 // }
-// float NewCamera::decreaseSpeed(){
-//   return val*0.9;
-// }
-
 float NewCamera::increaseZoom(){
   return m_arcball_camera->increaseZoom();
 }
+
 float NewCamera::decreaseZoom(){
   return m_arcball_camera->decreaseZoom();
 }
@@ -204,6 +229,36 @@ void NewCamera::moveRight(float dt) {
 
 const vec3 &NewCamera::getPosition() const {
   return m_current_camera->getPosition();
+}
+
+void NewCamera::setOrientation(quat orientation) {
+  if(m_mode == CameraMode::free)
+    m_free_camera->setOrientation(orientation);
+}
+
+void NewCamera::setOrientation(CubemapFace face) {
+  if(m_mode == CameraMode::free){
+    switch (face){
+      case CubemapFace::top:
+        m_free_camera->setOrientation(quat(vec3(PI/2, 0, 0)));
+        break;
+      case CubemapFace::bottom:
+        m_free_camera->setOrientation(quat(vec3(-PI/2, 0, 0)));
+        break;
+      case CubemapFace::front:
+        m_free_camera->setOrientation(quat(vec3(0, 0, 0)));
+        break;
+      case CubemapFace::back:
+        m_free_camera->setOrientation(quat(vec3(0, PI, 0)));
+        break;
+      case CubemapFace::left:
+        m_free_camera->setOrientation(quat(vec3(0,  PI/2, 0)));
+        break;
+      case CubemapFace::right:
+        m_free_camera->setOrientation(quat(vec3(0, -PI/2, 0)));
+        break;
+    }
+  }
 }
 
 }

@@ -303,6 +303,7 @@ private:
   // Camera
   Camera * camera;
   NewCamera * new_camera;
+  void getMatrices();
 };
 } // namespace glnemo
 

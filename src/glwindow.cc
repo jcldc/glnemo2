@@ -431,7 +431,7 @@ void GLWindow::paintGL()
   // around XYZ screen axes
   // new_camera->setZoom(abs(store_options->zoom));
 
-  if (rx!=0 ||
+  if (rx != 0 ||
       ry!=0 ||
       rz!=0 ||
       dzoom!=0) {
@@ -439,16 +439,12 @@ void GLWindow::paintGL()
     last_xrot = store_options->xrot;
     last_yrot = store_options->yrot;
     last_zrot = store_options->zrot;
-    const auto *pSource = (const float*)glm::value_ptr(inverse(new_camera->getMatrix()));
-    for (int i = 0; i < 16; ++i)
-        mScreen[i] = pSource[i];
+    getMatrices();
   }
   if (reset_screen_rotation) {
     store_options->zoom = 4;
     new_camera->reset();
-    const auto *pSource = (const float*)glm::value_ptr(inverse(new_camera->getMatrix()));
-    for (int i = 0; i < 16; ++i)
-        mScreen[i] = pSource[i];
+    getMatrices();
     reset_screen_rotation=false;
   }
   if (reset_scene_rotation) { 
@@ -460,7 +456,6 @@ void GLWindow::paintGL()
 
   glLoadIdentity (); // reset OGL rotations
   // set camera
-  glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mRot);
   
   // apply screen rotation on the whole system
   glMultMatrixd (mScreen);   
@@ -577,7 +572,7 @@ void GLWindow::paintGL()
 
   // draw axes
   if (store_options->axes_enable)
-    axes->display(mScreen, mScene, wwidth,wheight,
+    axes->display(mRot, mScene, wwidth,wheight,
                   store_options->axes_loc,store_options->axes_psize, store_options->perspective);
 
   // reset viewport to the windows size because axes object modidy it
@@ -601,6 +596,18 @@ void GLWindow::paintGL()
   //glDrawPixels(gldata.width(), gldata.height(), GL_RGBA, GL_UNSIGNED_BYTE, gldata.bits());
   emit doneRendering();
 }
+
+void GLWindow::getMatrices() {
+  const mat4 &view_matrix = inverse(new_camera->getViewMatrix());
+  const mat4 &orientation_matrix = inverse(new_camera->getOrientationMatrix());
+  const auto *view_matrix_ptr = (const float*) value_ptr(view_matrix);
+  const auto *orientation_matrix_ptr = (const float*) value_ptr(orientation_matrix);
+  for (int i = 0; i < 16; ++i){
+    mScreen[i] = view_matrix_ptr[i];
+    mRot[i] = orientation_matrix_ptr[i];
+  }
+}
+
 // ============================================================================
 void GLWindow::initShader()
 {

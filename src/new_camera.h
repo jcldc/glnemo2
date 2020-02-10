@@ -19,7 +19,18 @@ enum CameraMode {
   arcball
 };
 
-class BaseCamera{
+enum CubemapFace {
+  front,
+  first = front,
+  right,
+  back,
+  left,
+  top,
+  bottom,
+  last = bottom
+};
+
+class BaseCamera {
 public:
   BaseCamera();
   ~BaseCamera() = default;
@@ -28,17 +39,19 @@ public:
   virtual const quat &getOrientation() const;
   bool isMatrixClean() const;
   const mat4 &getViewMatrix();
+  const mat4 &getOrientationMatrix();
   const vec3 &getPosition() const;
-protected:
-  virtual void buildMatrix();
   static quat fromAxisAngle(vec3 axis, double angle);
+protected:
+  virtual void buildMatrices();
   quat m_orientation;
   vec3 m_position;
   mat4 m_view_matrix;
+  mat4 m_orientation_matrix;
   bool m_matrix_clean;
 };
 
-class ArcballCamera: public BaseCamera {
+class ArcballCamera : public BaseCamera {
 public:
   ArcballCamera();
   void rotate(float, float, float) override;
@@ -46,7 +59,7 @@ public:
   void setZoom(float zoom);
   float increaseZoom();
   float decreaseZoom();
-  void reset() override ;
+  void reset() override;
 
 private:
   float m_zoom;
@@ -56,7 +69,8 @@ class FreeCamera : public BaseCamera {
 public:
   FreeCamera() = default;
   void rotate(float, float, float) override;
-  void reset() override {};
+  void setOrientation(quat);
+  void reset() override;
   void moveForward(float dt);
   void moveBackward(float dt);
   void moveLeft(float dt);
@@ -73,8 +87,11 @@ public:
   void reset();
   void rotate(float, float, float);
   const quat &getOrientation();
-  const mat4 &getMatrix();
+  const mat4 &getViewMatrix();
+  const mat4 &getOrientationMatrix();
   const vec3 &getPosition() const;
+  void setOrientation(quat);
+  void setOrientation(CubemapFace face);
   void setZoom(float zoom);
   void toggleCameraMode();
   const CameraMode &getCameraMode() const;

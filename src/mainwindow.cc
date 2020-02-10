@@ -1873,7 +1873,7 @@ void MainWindow::actionUnselectCPoints()
 void MainWindow::actionToggleCameraMode()
 {
   new_camera->toggleCameraMode();
-  gl_window->forcePaintGL();
+  gl_window->updateGL();
 }
 // -----------------------------------------------------------------------------
 // actionPlay()
