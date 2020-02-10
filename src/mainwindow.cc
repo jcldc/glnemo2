@@ -1582,72 +1582,70 @@ void MainWindow::startAutoScreenshot()
 }
 // -----------------------------------------------------------------------------
 // takeScreenshot()
-void MainWindow::takeScreenshot(const int width, const int height,  std::string name)
-{
-    if ( width!=0 && height!=0) { // valid dimensions
-        QSize size,sizegl;
-        sizegl=gl_window->size();   // get the current Ogl windows's size
-        if (width != -1) { // standard resolution or custom
-            size.setWidth(width);
-            size.setHeight(height);
-        }
-        else {           // screen resolution
-            size  = sizegl;
-        }
-        gl_window->resizeOsd(size.width(),size.height());
+void MainWindow::takeScreenshot(const int width, const int height, std::string name) {
+  if (width != 0 && height != 0) { // valid dimensions
+    QSize size, sizegl;
+    sizegl = gl_window->size();   // get the current Ogl windows's size
+    if (width != -1) { // standard resolution or custom
+      size.setWidth(width);
+      size.setHeight(height);
+    } else {           // screen resolution
+      size = sizegl;
+    }
+    gl_window->resizeOsd(size.width(), size.height());
 #if 0
-        QRect geom = gl_window->geometry(); // save the current geometry of the GL's window
+    QRect geom = gl_window->geometry(); // save the current geometry of the GL's window
 #endif
-        //std::cerr << "MainWindow::takeScreenshot call resizen";
-        gl_window->resize(size.width(),size.height());
-        // !!! activate the following line if you want to see OSD
+    //std::cerr << "MainWindow::takeScreenshot call resizen";
+    gl_window->resize(size.width(), size.height());
+    // !!! activate the following line if you want to see OSD
 #if 0
-        gl_window->setGeometry(geom.x(),geom.y(),             // give to the widget the new size
-                               size.width(),size.height());   // bc width() and height() are used by
-        // renderText
+    gl_window->setGeometry(geom.x(),geom.y(),             // give to the widget the new size
+                           size.width(),size.height());   // bc width() and height() are used by
+    // renderText
 #endif
 
-        //std::cerr << "GLWINDOW width = " << gl_window->width() << "\n";
-        gl_window->setFBO(true);                              // activate Frame Buffer Object
-        gl_window->setFBOSize(size.width(),size.height());    // set the offscreen rendering size
+    //std::cerr << "GLWINDOW width = " << gl_window->width() << "\n";
+    gl_window->setFBO(true);                              // activate Frame Buffer Object
+    gl_window->setFBOSize(size.width(), size.height());    // set the offscreen rendering size
 
-        //!!!gl_window->updateGL();                                // draw in FBO
-        gl_window->forcePaintGL();  // draw in FBO
-                                    // use force for screenshot from CLI
+    //!!!gl_window->updateGL();                                // draw in FBO
+    gl_window->forcePaintGL();  // draw in FBO
+    // use force for screenshot from CLI
 
-        QImage img=(((gl_window->grabFrameBufferObject()).mirrored()).rgbSwapped()); // convert FBO to img
+    QImage img = (((gl_window->grabFrameBufferObject()).mirrored()).rgbSwapped()); // convert FBO to img
 
-        gl_window->resize(sizegl.width(),sizegl.height());    // revert to the previous Ogl windows's size
-        //!!gl_window->updateGL();
+    gl_window->resize(sizegl.width(), sizegl.height());    // revert to the previous Ogl windows's size
+    //!!gl_window->updateGL();
 
-        // !!! activate the following line if you want to see OSDr
+    // !!! activate the following line if you want to see OSDr
 #if 0
 
-        gl_window->setGeometry(geom.x(),geom.y(),
-                               sizegl.width(),sizegl.height());
+    gl_window->setGeometry(geom.x(),geom.y(),
+                           sizegl.width(),sizegl.height());
 #else
 
 #endif
-        //gl_window->setFixedSize(sizegl);                   // revert to the previous Ogl Widget's size
-        //
-        if (name == "") { // interactive screenshot
-            QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"",
-                                                            tr("Images (*.png *.jpg)"));
-            if (!fileName.isEmpty()) {
-                img.save(fileName);
-                //resize(width(),height());
-            }
-        } else {          // screenshot from the command line
-            int quality=-1;
-            if (store_options->base_frame_ext=="jpg") {
-                quality=95;
-            }
-            //std::cerr << "takescreenshot name ="<<name<<"\n";
-            //std::cerr << "base_frame_ext="<<store_options->base_frame_ext.toStdString()<<"\n";
-            //img.save(QString(name.c_str()),(store_options->base_frame_ext.toStdString()).c_str(),quality);
-            img.save(QString(name.c_str()),0,quality);
-        }
+    //gl_window->setFixedSize(sizegl);                   // revert to the previous Ogl Widget's size
+    //
+    if (name == "") { // interactive screenshot
+      QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "",
+                                                      tr("Images (*.png *.jpg)"));
+      if (!fileName.isEmpty()) {
+        img.save(fileName);
+        //resize(width(),height());
+      }
+    } else {          // screenshot from the command line
+      int quality = -1;
+      if (store_options->base_frame_ext == "jpg") {
+        quality = 95;
+      }
+      //std::cerr << "takescreenshot name ="<<name<<"\n";
+      //std::cerr << "base_frame_ext="<<store_options->base_frame_ext.toStdString()<<"\n";
+      //img.save(QString(name.c_str()),(store_options->base_frame_ext.toStdString()).c_str(),quality);
+      img.save(QString(name.c_str()), 0, quality);
     }
+  }
 }
 // -----------------------------------------------------------------------------
 // actionRotate around SCREEN axis
