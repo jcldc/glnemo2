@@ -1,4 +1,4 @@
-FROM opensuse:13.2 
+FROM opensuse/leap
 
 RUN zypper -n update &&\
 zypper -n install gcc-c++ gcc cmake &&\
