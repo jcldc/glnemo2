@@ -38,6 +38,7 @@ namespace glnemo {
   
   bool GLWindow::GLSL_support = false;
   GLuint framebuffer, renderbuffer;
+  GLuint fbo_texture, rbo_depth;
   GLdouble GLWindow::mIdentity[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
   //float store_options->ortho_range;
   
@@ -102,7 +103,8 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   checkGLErrors("initializeGL");
   shader = NULL;
   vel_shader = NULL;
-
+  vr_shader = NULL;
+  vr = true;
   initShader();
   checkGLErrors("initShader");
   ////////
@@ -156,6 +158,8 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   if (GLWindow::GLSL_support) {
     glGenFramebuffersEXT(1, &framebuffer);
     glGenRenderbuffersEXT(1, &renderbuffer);
+    glGenRenderbuffersEXT(1, &fbo_texture);
+    glGenRenderbuffersEXT(1, &rbo_depth);
   }
   checkGLErrors("GLWindow constructor");
 }
@@ -172,10 +176,13 @@ GLWindow::~GLWindow()
   delete tree;
   delete axes;
   if (GLWindow::GLSL_support) {
+    glDeleteFramebuffersEXT(1, &framebuffer);
     glDeleteRenderbuffersEXT(1, &renderbuffer);
-    glDeleteRenderbuffersEXT(1, &framebuffer);
+    glDeleteRenderbuffersEXT(1, &rbo_depth);
+    glDeleteTexturesEXT(1, &fbo_texture);
     if (shader) delete shader;
     if (vel_shader) delete vel_shader;
+    if (vr_shader) delete vr_shader;
   }
   delete gl_colorbar;
   delete osd;
@@ -227,8 +234,7 @@ void GLWindow::update(ParticlesData   * _p_data,
   store_options->octree_level = 0;
   //tree->update(p_data, _pov);
   gl_colorbar->update(&gpv,p_data->getPhysData(),store_options,mutex_data);
-
-
+  
   for (unsigned int i=0; i<pov->size() ;i++) {
     if (i>=gpv.size()) {
       GLObjectParticles * gp = new GLObjectParticles(p_data,&((*pov)[i]),
@@ -373,17 +379,38 @@ void GLWindow::paintGL()
     mutex_data->lock();
   if (fbo && GLWindow::GLSL_support) {
     //std::cerr << "FBO GLWindow::paintGL() --> "<<CPT<<"\n";
-    //glGenFramebuffersEXT(1, &framebuffer);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuffer);
-    //glGenRenderbuffersEXT(1, &renderbuffer);
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-                  GL_RENDERBUFFER_EXT, renderbuffer);
-    GLuint status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-    if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
-    }
-  } 
+
+      glActiveTextureARB(GL_TEXTURE0_ARB);
+      glGenTextures(1, &fbo_texture);
+      glBindTexture(GL_TEXTURE_2D, fbo_texture);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                                       // GL_RBA8 ??
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+      glBindTexture(GL_TEXTURE_2D, 0);
+
+
+      glGenRenderbuffersEXT(1, &rbo_depth);
+      glBindRenderbufferEXT(GL_RENDERBUFFER, rbo_depth);
+      glRenderbufferStorageEXT(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, texWidth, texHeight);
+      glBindRenderbufferEXT(GL_RENDERBUFFER, 0);
+
+
+      /* Framebuffer to link everything together */
+      glBindFramebufferEXT(GL_FRAMEBUFFER, framebuffer);
+      glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_texture, 0);
+      glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo_depth);
+
+      GLuint status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+      if (status == GL_FRAMEBUFFER_COMPLETE_EXT) {
+        std::cerr << "FBO OK"<<"\n";
+      }
+      else {
+        std::cerr << "ERROR INIT FBO"<<"\n";
+      }
+  }
   //setFocus();
   
   qglClearColor(store_options->background_color);
@@ -452,11 +479,11 @@ void GLWindow::paintGL()
     glGetDoublev (GL_MODELVIEW_MATRIX, mScene); // set to Identity
     reset_scene_rotation=false;
     last_urot = last_vrot = last_wrot = 0.0;
-  }  
+  }
 
   glLoadIdentity (); // reset OGL rotations
   // set camera
-  
+
   // apply screen rotation on the whole system
   glMultMatrixd (mScreen);   
   // apply scene/world rotation on the whole system
@@ -563,7 +590,7 @@ void GLWindow::paintGL()
   if (store_options->octree_display || 1) {
     tree->display();
   }
-
+  
   // On Screen Display
   if (store_options->show_osd) osd->display();
     
@@ -575,22 +602,43 @@ void GLWindow::paintGL()
     axes->display(mRot, mScene, wwidth,wheight,
                   store_options->axes_loc,store_options->axes_psize, store_options->perspective);
 
-  // reset viewport to the windows size because axes object modidy it
-  glViewport(0, 0,  wwidth, wheight);
+    // reset viewport to the windows size because axes object modidy it
+    glViewport(0, 0, wwidth, wheight);
+    if (fbo && GLWindow::GLSL_support) {
+        fbo = false;
 
-  if (fbo && GLWindow::GLSL_support) {
-    fbo = false;
-    //imgFBO = grabFrameBuffer();
-    imgFBO = QImage( texWidth, texHeight,QImage::Format_RGB32);
-    glReadPixels( 0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits() );
-    // Make the window the target
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+        if (vr && vr_shader) {
+            if (vr_nb_frames < 3) {
+                gluLookAt(0, -1, 0,
+                          0, 0, 0,
+                          0, 0, 1);
+                camera->moveTo();
+            } else {
+                gluLookAt(0, -1, 0,
+                          0, 0, 0,
+                          0, 0, 1);
+            }
+            camera->moveTo();
+            glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
+            glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
+            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+                                         GL_RENDERBUFFER_EXT, renderbuffer);
+            glBindTextureEXT(GL_TEXTURE_2D, fbo_texture);
+            vr_shader->sendUniformi("tex", 0);
 
-   // Delete the renderbuffer attachment
-   //glDeleteRenderbuffersEXT(1, &renderbuffer);
-   //glDeleteRenderbuffersEXT(1, &framebuffer);
-  } 
-  if ( !store_options->duplicate_mem) mutex_data->unlock();
+            //        glGenerateMipmapEXT(GL_TEXTURE_2D);
+            vr_shader->start();
+            glDrawArraysEXT(GL_TRIANGLE_STRIP, 0, 4);
+            vr_shader->stop();
+        }
+        //imgFBO = grabFrameBuffer();
+        imgFBO = QImage(texWidth, texHeight, QImage::Format_RGB32);
+        glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits());
+        // Make the window the target
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+    }
+    if ( !store_options->duplicate_mem) mutex_data->unlock();
 
   nframe++; // count frames
   //glDrawPixels(gldata.width(), gldata.height(), GL_RGBA, GL_UNSIGNED_BYTE, gldata.bits());
@@ -641,6 +689,10 @@ void GLWindow::initShader()
       shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/particles.vert.cc",
                            GlobalOptions::RESPATH.toStdString()+"/shaders/particles.frag.cc");
       shader->init();
+
+      vr_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/vr.vert",
+                           GlobalOptions::RESPATH.toStdString()+"/shaders/vr.frag");
+      vr_shader->init();
       // velocity shader
       if (1) {
 

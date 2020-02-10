@@ -289,8 +289,10 @@ private:
   bool is_shift_pressed;
   // bench
   int nframe;
-//   Shaders
-  CShader * shader, * vel_shader;
+  int vr_nb_frames;
+  bool vr;
+  // Shaders
+  CShader * shader, * vel_shader, * vr_shader;
   void initShader();
   unsigned int m_vertexShader, m_pixelShader;
 
