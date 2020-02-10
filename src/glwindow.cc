@@ -105,6 +105,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   vel_shader = NULL;
   vr_shader = NULL;
   vr = true;
+  vr_nb_frames = 0;
   initShader();
   checkGLErrors("initShader");
   ////////
@@ -602,43 +603,39 @@ void GLWindow::paintGL()
     axes->display(mRot, mScene, wwidth,wheight,
                   store_options->axes_loc,store_options->axes_psize, store_options->perspective);
 
-    // reset viewport to the windows size because axes object modidy it
-    glViewport(0, 0, wwidth, wheight);
-    if (fbo && GLWindow::GLSL_support) {
-        fbo = false;
+  // reset viewport to the windows size because axes object modidy it
+  glViewport(0, 0, wwidth, wheight);
+  if (fbo && GLWindow::GLSL_support) {
+    if (vr_nb_frames > 5)
+      fbo = false;
+    else {
+      vr_nb_frames++;
 
-        if (vr && vr_shader) {
-            if (vr_nb_frames < 3) {
-                gluLookAt(0, -1, 0,
-                          0, 0, 0,
-                          0, 0, 1);
-                camera->moveTo();
-            } else {
-                gluLookAt(0, -1, 0,
-                          0, 0, 0,
-                          0, 0, 1);
-            }
-            camera->moveTo();
-            glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
-            glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
-            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-                                         GL_RENDERBUFFER_EXT, renderbuffer);
-            glBindTextureEXT(GL_TEXTURE_2D, fbo_texture);
-            vr_shader->sendUniformi("tex", 0);
+      if (vr && vr_shader) {
+        new_camera->setOrientation(static_cast<CubemapFace>(vr_nb_frames));
+        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
+        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+                                     GL_RENDERBUFFER_EXT, renderbuffer);
+        glBindTextureEXT(GL_TEXTURE_2D, fbo_texture);
+        vr_shader->sendUniformi("tex", 0);
 
-            //        glGenerateMipmapEXT(GL_TEXTURE_2D);
-            vr_shader->start();
-            glDrawArraysEXT(GL_TRIANGLE_STRIP, 0, 4);
-            vr_shader->stop();
-        }
-        //imgFBO = grabFrameBuffer();
-        imgFBO = QImage(texWidth, texHeight, QImage::Format_RGB32);
-        glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits());
-        // Make the window the target
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+        //        glGenerateMipmapEXT(GL_TEXTURE_2D);
+        vr_shader->start();
+        glDrawArraysEXT(GL_TRIANGLE_STRIP, 0, 4);
+        vr_shader->stop();
+      }
+      //imgFBO = grabFrameBuffer();
+      imgFBO = QImage(texWidth, texHeight, QImage::Format_RGB32);
+      glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits());
+      // Make the window the target
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
     }
-    if ( !store_options->duplicate_mem) mutex_data->unlock();
+  }
+
+
+  if ( !store_options->duplicate_mem) mutex_data->unlock();
 
   nframe++; // count frames
   //glDrawPixels(gldata.width(), gldata.height(), GL_RGBA, GL_UNSIGNED_BYTE, gldata.bits());
