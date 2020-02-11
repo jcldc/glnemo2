@@ -20,13 +20,13 @@ enum CameraMode {
 };
 
 enum CubemapFace {
-  front,
-  first = front,
   right,
-  back,
+  first = right,
   left,
   top,
   bottom,
+  front,
+  back,
   last
 };
 

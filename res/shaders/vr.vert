@@ -11,6 +11,12 @@ void main() {
     vec2(-1.f, 1.f),
     vec2(-1.f, -1.f)
     );
+//    vec2 vertexUV[4] = vec2[](
+//    vec2(1, 1),
+//    vec2(1, 0),
+//    vec2(0, 1),
+//    vec2(0, 0)
+//    );
     vec2 vertexUV[4] = vec2[](
     vec2(PI, PI/2),
     vec2(PI, -PI/2),

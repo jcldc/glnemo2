@@ -42,6 +42,7 @@ class GlobalOptions;
 
 class GLWindow : public QGLWidget {
   Q_OBJECT
+
 public:
     GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, CPointsetManager *, NewCamera*);
     ~GLWindow();
@@ -64,7 +65,8 @@ public:
     void setFBO(bool _b) { fbo = _b; }
     void setFBOSize(GLuint w, GLuint h) { texWidth=w; texHeight=h;}
     QImage grabFrameBufferObject() { return imgFBO;}
-    void rotateAroundAxis(const int); 
+    void renderVR();
+    void rotateAroundAxis(const int);
     void setMouseRot(const float x,const float y, const float z) {
       x_mouse = (int) y;
       y_mouse = (int) x;
@@ -201,7 +203,7 @@ private:
   float ratio, fx,fy;
   int wwidth, wheight;
   GLuint texWidth, texHeight;
-  QImage imgFBO; 
+  QImage imgFBO;
   bool fbo;
   // events
   void mousePressEvent  ( QMouseEvent *e );

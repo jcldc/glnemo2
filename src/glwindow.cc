@@ -38,7 +38,6 @@ namespace glnemo {
   
   bool GLWindow::GLSL_support = false;
   GLuint framebuffer, renderbuffer;
-  GLuint fbo_texture, rbo_depth;
   GLdouble GLWindow::mIdentity[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
   //float store_options->ortho_range;
   
@@ -105,7 +104,6 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   vel_shader = NULL;
   vr_shader = NULL;
   vr = true;
-  vr_nb_frames = 0;
   initShader();
   checkGLErrors("initShader");
   ////////
@@ -159,8 +157,6 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   if (GLWindow::GLSL_support) {
     glGenFramebuffersEXT(1, &framebuffer);
     glGenRenderbuffersEXT(1, &renderbuffer);
-    glGenRenderbuffersEXT(1, &fbo_texture);
-    glGenRenderbuffersEXT(1, &rbo_depth);
   }
   checkGLErrors("GLWindow constructor");
 }
@@ -177,10 +173,8 @@ GLWindow::~GLWindow()
   delete tree;
   delete axes;
   if (GLWindow::GLSL_support) {
-    glDeleteFramebuffersEXT(1, &framebuffer);
     glDeleteRenderbuffersEXT(1, &renderbuffer);
-    glDeleteRenderbuffersEXT(1, &rbo_depth);
-    glDeleteTexturesEXT(1, &fbo_texture);
+    glDeleteRenderbuffersEXT(1, &framebuffer);
     if (shader) delete shader;
     if (vel_shader) delete vel_shader;
     if (vr_shader) delete vr_shader;
@@ -380,37 +374,16 @@ void GLWindow::paintGL()
     mutex_data->lock();
   if (fbo && GLWindow::GLSL_support) {
     //std::cerr << "FBO GLWindow::paintGL() --> "<<CPT<<"\n";
-
-      glActiveTextureARB(GL_TEXTURE0_ARB);
-      glGenTextures(1, &fbo_texture);
-      glBindTexture(GL_TEXTURE_2D, fbo_texture);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                                       // GL_RBA8 ??
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-      glBindTexture(GL_TEXTURE_2D, 0);
-
-
-      glGenRenderbuffersEXT(1, &rbo_depth);
-      glBindRenderbufferEXT(GL_RENDERBUFFER, rbo_depth);
-      glRenderbufferStorageEXT(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, texWidth, texHeight);
-      glBindRenderbufferEXT(GL_RENDERBUFFER, 0);
-
-
-      /* Framebuffer to link everything together */
-      glBindFramebufferEXT(GL_FRAMEBUFFER, framebuffer);
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_texture, 0);
-      glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo_depth);
-
-      GLuint status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-      if (status == GL_FRAMEBUFFER_COMPLETE_EXT) {
-        std::cerr << "FBO OK"<<"\n";
-      }
-      else {
-        std::cerr << "ERROR INIT FBO"<<"\n";
-      }
+    //glGenFramebuffersEXT(1, &framebuffer);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuffer);
+    //glGenRenderbuffersEXT(1, &renderbuffer);
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
+    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+                  GL_RENDERBUFFER_EXT, renderbuffer);
+    GLuint status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
+    }
   }
   //setFocus();
   
@@ -609,28 +582,17 @@ void GLWindow::paintGL()
   // reset viewport to the windows size because axes object modidy it
   glViewport(0, 0, wwidth, wheight);
   if (fbo && GLWindow::GLSL_support) {
-      fbo = false;
+    fbo = false;
+    //imgFBO = grabFrameBuffer();
+    imgFBO = QImage( texWidth, texHeight,QImage::Format_RGB32);
+    glReadPixels( 0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits() );
+    // Make the window the target
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
-      if (vr && vr_shader) {
-        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
-        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
-        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-                                     GL_RENDERBUFFER_EXT, renderbuffer);
-        glBindTextureEXT(GL_TEXTURE_2D, fbo_texture);
-        vr_shader->sendUniformi("tex", 0);
-
-        //        glGenerateMipmapEXT(GL_TEXTURE_2D);
-        vr_shader->start();
-        glDrawArraysEXT(GL_TRIANGLE_STRIP, 0, 4);
-        vr_shader->stop();
-      }
-      //imgFBO = grabFrameBuffer();
-      imgFBO = QImage(texWidth, texHeight, QImage::Format_RGB32);
-      glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits());
-      // Make the window the target
-      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+   // Delete the renderbuffer attachment
+   //glDeleteRenderbuffersEXT(1, &renderbuffer);
+   //glDeleteRenderbuffersEXT(1, &framebuffer);
   }
-
   if ( !store_options->duplicate_mem) mutex_data->unlock();
 
   nframe++; // count frames
@@ -1408,4 +1370,72 @@ void GLWindow::bestZoomFit()
   osdZoom();
   if ( !store_options->duplicate_mem) mutex_data->unlock();
 }
+
+
+void GLWindow::renderVR() {
+
+  if (!store_options->duplicate_mem)
+    mutex_data->lock();
+
+  QImage cubemap_faces[6];
+  store_options->axes_enable = false;
+  store_options->show_osd = false;
+  new_camera->setCameraMode(CameraMode::free);
+  for (CubemapFace face = first; face != last; face = static_cast<CubemapFace>(face + 1)) {
+    new_camera->setOrientation(face);
+    setFBO(true);                              // activate Frame Buffer Object
+    forcePaintGL();  // draw in FBO
+
+    grabFrameBufferObject().mirrored().rgbSwapped().save("/home/kalterkrieg/Documents/lam/glnemo/cubemap/"+QString::number(face)+".png"); // convert FBO to img
+  }
+//
+//  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuffer);
+//  //glGenRenderbuffersEXT(1, &renderbuffer);
+//  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
+//  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, final_image_size[0], final_image_size[1]);
+//  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+//                               GL_RENDERBUFFER_EXT, renderbuffer);
+//  GLuint status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+//  if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
+//    std::cerr << "ERROR FRAMEBUFFER VR\n";
+//  }
+//
+//  GLuint cubemap_tex_id;
+//  glGenTextures(1, &cubemap_tex_id);
+//  glActiveTextureARB(GL_TEXTURE0);
+//  glBindTextureEXT(GL_TEXTURE_CUBE_MAP, cubemap_tex_id);
+//
+//  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+//
+//  for (CubemapFace face = first; face != last; face = static_cast<CubemapFace>(face + 1)) {
+//    glTexImage2D(
+//            GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
+//            0, GL_RGB, cubemap_faces[face].width(), cubemap_faces[face].height(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
+//            cubemap_faces[face].bits()
+//    );
+//  }
+//
+//  qglClearColor(store_options->background_color);
+//  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//
+//  vr_shader->start();
+//
+//  vr_shader->sendUniformi("tex", 0);
+//
+//  //        glGenerateMipmapEXT(GL_TEXTURE_2D);
+//  glDrawArraysEXT(GL_TRIANGLE_STRIP, 0, 4);
+//  vr_shader->stop();
+//
+//  imgFBO = QImage(final_image_size[0], final_image_size[1], QImage::Format_RGB32);
+//  glReadPixels(0, 0, final_image_size[0], final_image_size[1], GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits());
+//
+//  if (!store_options->duplicate_mem) mutex_data->unlock();
+//  glBindTexture(GL_TEXTURE_2D, 0);
+//  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+}
+
 } // namespace glnemo
