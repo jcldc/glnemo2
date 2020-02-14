@@ -1,5 +1,6 @@
 # qt creator / cmake
 build*
+!CI/scripts/build.sh
 *.pro.user
 *-debug/
 *.autosave
