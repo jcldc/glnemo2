@@ -40,7 +40,7 @@ fedora30 :
   artifacts:
     name: "fedora30"
     paths:
-      - *.rpm
+      - glnemo2*.rpm
     expire_in: 1 week
 
 opensuse42.3 :
