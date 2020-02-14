@@ -15,7 +15,7 @@ variables :
   BUILD       : 0
   OSX         : 0
 
-before_script:
+#before_script:
   # Load NEMO
   #- source /opt/usr/nemo/nemo_start.sh
   #- echo ${NEMO}
@@ -33,7 +33,7 @@ fedora30 :
   image: portus.lam.fr/jclamber/glnemo2/fedora30
   only :
       variables:
-      - $BUILD == "1"
+        - $BUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
