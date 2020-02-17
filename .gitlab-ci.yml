@@ -1,0 +1,137 @@
+#
+# Copyright Jean-Charles Lambert, 2020
+#
+# - YAML file for Continous Integration / Continous Deployement
+# - glnemo2 packages (RPM or DEB) are automatically
+#   generated at new commit for different linux distribution
+#
+# - Documentation :
+#   https://docs.gitlab.com/ee/ci/yaml/
+
+stages:
+- build
+
+variables :
+  BUILD       : 0
+  OSX         : 0
+
+#before_script:
+  # Load NEMO
+  #- source /opt/usr/nemo/nemo_start.sh
+  #- echo ${NEMO}
+  # clone
+  #- git clone https://gitlab.lam.fr/jclamber/unsio.git
+  #- cd unsio
+  #- git branch -r
+  #- git checkout origin/new_cmake
+
+#
+# RPM Distros
+#
+fedora30 :
+  stage : build
+  image: portus.lam.fr/jclamber/glnemo2/fedora30
+  only :
+      variables:
+        - $BUILD == "1"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "fedora30"
+    paths:
+      - glnemo2*.rpm
+    expire_in: 1 week
+
+opensuse42.3 :
+  stage : build
+  image: ppfb.lam.fr:5000/jcl-dev/opensuse42.3
+  only :
+  - tags    
+  script:
+  # build
+  - ../CI/build-rpm.sh 0opensuse42.3
+  artifacts:
+    name: "opensuse42.3"
+    paths:
+    - unsio/build/*.rpm
+    - unsio/dist/*.rpm
+    - unsio/dist/*.gz
+
+
+fedora28 :
+  stage : build
+  image: ppfb.lam.fr:5000/jcl-dev/fedora28
+  only :
+  - tags
+  script:
+  # build
+  - ../CI/build-rpm.sh 0fc28
+  artifacts:
+    name: "fedora28"
+    paths:
+    - unsio/build/*.rpm
+    - unsio/dist/*.rpm
+    - unsio/dist/*.gz
+
+fedora27 :
+  stage : build
+  image: ppfb.lam.fr:5000/jcl-dev/fedora27
+  only :
+  - tags
+  script:
+  # build
+  - ../CI/build-rpm.sh 0fc27
+  artifacts:
+    name: "fedora27"
+    paths:
+    - unsio/build/*.rpm
+    - unsio/dist/*.rpm
+    - unsio/dist/*.gz
+
+mageia6 :
+  stage : build
+  image: ppfb.lam.fr:5000/jcl-dev/mageia6
+  only :
+  - tags
+  script:
+  # build
+  - ../CI/build-rpm.sh 0mga6
+  artifacts:
+    name: "mageia6"
+    paths:
+    - unsio/build/*.rpm
+    - unsio/dist/*.rpm
+    - unsio/dist/*.gz
+#
+# DEB distos
+#
+ubuntu 18.04:
+  stage : build
+  image: ppfb.lam.fr:5000/jcl-dev/ubuntu18.04
+  only :
+  - tags
+  script:
+  # build
+  - ../CI/build-deb.sh 0ubuntu18.04
+  artifacts:
+    name: "ubuntu18.04"
+    paths:
+    - unsio/build/*.deb
+    - unsio/my_deb/*.deb
+    - unsio/my_deb/*.gz
+
+ubuntu 16.04:
+  stage : build
+  image: ppfb.lam.fr:5000/jcl-dev/ubuntu16.04
+  only :
+  - tags
+  script:
+  # build
+  - ../CI/build-deb.sh 0ubuntu16.04
+  artifacts:
+    name: "ubuntu16.04"
+    paths:
+    - unsio/build/*.deb
+    - unsio/my_deb/*.deb
+    - unsio/my_deb/*.gz
