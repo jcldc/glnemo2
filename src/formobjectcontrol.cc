@@ -1920,6 +1920,7 @@ void FormObjectControl::setFormState(CPointset *pointset) {
   form.cpoints_threshold_slider->setValue(pointset->getThreshold());
   form.color_picker_button->setStyleSheet("background-color:" + pointset->getQColor().name());
   form.edit_cpointset_name->setText(QString::fromStdString(pointset->getName()));
+  form.edit_shape_name_angle->setValue(pointset->getNameAngle()+90);
 }
 void FormObjectControl::disableCpointsTab() {
   form.tab_cpoints->setEnabled(false);
