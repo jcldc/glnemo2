@@ -28,6 +28,21 @@ variables :
 #
 # RPM Distros
 #
+fedora31 :
+  stage : build
+  image: portus.lam.fr/jclamber/glnemo2/fedora31
+  only :
+      variables:
+        - $BUILD == "1"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "fedora31"
+    paths:
+      - glnemo2*.rpm
+    expire_in: 1 week
+
 fedora30 :
   stage : build
   image: portus.lam.fr/jclamber/glnemo2/fedora30
