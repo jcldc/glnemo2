@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -31,7 +31,7 @@
 #include "particlesobject.h"
 #include "tools3d.h"
 #include "fnt.h"
-//#include "cshader.h"
+#include "glcpoints.h"
 
 namespace glnemo {
 #define DOF 4000000
@@ -46,18 +46,20 @@ namespace glnemo {
 // BEWARE when parent constructor QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 // is called, we get antialiasing during screenshot capture but we can loose    
 // performance during rendering. You have been warned !!!!!                     
-GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera *_camera) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
+GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
   // copy parameters
   parent        = _parent;
   store_options = _go;
   camera        = _camera;
+    cpointset_manager = _pointset_manager;
   //setAttribute(Qt::WA_NoSystemBackground);
   // reset coordinates
   resetEvents(true);
   is_mouse_pressed   = FALSE;
   is_mouse_zoom      = FALSE;
   is_key_pressed     = FALSE;
+  is_a_key_pressed   = FALSE;
   is_shift_pressed   = FALSE;
   is_pressed_ctrl    = FALSE;
   gpv.clear();
@@ -98,6 +100,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go,QMutex * _mutex, Camera 
   checkGLErrors("initializeGL");
   shader = NULL;
   vel_shader = NULL;
+
   initShader();
   checkGLErrors("initShader");
   ////////
@@ -172,6 +175,8 @@ GLWindow::~GLWindow()
     if (shader) delete shader;
     if (vel_shader) delete vel_shader;
   }
+  delete gl_colorbar;
+  delete osd;
 //  if (p_data)
 //    delete p_data;
   std::cerr << "Destructor GLWindow::~GLWindow()\n";
@@ -220,7 +225,8 @@ void GLWindow::update(ParticlesData   * _p_data,
   store_options->octree_level = 0;
   //tree->update(p_data, _pov);
   gl_colorbar->update(&gpv,p_data->getPhysData(),store_options,mutex_data);
-  
+
+
   for (unsigned int i=0; i<pov->size() ;i++) {
     if (i>=gpv.size()) {
       GLObjectParticles * gp = new GLObjectParticles(p_data,&((*pov)[i]),
@@ -279,7 +285,7 @@ void GLWindow::updateColorVbo(const int i_obj)
 void GLWindow::update()
 {
   if (pov) {
-    update(p_data,pov,store_options);
+    update(p_data, pov, store_options, cpointset_manager);
   }
 }
 // ============================================================================
@@ -341,7 +347,7 @@ void GLWindow::updateGrid(bool ugl)
   if (ugl) updateGL();
 }
 // ============================================================================
-// init Light                                                                  
+// init Light
 void GLWindow::initLight()
 {
 }
@@ -352,7 +358,7 @@ void GLWindow::initLight()
 long int CPT=0;
 void GLWindow::paintGL()
 {
-  CPT++; 
+  CPT++;
   //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
   //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
   if (store_options->auto_gl_screenshot) {
@@ -528,6 +534,8 @@ void GLWindow::paintGL()
   else                        glDisable(GL_DEPTH_TEST);
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
+  cpointset_manager->displayAll();
+
   if (store_options->show_part && pov ) {
     //mutex_data->lock();
     bool first=true;
@@ -543,6 +551,8 @@ void GLWindow::paintGL()
         }
       }
     }
+
+
     if (obj_has_physic) {
       if (fbo) // offscreen rendering activated
         gl_colorbar->display(texWidth,texHeight);
@@ -557,7 +567,7 @@ void GLWindow::paintGL()
   if (store_options->octree_display || 1) {
     tree->display();
   }
-  
+
   // On Screen Display
   if (store_options->show_osd) osd->display();
     
@@ -642,6 +652,7 @@ void GLWindow::initShader()
               vel_shader=NULL;
           }
       }
+
     }
 
   }
@@ -699,6 +710,7 @@ void GLWindow::resizeGL(int w, int h)
   glMatrixMode( GL_MODELVIEW );
   glLoadIdentity();
   osd->setWH(w,h);
+  cpointset_manager->setScreenDim(w, h);
 }
 // ============================================================================
 // set up the projection according to the width and height of the windows
@@ -802,9 +814,8 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
 // ============================================================================
 // GLObjectWindow::mouseReleaseEvent()
 // manage mouseReleaseEvent
-void GLWindow::mouseReleaseEvent( QMouseEvent *e )
-{
-  if (e) {;}  // do nothing... just to remove the warning :p
+void GLWindow::mouseReleaseEvent(QMouseEvent *e) {
+  if (e) { ; }  // do nothing... just to remove the warning :p
   is_pressed_left_button = FALSE;
   is_pressed_right_button = FALSE;
   is_mouse_pressed = FALSE;
@@ -816,17 +827,39 @@ void GLWindow::mouseReleaseEvent( QMouseEvent *e )
   draw_box->draw( glbox,part_data, &psv, store_options,"");
 #endif
   if (is_shift_pressed) {
-    if ( !store_options->duplicate_mem) mutex_data->lock();
+    if (!store_options->duplicate_mem) mutex_data->lock();
     //JCL 07/21/2015 setPerspectiveMatrix(); // toggle to perspective matrix mode
-    gl_select->selectOnArea(pov->size(),mProj,mModel,viewport);
+    gl_select->selectOnArea(pov->size(), mProj, mModel, viewport);
     setPerspectiveMatrix(); // toggle to perspective matrix mode
-    gl_select->zoomOnArea(mProj,mModel,viewport);
-    osd->setText(GLObjectOsd::Zoom,(const float) store_options->zoom);
+    gl_select->zoomOnArea(mProj, mModel, viewport);
+    osd->setText(GLObjectOsd::Zoom, (const float) store_options->zoom);
     osd->updateDisplay();
-    if ( !store_options->duplicate_mem) mutex_data->unlock();
+    if (!store_options->duplicate_mem) mutex_data->unlock();
+  }
+  if (is_a_key_pressed) {
+    if (e->button() == Qt::LeftButton) {
+      std::pair<CPointset*, GLCPoint*> cpoint_pair = cpointset_manager->getClickedCpoint(mModel2, mProj,
+                                                                                         {e->x(), e->y()}, viewport,
+                                                                                         DOF);
+      auto closest_cpoint_parent_set = cpoint_pair.first;
+      auto closest_cpoint = cpoint_pair.second;
+      if(closest_cpoint){
+        if (closest_cpoint->isSelected()) {
+          closest_cpoint_parent_set->unselectCPoint(closest_cpoint->getId());
+          emit unselectTreeWidgetItem(closest_cpoint->getId());
+        } else {
+          closest_cpoint_parent_set->selectCPoint(closest_cpoint->getId());
+          emit selectTreeWidgetItem(closest_cpoint->getId());
+        }
+      }
+    } else if (e->button() == Qt::RightButton) {
+      cpointset_manager->unselectAll();
+      emit unselectTreeWidgetAll();
+    }
+    updateGL();
   }
   setCursor(Qt::ArrowCursor);
-  emit sigKeyMouse( is_key_pressed, is_mouse_pressed);
+  emit sigKeyMouse(is_key_pressed, is_mouse_pressed);
   //!draw_box->show();
 }
 
@@ -837,7 +870,7 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
 {
   int dx=0,dy=0,dz=0;
   setFocus();
-  if (is_pressed_left_button) {
+  if (is_pressed_left_button && !is_a_key_pressed) {
     // offset displcacement
     dx = e->x()-last_posx;
     dy = e->y()-last_posy;
@@ -867,7 +900,7 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
       }
   }
   if ( !gl_select->isEnable()) {
-    if ( is_pressed_right_button) {
+    if ( is_pressed_right_button && !is_a_key_pressed) {
       // offset displcacement
       dz = e->x()-last_posz;
       // save last position
@@ -926,6 +959,7 @@ void GLWindow::keyPressEvent(QKeyEvent * k)
   }
   if (k->key() == Qt::Key_A) {
     is_key_pressed = TRUE;
+    is_a_key_pressed = TRUE;
     //!glbox->toggleLineAliased();
   }
   if (k->key() == Qt::Key_Plus) {
@@ -962,6 +996,9 @@ void GLWindow::keyReleaseEvent(QKeyEvent * k)
     is_mouse_zoom  = FALSE;
     gl_select->reset();
     updateGL();
+  }
+  if (k->key() == Qt::Key_A) {
+    is_a_key_pressed = FALSE;
   }
   is_key_pressed = FALSE;
   emit sigKeyMouse( is_key_pressed, is_mouse_pressed);

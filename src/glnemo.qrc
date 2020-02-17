@@ -2,6 +2,8 @@
     <qresource prefix="/">
         <file>../res/fonts/Helvetica.txf</file>
         <file>../res/fonts/AvantGarde-Demi.txf</file>
+        <file>../res/fonts/dejavu_sans_mono_typeface.json</file>
+        <file>../res/fonts/dejavu_sans_mono_typeface.png</file>
         <file>../res/colormaps/LOCS.256</file>
         <file>../res/colormaps/RB.256</file>
         <file>../res/colormaps/HO.256</file>
@@ -74,6 +76,20 @@
         <file>../res/shaders/velocity.frag.cc</file>
         <file>../res/shaders/velocity.vert130.cc</file>
         <file>../res/shaders/velocity.frag130.cc</file>
+        <file>../res/shaders/cpoints_120/characteristic.frag</file>
+        <file>../res/shaders/cpoints_120/regular_polygon.vert</file>
+        <file>../res/shaders/cpoints_120/tag_shape.vert</file>
+        <file>../res/shaders/cpoints_120/text.vert</file>
+        <file>../res/shaders/cpoints_120/text.frag</file>
+        <file>../res/shaders/cpoints_120/sphere.vert</file>
+        <file>../res/shaders/cpoints_130/characteristic.frag</file>
+        <file>../res/shaders/cpoints_130/regular_polygon.vert</file>
+        <file>../res/shaders/cpoints_130/tag_shape.vert</file>
+        <file>../res/shaders/cpoints_130/tag_shape.frag</file>
+        <file>../res/shaders/cpoints_120/tag_shape.frag</file>
+        <file>../res/shaders/cpoints_130/text.vert</file>
+        <file>../res/shaders/cpoints_130/text.frag</file>
+        <file>../res/shaders/cpoints_130/sphere.vert</file>
         <file>../res/camera/path_02</file>
         <file>../res/camera/path_03</file>
         <file>../res/shaders/camera.vert.cc</file>

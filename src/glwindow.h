@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -30,6 +30,7 @@
 #include "glcolorbar.h"
 #include "glaxesobject.h"
 #include "camera.h"
+#include "glcpoints.h"
 
 
 class fntTexFont;
@@ -41,7 +42,7 @@ class GlobalOptions;
 class GLWindow : public QGLWidget {
   Q_OBJECT
 public:
-    GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera * );
+    GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, CPointsetManager *);
     ~GLWindow();
 
     void bestZoomFit();
@@ -80,6 +81,9 @@ public:
     void leaveEvent();
     void sigMouseXY(const int x, const int y);
     void doneRendering();
+    void selectTreeWidgetItem(int cpoint_id);
+    void unselectTreeWidgetItem(int cpoint_id);
+    void unselectTreeWidgetAll();
 public slots:
    void  update(ParticlesData   * ,
                 ParticlesObjectVector * ,
@@ -186,6 +190,8 @@ private:
   // Vectors
   GLObjectParticlesVector gpv;
   ParticlesObjectVector * pov;
+  CPointsetManager* cpointset_manager;
+
   ParticlesData   * p_data;
   // projections
   void setProjection(const int x, const int y, const int w, const int h );
@@ -211,6 +217,7 @@ private:
   bool is_mouse_pressed;
   bool is_mouse_zoom;
   bool is_key_pressed;
+  bool is_a_key_pressed;
   bool is_ctrl_pressed;
 
   void translateAlongAxis(const int);
@@ -278,7 +285,7 @@ private:
   bool is_shift_pressed;
   // bench
   int nframe;
-  // Shaders
+//   Shaders
   CShader * shader, * vel_shader;
   void initShader();
   unsigned int m_vertexShader, m_pixelShader;

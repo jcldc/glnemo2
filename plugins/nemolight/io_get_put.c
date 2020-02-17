@@ -66,7 +66,7 @@ int put_data_select(char * outfile,
   char *  OutType;
 	
   if (rtype==1)
-    OutType=FloatType;
+    OutType=FloatTypeNemo;
   else
     OutType=DoubleType;
 	
@@ -272,7 +272,7 @@ int get_data_select(char * infile,
   int nBodySelected=0;
 
   if (rtype==1)
-    OutType=FloatType;
+    OutType=FloatTypeNemo;
   else
     OutType=DoubleType;
 	

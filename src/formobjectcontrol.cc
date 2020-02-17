@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -18,8 +18,11 @@
 #include <QColorDialog>
 #include <QRegExp>
 #include <assert.h>
+#include <QFileDialog>
+#include <QMessageBox>
 #include "globaloptions.h"
 #include "gltexture.h"
+#include "glnemoexception.h"
 
 namespace glnemo {
 #define RT_VISIB 0
@@ -39,35 +42,28 @@ int osfile =0;
 // ============================================================================
 // Constructor                                                                 
 // create the 2 tables : Range and File                                        
-FormObjectControl::FormObjectControl(QWidget *parent):QDialog(parent)
+FormObjectControl::FormObjectControl(CPointsetManager *_pointset_manager, GlobalOptions *global_options,
+                                     QWidget *parent) : QDialog(parent)
 {
+  pointset_manager = _pointset_manager;
+  go = global_options;
   ignoreCloseEvent = true;
   form.setupUi(this);
   current_data = NULL;
   // set number of rows per table (20)
   form.range_table->setRowCount(20);
   osrange=0;
-  
-  form.select_table->setRowCount(20);
+
   osselec=osrange+form.range_table->rowCount();
-  
-  form.file_table->setRowCount(20);
-  osfile=osselec+form.select_table->rowCount();
-  
-  form.range_table->setColumnWidth(0,25);   // Vis  
+
+  form.range_table->setColumnWidth(0,25);   // Vis
   form.range_table->setColumnWidth(1,150);  // Range
   form.range_table->setColumnWidth(2,45);   // Color
-  form.file_table->setColumnWidth(0,25);
-  form.select_table->setColumnWidth(0,25);
   for (int i=0; i < form.range_table->rowCount(); i++) {
     form.range_table->setRowHeight(i,25);
-    form.file_table->setRowHeight(i,25);
-    form.select_table->setRowHeight(i,25);
   }
   // create object index array
-  int no=form.range_table->rowCount()  +
-         form.select_table->rowCount() +
-         form.file_table->rowCount();
+  int no=form.range_table->rowCount();
   object_index = new int[no];
   for (int i=0; i<no;i++) object_index[i]=-1; // -1=>object does not exist
   current_object = 0;
@@ -76,15 +72,9 @@ FormObjectControl::FormObjectControl(QWidget *parent):QDialog(parent)
   lock = true;
   // insert checkbox and color widget into tables
   initTableWidget(form.range_table ,0,RT_VISIB,RT_COLOR);  // range
-  initTableWidget(form.select_table,1,ST_VISIB,ST_COLOR);  // select
-  initTableWidget(form.file_table  ,2,FT_VISIB,FT_COLOR);  // file 
   // Selection mode and behaviour
   form.range_table->setSelectionMode(QAbstractItemView::SingleSelection);
   form.range_table->setSelectionBehavior(QAbstractItemView::SelectItems);
-  form.select_table->setSelectionMode(QAbstractItemView::SingleSelection);
-  form.select_table->setSelectionBehavior(QAbstractItemView::SelectItems);
-  form.file_table->setSelectionMode(QAbstractItemView::SingleSelection);
-  form.file_table->setSelectionBehavior(QAbstractItemView::SelectItems);
   // create range selection combobox to store objects' particles indexes.
   combobox = new QComboBoxTable(0,0,0);
   form.range_table->setCellWidget(0,RT_COLOR-1,combobox);
@@ -95,7 +85,7 @@ FormObjectControl::FormObjectControl(QWidget *parent):QDialog(parent)
   connect(combobox,SIGNAL(comboActivated(const int, const int)),this,
           SLOT(checkComboLine(const int, const int)));
   // intialyze texture combobox according to the texture array
-  // loop and load all embeded textures                       
+  // loop and load all embeded textures
   int i=0;
   while (GLTexture::TEXTURE[i][0]!=NULL) {
     form.texture_box->addItem(QIcon(GlobalOptions::RESPATH+GLTexture::TEXTURE[i][0]),GLTexture::TEXTURE[i][1]);
@@ -112,7 +102,6 @@ FormObjectControl::FormObjectControl(QWidget *parent):QDialog(parent)
 
   //connect(combobox,SIGNAL(my_editTextChanged(const QString&, const int, const int)),
   //      this,SLOT(updateRange(const QString&, const int, const int)));
-  go = NULL;
   //form.dens_histo_view->setParent(form.tab_density);
   dens_histo = new DensityHisto(form.dens_histo_view);
   form.dens_histo_view->setScene(dens_histo);
@@ -120,11 +109,33 @@ FormObjectControl::FormObjectControl(QWidget *parent):QDialog(parent)
   //DEACTIVARED form.dens_glob_box->setDisabled(true);
   dens_color_bar = new DensityColorBar(go,form.dens_bar_view);
   form.dens_bar_view->setScene(dens_color_bar);
-  
+
   form.objects_properties->setTabEnabled(1,false);
   form.objects_properties->setCurrentIndex(0); // set position to first tab
-  
+
   my_mutex2 = new QMutex(QMutex::Recursive);
+
+  auto custom_delete_cpointset_btn = new DeletePushButton();
+  custom_delete_cpointset_btn->setObjectName(form.delete_cpointset_btn->objectName());
+  custom_delete_cpointset_btn->setToolTip(form.delete_cpointset_btn->toolTip());
+  custom_delete_cpointset_btn->setText(form.delete_cpointset_btn->text());
+  form.delete_cpointset_layout->replaceWidget(form.delete_cpointset_btn, custom_delete_cpointset_btn);
+  connect(custom_delete_cpointset_btn, SIGNAL(deleteClicked(bool)), this, SLOT(delete_cpointsets(bool)));
+
+  auto custom_delete_cpoints_btn = new DeletePushButton();
+  custom_delete_cpoints_btn->setObjectName(form.delete_cpoints_btn->objectName());
+  custom_delete_cpoints_btn->setToolTip(form.delete_cpoints_btn->toolTip());
+  custom_delete_cpoints_btn->setText(form.delete_cpoints_btn->text());
+  form.delete_cpoints_layout->replaceWidget(form.delete_cpoints_btn, custom_delete_cpoints_btn);
+  connect(custom_delete_cpoints_btn, SIGNAL(deleteClicked(bool)), this, SLOT(delete_cpoints(bool)));
+
+  delete form.delete_cpoints_btn;
+  delete form.delete_cpointset_btn;
+
+  form.cpoints_set_treewidget->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
+  form.cpoints_set_treewidget->setColumnHidden(1, true);
+
+//  form.color_picker_button->setStyleSheet("QPushButton:disabled{background-color:#eeeeee}"); // FIXME does not work
 }
 
 // ============================================================================
@@ -132,7 +143,8 @@ FormObjectControl::FormObjectControl(QWidget *parent):QDialog(parent)
 FormObjectControl::~FormObjectControl()
 {
   delete [] object_index;
-  //delete combobox;
+  delete dens_histo;
+  delete dens_color_bar;
 }
 // ============================================================================
 // initTableWidget()                                                           
@@ -210,10 +222,10 @@ void FormObjectControl::update(ParticlesData   * _p_data,
   pov          = _pov;
   // get physical value data array
   phys_select = current_data->getPhysData();
-  
+
   // parse all the objects to check if physic is present
   checkPhysic();
-  
+
   int cpt=0;
   combobox->clear();
   for (int i=0; i < form.range_table->rowCount(); i++) {
@@ -221,12 +233,7 @@ void FormObjectControl::update(ParticlesData   * _p_data,
       object_index[i]=cpt++;
       QTableWidget * tw;
       if ((*pov)[i].selectFrom() == ParticlesObject::Range) { // Range
-        tw = form.range_table;	
-        updateTable(tw,i,RT_VISIB ,RT_COLOR);
-        updateRangeTable(i);
-      }
-      if ((*pov)[i].selectFrom() == ParticlesObject::Select) { // Range
-        tw = form.select_table;	
+        tw = form.range_table;
         updateTable(tw,i,RT_VISIB ,RT_COLOR);
         updateRangeTable(i);
       }
@@ -237,7 +244,7 @@ void FormObjectControl::update(ParticlesData   * _p_data,
         updateFileTable(i);
       }
 #endif
-      //updateObjectSettings(i); 
+      //updateObjectSettings(i);
     }
     else {               // not belonging to object list
       if (reset_table) {
@@ -249,24 +256,24 @@ void FormObjectControl::update(ParticlesData   * _p_data,
 
     }
     //if (i) form.range_table->setCellWidget(i,1,NULL);
-    
+
   }
   first=false;
   ///!!!!updateObjectSettings(0);
-  ///MODIFICATION April,15 2011 
-  updateObjectSettings(last_row); 
+  ///MODIFICATION April,15 2011
+  updateObjectSettings(last_row);
   EMIT=false;
   // stretch tab
   form.z_stretch_jit_cb->setChecked(go->z_stretch_jit);
   form.z_stretch_max_spin->setValue((double) go->z_stretch_max);
   form.z_stretch_slide->setValue(form.z_stretch_slide->maximum());
   EMIT=true;
-  ///MODIFICATION April,15 2011 
+  ///MODIFICATION April,15 2011
   form.range_table->setCurrentCell(current_object,1);
   // set active row
   lock=true;
   if (go  && ! go->duplicate_mem) mutex_data->unlock();
-  
+
   on_range_table_cellClicked(last_row,1);
   //physicalSelected();
 }
@@ -374,15 +381,15 @@ int FormObjectControl::on_range_table_cellClicked(int row,int column)
     combobox->setEditText(item->text()); // add object to the combobox
     combobox->display();
 #else
-    if (object_index[row] != -1 )          // object exist        
+    if (object_index[row] != -1 )          // object exist
       combobox->setEditText(item->text()); // put range from table
-    combobox->display();                   // display combobox    
-#endif 
+    combobox->display();                   // display combobox
+#endif
   }
 
   current_object = row;
   updateObjectSettings(row);   // Update object properties on the form
-  
+
   // -
   // --- process click event on [Color cell]
   // -
@@ -458,7 +465,7 @@ void FormObjectControl::checkComboLine(const int row, const int col)
       std::cerr << "ncap="<<rx.captureCount()<<" first="<<first<<" last="<<last<<" step="<<step<<"\n";
 #endif
       // check if the syntax is correct
-      int npart=last-first+1; // #part 
+      int npart=last-first+1; // #part
 //      if (current_data && npart <= *(current_data->nbody) && npart>0) {    // valid object
       if (pov && npart <= nbody && npart>0) {    // valid object
         item->setText(combobox->currentText()); // fill cell
@@ -481,14 +488,14 @@ void FormObjectControl::checkComboLine(const int row, const int col)
           }
         }
         else {              // it's a new object
-          ParticlesObject * po = new ParticlesObject(); // new object                
+          ParticlesObject * po = new ParticlesObject(); // new object
           po->buildIndexList( npart,first,last,step);   // object's particles indexes
           // get color
           QTableWidgetItem * twi = form.range_table->item(row,RT_COLOR);
           assert(twi);
-          // set color 
+          // set color
           po->setColor(twi->background().color());
-          // get visibility 
+          // get visibility
           QCheckBoxTable * checkbox = static_cast<QCheckBoxTable *>
           (form.range_table->cellWidget(row,RT_VISIB));
           assert(checkbox);
@@ -497,7 +504,7 @@ void FormObjectControl::checkComboLine(const int row, const int col)
           pov->push_back(*po);                    // insert object
           delete po;
           object_index[row] = pov->size()-1; // update object list
-          current_object = row;              //                  
+          current_object = row;              //
           updateObjectSettings(row);         // update form !!! CAUSE OF CRASH
           emit objectUpdate();               // update OpenGL object
         }
@@ -633,8 +640,8 @@ void FormObjectControl::updateObjectSettings( const int row)
       // the global value if it has been defined
       //min
       int min=rint((log(gminphys)-log(phys_select->getMin()))*1./diff_rho);
-      form.dens_slide_min->setValue(min);      
-      //max      
+      form.dens_slide_min->setValue(min);
+      //max
       int max=rint((log(gmaxphys)-log(phys_select->getMin()))*1./diff_rho);
       form.dens_slide_max->setValue(max);
       //pobj->setMaxPercenPhys(std::max(1,max-1));
@@ -658,7 +665,7 @@ void FormObjectControl::updateObjectSettings( const int row)
         go->phys_max_glob = pobj->getMaxPhys();
       }
 #endif
-    } 
+    }
   }
   if ( i_obj == -1 ) { // no object selected
     // Particles Settings
@@ -681,7 +688,7 @@ void FormObjectControl::updateObjectSettings( const int row)
     form.orecord_check->setChecked(false);
     form.orbit_history_spin->setValue(form.orbit_history_spin->maximum());
     form.orbit_max_spin->setValue(form.orbit_max_spin->maximum());
-    
+
   }
   EMIT = true;
   //if (go  && ! go->duplicate_mem) mutex_data->unlock();
@@ -700,19 +707,19 @@ void FormObjectControl::checkPhysic()
         int index=pobj->index_tab[i];
         if (phys_select && phys_select->isValid()) {
           if (phys_select->data[index] != -1) pobj->setPhysic(true);
-        }    
-      }     
-      // 
+        }
+      }
+      //
       if (pobj->hasPhysic() && phys_select && phys_select->isValid()) {
         if (go->phys_min_glob==-1 && go->phys_max_glob==-1) { // glob phys not defined
           if (pobj->getMinPhys()==-1. &&  // default parameter -1 -1
               pobj->getMaxPhys()==-1.) {  // it's a NEW object, so we set min/max phys
-            pobj->setMinPhys(phys_select->getMin()); 
+            pobj->setMinPhys(phys_select->getMin());
             pobj->setMaxPhys(phys_select->getMax());
           }
         } else { // global phys defined
           if (pobj->getMinPhys()==-1. &&            // default parameter for the object
-              pobj->getMaxPhys()==-1.) {  // 
+              pobj->getMaxPhys()==-1.) {  //
             pobj->setMinPhys(go->phys_min_glob);
             pobj->setMaxPhys(go->phys_max_glob);
           }
@@ -1090,7 +1097,7 @@ void FormObjectControl::dens_slide_min_max(const int x, const int y)
     assert(i_obj < (int)pov->size());
     //std::cerr << "x="<<x<< "  y="<<y<<"\n";
     EMIT=FALSE;
-    
+
     if (fabs(x)> fabs(y)) {
       // horizontal move
       form.dens_slide_min->setValue(form.dens_slide_min->value()+x);
@@ -1108,7 +1115,7 @@ void FormObjectControl::dens_slide_min_max(const int x, const int y)
     setNewPhys();
     go->gcb_min = form.dens_slide_min->value();
     go->gcb_max = form.dens_slide_max->value();
-    emit changeBoundaryPhys(i_obj,EMIT); 
+    emit changeBoundaryPhys(i_obj,EMIT);
   }
   my_mutex2->unlock();
   //if (lock)
@@ -1129,24 +1136,24 @@ void FormObjectControl::on_dens_slide_min_valueChanged(int value)
     if (value > form.dens_slide_max->value()) { // min < max !
       form.dens_slide_max->setValue(value+1);
     }
-        
+
     //setNewPhys();
     ParticlesObject * pobj = &(*pov)[i_obj];
     if (value<0) value=0;
     if (value>=99) value=98;
     pobj->setMinPercenPhys(value);
     if (EMIT) {
-      
-      setNewPhys();      
+
+      setNewPhys();
       go->gcb_min = form.dens_slide_min->value();
       go->gcb_max = form.dens_slide_max->value();
-      emit changeBoundaryPhys(i_obj,EMIT);      
+      emit changeBoundaryPhys(i_obj,EMIT);
       //emit updateThresholMinMax();
     }
-    
+
     dens_histo->drawDensity(form.dens_slide_min->value(), form.dens_slide_max->value());
     dens_color_bar->draw(form.dens_slide_min->value(), form.dens_slide_max->value());
-    
+
     //if (EMIT) emit changeBoundaryPhys(i_obj,EMIT);
   }
   my_mutex2->unlock();
@@ -1167,14 +1174,14 @@ void FormObjectControl::on_dens_slide_max_valueChanged(int value)
     if (value <= form.dens_slide_min->value()) { // min < max !
       form.dens_slide_min->setValue(std::max(value-1,0));
     }
-    
+
     //setNewPhys();
     ParticlesObject * pobj = &(*pov)[i_obj];
     if (value<=0) value=1;
-    if (value>=100) value=99;    
+    if (value>=100) value=99;
     pobj->setMaxPercenPhys(value);
     if (EMIT) {
-    
+
       setNewPhys();
       go->gcb_min = form.dens_slide_min->value();
       go->gcb_max = form.dens_slide_max->value();
@@ -1183,7 +1190,7 @@ void FormObjectControl::on_dens_slide_max_valueChanged(int value)
 
     dens_histo->drawDensity(form.dens_slide_min->value(), form.dens_slide_max->value());
     dens_color_bar->draw(form.dens_slide_min->value(), form.dens_slide_max->value());
-    
+
     //if (EMIT) emit changeBoundaryPhys(i_obj,EMIT);
   }
   my_mutex2->unlock();
@@ -1273,7 +1280,7 @@ void FormObjectControl::on_temp_phys_radio_clicked()
 void FormObjectControl::on_tempdens_phys_radio_clicked()
 {
   mutex_data->lock();
-  
+
   current_data->setIpvs(PhysicalData::temperaturesd);
   int i_obj = object_index[current_object];
   if (pov && pov->size()>0 && i_obj != -1 && phys_select)  {  // at least one object
@@ -1311,31 +1318,31 @@ void FormObjectControl::physicalSelected()
   if (go  && ! go->duplicate_mem) mutex_data->lock();
   int i_obj = object_index[current_object];
   if (pov && pov->size()>0 && i_obj != -1 && phys_select)  {  // at least one object
-    assert(i_obj < (int)pov->size());    
+    assert(i_obj < (int)pov->size());
     ParticlesObject * pobj = &(*pov)[i_obj];
     setPhysicalTabName();
     if (phys_select && phys_select->isValid()) {
       form.dens_slide_min->setValue(0);      // here we should put current object value (from PhysObject), not   0
       form.dens_slide_max->setValue(100);    // here we should put current object value (from PhysObject), not 100
-      
+
       pobj->setMinPhys(phys_select->getMin());
       pobj->setMaxPhys(phys_select->getMax());
-      
+
       dens_histo->drawDensity(phys_select->data_histo);
       double diff_rho=(log(phys_select->getMax())-log(phys_select->getMin()))/100.;
       form.dens_slide_min->setValue((log(pobj->getMinPhys())-log(phys_select->getMin()))*1./diff_rho);
       form.dens_slide_max->setValue((log(pobj->getMaxPhys())-log(phys_select->getMin()))*1./diff_rho);
       dens_histo->drawDensity(form.dens_slide_min->value(),form.dens_slide_max->value());
       dens_color_bar->draw(form.dens_slide_min->value(),form.dens_slide_max->value());
-      
-      
+
+
       //on_dens_apply_button_clicked();
       //on_phys_console_button_clicked();
       if (EMIT) {
         emit densityProfileObjectChanged(i_obj);
         emit objectSettingsChanged();
       }
-    }    
+    }
   }
   if (go  && ! go->duplicate_mem) mutex_data->unlock();
 }
@@ -1348,18 +1355,18 @@ void FormObjectControl::setPhysicalTabName()
     //int type=phys_select->getType(); // return the index of the selectd physical quantities
     int type=current_data->getIpvs(); // return the index of the selectd physical quantities
     switch (type) {
-          case PhysicalData::rho : 
+          case PhysicalData::rho :
             form.dens_phys_radio->setChecked(true);
             form.objects_properties->setTabText(1,"Density");
             break;
           case PhysicalData::temperature :
             form.objects_properties->setTabText(1,"Temperature");
             form.temp_phys_radio->setChecked(true);
-            break;            
+            break;
            case PhysicalData::temperaturesd:
             form.objects_properties->setTabText(1,"Temperature/Dens");
             form.tempdens_phys_radio->setChecked(true);
-            break;            
+            break;
           case PhysicalData::pressure :
             form.objects_properties->setTabText(1,"Pressure");
             form.pressure_phys_radio->setChecked(true);
@@ -1420,6 +1427,531 @@ void FormObjectControl::on_z_stretch_max_spin_valueChanged(double value)
     if (go->z_stretch_value!=0.0)
       go->ztrans=ztransref*go->z_stretch_value; // compute the new translation to keep centered on it
     if (EMIT) emit objectSettingsChanged();
+  }
+}
+// ============================================================================
+// -- CPoints Tab --
+//
+// ============================================================================
+//
+void DeletePushButton::mousePressEvent(QMouseEvent *e) {
+  emit deleteClicked(!(e->modifiers() == Qt::ShiftModifier));
+  QPushButton::mousePressEvent(e);
+}
+
+void FormObjectControl::on_load_cpoints_file_clicked(bool) {
+  QString file_path;
+  file_path = QFileDialog::getOpenFileName(
+          this, tr("Open characteristic point description file"));
+  if (!file_path.isEmpty()) {
+    try{
+      pointset_manager->loadFile(file_path.toStdString());
+      initCPointsTreeWidget();
+    }
+    catch(glnemoException &e){
+      QMessageBox::critical(this->window(), "Error", "Could not parse file " + file_path + "\nError : " + e.what());
+    }
+  }
+}
+// ============================================================================
+//
+CPointset *FormObjectControl::getPointsetFromItem(QTreeWidgetItem *item) {
+  CPointset *cpointset;
+  if (!item->parent()) { // item is a cpointset
+    std::string pointset_name = item->text(0).toStdString();
+    return (*pointset_manager)[pointset_name];
+  } else
+    return nullptr;
+}
+// ============================================================================
+//
+void FormObjectControl::initCPointsTreeWidget() {
+  form.cpoints_set_treewidget->clear();
+  for (auto cpoint_set : *pointset_manager) {
+    createCpointsetTreeItem(cpoint_set.second);
+  }
+}
+// ============================================================================
+//
+QTreeWidgetItem *FormObjectControl::createCpointsetTreeItem(CPointset *cpoint_set) {
+  auto cpointset_item = new QTreeWidgetItem(
+          form.cpoints_set_treewidget,
+          QStringList() << QString::fromStdString(cpoint_set->getName())<< QString()<< QString::number(cpoint_set->getNbCpoints()),
+          QTreeWidgetItem::Type);
+
+  for (auto const &cpoint_pair : cpoint_set->getCPoints()) {
+    GLCPoint *cpoint = cpoint_pair.second;
+    int cpoint_id = cpoint_pair.first;
+    auto cpoint_item = new QTreeWidgetItem(
+            cpointset_item,
+            QStringList() << QString::fromStdString(cpoint->getName()) << QString::number(cpoint_id),
+            QTreeWidgetItem::Type);
+  }
+  return cpointset_item;
+}
+// ============================================================================
+//
+void FormObjectControl::on_cpoints_display_cbx_stateChanged(int state) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
+  if (pointset) {
+    if (state == Qt::Checked)
+      pointset->setVisible(true);
+    else if (state == Qt::Unchecked)
+      pointset->setVisible(false);
+    emit objectSettingsChanged();
+  }
+}
+// ============================================================================
+//
+void FormObjectControl::on_cpoints_set_treewidget_itemSelectionChanged() {
+  pointset_manager->unselectAll();
+  QList<QTreeWidgetItem *> items = form.cpoints_set_treewidget->selectedItems();
+
+  if (items.empty()) {
+    form.edit_cpoint_parent_box->setEnabled(false);
+    form.edit_cpointset_parent_box->setEnabled(false);
+  } else if (items.size() == 1) {
+    QTreeWidgetItem *item = items.first();
+
+    if (!item->parent()) { // if top level item ie if a cpointset is selected
+      form.edit_cpointset_parent_box->setEnabled(true);
+      form.edit_cpointset_box->setEnabled(true);
+      form.edit_cpoint_parent_box->setEnabled(false);
+
+      CPointset *pointset = getPointsetFromItem(item);
+      if (pointset) {
+        setFormState(pointset);
+        pointset->select();
+      }
+    } else { // else a cpoint is selected
+
+      form.edit_cpoint_box->setEnabled(true);
+      form.edit_cpoint_parent_box->setEnabled(true);
+      form.edit_cpointset_parent_box->setEnabled(true);
+      form.edit_cpointset_box->setEnabled(true);
+      int cpoint_id = item->text(1).toInt();
+      CPointset *pointset = getPointsetFromItem(item->parent());
+      GLCPoint *cpoint = pointset->getCPoints().at(cpoint_id);
+      form.edit_cpoint_coords_x->setValue(cpoint->getCoords()[0]);
+      form.edit_cpoint_coords_y->setValue(cpoint->getCoords()[1]);
+      form.edit_cpoint_coords_z->setValue(cpoint->getCoords()[2]);
+      form.edit_cpoint_size->setValue(cpoint->getSize());
+      form.edit_cpoint_name->setText(QString::fromStdString(cpoint->getName()));
+      setFormState(pointset);
+      pointset->selectCPoint(cpoint_id);
+    }
+  } else { // multiple items selected
+    bool cpoints = false, cpointsets = false, different_sets = false;
+    CPointset* previous_parent = nullptr;
+
+    for (auto item : items) {
+      if (!item->parent()){
+        cpointsets = true;
+        auto cpointset = getPointsetFromItem(item);
+        cpointset->select();
+      }
+      else{
+        cpoints = true;
+        CPointset* parent = getPointsetFromItem(item->parent());
+        int cpoint_id = item->text(1).toInt();
+        parent->selectCPoint(cpoint_id);
+
+        if(!previous_parent) // assign to first parent
+          previous_parent = parent;
+        if(parent != previous_parent) // check if all cpoints are from the same set
+          different_sets = true;
+        previous_parent = parent;
+      }
+    }
+
+    if (cpointsets && !cpoints) { // only cpointsets
+      form.edit_cpointset_parent_box->setEnabled(true);
+      form.edit_cpointset_box->setEnabled(false);
+      form.edit_cpoint_parent_box->setEnabled(false);
+    } else if (!cpointsets && cpoints) { // only cpoints
+      form.edit_cpointset_parent_box->setEnabled(true);
+      form.edit_cpoint_parent_box->setEnabled(true);
+      form.edit_cpoint_box->setEnabled(false);
+      if(different_sets)
+        form.edit_cpointset_parent_box->setEnabled(false);
+    } else { //both types selected
+      form.edit_cpointset_parent_box->setEnabled(false);
+      form.edit_cpoint_parent_box->setEnabled(false);
+    }
+  }
+  emit objectSettingsChanged();
+}
+// ============================================================================
+//
+void FormObjectControl::on_cpoints_threshold_slider_valueChanged(int threshold) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+
+  CPointset *pointset = getPointsetFromItem(item);
+  if (pointset) {
+    pointset->setThreshold(threshold);
+    emit objectSettingsChanged();
+  }
+}
+
+// ============================================================================
+//
+void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
+  QTreeWidgetItem *cpointset_item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(cpointset_item->parent())
+    cpointset_item = cpointset_item->parent();
+  CPointset *pointset = getPointsetFromItem(cpointset_item);
+  if (pointset) {
+    float size = form.add_cpoint_coords_size->value();
+    if(size > 0){
+      std::array<float, 3> coords = {
+              static_cast<float>(form.add_cpoint_coords_x->value()),
+              static_cast<float>(form.add_cpoint_coords_y->value()),
+              static_cast<float>(form.add_cpoint_coords_z->value())
+      };
+      const string &point_text = form.add_cpoint_name->text().toStdString();
+      GLCPoint *cpoint = pointset->addPoint(coords, size, point_text);
+      auto new_item = new QTreeWidgetItem(QStringList() << QString::fromStdString(cpoint->getName()) << QString::number(cpoint->getId()));
+      pointset_manager->unselectAll();
+      pointset->selectCPoint(cpoint->getId());
+      cpointset_item->insertChild(0, new_item);
+      cpointset_item->setText(2, QString::number(pointset->getNbCpoints()));
+
+      form.cpoints_set_treewidget->setCurrentItem(new_item);
+      emit objectSettingsChanged();
+    }
+  }
+}
+
+// ============================================================================
+//
+void FormObjectControl::on_add_cpointset_clicked(bool) {
+  CPointset *new_pointset = pointset_manager->createNewCPointset();
+  auto item = new QTreeWidgetItem(form.cpoints_set_treewidget,
+                                  QStringList() << QString::fromStdString(new_pointset->getName())<< QString() << QString::number(new_pointset->getNbCpoints()), 0);
+  form.cpoints_set_treewidget->setCurrentItem(item, 0);
+}
+// ============================================================================
+//
+void FormObjectControl::delete_cpointsets(bool need_confirmation) {
+  auto items = form.cpoints_set_treewidget->selectedItems();
+  if (items.size() == 1) {
+    QTreeWidgetItem *item = items[0];
+    if(item->parent())
+      item = item->parent();
+    std::string pointset_name = item->text(0).toStdString();
+    QMessageBox::StandardButton reply;
+    if (need_confirmation)
+      reply = QMessageBox::question(this, "Delete cpointset", QString::fromStdString(
+              "Do you really want to delete cpointset \"" + pointset_name + "\"?"),
+                                    QMessageBox::Yes | QMessageBox::No);
+    else reply = QMessageBox::Yes;
+    if (reply == QMessageBox::Yes) {
+      pointset_manager->deleteCPointset(pointset_name);
+      delete item;
+      emit objectSettingsChanged();
+    }
+  } else if (items.size() > 1) {
+    QMessageBox::StandardButton reply;
+    if (need_confirmation)
+      reply = QMessageBox::question(this, "Delete cpointset", "Do you really want to delete " + QString::number(items.size()) + " cpointsets ?",
+                                    QMessageBox::Yes | QMessageBox::No);
+    else reply = QMessageBox::Yes;
+    if (reply == QMessageBox::Yes) {
+      for (auto item : items){
+        if(item->parent()){ // delete only the parent set of the first cpoint selected and break
+          item = item->parent();
+          std::string pointset_name = item->text(0).toStdString();
+          pointset_manager->deleteCPointset(pointset_name);
+          delete item;
+          break;
+        }
+        else{ // delete all cpoint selected
+          std::string pointset_name = item->text(0).toStdString();
+          pointset_manager->deleteCPointset(pointset_name);
+          delete item;
+        }
+      }
+      emit objectSettingsChanged();
+    }
+  }
+}
+
+void FormObjectControl::delete_cpoints(bool need_confirmation) {
+  auto items = form.cpoints_set_treewidget->selectedItems();
+
+  if (items.size() == 1) {
+    QTreeWidgetItem *item = items[0];
+    QString cpoint_name = item->text(0);
+
+    QMessageBox::StandardButton reply;
+    if (need_confirmation)
+      reply = QMessageBox::question(this, "Delete cpoints", "Do you really want to delete cpoints \"" + cpoint_name + "\"?",
+                                    QMessageBox::Yes | QMessageBox::No);
+    else reply = QMessageBox::Yes;
+
+    if (reply == QMessageBox::Yes) {
+      int cpoint_id = item->text(1).toInt();
+      std::string parent_pointset_name = item->parent()->text(0).toStdString();
+      pointset_manager->deleteCPoint(parent_pointset_name, cpoint_id);
+      item->parent()->setText(2, QString::number(pointset_manager->at(parent_pointset_name)->getNbCpoints()));
+      delete item;
+      emit objectSettingsChanged();
+    }
+  } else if (items.size() > 1) {
+    QMessageBox::StandardButton reply;
+    if (need_confirmation)
+      reply = QMessageBox::question(this, "Delete cpoints", QString::fromStdString(
+              "Do you really want to delete " + std::to_string(items.size()) + " cpoints ?"),
+                                    QMessageBox::Yes | QMessageBox::No);
+    else reply = QMessageBox::Yes;
+
+    if (reply == QMessageBox::Yes) {
+      for (auto item : items) {
+        auto parent_pointset_name = item->parent()->text(0).toStdString();
+        int cpoint_id = item->text(1).toInt();
+        pointset_manager->deleteCPoint(parent_pointset_name, cpoint_id);
+        item->parent()->setText(2, QString::number(pointset_manager->at(parent_pointset_name)->getNbCpoints()));
+        delete item;
+      }
+      emit objectSettingsChanged();
+    }
+
+  }
+}
+
+void FormObjectControl::shapeRadioClicked() {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
+  QRadioButton *clickedBtn = qobject_cast<QRadioButton *>(sender());
+  CPointset* new_pointset = nullptr;
+  if (clickedBtn->objectName() == "shape_radio_disk")
+    new_pointset = pointset_manager->changePointsetShape(pointset, "disk");
+  else if (clickedBtn->objectName() == "shape_radio_square")
+    new_pointset = pointset_manager->changePointsetShape(pointset, "square");
+  else if (clickedBtn->objectName() == "shape_radio_tag")
+    new_pointset = pointset_manager->changePointsetShape(pointset, "tag");
+  else if (clickedBtn->objectName() == "shape_radio_sphere")
+    new_pointset = pointset_manager->changePointsetShape(pointset, "sphere");
+
+  if(new_pointset)
+    setFormState(new_pointset);
+
+  emit objectSettingsChanged();
+}
+
+void FormObjectControl::on_color_picker_button_clicked(bool) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
+  if (pointset) {
+    QColor newColor = QColorDialog::getColor(pointset->getQColor());
+    if (newColor.spec() != QColor::Invalid) {
+      form.color_picker_button->setStyleSheet("background-color: " + newColor.name());
+      pointset->setColor(newColor);
+      emit objectSettingsChanged();
+    }
+  }
+
+}
+
+void FormObjectControl::on_export_cpoints_file_clicked(bool) {
+  QString file_path;
+  file_path = QFileDialog::getSaveFileName(
+          this, tr("Save cpoints description file"));
+  if (!file_path.isEmpty()) {
+    pointset_manager->saveToFile(file_path.toStdString());
+  }
+}
+void FormObjectControl::on_add_cpoint_center_coord_btn_clicked(bool) {
+  form.add_cpoint_coords_x->setValue(-go->xtrans);
+  form.add_cpoint_coords_y->setValue(-go->ytrans);
+  form.add_cpoint_coords_z->setValue(-go->ztrans);
+}
+
+
+void FormObjectControl::on_edit_cpoint_coords_x_valueChanged(double x) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  QTreeWidgetItem *parent_item = item->parent();
+  CPointset *pointset = (*pointset_manager)[parent_item->text(0).toStdString()];
+  int cpoint_id = item->text(1).toInt();
+  pointset->setCpointCoordsX(cpoint_id, x);
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_edit_cpoint_coords_y_valueChanged(double y) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  QTreeWidgetItem *parent_item = item->parent();
+  CPointset *pointset = (*pointset_manager)[parent_item->text(0).toStdString()];
+  int cpoint_id = item->text(1).toInt();
+  pointset->setCpointCoordsY(cpoint_id, y);
+  emit objectSettingsChanged();
+}
+
+void FormObjectControl::on_edit_cpoint_coords_z_valueChanged(double z) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  QTreeWidgetItem *parent_item = item->parent();
+  CPointset *pointset = (*pointset_manager)[parent_item->text(0).toStdString()];
+  int cpoint_id = item->text(1).toInt();
+  pointset->setCpointCoordsZ(cpoint_id, z);
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_edit_cpoint_size_valueChanged(double size) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  QTreeWidgetItem *parent_item = item->parent();
+  CPointset *pointset = (*pointset_manager)[parent_item->text(0).toStdString()];
+  int cpoint_id = item->text(1).toInt();
+  pointset->setCpointSize(cpoint_id, size);
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_edit_cpointset_name_btn_clicked() {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
+  auto new_name = form.edit_cpointset_name->text().toStdString();
+  if (new_name != pointset->getName()) {
+    try {
+      pointset_manager->at(new_name);
+      int ret = QMessageBox::critical(this, "Error",
+                                      QString::fromStdString("CPointset " + new_name + " already exists"));
+      form.edit_cpointset_name->setText(QString::fromStdString(pointset->getName()));
+      emit objectSettingsChanged();
+    } catch (std::out_of_range&) {
+      pointset_manager->setPointsetName(pointset->getName(), new_name);
+      item->setData(0, Qt::DisplayRole, QString::fromStdString(new_name));
+    }
+  }
+}
+
+void FormObjectControl::on_edit_cpoint_name_textChanged() {
+  auto item = form.cpoints_set_treewidget->selectedItems()[0];
+  int cpoint_id = item->text(1).toInt();
+  auto parent_pointset = getPointsetFromItem(item->parent());
+  auto new_name = form.edit_cpoint_name->text().toStdString();
+  parent_pointset->setCpointText(cpoint_id, new_name);
+  item->setData(0, Qt::DisplayRole, QString::fromStdString(new_name));
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_shape_show_name_cbx_stateChanged(int state) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
+  if (state == Qt::Checked)
+    pointset->setNameVisible(true);
+  else if (state == Qt::Unchecked)
+    pointset->setNameVisible(false);
+
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_edit_shape_fill_ratio_valueChanged(int value) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
+  pointset->setFillratio(value/100.);
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_edit_shape_name_size_factor_valueChanged(int name_size) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
+  pointset->setNameSizeFactor(name_size/10.);
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_edit_shape_name_offset_valueChanged(int name_offset) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
+  pointset->setNameOffset(name_offset/10.);
+  emit objectSettingsChanged();
+}
+void FormObjectControl::on_edit_shape_nb_sphere_sections_valueChanged(int nb_sphere_sections) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
+  pointset->setNbSphereSections(nb_sphere_sections);
+  emit objectSettingsChanged();
+}
+
+void FormObjectControl::on_edit_shape_name_angle_valueChanged(int name_angle) {
+  QTreeWidgetItem *item = form.cpoints_set_treewidget->selectedItems()[0];
+  if(item->parent())
+    item = item->parent();
+  CPointset *pointset = getPointsetFromItem(item);
+  pointset->setNameAngle(name_angle-90);
+  emit objectSettingsChanged();
+}
+void FormObjectControl::setFormState(CPointset *pointset) {
+  CPointsetShapes shape = pointset->getShape();
+  if (shape == CPointsetShapes::disk) {
+    form.shape_radio_disk->setChecked(true);
+    form.edit_shape_nb_sphere_sections->setEnabled(false);
+    form.edit_shape_fill_ratio->setEnabled(true);
+  } else if (shape == CPointsetShapes::square) {
+    form.shape_radio_square->setChecked(true);
+    form.edit_shape_nb_sphere_sections->setEnabled(false);
+    form.edit_shape_fill_ratio->setEnabled(true);
+  } else if (shape == CPointsetShapes::tag) {
+    form.shape_radio_tag->setChecked(true);
+    form.edit_shape_nb_sphere_sections->setEnabled(false);
+    form.edit_shape_fill_ratio->setEnabled(false);
+  } else if (shape == CPointsetShapes::sphere) {
+    form.shape_radio_sphere->setChecked(true);
+    form.edit_shape_nb_sphere_sections->setEnabled(true);
+    form.edit_shape_fill_ratio->setEnabled(false);
+  }
+  form.shape_show_name_cbx->setChecked(pointset->isNameVisible());
+  form.edit_shape_nb_sphere_sections->setValue(pointset->getNbSphereSections());
+  form.edit_shape_name_offset->setValue(pointset->getNameOffset()*10);
+  form.edit_shape_name_size_factor->setValue(pointset->getNameSizeFactor()*10);
+  form.edit_shape_fill_ratio->setValue(pointset->getFillratio()*100);
+  form.cpoints_display_cbx->setChecked(pointset->isVisible());
+  form.cpoints_threshold_slider->setValue(pointset->getThreshold());
+  form.color_picker_button->setStyleSheet("background-color:" + pointset->getQColor().name());
+  form.edit_cpointset_name->setText(QString::fromStdString(pointset->getName()));
+  form.edit_shape_name_angle->setValue(pointset->getNameAngle()+90);
+}
+void FormObjectControl::disableCpointsTab() {
+  form.tab_cpoints->setEnabled(false);
+  form.tab_cpoints->setToolTip("Your GPU does not support this feature (OpenGL > 3.0 or EXT_gpu_shader4 is needed)");
+}
+void FormObjectControl::unselectTreeWidgetAll() {
+  form.cpoints_set_treewidget->clearSelection();
+}
+void FormObjectControl::selectTreeWidgetItem(int cpoint_id) {
+  auto item_matched = form.cpoints_set_treewidget->findItems(QString::number(cpoint_id), Qt::MatchExactly | Qt::MatchRecursive,1);
+  if(!item_matched.empty()){
+    auto item = item_matched[0];
+    item->parent()->setExpanded(true);
+    form.cpoints_set_treewidget->setItemSelected(item, true);
+  }
+}
+void FormObjectControl::unselectTreeWidgetItem(int cpoint_id) {
+  auto item_matched = form.cpoints_set_treewidget->findItems(QString::number(cpoint_id), Qt::MatchExactly | Qt::MatchRecursive,1);
+  if(!item_matched.empty()){
+    auto item = item_matched[0];
+    auto parent = item->parent();
+    if(parent && parent->isSelected()){
+      item->parent()->setExpanded(true);
+      parent->setSelected(false);
+      for (int i = 0; i < parent->childCount (); i++)
+      {
+          QTreeWidgetItem *child = parent->child(i);
+          child->setSelected(true);
+      }
+    }
+    form.cpoints_set_treewidget->setItemSelected(item, false);
   }
 }
 
