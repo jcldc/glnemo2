@@ -1,13 +1,9 @@
 #!/bin/bash
 
-echo "Before striping"
-ldd /usr/lib64/qt5/bin/uic
 
+# strip qt5 lib as a workaround on unresolved dependency
+# see https://github.com/microsoft/WSL/issues/3023
 strip --remove-section=.note.ABI-tag /lib64/libQt5Core.so
-
-echo "After stripping"
-ldd /usr/lib64/qt5/bin/uic
-
 
 cmake .
 make -j 8
