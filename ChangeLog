@@ -1,3 +1,7 @@
+* Mon Feb 17 2020 - 1.12.0
+- add new feature c-point (Gregoire Duvauchelle)
+- add Continuous Integration
+
 * Wed Apr 04 2018 - 1.11.0
 - (new) support new RAMSES file format with particle families
 - (new) xyz/min max support for RAMSES (GUI and CLI)

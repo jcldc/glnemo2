@@ -1,3 +1,15 @@
+// ============================================================================
+// Copyright Jean-Charles LAMBERT - 2007-2020
+// e-mail:   Jean-Charles.Lambert@lam.fr
+// address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
+//           Laboratoire d'Astrophysique de Marseille
+//           Pôle de l'Etoile, site de Château-Gombert
+//           38, rue Frédéric Joliot-Curie
+//           13388 Marseille cedex 13 France
+//           CNRS U.M.R 7326
+// ============================================================================
+// See the complete license in LICENSE and/or "http://www.cecill.info".
+// ============================================================================
 //
 // Created by kalterkrieg on 25/11/2019.
 //
@@ -963,7 +975,7 @@ void CPointTextRenderer::init(const std::string &shader_dir) {
   glPixelStorei(GL_UNPACK_ALIGNMENT,
                 1); // Disable byte-alignment restriction, maybe not needed since we have power of two texture
 
-  //Â Load json description file
+  //Â Load json description file
   std::cout << "Loading font description json file\n";
   QFile font_description_file(GlobalOptions::RESPATH + "/fonts/dejavu_sans_mono_typeface.json");
   if (!font_description_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
