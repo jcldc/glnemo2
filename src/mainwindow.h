@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -119,6 +119,7 @@ class MainWindow : public QMainWindow {
     void actionTranslateX();
     void actionTranslateY();
     void actionTranslateZ();
+    void actionUnselectCPoints();
     void actionToggleOsd();
     void actionToggleRotationScreen();
     void actionToggleCamera();
@@ -221,6 +222,7 @@ class MainWindow : public QMainWindow {
     QAction * transx_action, * transy_action, * transz_action;
     // Z sorting
     QAction * zsorting_action;
+    QAction * unselect_cpoints;
     // OpenGL setting dialog box
     //DlgGLSettings * box_gl_settings;
     // Forms
@@ -242,6 +244,8 @@ class MainWindow : public QMainWindow {
     GlobalOptions * store_options;
     PluginsManage * plugins;
     ParticlesObjectVector pov,pov2;
+    CPointsetManager *pointset_manager;
+    std::string cpoint_file;
     ComponentRangeVector * crv;
     void listObjects(ParticlesObjectVector& ppov);
     void setDefaultParamObject(ParticlesObjectVector&);
@@ -286,6 +290,8 @@ class MainWindow : public QMainWindow {
     Camera * camera;
     // Selected Physical quantitie from the command line
     int selphys;
+    bool is_cpoints_enabled;
+    bool glsl_130;
     signals:
     void endOfSnapshot(const int);
 };

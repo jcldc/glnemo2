@@ -6,7 +6,10 @@
 #mkdir build-docker
 cd /tmp
 # clone master
-git clone https://gitlab.lam.fr/jclamber/glnemo2.git 
+#git clone https://gitlab.lam.fr/jclamber/glnemo2.git 
+
+# clone greg-dev
+git clone -b greg-dev https://gitlab.lam.fr/jclamber/glnemo2.git 
 
 # clone a branch
 #git clone -b dev_1.11 https://gitlab.lam.fr/jclamber/glnemo2.git 
@@ -17,5 +20,5 @@ cmake ..
 make -j 8
 strip bin/glnemo2
 make package
-cp -p *.rpm *.deb /works/glnemo2
+cp -p -- *.rpm *.deb /works/glnemo2
 

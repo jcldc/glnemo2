@@ -17,10 +17,7 @@
 #define FORMHELP_H
 
 #include <QDialog>
-
-namespace Ui {
-    class FormHelp;
-}
+#include "ui_formhelp.h"
 
 namespace glnemo {
 
@@ -31,6 +28,11 @@ class FormHelp : public QDialog
 public:
     explicit FormHelp(QWidget *parent = 0);
     ~FormHelp();
+public slots:
+    inline void showCpointHelp() {
+      show();
+      ui->tabWidget->setCurrentWidget(ui->tab_cpoint);
+    }
 
 private:
     Ui::FormHelp *ui;

@@ -1,0 +1,4 @@
+FROM mageia:7
+
+RUN urpmi.addmedia --distrib --mirrorlist 'http://mirrors.mageia.org/api/mageia.7.$ARCH.list' && urpmi --auto --auto-update && urpmi --auto coreutils gcc gcc-c++ cmake make qt5-devel CCfits-devel libgomp-devel lib64mesaglu1-devel rpm-build hdf5-devel git glm-devel
+CMD ["/bin/bash"]

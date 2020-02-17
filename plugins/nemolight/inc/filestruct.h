@@ -13,13 +13,13 @@
  */
 
 #define AnyType    "a"       /* anything at all */
-#define CharType   "c"       /* printable chars */
+#define CharTypeNemo   "c"       /* printable chars */
 #define ByteType   "b"       /* unprintable chars */
 #define ShortType  "s"       /* short integers */
 #define IntType    "i"       /* standard integers */
 #define LongType   "l"       /* long integers */
 #define HalfpType  "h"       /* half precision floating */
-#define FloatType  "f"       /* short floating */
+#define FloatTypeNemo  "f"       /* short floating */
 #define DoubleType "d"       /* long floating */
 #define SetType    "("       /* begin compound item */
 #define TesType    ")"       /* end of compound item */
@@ -45,7 +45,7 @@
 #ifndef SINGLEPREC
 #  define RealType DoubleType
 #else
-#  define RealType FloatType
+#  define RealType FloatTypeNemo
 #endif
 
 #ifndef HeadlineTag

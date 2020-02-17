@@ -63,7 +63,7 @@ void CShader::sendUniformXfv(const char * s,const int _dim, const int _count, co
   GLint loc = glGetUniformLocation(m_program, s);
   if (loc == -1) {
     std::cerr << "Error occured when sending \""<<s<<"\" to shader..\n";
-    exit(1);
+//    exit(1);
   }
   switch (_dim) {
   case 1: glUniform1fv(loc,_count,_v); break;// 
@@ -75,6 +75,24 @@ void CShader::sendUniformXfv(const char * s,const int _dim, const int _count, co
     std::cerr << "CShader::sendUniformXfv unknown dimension ["<<_dim<<"], abort\n";
     std::exit(1);
   }
+}// ============================================================================
+// sendUniformXfv
+void CShader::sendUniformXiv(const char * s,const int _dim, const int _count, const int * _v)
+{
+  GLint loc = glGetUniformLocation(m_program, s);
+  if (loc == -1) {
+    std::cerr << "Error occured when sending \""<<s<<"\" to shader..\n";
+//    exit(1);
+  }
+  switch (_dim) {
+  case 1: glUniform1iv(loc,_count,_v); break;//
+  case 2: glUniform2iv(loc,_count,_v); break;//
+  case 3: glUniform3iv(loc,_count,_v); break;//
+  case 4: glUniform4iv(loc,_count,_v); break;//
+  default:
+    std::cerr << "CShader::sendUniformXiv unknown dimension ["<<_dim<<"], abort\n";
+    std::exit(1);
+  }
 }
 // ============================================================================
 // sendUniformf
@@ -83,7 +101,7 @@ void CShader::sendUniformf(const char * s,const float _v)
   GLint loc = glGetUniformLocation(m_program, s);
   if (loc == -1) {
     std::cerr << "CShader::sendUniformf Error occured when sending \""<<s<<"\" to shader..\n";
-    exit(1);
+//    exit(1);
   }
   glUniform1f(loc, _v);  
 }
@@ -94,7 +112,7 @@ void CShader::sendUniformi(const char * s,const int _v)
   GLint loc = glGetUniformLocation(m_program, s);
   if (loc == -1) {
     std::cerr << "CShader::sendUniformi Error occured when sending \""<<s<<"\" to shader..\n";
-    exit(1);
+//    exit(1);
   }
   glUniform1i(loc, _v);  
 }
