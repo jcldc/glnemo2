@@ -30,6 +30,7 @@ FormAbout::FormAbout(QWidget *parent):QDialog(parent)
   QString info(tr((
        "<center>Copyright (c) <b>Jean-Charles LAMBERT</b> 2007-2020"
       "<br><a href=\"mailto:Jean-Charles.Lambert@lam.fr\">Jean-Charles.Lambert@lam.fr</a>"
+                    "<br>"
                     "<br>Contributions:"
                     "<br>Gregoire Duvauchelle (r1.20)"
        "<br><br>Dynamique des Galaxies"
