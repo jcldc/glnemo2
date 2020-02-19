@@ -60,6 +60,7 @@ fedora30 :
       - glnemo2*.rpm
     expire_in: 1 week
 
+# OpenSUSE
 opensuse15.1 :
   stage : build
   image: portus.lam.fr/jclamber/glnemo2/opensuse15.1
@@ -80,7 +81,7 @@ opensuse-rolling :
   image: portus.lam.fr/jclamber/glnemo2/tumbleweed
   only :
       variables:
-        - $ONEBUILD == "1"
+        - $BUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
@@ -88,6 +89,22 @@ opensuse-rolling :
     name: "tumebleweed"
     paths:
       - glnemo2*.rpm
+    expire_in: 1 week
+
+# Ubuntu
+ubuntu16.04 :
+  stage : build
+  image: portus.lam.fr/jclamber/glnemo2/ubuntu16.04
+  only :
+      variables:
+        - $ONEBUILD == "1"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "ubuntu16.04"
+    paths:
+      - glnemo2*.deb
     expire_in: 1 week
 
 mageia6 :
@@ -107,32 +124,3 @@ mageia6 :
 #
 # DEB distos
 #
-ubuntu 18.04:
-  stage : build
-  image: ppfb.lam.fr:5000/jcl-dev/ubuntu18.04
-  only :
-  - tags
-  script:
-  # build
-  - ../CI/build-deb.sh 0ubuntu18.04
-  artifacts:
-    name: "ubuntu18.04"
-    paths:
-    - unsio/build/*.deb
-    - unsio/my_deb/*.deb
-    - unsio/my_deb/*.gz
-
-ubuntu 16.04:
-  stage : build
-  image: ppfb.lam.fr:5000/jcl-dev/ubuntu16.04
-  only :
-  - tags
-  script:
-  # build
-  - ../CI/build-deb.sh 0ubuntu16.04
-  artifacts:
-    name: "ubuntu16.04"
-    paths:
-    - unsio/build/*.deb
-    - unsio/my_deb/*.deb
-    - unsio/my_deb/*.gz
