@@ -6,9 +6,11 @@ build*
 *.autosave
 .idea/
 .vscode/
+debug/
 
-# tilda
+# ithers
 *~
+.directory
 
 # Compiled Object files
 *.slo
@@ -67,6 +69,7 @@ Makefile.in
 #
 Makefile
 #factory
+.tags
 .moc/
 ._ui/
 .moc/
