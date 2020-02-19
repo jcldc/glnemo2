@@ -126,8 +126,6 @@ ubuntu19.10 :
   stage : build
   image: portus.lam.fr/jclamber/glnemo2/ubuntu19.10
   only :
-      variables:
-        - $ONEBUILD == "1"
       - tags
   script:
     # build
