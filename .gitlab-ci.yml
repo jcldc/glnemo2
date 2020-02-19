@@ -13,6 +13,7 @@ stages:
 
 variables :
   BUILD       : 0
+  ONEBUILD    : 0   # Special variable for forcing build on only one target
   OSX         : 0
 
 #before_script:
@@ -58,51 +59,20 @@ fedora30 :
       - glnemo2*.rpm
     expire_in: 1 week
 
-opensuse42.3 :
+opensuse15.1 :
   stage : build
-  image: ppfb.lam.fr:5000/jcl-dev/opensuse42.3
+  image: portus.lam.fr/jclamber/glnemo2/opensuse15.1
   only :
-  - tags    
+      variables:
+        - $ONEBUILD == "1"
   script:
-  # build
-  - ../CI/build-rpm.sh 0opensuse42.3
+    # build
+    - CI/scripts/build.sh
   artifacts:
-    name: "opensuse42.3"
+    name: "opensuse15.1"
     paths:
-    - unsio/build/*.rpm
-    - unsio/dist/*.rpm
-    - unsio/dist/*.gz
-
-
-fedora28 :
-  stage : build
-  image: ppfb.lam.fr:5000/jcl-dev/fedora28
-  only :
-  - tags
-  script:
-  # build
-  - ../CI/build-rpm.sh 0fc28
-  artifacts:
-    name: "fedora28"
-    paths:
-    - unsio/build/*.rpm
-    - unsio/dist/*.rpm
-    - unsio/dist/*.gz
-
-fedora27 :
-  stage : build
-  image: ppfb.lam.fr:5000/jcl-dev/fedora27
-  only :
-  - tags
-  script:
-  # build
-  - ../CI/build-rpm.sh 0fc27
-  artifacts:
-    name: "fedora27"
-    paths:
-    - unsio/build/*.rpm
-    - unsio/dist/*.rpm
-    - unsio/dist/*.gz
+      - glnemo2*.rpm
+    expire_in: 1 week
 
 mageia6 :
   stage : build
