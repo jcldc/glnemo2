@@ -13,7 +13,7 @@ stages:
 
 variables :
   BUILD       : 0
-  ONEBUILD    : 0   # Special variable for forcing build on only one target
+  ONEBUILD    : 1   # Special variable for forcing build on only one target
 
   OSX         : 0
 
@@ -128,6 +128,7 @@ ubuntu19.10 :
   only :
       variables:
         - $ONEBUILD == "1"
+      - tags
   script:
     # build
     - CI/scripts/build.sh
@@ -137,20 +138,5 @@ ubuntu19.10 :
       - glnemo2*.deb
     expire_in: 1 week
 
-mageia6 :
-  stage : build
-  image: ppfb.lam.fr:5000/jcl-dev/mageia6
-  only :
-  - tags
-  script:
-  # build
-  - ../CI/build-rpm.sh 0mga6
-  artifacts:
-    name: "mageia6"
-    paths:
-    - unsio/build/*.rpm
-    - unsio/dist/*.rpm
-    - unsio/dist/*.gz
-#
 # DEB distos
 #
