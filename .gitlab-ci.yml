@@ -14,7 +14,7 @@ stages:
 variables :
   BUILD       : 0
   ONEBUILD    : 0   # Special variable for forcing build on only one target
-  
+
   OSX         : 0
 
 #before_script:
@@ -65,12 +65,27 @@ opensuse15.1 :
   image: portus.lam.fr/jclamber/glnemo2/opensuse15.1
   only :
       variables:
-        - $ONEBUILD == "1"
+        - $BUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
   artifacts:
     name: "opensuse15.1"
+    paths:
+      - glnemo2*.rpm
+    expire_in: 1 week
+
+opensuse-rolling :
+  stage : build
+  image: portus.lam.fr/jclamber/glnemo2/tumbleweed
+  only :
+      variables:
+        - $ONEBUILD == "1"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "tumebleweed"
     paths:
       - glnemo2*.rpm
     expire_in: 1 week
