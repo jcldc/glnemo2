@@ -95,7 +95,7 @@ centos7 :
   image: portus.lam.fr/jclamber/glnemo2/centos7
   only :
       variables:
-        - $ONEBUILD == "1"
+        - $BUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
