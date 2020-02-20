@@ -13,8 +13,7 @@ stages:
 
 variables :
   BUILD       : 0
-  ONEBUILD    : 1   # Special variable for forcing build on only one target
-
+  ONEBUILD    : 0   # Special variable for forcing build on only one target
   OSX         : 0
 
 #before_script:
@@ -91,6 +90,36 @@ opensuse-rolling :
       - glnemo2*.rpm
     expire_in: 1 week
 
+centos7 :
+  stage : build
+  image: portus.lam.fr/jclamber/glnemo2/centos7
+  only :
+      variables:
+        - $ONEBUILD == "1"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "centos7"
+    paths:
+      - glnemo2*.rpm
+    expire_in: 1 week
+
+centos8 :
+  stage : build
+  image: portus.lam.fr/jclamber/glnemo2/centos8
+  only :
+      variables:
+        - $ONEBUILD == "1"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "centos8"
+    paths:
+      - glnemo2*.rpm
+    expire_in: 1 week
+
 # Ubuntu
 ubuntu16.04 :
   stage : build
@@ -144,7 +173,7 @@ mageia6 :
   image: portus.lam.fr/jclamber/glnemo2/mageia6
   only :
       variables:
-        - $ONEBUILD == "1"
+        - $BUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
@@ -159,7 +188,7 @@ mageia7 :
   image: portus.lam.fr/jclamber/glnemo2/mageia7
   only :
       variables:
-        - $ONEBUILD == "1"
+        - $BUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
