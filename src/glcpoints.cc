@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
 //           Laboratoire d'Astrophysique de Marseille
-//           Pôle de l'Etoile, site de Château-Gombert
-//           38, rue Frédéric Joliot-Curie
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert
+//           38, rue Frï¿½dï¿½ric Joliot-Curie
 //           13388 Marseille cedex 13 France
 //           CNRS U.M.R 7326
 // ============================================================================
@@ -50,6 +50,7 @@ GLCPoint::GLCPoint(std::array<float, 3> coords, float size, const std::string& t
   m_id = next_id;
   next_id++;
   m_is_selected = false;
+  m_is_visible = true;
 
   if (text.empty())
     m_name = "CPoint " + std::to_string(m_id);
@@ -87,6 +88,14 @@ void GLCPoint::select() {
 }
 void GLCPoint::unselect() {
   m_is_selected = false;
+}
+
+bool GLCPoint::isVisible() const {
+  return m_is_visible;
+}
+
+void GLCPoint::setVisible(bool is_visible) {
+  m_is_visible = is_visible;
 }
 
 
@@ -185,6 +194,7 @@ bool CPointset::isVisible() {
 
 void CPointset::setThreshold(int threshold) {
   m_threshold = threshold < 0 ? 0 : threshold > 100 ? 100 : threshold; //clamp
+  genVboData();
 }
 
 void CPointset::setAttributes() {
@@ -222,16 +232,24 @@ void CPointset::genVboData() {
     return a->getSize() < b->getSize();
   });
 
-  for (auto point : cpoints_v) {
-    data.push_back(point->getCoords()[0]);
-    data.push_back(point->getCoords()[1]);
-    data.push_back(point->getCoords()[2]);
-    data.push_back(point->getSize());
-    if (point->isSelected()) {
-      selected_data.push_back(point->getCoords()[0]);
-      selected_data.push_back(point->getCoords()[1]);
-      selected_data.push_back(point->getCoords()[2]);
-      selected_data.push_back(point->getSize());
+  m_nb_visible = m_cpoints.size() * m_threshold / 100;
+
+  for(int i = 0; i <  m_cpoints.size(); ++i)
+    cpoints_v[i]->setVisible(i < m_nb_visible);
+
+  for (auto point_pair : m_cpoints) {
+    GLCPoint* point = point_pair.second;
+      if (point->isVisible()) {
+      data.push_back(point->getCoords()[0]);
+      data.push_back(point->getCoords()[1]);
+      data.push_back(point->getCoords()[2]);
+      data.push_back(point->getSize());
+      if(point->isSelected()){
+        selected_data.push_back(point->getCoords()[0]);
+        selected_data.push_back(point->getCoords()[1]);
+        selected_data.push_back(point->getCoords()[2]);
+        selected_data.push_back(point->getSize());
+      }
     }
   }
   // SEND DATA
@@ -510,13 +528,13 @@ void CPointsetRegularPolygon::sendUniforms() {
 
 }
 void CPointsetRegularPolygon::display() {
-  int nb_objects = m_cpoints.size() * m_threshold / 100;
+
   m_shader->start();
   glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
   m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
-  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
+  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, m_nb_visible);
   glBindVertexArray(0);
   m_shader->stop();
 
@@ -596,15 +614,12 @@ CPointsetTag::CPointsetTag(const CPointset &other) : CPointset(shader, other) {
 }
 
 void CPointsetTag::display() {
-
-  int nb_objects = m_cpoints.size() * m_threshold / 100;
-
   glLineWidth(1);
   m_shader->start();
   glBindVertexArray(m_selected_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", true);
-  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, nb_objects);
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, m_nb_selected);
   glBindVertexArray(0);
   m_shader->stop();
 
@@ -612,12 +627,11 @@ void CPointsetTag::display() {
   glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
-  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, nb_objects);
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, m_nb_visible);
   glBindVertexArray(0);
   m_shader->stop();
-
-
 }
+
 void CPointsetTag::sendUniforms() {
   CPointset::sendUniforms();
 
@@ -676,7 +690,6 @@ std::pair<GLCPoint *, float> CPointsetSphere::getClickedCPoint(double *model, do
 
 void CPointsetSphere::display() {
 
-  int nb_objects = m_cpoints.size() * m_threshold / 100;
   int nb_vertex_per_sphere = m_nb_sphere_sections * m_nb_sphere_sections + m_nb_sphere_sections;
 
   glLineWidth(1);
@@ -686,7 +699,7 @@ void CPointsetSphere::display() {
   glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
-  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, nb_objects);
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, m_nb_visible);
 
   glBindVertexArray(m_selected_vao);
   glEnable(GL_STENCIL_TEST);
@@ -975,7 +988,7 @@ void CPointTextRenderer::init(const std::string &shader_dir) {
   glPixelStorei(GL_UNPACK_ALIGNMENT,
                 1); // Disable byte-alignment restriction, maybe not needed since we have power of two texture
 
-  //Â Load json description file
+  //ï¿½ Load json description file
   std::cout << "Loading font description json file\n";
   QFile font_description_file(GlobalOptions::RESPATH + "/fonts/dejavu_sans_mono_typeface.json");
   if (!font_description_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -1049,6 +1062,10 @@ void CPointTextRenderer::renderText(CPointset *pointset) {
   // Iterate through all cpoints
   for (auto cpoint_pair: pointset->getCPoints()) {
     GLCPoint *cpoint = cpoint_pair.second;
+
+    if(!cpoint->isVisible())
+      continue;
+
     float xpos = 0, ypos = 0;
     float scale = .004;
     std::string text = cpoint->getName();
