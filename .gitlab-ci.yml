@@ -110,7 +110,7 @@ centos8 :
   image: portus.lam.fr/jclamber/glnemo2/centos8
   only :
       variables:
-        - $ONEBUILD == "1"
+        - $BUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
@@ -156,7 +156,7 @@ ubuntu19.10 :
   image: portus.lam.fr/jclamber/glnemo2/ubuntu19.10
   only :
        variables:
-        - $BUILD == "1"
+        - $ONEBUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
