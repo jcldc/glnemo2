@@ -339,7 +339,7 @@ bool CPointset::isNameVisible() {
   return m_is_name_visible;
 }
 void CPointset::setFillratio(float fill_ratio) {
-  m_fill_ratio = fill_ratio < 0 ? 0 : fill_ratio > 1 ? 1 : fill_ratio; //clamp
+  m_fill_ratio = fill_ratio < 0 ? 0 : fill_ratio >= 1 ? 0.9999 : fill_ratio; //clamp
 }
 float CPointset::getFillratio() const {
   return m_fill_ratio;
