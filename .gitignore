@@ -1,6 +1,7 @@
 # qt creator / cmake
 build*
 !CI/scripts/build.sh
+!CI/scripts/buildOSX.sh
 *.pro.user
 *-debug/
 *.autosave
