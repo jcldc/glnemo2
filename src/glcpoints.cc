@@ -850,7 +850,7 @@ void CPointsetManager::displayAll() {
   for (const auto& cpointset_pair: m_pointsets) {
     glDisable(GL_DEPTH_TEST);
     CPointset *cpointset = cpointset_pair.second;
-    if (cpointset->isNameVisible())
+    if (cpointset->isNameVisible() && cpointset->isVisible())
       cpointset->displayText();
   }
 }
