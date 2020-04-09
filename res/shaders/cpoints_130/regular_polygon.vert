@@ -24,6 +24,12 @@ void main()
         vec4 centerWorld = model_view_matrix*vec4(point_center, 1);
         vec4 billboard_vertex_pos = centerWorld + vec4(relativePos, 1);
         vpos = proj_matrix*billboard_vertex_pos;
+        if (second_pass){
+            float outline_width = 2; //px
+            vec2 normal = -normalize(relativePos.xy);
+            vec2 offset = normal / screen_dims * outline_width * vpos.w;
+            vpos.xy += offset;
+        }
     }
     else {
         angle = 2*PI/nb_vertices*gl_VertexID-PI/4;
