@@ -27,6 +27,26 @@ variables :
   #- git checkout origin/new_cmake
 
 #
+# OSX
+#
+OSX:
+  stage : build
+  tags:
+    - osx_10.13.6
+  only :
+    variables:
+      - $OSX == "1"
+      - $ONEBUILD == "1"
+  script:
+    # build
+    - CI/buildOSX.sh
+  artifacts:
+    name: "macos"
+    paths:
+      - glnemo2*.dmg
+    expire_in: 1 week
+
+#
 # RPM Distros
 #
 fedora31 :
