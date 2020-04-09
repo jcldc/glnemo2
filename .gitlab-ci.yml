@@ -32,7 +32,7 @@ variables :
 OSX:
   stage : build
   tags:
-    - osx_10.13.6
+    - osx
   only :
     variables:
       - $OSX == "1"
@@ -176,7 +176,7 @@ ubuntu19.10 :
   image: portus.lam.fr/jclamber/glnemo2/ubuntu19.10
   only :
        variables:
-        - $ONEBUILD == "1"
+        - $BUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
