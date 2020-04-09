@@ -39,7 +39,7 @@ OSX:
       - $ONEBUILD == "1"
   script:
     # build
-    - CI/buildOSX.sh
+    - CI/scripts/buildOSX.sh
   artifacts:
     name: "macos"
     paths:
