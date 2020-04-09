@@ -6,7 +6,7 @@ uniform vec3 selected_color;
 
 void main() {
     if(second_pass)
-        frag_color = vec4(selected_color, 1.0f);
+        gl_FragColor = vec4(selected_color, 1.0f);
     else
-        frag_color = vec4(color, 1.0f);
+        gl_FragColor = vec4(color, 1.0f);
 }
