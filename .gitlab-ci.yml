@@ -59,7 +59,7 @@ fedora31 :
     # build
     - CI/scripts/build.sh
   artifacts:
-    name: "fedora31"${CI_COMMIT_SHA}
+    name: "fedora31${CI_COMMIT_SHA}""
     paths:
       - glnemo2*.rpm
     expire_in: 1 week
