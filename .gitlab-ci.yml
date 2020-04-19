@@ -54,7 +54,7 @@ fedora31 :
   image: portus.lam.fr/jclamber/glnemo2/fedora31
   only :
       variables:
-        - $BUILD == "1"
+        - $ONEBUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
