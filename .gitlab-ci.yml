@@ -36,7 +36,7 @@ OSX:
   only :
     variables:
       - $OSX == "1"
-      - $ONEBUILD == "1"
+      - $BUILD == "1"
   script:
     # build
     - CI/scripts/buildOSX.sh
@@ -49,6 +49,21 @@ OSX:
 #
 # RPM Distros
 #
+fedora32 :
+  stage : build
+  image: portus.lam.fr/jclamber/glnemo2/fedora32
+  only :
+      variables:
+        - $ONEBUILD == "1"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "fedora32"
+    paths:
+      - glnemo2*.rpm
+    expire_in: 1 week
+
 fedora31 :
   stage : build
   image: portus.lam.fr/jclamber/glnemo2/fedora31
@@ -191,7 +206,7 @@ ubuntu20.04 :
   image: portus.lam.fr/jclamber/glnemo2/ubuntu20.04
   only :
        variables:
-        - $ONEBUILD == "1"
+        - $BUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
