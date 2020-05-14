@@ -1,5 +1,6 @@
-* Mon Feb 17 2020 - 1.12.0
-- add new feature c-point (Gregoire Duvauchelle)
+* Mon May 14 2020 - 1.20.0
+- add new feature characteristics-point (Gregoire Duvauchelle)
+- better automatic best zoom value on one particle
 - add Continuous Integration
 
 * Wed Apr 04 2018 - 1.11.0
