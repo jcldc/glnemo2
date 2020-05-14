@@ -295,7 +295,7 @@ void Tools3D::bestZoomFromList(double * mProj,double * mModel,
     }
     store_options->ortho_range=std::max(fabs(absxmax),fabs(absymax));
     if (list->size()==1) {
-      best_zoom=-0.003; 
+      best_zoom=-0.098; 
     }
     store_options->zoom=best_zoom;
   }
