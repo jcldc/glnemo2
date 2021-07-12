@@ -66,7 +66,7 @@ public:
     void setFBO(bool _b) { fbo = _b; }
     void setFBOSize(GLuint w, GLuint h) { texWidth=w; texHeight=h;}
     QImage grabFrameBufferObject() { return imgFBO;}
-    void renderVR();
+//    void renderVR();
     void rotateAroundAxis(const int);
     void setMouseRot(const float x,const float y, const float z) {
       x_mouse = (int) y;

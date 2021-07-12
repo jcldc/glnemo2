@@ -253,12 +253,12 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
 
   // axes
   axes = new GLAxesObject();
-  
+
   // cube
   cube  = new GLCubeObject(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
   // load texture
   GLTexture::loadTextureVector(gtv);
-  
+
   // build display list in case of screenshot
   if (store_options->show_part && pov ) {
     //std::cerr << "GLWindow::initializeGL() => build display list\n";
@@ -269,7 +269,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
       //gpv[i].buildVboPos();
     }
   }
-  
+
   // Osd
   fntRenderer text;
   font = new fntTexFont(store_options->osd_font_name.toStdString().c_str());
@@ -278,7 +278,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   osd = new GLObjectOsd(wwidth,wheight,text,store_options->osd_color);
   // colorbar
   gl_colorbar = new GLColorbar(store_options,true);
-  
+
   ////////
   // FBO
   // Set the width and height appropriately for you image
@@ -313,7 +313,6 @@ GLWindow::~GLWindow()
     glDeleteRenderbuffersEXT(1, &framebuffer);
     if (shader) delete shader;
     if (vel_shader) delete vel_shader;
-    if (vr_shader) delete vr_shader;
   }
   delete gl_colorbar;
   delete osd;
@@ -355,7 +354,7 @@ void GLWindow::update(ParticlesData   * _p_data,
   }
   //else pov    = _pov;
   pov    = _pov;
-  
+
   if (p_data!=_p_data) {
     if (store_options->duplicate_mem)  *p_data = *_p_data;
     else                                p_data = _p_data;
@@ -366,7 +365,7 @@ void GLWindow::update(ParticlesData   * _p_data,
   store_options->octree_level = 0;
   //tree->update(p_data, _pov);
   gl_colorbar->update(&gpv,p_data->getPhysData(),store_options,mutex_data);
-  
+
   for (unsigned int i=0; i<pov->size() ;i++) {
     if (i>=gpv.size()) {
       GLObjectParticles * gp = new GLObjectParticles(p_data,&((*pov)[i]),
@@ -385,7 +384,7 @@ void GLWindow::update(ParticlesData   * _p_data,
   gl_select->update(&gpv,store_options,mutex_data);
   mutex_data->unlock();
   updateGL();
-  
+
 }
 // ============================================================================
 // update
@@ -474,16 +473,16 @@ void GLWindow::updateGrid(bool ugl)
 {
   gridx->setActivate(store_options->xy_grid);
   gridx->setColor(store_options->col_x_grid);
-  
+
   gridy->setActivate(store_options->yz_grid);
   gridy->setColor(store_options->col_y_grid);
-  
+
   gridz->setActivate(store_options->xz_grid);
   gridz->setColor(store_options->col_z_grid);
-  
+
   cube->setActivate(store_options->show_cube);
   cube->setColor(store_options->col_cube);
-  
+
   if (ugl) updateGL();
 }
 // ============================================================================
@@ -523,7 +522,7 @@ void GLWindow::paintGL()
     }
   }
   //setFocus();
-  
+
   qglClearColor(store_options->background_color);
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -532,12 +531,12 @@ void GLWindow::paintGL()
   glMatrixMode( GL_MODELVIEW );
   glLoadIdentity();
   //glEnable(GL_DEPTH_TEST);
-  
+
   // rotation around scene/object axes
   float ru=store_options->urot-last_urot;
   float rv=store_options->vrot-last_vrot;
   float rw=store_options->wrot-last_wrot;
-  
+
   // the following code compute OpenGL rotation 
   // around UVW scene/object axes
   if (ru!=0 ||
@@ -550,7 +549,7 @@ void GLWindow::paintGL()
       glRotatef(rv, mScene[4],mScene[5], mScene[6] );
     if (rw!=0)
       glRotatef(rw, mScene[8],mScene[9], mScene[10]);
-    
+
     last_urot = store_options->urot;
     last_vrot = store_options->vrot;
     last_wrot = store_options->wrot;
@@ -634,17 +633,17 @@ void GLWindow::paintGL()
   // set camera
 
   // apply screen rotation on the whole system
-  glMultMatrixd (mScreen);   
+  glMultMatrixd (mScreen);
   // apply scene/world rotation on the whole system
-  glMultMatrixd (mScene);   
-  
+  glMultMatrixd (mScene);
+
   // Grid Anti aliasing
 #ifdef GL_MULTISAMPLE
   glEnable(GL_MULTISAMPLE);
 #endif
   if (1) { //line_aliased) {
     glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_POLYGON_SMOOTH);    
+    glEnable(GL_POLYGON_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     //glLineWidth (0.61);
@@ -691,7 +690,7 @@ void GLWindow::paintGL()
 
   // nice points display
   glEnable(GL_POINT_SMOOTH);
-  
+
   // control blending on particles
   if (store_options->blending) {
     glEnable(GL_BLEND);
@@ -726,26 +725,23 @@ void GLWindow::paintGL()
 
 
     if (obj_has_physic) {
-      if (fbo) { // offscreen rendering activated
-        if(!vr){
-          gl_colorbar->display(texWidth,texHeight);
-        }
-      }
+      if (fbo) // offscreen rendering activated
+        gl_colorbar->display(texWidth,texHeight);
       else
         gl_colorbar->display(QGLWidget::width(),QGLWidget::height());
     }
 
     //mutex_data->unlock();
   }
-  
+
   // octree
   if (store_options->octree_display || 1) {
     tree->display();
   }
-  
+
   // On Screen Display
   if (store_options->show_osd) osd->display();
-    
+
   // display selected area
   gl_select->display(QGLWidget::width(),QGLWidget::height());
 
@@ -755,7 +751,8 @@ void GLWindow::paintGL()
                   store_options->axes_loc,store_options->axes_psize, store_options->perspective);
 
   // reset viewport to the windows size because axes object modidy it
-  glViewport(0, 0, wwidth, wheight);
+  glViewport(0, 0,  wwidth, wheight);
+
   if (fbo && GLWindow::GLSL_support) {
     fbo = false;
     //imgFBO = grabFrameBuffer();
@@ -768,6 +765,7 @@ void GLWindow::paintGL()
    //glDeleteRenderbuffersEXT(1, &renderbuffer);
    //glDeleteRenderbuffersEXT(1, &framebuffer);
   }
+
   if ( !store_options->duplicate_mem) mutex_data->unlock();
 
   nframe++; // count frames
@@ -819,10 +817,6 @@ void GLWindow::initShader()
       shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/particles.vert.cc",
                            GlobalOptions::RESPATH.toStdString()+"/shaders/particles.frag.cc");
       shader->init();
-
-      vr_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/vr.vert",
-                           GlobalOptions::RESPATH.toStdString()+"/shaders/vr.frag");
-      vr_shader->init();
       // velocity shader
       if (1) {
 
@@ -1547,22 +1541,23 @@ void GLWindow::bestZoomFit()
 }
 
 
-void GLWindow::renderVR() {
-
-  if (!store_options->duplicate_mem)
-    mutex_data->lock();
-
-  QImage cubemap_faces[6];
-  store_options->axes_enable = false;
-  store_options->show_osd = false;
-  new_camera->setCameraMode(CameraMode::free);
-  for (CubemapFace face = first; face != last; face = static_cast<CubemapFace>(face + 1)) {
-    new_camera->setOrientation(face);
-    setFBO(true);                              // activate Frame Buffer Object
-    forcePaintGL();  // draw in FBO
-
-    grabFrameBufferObject().mirrored().rgbSwapped().save("/home/kalterkrieg/Documents/lam/glnemo/cubemap/"+QString::number(face)+".png"); // convert FBO to img
-  }
+// before openvr
+//void GLWindow::renderVR() {
+//
+//  if (!store_options->duplicate_mem)
+//    mutex_data->lock();
+//
+//  QImage cubemap_faces[6];
+//  store_options->axes_enable = false;
+//  store_options->show_osd = false;
+//  new_camera->setCameraMode(CameraMode::free);
+//  for (CubemapFace face = first; face != last; face = static_cast<CubemapFace>(face + 1)) {
+//    new_camera->setOrientation(face);
+//    setFBO(true);                              // activate Frame Buffer Object
+//    forcePaintGL();  // draw in FBO
+//
+//    grabFrameBufferObject().mirrored().rgbSwapped().save("/home/kalterkrieg/Documents/lam/glnemo/cubemap/"+QString::number(face)+".png"); // convert FBO to img
+//  }
 //
 //  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuffer);
 //  //glGenRenderbuffersEXT(1, &renderbuffer);
@@ -1611,6 +1606,6 @@ void GLWindow::renderVR() {
 //  if (!store_options->duplicate_mem) mutex_data->unlock();
 //  glBindTexture(GL_TEXTURE_2D, 0);
 //  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-}
+//}
 
 } // namespace glnemo

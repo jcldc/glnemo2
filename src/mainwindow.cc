@@ -1583,8 +1583,6 @@ void MainWindow::startAutoScreenshot()
 // -----------------------------------------------------------------------------
 // takeScreenshot()
 void MainWindow::takeScreenshot(const int width, const int height, std::string name) {
-  bool axes_enable = store_options->axes_enable;
-  bool show_osd = store_options->show_osd;
   if (width != 0 && height != 0) { // valid dimensions
     QSize size, sizegl;
     sizegl = gl_window->size();   // get the current Ogl windows's size
@@ -1606,18 +1604,17 @@ void MainWindow::takeScreenshot(const int width, const int height, std::string n
                            size.width(),size.height());   // bc width() and height() are used by
     // renderText
 #endif
-    QImage img;
 
     //std::cerr << "GLWINDOW width = " << gl_window->width() << "\n";
+    gl_window->setFBO(true);                              // activate Frame Buffer Object
     gl_window->setFBOSize(size.width(), size.height());    // set the offscreen rendering size
-    if(true) { // if vr
-      gl_window->renderVR();
-    }
-    else{
-      gl_window->forcePaintGL();  // draw in FBO
-      // use force for screenshot from CLI
-    }
-    img = (((gl_window->grabFrameBufferObject()).mirrored()).rgbSwapped()); // convert FBO to img
+
+    //!!!gl_window->updateGL();                                // draw in FBO
+    gl_window->forcePaintGL();  // draw in FBO
+    // use force for screenshot from CLI
+
+    QImage img = (((gl_window->grabFrameBufferObject()).mirrored()).rgbSwapped()); // convert FBO to img
+
     gl_window->resize(sizegl.width(), sizegl.height());    // revert to the previous Ogl windows's size
     //!!gl_window->updateGL();
 
@@ -1649,8 +1646,6 @@ void MainWindow::takeScreenshot(const int width, const int height, std::string n
       img.save(QString(name.c_str()), 0, quality);
     }
   }
-  store_options->axes_enable = axes_enable;
-  store_options->show_osd = show_osd;
 }
 // -----------------------------------------------------------------------------
 // actionRotate around SCREEN axis
