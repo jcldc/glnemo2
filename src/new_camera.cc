@@ -56,6 +56,19 @@ quat BaseCamera::fromAxisAngle(vec3 axis, double angle) {
   return normalize(out);
 }
 
+quat BaseCamera::fromMat34(vr::HmdMatrix34_t matrix)
+{
+	quat q;
+
+	q.w = sqrt(fmax(0, 1 + matrix.m[0][0] + matrix.m[1][1] + matrix.m[2][2])) / 2;
+	q.x = sqrt(fmax(0, 1 + matrix.m[0][0] - matrix.m[1][1] - matrix.m[2][2])) / 2;
+	q.y = sqrt(fmax(0, 1 - matrix.m[0][0] + matrix.m[1][1] - matrix.m[2][2])) / 2;
+	q.z = sqrt(fmax(0, 1 - matrix.m[0][0] - matrix.m[1][1] + matrix.m[2][2])) / 2;
+	q.x = copysign(q.x, matrix.m[2][1] - matrix.m[1][2]);
+	q.y = copysign(q.y, matrix.m[0][2] - matrix.m[2][0]);
+	q.z = copysign(q.z, matrix.m[1][0] - matrix.m[0][1]);
+	return q;
+}
 const vec3 &BaseCamera::getPosition() const {
   return m_position;
 }
@@ -106,6 +119,7 @@ void FreeCamera::rotate(float x, float y, float z) {
   quat rot_z = fromAxisAngle(m_orientation * vec3(0, 0, 1), -z);
   m_orientation = normalize(rot_x * rot_y * rot_z * m_orientation);
   m_matrix_clean = false;
+
 }
 
 void FreeCamera::setOrientation(quat orientation) {
@@ -144,8 +158,9 @@ void FreeCamera::reset() {
 NewCamera::NewCamera() {
   m_free_camera = new FreeCamera();
   m_arcball_camera = new ArcballCamera();
-  m_current_camera = m_arcball_camera;
-  m_mode = CameraMode::arcball;
+  m_vr_camera = new VRCamera();
+  m_current_camera = m_vr_camera;
+  m_mode = CameraMode::vr;
 }
 
 const quat &NewCamera::getOrientation() {
@@ -232,8 +247,8 @@ const vec3 &NewCamera::getPosition() const {
 }
 
 void NewCamera::setOrientation(quat orientation) {
-  if (m_mode == CameraMode::free)
-    m_free_camera->setOrientation(orientation);
+  if (m_mode == CameraMode::vr)
+    m_vr_camera->setOrientation(orientation);
 }
 
 void NewCamera::setOrientation(CubemapFace face) {

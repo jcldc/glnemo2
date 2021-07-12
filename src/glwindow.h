@@ -33,6 +33,7 @@
 #include "glcpoints.h"
 #include "new_camera.h"
 
+#include <openvr.h>
 
 class fntTexFont;
 
@@ -181,6 +182,18 @@ private slots:
   }
 
 private:
+
+  vr::IVRSystem* vr_context;
+
+  vr::TrackedDevicePose_t tracked_device_pose[vr::k_unMaxTrackedDeviceCount];
+
+  // ----------------
+  // app variables
+  // ----------------
+
+  bool app_end = false;
+  string driver_name, driver_serial;
+  string tracked_device_type[vr::k_unMaxTrackedDeviceCount];
   // my parent
   QWidget * parent;
   // global options

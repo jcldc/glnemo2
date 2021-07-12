@@ -10,13 +10,15 @@
 #include "globject.h"
 #include "globaloptions.h"
 
+#include <openvr.h>
 using namespace glm;
 
 namespace glnemo {
 
 enum CameraMode {
   free,
-  arcball
+  arcball,
+  vr
 };
 
 enum CubemapFace {
@@ -42,6 +44,7 @@ public:
   const mat4 &getOrientationMatrix();
   const vec3 &getPosition() const;
   static quat fromAxisAngle(vec3 axis, double angle);
+  static quat fromMat34(vr::HmdMatrix34_t matrix);
 protected:
   virtual void buildMatrices();
   quat m_orientation;
@@ -80,6 +83,13 @@ private:
   float m_speed;
 };
 
+class VRCamera : public FreeCamera {
+
+};
+
+
+
+
 class NewCamera {
 public:
   NewCamera();
@@ -107,6 +117,7 @@ public:
 private:
   FreeCamera *m_free_camera;
   ArcballCamera *m_arcball_camera;
+  VRCamera *m_vr_camera;
   CameraMode m_mode;
   BaseCamera *m_current_camera;
 };

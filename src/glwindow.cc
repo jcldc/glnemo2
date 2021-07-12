@@ -33,6 +33,37 @@
 #include "fnt.h"
 #include "glcpoints.h"
 
+
+#include <iostream>
+#include <iomanip> // setprecision
+#include <sstream> // stringstream
+
+
+
+//-----------------------------------------------------------------------------
+// Purpose: helper to convert an float into a string
+//-----------------------------------------------------------------------------
+std::string ftos(float f, int precision)
+{
+	std::stringstream stream;
+	stream << fixed << std::setprecision(precision) << f;
+	std::string f_str = stream.str();
+
+	return f_str;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: helper to convert an 3-float array into a vector string
+//-----------------------------------------------------------------------------
+std::string vftos(float v[3], int precision)
+{
+  std::stringstream stream;
+  stream << "(" << ftos(v[0],precision) << "," << ftos(v[1],precision) << "," << ftos(v[2],precision) << ")";
+  std::string f_str = stream.str();
+
+  return f_str;
+}
+
 namespace glnemo {
 #define DOF 4000000
   
@@ -40,7 +71,107 @@ namespace glnemo {
   GLuint framebuffer, renderbuffer;
   GLdouble GLWindow::mIdentity[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
   //float store_options->ortho_range;
-  
+
+vr::IVRSystem* init_VR()
+{
+
+// Check whether there is an HMD plugged-in and the SteamVR runtime is installed
+  if (vr::VR_IsHmdPresent())
+  {
+    std::cout << "An HMD was successfully found in the system" << std::endl;
+
+    if (vr::VR_IsRuntimeInstalled()) {
+      std::cout << "Runtime correctly installed" << std::endl;
+    }
+    else
+    {
+      std::cout << "Runtime was not found" << std::endl;
+    }
+  }
+  else
+  {
+    std::cout << "No HMD was found in the system" << std::endl;
+  }
+
+
+  // ----------------
+  // OpenVR variables
+  // ----------------
+
+  vr::IVRSystem* vr_context;
+  vr::TrackedDevicePose_t tracked_device_pose[vr::k_unMaxTrackedDeviceCount];
+
+  // ----------------
+  // app variables
+  // ----------------
+
+  bool app_end = false;
+  char driver_name[100];
+  char driver_serial[100];
+  string tracked_device_type[vr::k_unMaxTrackedDeviceCount];
+
+  // Load the SteamVR Runtime
+  vr::HmdError err;
+  vr_context = vr::VR_Init(&err,vr::EVRApplicationType::VRApplication_Scene);
+  vr_context == NULL ? cout << "Error while initializing SteamVR runtime. Error code is " << vr::VR_GetVRInitErrorAsSymbol(err) << endl : cout << "SteamVR runtime successfully initialized" << endl;
+
+  // Obtain some basic information given by the runtime
+  int base_stations_count = 0;
+  for (uint32_t td=vr::k_unTrackedDeviceIndex_Hmd; td<vr::k_unMaxTrackedDeviceCount; td++) {
+
+    if (vr_context->IsTrackedDeviceConnected(td))
+    {
+      vr::ETrackedDeviceClass tracked_device_class = vr_context->GetTrackedDeviceClass(td);
+
+      auto td_type = vr::VRSystem()->GetTrackedDeviceClass(tracked_device_class);
+      tracked_device_type[td] = td_type;
+
+      cout << "Tracking device " << td << " is connected " << endl;
+      char name[100];
+      vr_context->GetStringTrackedDeviceProperty(td,vr::Prop_TrackingSystemName_String, name, 100);
+      cout << "  Device type: " << td_type << ". Name: " << string(name) << endl;
+
+      if (tracked_device_class == vr::ETrackedDeviceClass::TrackedDeviceClass_TrackingReference) base_stations_count++;
+
+//      if (td == vr::k_unTrackedDeviceIndex_Hmd)
+//      {
+//        vr_context->GetStringTrackedDeviceProperty(vr::k_unTrackedDeviceIndex_Hmd,vr::Prop_TrackingSystemName_String, driver_name, 100);
+//        vr_context->GetStringTrackedDeviceProperty(vr::k_unTrackedDeviceIndex_Hmd,vr::Prop_SerialNumber_String, driver_serial, 100);
+//      }
+    }
+    else
+      cout << "Tracking device " << td << " not connected" << endl;
+  }
+
+  // Check whether both base stations are found, not mandatory but just in case...
+  if (base_stations_count < 2)
+  {
+    cout << "There was a problem indentifying the base stations, please check they are powered on" << endl;
+
+  }
+
+  if (!vr::VRCompositor())
+  {
+    throw std::runtime_error("Unable to initialize VR compositor!\n ");
+  }
+  else
+    cout << "VR compositor ok";
+
+	uint32_t rtWidth;
+	uint32_t rtHeight;
+  vr_context->GetRecommendedRenderTargetSize(&rtWidth, &rtHeight);
+
+
+  std::clog<<"Initialized HMD with suggested render target size : " << rtWidth << "x" << rtHeight << std::endl;
+
+  const float freq = vr_context->GetFloatTrackedDeviceProperty(vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_DisplayFrequency_Float);
+
+  std::clog << "display frequency : " << freq <<std::endl;
+  return vr_context;
+
+
+}
+
 // ============================================================================
 // Constructor                                                                 
 // BEWARE when parent constructor QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
@@ -48,6 +179,8 @@ namespace glnemo {
 // performance during rendering. You have been warned !!!!!                     
 GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager, NewCamera* _new_camera) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
+  vr_context = init_VR();
+
   // copy parameters
   parent        = _parent;
   store_options = _go;
@@ -159,6 +292,9 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
     glGenRenderbuffersEXT(1, &renderbuffer);
   }
   checkGLErrors("GLWindow constructor");
+  auto play_timer   = new QTimer(this);
+  connect(play_timer,SIGNAL(timeout()),this,SLOT(updateGL())); // update GL at every timeout()
+  play_timer->start(16);
 }
 
 // ============================================================================
@@ -183,6 +319,7 @@ GLWindow::~GLWindow()
   delete osd;
 //  if (p_data)
 //    delete p_data;
+  vr::VR_Shutdown();
   std::cerr << "Destructor GLWindow::~GLWindow()\n";
 }
 #define COPY 0
@@ -431,12 +568,50 @@ void GLWindow::paintGL()
   // the following code compute OpenGL rotation 
   // around XYZ screen axes
   // new_camera->setZoom(abs(store_options->zoom));
+// Obtain tracking data for all devices
+// Process SteamVR events
+  vr::VREvent_t vr_event;
+
+  //TODO
+//  while(vr_context->PollNextEvent(&vr_event,sizeof(vr_event)))
+//    process_vr_event(vr_event);
+
+  // Obtain tracking device poses
+  vr_context->GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin::TrackingUniverseStanding,0,tracked_device_pose,vr::k_unMaxTrackedDeviceCount);
+
+  quat rot;
+
+  int actual_y = 110, tracked_device_count = 0;
+  for (int nDevice=0; nDevice<vr::k_unMaxTrackedDeviceCount; nDevice++)
+  {
+    if ((tracked_device_pose[nDevice].bDeviceIsConnected) && (tracked_device_pose[nDevice].bPoseIsValid) && (nDevice == vr::k_unTrackedDeviceIndex_Hmd))
+
+    {
+
+      // Check whether the tracked device is a controller. If so, set text color based on the trigger button state
+      vr::VRControllerState_t controller_state;
+//      if (vr_context->GetControllerState(nDevice,&controller_state,sizeof(controller_state)))
+//        ((vr::ButtonMaskFromId(vr::EVRButtonId::k_EButton_Axis1) & controller_state.ulButtonPressed) == 0) ? color = green : color = blue;
+
+//      print_text(("Tracked device #" + ftos((float) nDevice,0) + " (" + tracked_device_type[nDevice] + ")").c_str(), color, 10, actual_y);
+
+      // We take just the translation part of the matrix (actual position of tracked device, not orientation)
+      	rot = BaseCamera::fromMat34(tracked_device_pose[nDevice].mDeviceToAbsoluteTracking);
+
+//      print_text(vftos(v,2).c_str(), color, 50, actual_y+25);
+      actual_y += 60;
+
+      tracked_device_count++;
+    }
+  }
+
+  new_camera->setOrientation(rot);
 
   if (rx != 0 ||
       ry!=0 ||
       rz!=0 ||
       dzoom!=0) {
-    new_camera->rotate(rx, ry, rz);
+//    new_camera->rotate(rx, ry, rz);
     last_xrot = store_options->xrot;
     last_yrot = store_options->yrot;
     last_zrot = store_options->zrot;

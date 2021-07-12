@@ -17,6 +17,27 @@ cmake_minimum_required(VERSION 2.8)
 # project name
 project (glnemo2)
 
+find_file(OPENVRPATHS openvrpaths.vrpath PATHS $ENV{HOME}/.config/openvr "$ENV{HOME}/Library/Application Support/OpenVR/.openvr")
+if(${OPENVRPATHS} MATCHES OPENVRPATHS-NOTFOUND)
+  message(FATAL_ERROR "${OPENVRPATHS} Please install SteamVR SDK to continue..")
+endif()
+
+set(OPENVR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/openvr")
+find_library(OPENVR_LIBRARIES
+  NAMES
+    openvr_api
+  PATHS
+    ${OPENVR}/bin
+    ${OPENVR}/lib
+  PATH_SUFFIXES
+    linux64
+  NO_DEFAULT_PATH
+  NO_CMAKE_FIND_ROOT_PATH
+)
+set(OPENVR_INCLUDE_DIR ${OPENVR}/headers)
+
+
+
 # extra path for .cmake .files
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -147,7 +168,7 @@ if (APPLE)
   #ADD_DEFINITIONS(-mmacosx-version-min=10.9)
 endif()
 ADD_DEFINITIONS(-fPIC)
-set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+set (CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
 # Add compiler flags for building executables (-fPIE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
@@ -157,6 +178,7 @@ include_directories (${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5Ope
 include_directories(/usr/include/CCfits /opt/local/include /opt/local/include/CCfits  /usr/include/cfitsio /usr/local/include/CCfits)
 include_directories(/usr/include/tirpc)
 include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 ${HDF5_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/3rdparty/openvr/headers)
 
 if (APPLE)
   include_directories(/usr/include/malloc /usr/X11/include)
@@ -228,7 +250,7 @@ if (EXISTS "/usr/lib64/libtirpc.so")
 else()
    set (TIRPC "")
 endif()
-target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${TIRPC}  ${HDF5_CXX_LIBRARIES} )
+target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${TIRPC}  ${HDF5_CXX_LIBRARIES}  ${OPENVR_LIBRARIES})
 
 qt5_use_modules(glnemo2 Gui Widgets Core OpenGL Network PrintSupport)
 
