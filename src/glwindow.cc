@@ -580,7 +580,9 @@ void GLWindow::paintGL()
 
   quat rot;
 
-  int actual_y = 110, tracked_device_count = 0;
+  int actual_y = 110;
+  int tracked_device_count = 0;
+  float hmd_position[3];
   for (int nDevice=0; nDevice<vr::k_unMaxTrackedDeviceCount; nDevice++)
   {
     if ((tracked_device_pose[nDevice].bDeviceIsConnected) && (tracked_device_pose[nDevice].bPoseIsValid) && (nDevice == vr::k_unTrackedDeviceIndex_Hmd))
@@ -588,7 +590,7 @@ void GLWindow::paintGL()
     {
 
       // Check whether the tracked device is a controller. If so, set text color based on the trigger button state
-      vr::VRControllerState_t controller_state;
+//      vr::VRControllerState_t controller_state;
 //      if (vr_context->GetControllerState(nDevice,&controller_state,sizeof(controller_state)))
 //        ((vr::ButtonMaskFromId(vr::EVRButtonId::k_EButton_Axis1) & controller_state.ulButtonPressed) == 0) ? color = green : color = blue;
 
@@ -596,6 +598,10 @@ void GLWindow::paintGL()
 
       // We take just the translation part of the matrix (actual position of tracked device, not orientation)
       	rot = BaseCamera::fromMat34(tracked_device_pose[nDevice].mDeviceToAbsoluteTracking);
+				hmd_position[0] = tracked_device_pose[nDevice].mDeviceToAbsoluteTracking.m[0][3] * 10 + 10;
+        hmd_position[1] = tracked_device_pose[nDevice].mDeviceToAbsoluteTracking.m[1][3] * 10 - 10;
+        hmd_position[2] = tracked_device_pose[nDevice].mDeviceToAbsoluteTracking.m[2][3] * 10;
+
 
 //      print_text(vftos(v,2).c_str(), color, 50, actual_y+25);
       actual_y += 60;
@@ -605,6 +611,14 @@ void GLWindow::paintGL()
   }
 
   new_camera->setOrientation(rot);
+  new_camera->setPosition(hmd_position[0],hmd_position[1], hmd_position[2]);
+
+  for (const auto& e : hmd_position) {
+      std::cout << e << "  ";
+  }
+  std::cout << std::endl;
+
+
 
   if (rx != 0 ||
       ry!=0 ||

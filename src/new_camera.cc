@@ -21,6 +21,11 @@ const quat &BaseCamera::getOrientation() const {
   return m_orientation;
 }
 
+void BaseCamera::setPosition(float x, float y, float z) {
+  m_position = {x, y, z};
+  m_matrix_clean = false;
+}
+
 bool BaseCamera::isMatrixClean() const {
   return m_matrix_clean;
 }
@@ -220,6 +225,10 @@ void NewCamera::toggleCameraMode() {
     m_current_camera = m_arcball_camera;
     m_mode = CameraMode::arcball;
   }
+}
+
+void NewCamera::setPosition(float x, float y, float z){
+  m_vr_camera->setPosition(x, y, z);
 }
 
 void NewCamera::moveForward(float dt) {
