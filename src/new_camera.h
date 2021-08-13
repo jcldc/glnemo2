@@ -43,9 +43,9 @@ public:
   const mat4 &getViewMatrix();
   const mat4 &getOrientationMatrix();
   const vec3 &getPosition() const;
-  void setPosition(float, float, float);
+  void setPosition(vec3);
   static quat fromAxisAngle(vec3 axis, double angle);
-  static quat fromMat34(vr::HmdMatrix34_t matrix);
+  static quat fromMat34(mat4 matrix);
 protected:
   virtual void buildMatrices();
   quat m_orientation;
@@ -104,7 +104,7 @@ public:
   void setOrientation(quat);
   void setOrientation(CubemapFace face);
   void setZoom(float zoom);
-  void setPosition(float, float, float);
+  void setPosition(vec3);
   void toggleCameraMode();
   void setCameraMode(CameraMode);
   const CameraMode &getCameraMode() const;

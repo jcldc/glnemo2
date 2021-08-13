@@ -32,45 +32,31 @@
 #include "tools3d.h"
 #include "fnt.h"
 #include "glcpoints.h"
-
+#include <glm/gtx/string_cast.hpp>
 
 #include <iostream>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
 
 
-
-//-----------------------------------------------------------------------------
-// Purpose: helper to convert an float into a string
-//-----------------------------------------------------------------------------
-std::string ftos(float f, int precision)
-{
-	std::stringstream stream;
-	stream << fixed << std::setprecision(precision) << f;
-	std::string f_str = stream.str();
-
-	return f_str;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: helper to convert an 3-float array into a vector string
-//-----------------------------------------------------------------------------
-std::string vftos(float v[3], int precision)
-{
-  std::stringstream stream;
-  stream << "(" << ftos(v[0],precision) << "," << ftos(v[1],precision) << "," << ftos(v[2],precision) << ")";
-  std::string f_str = stream.str();
-
-  return f_str;
-}
-
 namespace glnemo {
 #define DOF 4000000
   
   bool GLWindow::GLSL_support = false;
   GLuint framebuffer, renderbuffer;
+  GLuint renderedTexture[2];
+//  GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
   GLdouble GLWindow::mIdentity[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
   //float store_options->ortho_range;
+
+inline mat4 toGlm(const vr::HmdMatrix34_t& m) {
+  mat4 result = mat4(
+      m.m[0][0], m.m[1][0], m.m[2][0], 0.0,
+      m.m[0][1], m.m[1][1], m.m[2][1], 0.0,
+      m.m[0][2], m.m[1][2], m.m[2][2], 0.0,
+      m.m[0][3], m.m[1][3], m.m[2][3], 1.0f);
+  return result;
+}
 
 vr::IVRSystem* init_VR()
 {
@@ -226,7 +212,9 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   connect(gl_select, SIGNAL(updateZoom()), this, SLOT(updateOsdZrt()));
   connect(this,SIGNAL(sigScreenshot()),parent,SLOT(startAutoScreenshot()));
   setFocus();
-  wwidth=894;wheight=633;
+
+
+//  this->resizeGL((int)rtWidth, (int)rtHeight);
   zoom_dynam = 0;
   // leave events : reset event when we leave opengl windows
   connect(this,SIGNAL(leaveEvent()),this,SLOT(resetEvents()));
@@ -278,18 +266,43 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   osd = new GLObjectOsd(wwidth,wheight,text,store_options->osd_color);
   // colorbar
   gl_colorbar = new GLColorbar(store_options,true);
-
+  uint32_t rtWidth;
+  uint32_t rtHeight;
+  vr_context->GetRecommendedRenderTargetSize(&rtWidth, &rtHeight);
   ////////
   // FBO
   // Set the width and height appropriately for you image
-  fbo = false;
+  fbo = true;
   //Set up a FBO with one renderbuffer attachment
   // init octree
   tree = new GLOctree(store_options);
   tree->setActivate(true);
   if (GLWindow::GLSL_support) {
+    // framebuffer
     glGenFramebuffersEXT(1, &framebuffer);
+    glBindFramebufferEXT(GL_FRAMEBUFFER, framebuffer);
+
+    //texture
+
+    for (int i =0; i < 2; i++) {
+      glGenTextures(1, &renderedTexture[i]);
+      glBindTexture(GL_TEXTURE_2D, renderedTexture[i]);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei) rtWidth, (GLsizei) rtHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    }
+
+    //render buffer for depth
     glGenRenderbuffersEXT(1, &renderbuffer);
+    glBindRenderbufferEXT(GL_RENDERBUFFER, renderbuffer);
+    glRenderbufferStorageEXT(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, (GLsizei)rtWidth, (GLsizei)rtHeight);
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
+//
+//    // Set the list of draw buffers.
+//    glDrawBuffersEXT(1, DrawBuffers); // "1" is the size of DrawBuffers
+    glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
   }
   checkGLErrors("GLWindow constructor");
   auto play_timer   = new QTimer(this);
@@ -495,290 +508,310 @@ void GLWindow::initLight()
 // move, translate and re-draw the whole scene according to the objects and
 // features selected
 long int CPT=0;
+
+auto world_scale = glm::vec3(50,50,50);
+auto world_offset_position = glm::vec3(0, -42, 50);
+
 void GLWindow::paintGL()
 {
-  CPT++;
-  //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
-  //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
-  if (store_options->auto_gl_screenshot) {
-    store_options->auto_gl_screenshot = false;
-    emit sigScreenshot();
-    //std::cerr << "GLWindow::paintGL() after EMIT"<<CPT<<"\n";
-    store_options->auto_gl_screenshot = true;
-  }
-  if ( !store_options->duplicate_mem)
-    mutex_data->lock();
-  if (fbo && GLWindow::GLSL_support) {
-    //std::cerr << "FBO GLWindow::paintGL() --> "<<CPT<<"\n";
-    //glGenFramebuffersEXT(1, &framebuffer);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuffer);
-    //glGenRenderbuffersEXT(1, &renderbuffer);
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-                  GL_RENDERBUFFER_EXT, renderbuffer);
-    GLuint status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-    if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
+  vr::VRCompositor()->WaitGetPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
+  for(int eye = 0; eye < 2; eye++) {
+    CPT++;
+    //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
+    //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
+    if (store_options->auto_gl_screenshot) {
+      store_options->auto_gl_screenshot = false;
+      emit sigScreenshot();
+      //std::cerr << "GLWindow::paintGL() after EMIT"<<CPT<<"\n";
+      store_options->auto_gl_screenshot = true;
     }
-  }
-  //setFocus();
+    if (!store_options->duplicate_mem)
+      mutex_data->lock();
+    if (fbo && GLWindow::GLSL_support) {
+      //std::cerr << "FBO GLWindow::paintGL() --> "<<CPT<<"\n";
+      //glGenFramebuffersEXT(1, &framebuffer);
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuffer);
+      glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture[eye], 0);
+      //glGenRenderbuffersEXT(1, &renderbuffer);
+//    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
+//    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
+//    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+//                  GL_RENDERBUFFER_EXT, renderbuffer);
+      GLuint status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+      if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
+      }
+    }
+    //setFocus();
 
-  qglClearColor(store_options->background_color);
-  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    qglClearColor(store_options->background_color);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // set projection
-  setProjection(0, 0,  wwidth, wheight);
-  glMatrixMode( GL_MODELVIEW );
-  glLoadIdentity();
-  //glEnable(GL_DEPTH_TEST);
-
-  // rotation around scene/object axes
-  float ru=store_options->urot-last_urot;
-  float rv=store_options->vrot-last_vrot;
-  float rw=store_options->wrot-last_wrot;
-
-  // the following code compute OpenGL rotation 
-  // around UVW scene/object axes
-  if (ru!=0 ||
-      rv!=0 ||
-      rw!=0) {
+    // set projection
+    setProjection(0, 0, wwidth, wheight);
+    glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    if (ru!=0)
-      glRotatef(ru, mScene[0],mScene[1], mScene[2] );
-    if (rv!=0)
-      glRotatef(rv, mScene[4],mScene[5], mScene[6] );
-    if (rw!=0)
-      glRotatef(rw, mScene[8],mScene[9], mScene[10]);
+    //glEnable(GL_DEPTH_TEST);
 
-    last_urot = store_options->urot;
-    last_vrot = store_options->vrot;
-    last_wrot = store_options->wrot;
-    last_zoom = store_options->zoom;
-    glMultMatrixd (mScene);
-    glGetDoublev (GL_MODELVIEW_MATRIX, mScene);
-  }
- 
-  // rotation around screen axes
-  float rx=store_options->xrot-last_xrot;
-  float ry=store_options->yrot-last_yrot;
-  float rz=store_options->zrot-last_zrot;
-  float dzoom = store_options->zoom - last_zoom;
+    // rotation around scene/object axes
+    float ru = store_options->urot - last_urot;
+    float rv = store_options->vrot - last_vrot;
+    float rw = store_options->wrot - last_wrot;
 
-  // the following code compute OpenGL rotation 
-  // around XYZ screen axes
-  // new_camera->setZoom(abs(store_options->zoom));
+    // the following code compute OpenGL rotation
+    // around UVW scene/object axes
+    if (ru != 0 ||
+        rv != 0 ||
+        rw != 0) {
+      glLoadIdentity();
+      if (ru != 0)
+        glRotatef(ru, mScene[0], mScene[1], mScene[2]);
+      if (rv != 0)
+        glRotatef(rv, mScene[4], mScene[5], mScene[6]);
+      if (rw != 0)
+        glRotatef(rw, mScene[8], mScene[9], mScene[10]);
+
+      last_urot = store_options->urot;
+      last_vrot = store_options->vrot;
+      last_wrot = store_options->wrot;
+      last_zoom = store_options->zoom;
+      glMultMatrixd(mScene);
+      glGetDoublev(GL_MODELVIEW_MATRIX, mScene);
+    }
+
+    // rotation around screen axes
+    float rx = store_options->xrot - last_xrot;
+    float ry = store_options->yrot - last_yrot;
+    float rz = store_options->zrot - last_zrot;
+    float dzoom = store_options->zoom - last_zoom;
+
+    // the following code compute OpenGL rotation
+    // around XYZ screen axes
+    // new_camera->setZoom(abs(store_options->zoom));
 // Obtain tracking data for all devices
 // Process SteamVR events
-  vr::VREvent_t vr_event;
+    vr::VREvent_t vr_event;
 
-  //TODO
+    //TODO
 //  while(vr_context->PollNextEvent(&vr_event,sizeof(vr_event)))
 //    process_vr_event(vr_event);
 
-  // Obtain tracking device poses
-  vr_context->GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin::TrackingUniverseStanding,0,tracked_device_pose,vr::k_unMaxTrackedDeviceCount);
+    // Obtain tracking device poses
 
-  quat rot;
+    quat rot;
 
-  int actual_y = 110;
-  int tracked_device_count = 0;
-  float hmd_position[3];
-  for (int nDevice=0; nDevice<vr::k_unMaxTrackedDeviceCount; nDevice++)
-  {
-    if ((tracked_device_pose[nDevice].bDeviceIsConnected) && (tracked_device_pose[nDevice].bPoseIsValid) && (nDevice == vr::k_unTrackedDeviceIndex_Hmd))
+    int tracked_device_count = 0;
+    glm::vec3 hmd_position;
+    for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; nDevice++) {
+      if ((tracked_device_pose[nDevice].bDeviceIsConnected) && (tracked_device_pose[nDevice].bPoseIsValid) &&
+          (nDevice == vr::k_unTrackedDeviceIndex_Hmd)) {
 
-    {
-
-      // Check whether the tracked device is a controller. If so, set text color based on the trigger button state
+        // Check whether the tracked device is a controller. If so, set text color based on the trigger button state
 //      vr::VRControllerState_t controller_state;
 //      if (vr_context->GetControllerState(nDevice,&controller_state,sizeof(controller_state)))
 //        ((vr::ButtonMaskFromId(vr::EVRButtonId::k_EButton_Axis1) & controller_state.ulButtonPressed) == 0) ? color = green : color = blue;
 
-//      print_text(("Tracked device #" + ftos((float) nDevice,0) + " (" + tracked_device_type[nDevice] + ")").c_str(), color, 10, actual_y);
-
-      // We take just the translation part of the matrix (actual position of tracked device, not orientation)
-      	rot = BaseCamera::fromMat34(tracked_device_pose[nDevice].mDeviceToAbsoluteTracking);
-				hmd_position[0] = tracked_device_pose[nDevice].mDeviceToAbsoluteTracking.m[0][3] * 10 + 10;
-        hmd_position[1] = tracked_device_pose[nDevice].mDeviceToAbsoluteTracking.m[1][3] * 10 - 10;
-        hmd_position[2] = tracked_device_pose[nDevice].mDeviceToAbsoluteTracking.m[2][3] * 10;
-
-
-//      print_text(vftos(v,2).c_str(), color, 50, actual_y+25);
-      actual_y += 60;
-
-      tracked_device_count++;
-    }
-  }
-
-  new_camera->setOrientation(rot);
-  new_camera->setPosition(hmd_position[0],hmd_position[1], hmd_position[2]);
-
-  for (const auto& e : hmd_position) {
-      std::cout << e << "  ";
-  }
-  std::cout << std::endl;
+        auto hmd_pos_and_rot = toGlm(tracked_device_pose[nDevice].mDeviceToAbsoluteTracking);
+        auto head_to_eye_m = toGlm(vr_context->GetEyeToHeadTransform((vr::Hmd_Eye) eye));
+        auto absolute_eye_pos_m = hmd_pos_and_rot * head_to_eye_m;
+        hmd_position = absolute_eye_pos_m[3];
+        hmd_position *= world_scale;
+        hmd_position += world_offset_position;
+//        std::cout << glm::to_string(absolute_eye_pos_m) << std::endl;
+        rot = glm::quat(hmd_pos_and_rot);
 
 
-
-  if (rx != 0 ||
-      ry!=0 ||
-      rz!=0 ||
-      dzoom!=0) {
-//    new_camera->rotate(rx, ry, rz);
-    last_xrot = store_options->xrot;
-    last_yrot = store_options->yrot;
-    last_zrot = store_options->zrot;
-    getMatrices();
-  }
-  if (reset_screen_rotation) {
-    store_options->zoom = 4;
-    new_camera->reset();
-    getMatrices();
-    reset_screen_rotation=false;
-  }
-  if (reset_scene_rotation) { 
-    glLoadIdentity ();
-    glGetDoublev (GL_MODELVIEW_MATRIX, mScene); // set to Identity
-    reset_scene_rotation=false;
-    last_urot = last_vrot = last_wrot = 0.0;
-  }
-
-  glLoadIdentity (); // reset OGL rotations
-  // set camera
-
-  // apply screen rotation on the whole system
-  glMultMatrixd (mScreen);
-  // apply scene/world rotation on the whole system
-  glMultMatrixd (mScene);
-
-  // Grid Anti aliasing
-#ifdef GL_MULTISAMPLE
-  glEnable(GL_MULTISAMPLE);
-#endif
-  if (1) { //line_aliased) {
-    glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_POLYGON_SMOOTH);
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-    //glLineWidth (0.61);
-    glLineWidth (1.0);
-  } else {
-    glDisable(GL_LINE_SMOOTH);
-  }
-
-  // grid display
-  if (store_options->show_grid) {
-    //glEnable( GL_DEPTH_TEST );
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    gridx->display();
-    gridy->display();
-    gridz->display();
-    cube->display();
-    glDisable(GL_BLEND);
-  }
-
-  // sphere display
-  if (0) {
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    GLUquadricObj *quadric=gluNewQuadric();
-    gluQuadricDrawStyle(quadric,GLU_LINE);
-    gluQuadricNormals(quadric, GLU_SMOOTH);
-    GLdouble radius=GLdouble(store_options->mesh_length*store_options->nb_meshs/2.0);
-    GLint subdivisions=16;
-    gluSphere(quadric, radius, subdivisions,subdivisions);
-    gluDeleteQuadric(quadric);
-    glDisable(GL_BLEND);
-
-  }
-  // camera display path and control points
-  camera->display(wheight);
-
-  setModelMatrix(); // save ModelView  Matrix
-  setProjMatrix();  // save Projection Matrix
-  // move the scene
-  glTranslatef( store_options->xtrans, store_options->ytrans, store_options->ztrans);
-  glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel2);  
-  //printMatrix(mModel2,"GL_MODELVIEW_MATRIX 100");
-
-  // nice points display
-  glEnable(GL_POINT_SMOOTH);
-
-  // control blending on particles
-  if (store_options->blending) {
-    glEnable(GL_BLEND);
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE ); // original
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glDepthFunc(GL_LESS);
-  }
-  else
-    glDisable(GL_BLEND);
-  // control depht buffer on particles
-  if (store_options->dbuffer) glEnable (GL_DEPTH_TEST);
-  else                        glDisable(GL_DEPTH_TEST);
-  //glDepthFunc(GL_LESS);
-  // Display objects (particles and velocity vectors)
-  cpointset_manager->displayAll();
-
-  if (store_options->show_part && pov ) {
-    //mutex_data->lock();
-    bool first=true;
-    bool obj_has_physic=false;
-    for (int i=0; i<(int)pov->size(); i++) {
-      gpv[i].display(mModel2,wheight);
-
-      if (first) {
-        const ParticlesObject * po = gpv[i].getPartObj();
-        if (po->hasPhysic()) { //store_options->phys_min_glob!=-1 && store_options->phys_max_glob!=-1) {
-          obj_has_physic=true;
-          first=false;
-        }
+        tracked_device_count++;
       }
     }
 
+//    rot = glm::quat(glm::vec3(-90, 0, 0)) * rot;
 
-    if (obj_has_physic) {
-      if (fbo) // offscreen rendering activated
-        gl_colorbar->display(texWidth,texHeight);
-      else
-        gl_colorbar->display(QGLWidget::width(),QGLWidget::height());
+//    if(eye==vr::Eye_Left)
+//      std::cout << "Left eye "<< std::endl;
+//    else
+//      std::cout << "Right eye "<< std::endl;
+//
+//    std::cout << "x " << hmd_position[0] << "  y " <<  hmd_position[1] << "  z " << hmd_position[2] << std::endl;
+
+    new_camera->setOrientation(rot);
+    new_camera->setPosition(hmd_position);
+
+//  for (const auto& e : hmd_position) {
+//      std::cout << e << "  ";
+//  }
+//  std::cout << std::endl;
+
+
+
+    if (rx != 0 ||
+        ry != 0 ||
+        rz != 0 ||
+        dzoom != 0) {
+//    new_camera->rotate(rx, ry, rz);
+      last_xrot = store_options->xrot;
+      last_yrot = store_options->yrot;
+      last_zrot = store_options->zrot;
+      getMatrices();
+    }
+    if (reset_screen_rotation) {
+      store_options->zoom = 4;
+      new_camera->reset();
+      getMatrices();
+      reset_screen_rotation = false;
+    }
+    if (reset_scene_rotation) {
+      glLoadIdentity();
+      glGetDoublev(GL_MODELVIEW_MATRIX, mScene); // set to Identity
+      reset_scene_rotation = false;
+      last_urot = last_vrot = last_wrot = 0.0;
     }
 
-    //mutex_data->unlock();
+    glLoadIdentity(); // reset OGL rotations
+    // set camera
+
+    // apply screen rotation on the whole system
+    glMultMatrixd(mScreen);
+    // apply scene/world rotation on the whole system
+    glMultMatrixd(mScene);
+
+    // Grid Anti aliasing
+#ifdef GL_MULTISAMPLE
+    glEnable(GL_MULTISAMPLE);
+#endif
+    if (1) { //line_aliased) {
+      glEnable(GL_LINE_SMOOTH);
+      glEnable(GL_POLYGON_SMOOTH);
+      glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+      glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+      //glLineWidth (0.61);
+      glLineWidth(1.0);
+    } else {
+      glDisable(GL_LINE_SMOOTH);
+    }
+
+    // grid display
+    if (store_options->show_grid) {
+      //glEnable( GL_DEPTH_TEST );
+      glDisable(GL_DEPTH_TEST);
+      glEnable(GL_BLEND);
+      gridx->display();
+      gridy->display();
+      gridz->display();
+      cube->display();
+      glDisable(GL_BLEND);
+    }
+
+    // sphere display
+    if (0) {
+      glDisable(GL_DEPTH_TEST);
+      glEnable(GL_BLEND);
+      GLUquadricObj *quadric = gluNewQuadric();
+      gluQuadricDrawStyle(quadric, GLU_LINE);
+      gluQuadricNormals(quadric, GLU_SMOOTH);
+      GLdouble radius = GLdouble(store_options->mesh_length * store_options->nb_meshs / 2.0);
+      GLint subdivisions = 16;
+      gluSphere(quadric, radius, subdivisions, subdivisions);
+      gluDeleteQuadric(quadric);
+      glDisable(GL_BLEND);
+
+    }
+    // camera display path and control points
+    camera->display(wheight);
+
+    setModelMatrix(); // save ModelView  Matrix
+    setProjMatrix();  // save Projection Matrix
+    // move the scene
+    glTranslatef(store_options->xtrans, store_options->ytrans, store_options->ztrans);
+    glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel2);
+    //printMatrix(mModel2,"GL_MODELVIEW_MATRIX 100");
+
+    // nice points display
+    glEnable(GL_POINT_SMOOTH);
+
+    // control blending on particles
+    if (store_options->blending) {
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE); // original
+      //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      //glDepthFunc(GL_LESS);
+    } else
+      glDisable(GL_BLEND);
+    // control depht buffer on particles
+    if (store_options->dbuffer) glEnable(GL_DEPTH_TEST);
+    else glDisable(GL_DEPTH_TEST);
+    //glDepthFunc(GL_LESS);
+    // Display objects (particles and velocity vectors)
+    cpointset_manager->displayAll();
+
+    if (store_options->show_part && pov) {
+      //mutex_data->lock();
+      bool first = true;
+      bool obj_has_physic = false;
+      for (int i = 0; i < (int) pov->size(); i++) {
+        gpv[i].display(mModel2, wheight);
+
+        if (first) {
+          const ParticlesObject *po = gpv[i].getPartObj();
+          if (po->hasPhysic()) { //store_options->phys_min_glob!=-1 && store_options->phys_max_glob!=-1) {
+            obj_has_physic = true;
+            first = false;
+          }
+        }
+      }
+
+
+      if (obj_has_physic) {
+        if (fbo) // offscreen rendering activated
+          gl_colorbar->display(texWidth, texHeight);
+        else
+          gl_colorbar->display(QGLWidget::width(), QGLWidget::height());
+      }
+
+      //mutex_data->unlock();
+    }
+
+    // octree
+    if (store_options->octree_display || 1) {
+      tree->display();
+    }
+
+    // On Screen Display
+    if (store_options->show_osd) osd->display();
+
+    // display selected area
+    gl_select->display(QGLWidget::width(), QGLWidget::height());
+
+    // draw axes
+    if (store_options->axes_enable)
+      axes->display(mRot, mScene, wwidth, wheight,
+                    store_options->axes_loc, store_options->axes_psize, store_options->perspective);
+
+    // reset viewport to the windows size because axes object modidy it
+    glViewport(0, 0, wwidth, wheight);
   }
 
-  // octree
-  if (store_options->octree_display || 1) {
-    tree->display();
-  }
-
-  // On Screen Display
-  if (store_options->show_osd) osd->display();
-
-  // display selected area
-  gl_select->display(QGLWidget::width(),QGLWidget::height());
-
-  // draw axes
-  if (store_options->axes_enable)
-    axes->display(mRot, mScene, wwidth,wheight,
-                  store_options->axes_loc,store_options->axes_psize, store_options->perspective);
-
-  // reset viewport to the windows size because axes object modidy it
-  glViewport(0, 0,  wwidth, wheight);
-
-  if (fbo && GLWindow::GLSL_support) {
-    fbo = false;
+//  if (fbo && GLWindow::GLSL_support) {
+//    fbo = false;
     //imgFBO = grabFrameBuffer();
-    imgFBO = QImage( texWidth, texHeight,QImage::Format_RGB32);
-    glReadPixels( 0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits() );
+//    imgFBO = QImage( texWidth, texHeight,QImage::Format_RGB32);
+//    glReadPixels( 0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits() );
     // Make the window the target
+    vr::Texture_t leftEyeTexture = {(void*)renderedTexture[vr::Eye_Left], vr::ETextureType::TextureType_OpenGL, vr::ColorSpace_Linear};
+		vr::Texture_t rightEyeTexture = {(void*)renderedTexture[vr::Eye_Right], vr::ETextureType::TextureType_OpenGL, vr::ColorSpace_Linear};
+
+    vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+		vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+
+//		glFlush();
+//
+//		vr::VRCompositor()->PostPresentHandoff();
+
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
    // Delete the renderbuffer attachment
    //glDeleteRenderbuffersEXT(1, &renderbuffer);
    //glDeleteRenderbuffersEXT(1, &framebuffer);
-  }
+//  }
 
   if ( !store_options->duplicate_mem) mutex_data->unlock();
 
@@ -920,12 +953,12 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
   glLoadIdentity();
 
   if (store_options->perspective) {
-    gluPerspective(90.,ratio,0.0005,(float) DOF);
+    gluPerspective(110.,ratio,0.0005,(float) DOF);
 //    double mp[16];
 //    glGetDoublev(GL_PROJECTION_MATRIX, (GLdouble *) mp);
 //    for (int i=0;i<16;i++) std::cerr << "// "<< mp[i];
 //    std::cerr << "\n";
-    const GLfloat zNear = 0.0005, zFar = (GLfloat) DOF, fov = 90.0;
+    const GLfloat zNear = 0.0005, zFar = (GLfloat) DOF, fov = 110.0;
     store_options->mat4_proj = glm::mat4();
     store_options->mat4_proj = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
   }

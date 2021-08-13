@@ -76,6 +76,12 @@ MainWindow::MainWindow(std::string _ver)
   // ------- openGL object ---------
   pointset_manager = new CPointsetManager();
   gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager, new_camera);
+  uint32_t rtWidth;
+  uint32_t rtHeight;
+  gl_window->vr_context->GetRecommendedRenderTargetSize(&rtWidth, &rtHeight);
+
+  setMinimumSize(QSize((int)rtWidth, (int)rtHeight));
+
 
   if(glewIsSupported("GL_VERSION_3_0")){
     is_cpoints_enabled = true;

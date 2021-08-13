@@ -48,6 +48,7 @@ public:
     GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, CPointsetManager *, NewCamera*);
     ~GLWindow();
 
+    vr::IVRSystem* vr_context;
     void bestZoomFit();
     void resize(const int w, const int h ) { resizeGL(w,h);}
     void resizeOsd(const int w, const int h ) { osd->setWH(w,h);}
@@ -183,7 +184,6 @@ private slots:
 
 private:
 
-  vr::IVRSystem* vr_context;
 
   vr::TrackedDevicePose_t tracked_device_pose[vr::k_unMaxTrackedDeviceCount];
 
