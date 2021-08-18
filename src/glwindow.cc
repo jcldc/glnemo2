@@ -167,6 +167,10 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
 {
   vr_context = init_VR();
 
+  world_scale_value = 50;
+  world_scale = glm::vec3(world_scale_value, world_scale_value, world_scale_value);
+  world_offset_position = glm::vec3(0, -60, 35);
+
   // copy parameters
   parent        = _parent;
   store_options = _go;
@@ -307,7 +311,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   checkGLErrors("GLWindow constructor");
   auto play_timer   = new QTimer(this);
   connect(play_timer,SIGNAL(timeout()),this,SLOT(updateGL())); // update GL at every timeout()
-  play_timer->start(16);
+  play_timer->start(5);
 }
 
 // ============================================================================
@@ -509,9 +513,6 @@ void GLWindow::initLight()
 // features selected
 long int CPT=0;
 
-auto world_scale = glm::vec3(50,50,50);
-auto world_offset_position = glm::vec3(0, -42, 50);
-
 void GLWindow::paintGL()
 {
   vr::VRCompositor()->WaitGetPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
@@ -604,8 +605,9 @@ void GLWindow::paintGL()
     for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; nDevice++) {
       if ((tracked_device_pose[nDevice].bDeviceIsConnected) && (tracked_device_pose[nDevice].bPoseIsValid) &&
           (nDevice == vr::k_unTrackedDeviceIndex_Hmd)) {
+//        (nDevice == 3)) { // use controller
 
-        // Check whether the tracked device is a controller. If so, set text color based on the trigger button state
+          // Check whether the tracked device is a controller. If so, set text color based on the trigger button state
 //      vr::VRControllerState_t controller_state;
 //      if (vr_context->GetControllerState(nDevice,&controller_state,sizeof(controller_state)))
 //        ((vr::ButtonMaskFromId(vr::EVRButtonId::k_EButton_Axis1) & controller_state.ulButtonPressed) == 0) ? color = green : color = blue;
@@ -626,22 +628,8 @@ void GLWindow::paintGL()
 
 //    rot = glm::quat(glm::vec3(-90, 0, 0)) * rot;
 
-//    if(eye==vr::Eye_Left)
-//      std::cout << "Left eye "<< std::endl;
-//    else
-//      std::cout << "Right eye "<< std::endl;
-//
-//    std::cout << "x " << hmd_position[0] << "  y " <<  hmd_position[1] << "  z " << hmd_position[2] << std::endl;
-
     new_camera->setOrientation(rot);
     new_camera->setPosition(hmd_position);
-
-//  for (const auto& e : hmd_position) {
-//      std::cout << e << "  ";
-//  }
-//  std::cout << std::endl;
-
-
 
     if (rx != 0 ||
         ry != 0 ||
@@ -675,9 +663,9 @@ void GLWindow::paintGL()
     glMultMatrixd(mScene);
 
     // Grid Anti aliasing
-#ifdef GL_MULTISAMPLE
+//#ifdef GL_MULTISAMPLE
     glEnable(GL_MULTISAMPLE);
-#endif
+//#endif
     if (1) { //line_aliased) {
       glEnable(GL_LINE_SMOOTH);
       glEnable(GL_POLYGON_SMOOTH);
@@ -952,15 +940,21 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
+//  bool vr = true;
+//  if(vr)
+//  {
+//
+//  }
+
   if (store_options->perspective) {
     gluPerspective(110.,ratio,0.0005,(float) DOF);
 //    double mp[16];
 //    glGetDoublev(GL_PROJECTION_MATRIX, (GLdouble *) mp);
 //    for (int i=0;i<16;i++) std::cerr << "// "<< mp[i];
 //    std::cerr << "\n";
-    const GLfloat zNear = 0.0005, zFar = (GLfloat) DOF, fov = 110.0;
-    store_options->mat4_proj = glm::mat4();
-    store_options->mat4_proj = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
+//    const GLfloat zNear = 0.0005, zFar = (GLfloat) DOF, fov = 110.0;
+//    store_options->mat4_proj = glm::mat4();
+//    store_options->mat4_proj = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
   }
   else {
     computeOrthoFactor();    

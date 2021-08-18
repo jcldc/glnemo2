@@ -215,6 +215,7 @@ private:
   float ortho_left,ortho_right,ortho_bottom,ortho_top;
   float ratio, fx,fy;
   int wwidth, wheight;
+  int vr_width, vr_height;
   GLuint texWidth, texHeight;
   QImage imgFBO;
   bool fbo;
@@ -321,6 +322,11 @@ private:
   Camera * camera;
   NewCamera * new_camera;
   void getMatrices();
+
+  int world_scale_value;
+  glm::vec3 world_scale;
+  glm::vec3 world_offset_position;
+
 };
 } // namespace glnemo
 
