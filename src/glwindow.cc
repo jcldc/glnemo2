@@ -125,8 +125,8 @@ vr::IVRSystem* init_VR()
 //        vr_context->GetStringTrackedDeviceProperty(vr::k_unTrackedDeviceIndex_Hmd,vr::Prop_SerialNumber_String, driver_serial, 100);
 //      }
     }
-    else
-      cout << "Tracking device " << td << " not connected" << endl;
+//    else
+//      cout << "Tracking device " << td << " not connected" << endl;
   }
 
   // Check whether both base stations are found, not mandatory but just in case...
@@ -307,11 +307,32 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
 //    glDrawBuffersEXT(1, DrawBuffers); // "1" is the size of DrawBuffers
     glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
+
   }
   checkGLErrors("GLWindow constructor");
+
+  vr::VRInput()->SetActionManifestPath( "/home/kalterkrieg/Documents/lam/glnemo/glnemo2/res/vr_controller_actions/hellovr_actions.json");
+
+	vr::VRInput()->GetActionHandle( "/actions/demo/in/HideCubes", &m_actionHideCubes );
+	vr::VRInput()->GetActionHandle( "/actions/demo/in/HideThisController", &m_actionHideThisController);
+	vr::VRInput()->GetActionHandle( "/actions/demo/in/TriggerHaptic", &m_actionTriggerHaptic );
+	vr::VRInput()->GetActionHandle( "/actions/demo/in/AnalogInput", &m_actionAnalongInput );
+
+	vr::VRInput()->GetActionSetHandle( "/actions/demo", &m_actionsetDemo );
+
+	vr::VRInput()->GetActionHandle( "/actions/demo/out/Haptic_Left", &m_rHand[Left].m_actionHaptic );
+	vr::VRInput()->GetInputSourceHandle( "/user/hand/left", &m_rHand[Left].m_source );
+	vr::VRInput()->GetActionHandle( "/actions/demo/in/Hand_Left", &m_rHand[Left].m_actionPose );
+
+	vr::VRInput()->GetActionHandle( "/actions/demo/out/Haptic_Right", &m_rHand[Right].m_actionHaptic );
+	vr::VRInput()->GetInputSourceHandle( "/user/hand/right", &m_rHand[Right].m_source );
+	vr::VRInput()->GetActionHandle( "/actions/demo/in/Hand_Right", &m_rHand[Right].m_actionPose );
+
+
   auto play_timer   = new QTimer(this);
   connect(play_timer,SIGNAL(timeout()),this,SLOT(updateGL())); // update GL at every timeout()
-  play_timer->start(5);
+  play_timer->start(11);
+
 }
 
 // ============================================================================
@@ -508,7 +529,7 @@ void GLWindow::initLight()
 {
 }
 #define OSD 0
-// ============================================================================
+
 // move, translate and re-draw the whole scene according to the objects and
 // features selected
 long int CPT=0;
@@ -516,6 +537,7 @@ long int CPT=0;
 void GLWindow::paintGL()
 {
   vr::VRCompositor()->WaitGetPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
+  HandleInput();
   for(int eye = 0; eye < 2; eye++) {
     CPT++;
     //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
@@ -1581,6 +1603,115 @@ void GLWindow::bestZoomFit()
   if ( !store_options->duplicate_mem) mutex_data->unlock();
 }
 
+//---------------------------------------------------------------------------------------------------------------------
+// Purpose: Returns true if the action is active and had a rising edge
+//---------------------------------------------------------------------------------------------------------------------
+bool GetDigitalActionRisingEdge(vr::VRActionHandle_t action, vr::VRInputValueHandle_t *pDevicePath = nullptr )
+{
+	vr::InputDigitalActionData_t actionData;
+	vr::VRInput()->GetDigitalActionData(action, &actionData, sizeof(actionData), vr::k_ulInvalidInputValueHandle );
+	if (pDevicePath)
+	{
+		*pDevicePath = vr::k_ulInvalidInputValueHandle;
+		if (actionData.bActive)
+		{
+			vr::InputOriginInfo_t originInfo;
+			if (vr::VRInputError_None == vr::VRInput()->GetOriginTrackedDeviceInfo(actionData.activeOrigin, &originInfo, sizeof(originInfo)))
+			{
+				*pDevicePath = originInfo.devicePath;
+			}
+		}
+	}
+	return actionData.bActive && actionData.bChanged && actionData.bState;
+}
+
+bool GLWindow::HandleInput()
+{
+	bool bRet = false;
+
+	// Process SteamVR events
+//	vr::VREvent_t event;
+//	while( vr_context->PollNextEvent( &event, sizeof( event ) ) )
+//	{
+//		ProcessVREvent( event );
+//	}
+
+	// Process SteamVR action state
+	// UpdateActionState is called each frame to update the state of the actions themselves. The application
+	// controls which action sets are active with the provided array of VRActiveActionSet_t structs.
+	vr::VRActiveActionSet_t actionSet = { 0 };
+	actionSet.ulActionSet = m_actionsetDemo;
+	vr::VRInput()->UpdateActionState( &actionSet, sizeof(actionSet), 1 );
+
+//	m_bShowCubes = !GetDigitalActionState( m_actionHideCubes );
+
+	vr::VRInputValueHandle_t ulHapticDevice;
+
+	if ( GetDigitalActionRisingEdge( m_actionTriggerHaptic, &ulHapticDevice ) )
+	{
+		if ( ulHapticDevice == m_rHand[Left].m_source )
+		{
+			vr::VRInput()->TriggerHapticVibrationAction( m_rHand[Left].m_actionHaptic, 0, 1, 4.f, 1.0f, vr::k_ulInvalidInputValueHandle );
+		}
+		if ( ulHapticDevice == m_rHand[Right].m_source )
+		{
+			vr::VRInput()->TriggerHapticVibrationAction( m_rHand[Right].m_actionHaptic, 0, 1, 4.f, 1.0f, vr::k_ulInvalidInputValueHandle );
+		}
+	}
+
+	vr::InputAnalogActionData_t analogData;
+	if ( vr::VRInput()->GetAnalogActionData( m_actionAnalongInput, &analogData, sizeof( analogData ), vr::k_ulInvalidInputValueHandle ) == vr::VRInputError_None && analogData.bActive )
+	{
+	  if(analogData.x != 0)
+	    if(analogData.deltaX < 0.2) // FIXME could be better with a qtimer probably
+        emit editGazSlideSizeValueByDelta(analogData.deltaX);
+	}
+
+//
+//	m_rHand[Left].m_bShowController = true;
+//	m_rHand[Right].m_bShowController = true;
+//
+//	vr::VRInputValueHandle_t ulHideDevice;
+//	if ( GetDigitalActionState( m_actionHideThisController, &ulHideDevice ) )
+//	{
+//		if ( ulHideDevice == m_rHand[Left].m_source )
+//		{
+//			m_rHand[Left].m_bShowController = false;
+//		}
+//		if ( ulHideDevice == m_rHand[Right].m_source )
+//		{
+//			m_rHand[Right].m_bShowController = false;
+//		}
+//	}
+//
+//	for ( EHand eHand = Left; eHand <= Right; ((int&)eHand)++ )
+//	{
+//		vr::InputPoseActionData_t poseData;
+//		if ( vr::VRInput()->GetPoseActionDataForNextFrame( m_rHand[eHand].m_actionPose, vr::TrackingUniverseStanding, &poseData, sizeof( poseData ), vr::k_ulInvalidInputValueHandle ) != vr::VRInputError_None
+//			|| !poseData.bActive || !poseData.pose.bPoseIsValid )
+//		{
+//			m_rHand[eHand].m_bShowController = false;
+//		}
+//		else
+//		{
+//			m_rHand[eHand].m_rmat4Pose = ConvertSteamVRMatrixToMatrix4( poseData.pose.mDeviceToAbsoluteTracking );
+//
+//			vr::InputOriginInfo_t originInfo;
+//			if ( vr::VRInput()->GetOriginTrackedDeviceInfo( poseData.activeOrigin, &originInfo, sizeof( originInfo ) ) == vr::VRInputError_None
+//				&& originInfo.trackedDeviceIndex != vr::k_unTrackedDeviceIndexInvalid )
+//			{
+//				std::string sRenderModelName = GetTrackedDeviceString( originInfo.trackedDeviceIndex, vr::Prop_RenderModelName_String );
+//				if ( sRenderModelName != m_rHand[eHand].m_sRenderModelName )
+//				{
+//					m_rHand[eHand].m_pRenderModel = FindOrLoadRenderModel( sRenderModelName.c_str() );
+//					m_rHand[eHand].m_sRenderModelName = sRenderModelName;
+//				}
+//			}
+//		}
+//	}
+
+	return bRet;
+}
 
 // before openvr
 //void GLWindow::renderVR() {

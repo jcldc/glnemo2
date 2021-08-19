@@ -32,6 +32,7 @@
 #include "camera.h"
 #include "glcpoints.h"
 #include "new_camera.h"
+//#include "vr.h"
 
 #include <openvr.h>
 
@@ -89,6 +90,10 @@ public:
     void selectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetAll();
+
+    // vr
+    void editGazSlideSizeValueByDelta(float delta);
+
 public slots:
    void  update(ParticlesData   * ,
                 ParticlesObjectVector * ,
@@ -326,6 +331,39 @@ private:
   int world_scale_value;
   glm::vec3 world_scale;
   glm::vec3 world_offset_position;
+
+	vr::TrackedDevicePose_t m_rTrackedDevicePose[ vr::k_unMaxTrackedDeviceCount ];
+//	Matrix4 m_rmat4DevicePose[ vr::k_unMaxTrackedDeviceCount ];
+
+	struct ControllerInfo_t
+	{
+		vr::VRInputValueHandle_t m_source = vr::k_ulInvalidInputValueHandle;
+		vr::VRActionHandle_t m_actionPose = vr::k_ulInvalidActionHandle;
+		vr::VRActionHandle_t m_actionHaptic = vr::k_ulInvalidActionHandle;
+//		Matrix4 m_rmat4Pose;
+//		CGLRenderModel *m_pRenderModel = nullptr;
+		std::string m_sRenderModelName;
+		bool m_bShowController;
+	};
+
+	enum EHand
+	{
+		Left = 0,
+		Right = 1,
+	};
+	ControllerInfo_t m_rHand[2];
+
+	vr::VRActionHandle_t m_actionHideCubes = vr::k_ulInvalidActionHandle;
+	vr::VRActionHandle_t m_actionHideThisController = vr::k_ulInvalidActionHandle;
+	vr::VRActionHandle_t m_actionTriggerHaptic = vr::k_ulInvalidActionHandle;
+	vr::VRActionHandle_t m_actionAnalongInput = vr::k_ulInvalidActionHandle;
+
+	vr::VRActionSetHandle_t m_actionsetDemo = vr::k_ulInvalidActionSetHandle;
+	vec2 m_vAnalogValue = {-2, -2};
+
+  void ProcessVREvent( const vr::VREvent_t & event );
+  bool HandleInput();
+
 
 };
 } // namespace glnemo

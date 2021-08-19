@@ -155,6 +155,7 @@ namespace glnemo {
     void selectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetAll();
+    void editGazSlideSizeValueByDelta(float);
   private slots:
     void reject() {} // allow to de activate escape key to close the box
     // global slots

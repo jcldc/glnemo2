@@ -1928,6 +1928,13 @@ void FormObjectControl::disableCpointsTab() {
 void FormObjectControl::unselectTreeWidgetAll() {
   form.cpoints_set_treewidget->clearSelection();
 }
+void FormObjectControl::editGazSlideSizeValueByDelta(float delta) {
+  auto slider = form.gaz_slide_size;
+  auto current_value = slider->value();
+  int new_value = current_value + delta * slider->maximum()/2;
+  std::cout << "new value : " << new_value << std::endl;
+  form.gaz_slide_size->setValue(new_value);
+}
 void FormObjectControl::selectTreeWidgetItem(int cpoint_id) {
   auto item_matched = form.cpoints_set_treewidget->findItems(QString::number(cpoint_id), Qt::MatchExactly | Qt::MatchRecursive,1);
   if(!item_matched.empty()){
