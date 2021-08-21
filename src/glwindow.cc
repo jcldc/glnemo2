@@ -46,7 +46,7 @@ namespace glnemo {
 // BEWARE when parent constructor QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 // is called, we get antialiasing during screenshot capture but we can loose    
 // performance during rendering. You have been warned !!!!!                     
-GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
+GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager) :QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
   // copy parameters
   parent        = _parent;
@@ -114,6 +114,8 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   gridx = new GLGridObject(0,store_options->col_x_grid,store_options->xy_grid);
   gridy = new GLGridObject(1,store_options->col_y_grid,store_options->yz_grid);
   gridz = new GLGridObject(2,store_options->col_z_grid,store_options->xz_grid);
+
+  new_grid = new GLNewGridObject(&m_projection_matrix, &m_model_matrix);
 
   // axes
   axes = new GLAxesObject();
@@ -451,8 +453,7 @@ void GLWindow::paintGL()
     glGetDoublev (GL_MODELVIEW_MATRIX, mScene); // set to Identity
     reset_scene_rotation=false;
     last_urot = last_vrot = last_wrot = 0.0;
-  }  
-
+  }
   glLoadIdentity (); // reset OGL rotations
   // set camera
   if ( store_options->perspective) {
@@ -481,16 +482,24 @@ void GLWindow::paintGL()
     glDisable(GL_LINE_SMOOTH);
   }
 
+  m_model_matrix =glm::make_mat4(mRot)*glm::make_mat4(mScreen);
+
   // grid display
   if (store_options->show_grid) {
     //glEnable( GL_DEPTH_TEST );
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    gridx->display();
-    gridy->display();
-    gridz->display();
-    cube->display();
     glDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+
+    glEnable(GL_MULTISAMPLE);
+    new_grid->display();
+    // old grid
+//    glDisable(GL_DEPTH_TEST);
+//    glEnable(GL_BLEND);
+//    gridx->display();
+//    gridy->display();
+//    gridz->display();
+//    cube->display();
+//    glDisable(GL_BLEND);
   }
 
   // sphere display
@@ -519,7 +528,13 @@ void GLWindow::paintGL()
 
   // nice points display
   glEnable(GL_POINT_SMOOTH);
-  
+
+  //glDepthFunc(GL_LESS);
+  // Display objects (particles and velocity vectors)
+;
+  cpointset_manager->displayAll();
+
+  glDisable(GL_MULTISAMPLE);
   // control blending on particles
   if (store_options->blending) {
     glEnable(GL_BLEND);
@@ -532,10 +547,6 @@ void GLWindow::paintGL()
   // control depht buffer on particles
   if (store_options->dbuffer) glEnable (GL_DEPTH_TEST);
   else                        glDisable(GL_DEPTH_TEST);
-  //glDepthFunc(GL_LESS);
-  // Display objects (particles and velocity vectors)
-  cpointset_manager->displayAll();
-
   if (store_options->show_part && pov ) {
     //mutex_data->lock();
     bool first=true;
@@ -728,8 +739,7 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
 //    for (int i=0;i<16;i++) std::cerr << "// "<< mp[i];
 //    std::cerr << "\n";
     const GLfloat zNear = 0.0005, zFar = (GLfloat) DOF, fov = 45.0;
-    store_options->mat4_proj = glm::mat4();
-    store_options->mat4_proj = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
+    m_projection_matrix = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
   }
   else {
     computeOrthoFactor();    

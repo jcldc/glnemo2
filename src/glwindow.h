@@ -37,6 +37,7 @@ class fntTexFont;
 
 namespace glnemo {
 class GLGridObject;
+class GLNewGridObject;
 class GlobalOptions;
 
 class GLWindow : public QGLWidget {
@@ -184,6 +185,7 @@ private:
   GlobalOptions * store_options;
   // grid variables
   GLGridObject * gridx, * gridy, * gridz;
+  GLNewGridObject *new_grid;
   GLCubeObject * cube;
   // axes
   GLAxesObject * axes;
@@ -239,6 +241,8 @@ private:
   void setZoom(const float z);
   int zoom_dynam;
   // gl matrix
+  //
+  glm::mat4 m_projection_matrix, m_model_matrix, m_screen_matrix, m_scene_matrix, m_rotation_matrix;
   GLdouble mProj[16], mModel[16], mModel2[16],
   mScreen[16], mScene[16], mRot[16];
   GLdouble static mIdentity[16];
