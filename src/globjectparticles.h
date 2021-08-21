@@ -22,6 +22,7 @@
 #include <iostream>
 #include <vector>
 #include "particlesdata.h"
+#include <glm/mat4x4.hpp>
 
 //#include "particlesdata.h"
 namespace glnemo {
@@ -130,7 +131,7 @@ class GLObjectParticles : public GLObject {
     void buildVboHsml();
     void buildVboPhysData();
     //void buildVboVel();
-    void display(const double * mModel, int);
+    void display(const double *mModel, int win_height, glm::mat4 projection_matrix);
     void setTexture(QString);
     void setTexture(const int);
     void setTexture();
@@ -159,14 +160,14 @@ class GLObjectParticles : public GLObject {
  
     // method
     void displaySprites(const double *mModel);
-    void displayVboShader(const int,const bool use_point=false);
+    void displayVboShader(const int win_height, glm::mat4 projection_matrix, const bool use_point = false);
     void displayVboVelShader330();
     void displayVboVelShader130();
     void sortByDepth();
     void sortByDensity();
     void selectParticles();
     void buildIndexHisto();    
-    void sendShaderData(const int, const bool use_point);
+    void sendShaderData(const int win_height, const bool use_point, glm::mat4 projection_matrix);
 
     // vbo
     GLuint vbo_pos, vbo_color , vbo_size, vbo_index, vbo_index2, vbo_data, vbo_vel, vbo_vel_X2;

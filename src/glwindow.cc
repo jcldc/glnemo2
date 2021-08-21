@@ -49,7 +49,7 @@ namespace glnemo {
   GLdouble GLWindow::mIdentity[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
   //float store_options->ortho_range;
 
-inline mat4 toGlm(const vr::HmdMatrix34_t& m) {
+inline mat4 vr34ToGlm(const vr::HmdMatrix34_t& m) {
   mat4 result = mat4(
       m.m[0][0], m.m[1][0], m.m[2][0], 0.0,
       m.m[0][1], m.m[1][1], m.m[2][1], 0.0,
@@ -57,6 +57,16 @@ inline mat4 toGlm(const vr::HmdMatrix34_t& m) {
       m.m[0][3], m.m[1][3], m.m[2][3], 1.0f);
   return result;
 }
+
+inline mat4 vr44ToGlm(const vr::HmdMatrix44_t& m) {
+  mat4 result = mat4(
+          m.m[0][0], m.m[1][0], m.m[2][0], m.m[3][0],
+          m.m[0][1], m.m[1][1], m.m[2][1], m.m[3][1],
+          m.m[0][2], m.m[1][2], m.m[2][2], m.m[3][2],
+          m.m[0][3], m.m[1][3], m.m[2][3], m.m[3][3]);
+  return result;
+}
+
 
 vr::IVRSystem* init_VR()
 {
@@ -634,8 +644,8 @@ void GLWindow::paintGL()
 //      if (vr_context->GetControllerState(nDevice,&controller_state,sizeof(controller_state)))
 //        ((vr::ButtonMaskFromId(vr::EVRButtonId::k_EButton_Axis1) & controller_state.ulButtonPressed) == 0) ? color = green : color = blue;
 
-        auto hmd_pos_and_rot = toGlm(tracked_device_pose[nDevice].mDeviceToAbsoluteTracking);
-        auto head_to_eye_m = toGlm(vr_context->GetEyeToHeadTransform((vr::Hmd_Eye) eye));
+        auto hmd_pos_and_rot = vr34ToGlm(tracked_device_pose[nDevice].mDeviceToAbsoluteTracking);
+        auto head_to_eye_m = vr34ToGlm(vr_context->GetEyeToHeadTransform((vr::Hmd_Eye) eye));
         auto absolute_eye_pos_m = hmd_pos_and_rot * head_to_eye_m;
         hmd_position = absolute_eye_pos_m[3];
         hmd_position *= world_scale;
@@ -730,6 +740,12 @@ void GLWindow::paintGL()
 
     setModelMatrix(); // save ModelView  Matrix
     setProjMatrix();  // save Projection Matrix
+    auto proj_matrix = vr44ToGlm(vr_context->GetProjectionMatrix((vr::Hmd_Eye) eye, 0.1, 500));
+//    if(!nframe % 20) {
+//      std::cout << "vr proj matrix :  " << glm::to_string(proj_matrix) << std::endl;
+//      std::cout << "gl matrix :  " << glm::to_string(glm::make_mat4(mProj)) << std::endl;
+//    }
+//    proj_matrix = glm::make_mat4(mProj);
     // move the scene
     glTranslatef(store_options->xtrans, store_options->ytrans, store_options->ztrans);
     glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel2);
@@ -758,7 +774,7 @@ void GLWindow::paintGL()
       bool first = true;
       bool obj_has_physic = false;
       for (int i = 0; i < (int) pov->size(); i++) {
-        gpv[i].display(mModel2, wheight);
+        gpv[i].display(mModel2, wheight, proj_matrix);
 
         if (first) {
           const ParticlesObject *po = gpv[i].getPartObj();

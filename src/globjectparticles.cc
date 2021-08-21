@@ -114,13 +114,13 @@ GLObjectParticles::~GLObjectParticles()
 }
 // ============================================================================
 // update                                                                      
-void GLObjectParticles::display(const double * mModel, int win_height)
+void GLObjectParticles::display(const double *mModel, int win_height, mat4 projection_matrix)
 {
   if (po->isVisible()) {
     // display particles
     if (po->isPartEnable()) {
-      if (GLWindow::GLSL_support) 
-        displayVboShader(win_height,true);
+      if (GLWindow::GLSL_support)
+        displayVboShader(win_height, projection_matrix, true);
       else {
         glEnable(GL_BLEND);
         glEnable(GL_POINT_SMOOTH);
@@ -149,7 +149,7 @@ void GLObjectParticles::display(const double * mModel, int win_height)
     if (po->isGazEnable() && texture) {
       if (GLWindow::GLSL_support && po->isGazGlsl()) {      
         GLObject::setColor(po->getColor());
-        displayVboShader(win_height,false);      
+        displayVboShader(win_height, projection_matrix, false);
       }
       else displaySprites(mModel); 
     }
@@ -333,7 +333,7 @@ void GLObjectParticles::displayVboVelShader130()
 }
 // ============================================================================
 // displayVboShader()                                                            
-void GLObjectParticles::displayVboShader(const int win_height, const bool use_point)
+void GLObjectParticles::displayVboShader(const int win_height, mat4 projection_matrix, const bool use_point)
 {
   static bool zsort=false;
   int err;
@@ -402,7 +402,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   shader->start();
   
   // process shader color variables
-  sendShaderData(win_height,use_point);
+  sendShaderData(win_height, use_point, projection_matrix);
   
   glActiveTextureARB(GL_TEXTURE0_ARB);
   texture->glBindTexture();  // bind texture
@@ -962,7 +962,7 @@ void GLObjectParticles::updateColormap()
 }
 // ============================================================================
 // sendShaderColor();
-void GLObjectParticles::sendShaderData(const int win_height, const bool use_point)
+void GLObjectParticles::sendShaderData(const int win_height, const bool use_point, glm::mat4 projection_matrix)
 {  
   static bool first=true;
   bool physic=(phys_select && phys_select->isValid())?true:false;
@@ -974,9 +974,7 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
   }
   
   // send matrix
-  GLfloat proj[16];
-  glGetFloatv( GL_PROJECTION_MATRIX,proj);
-  shader->sendUniformXfv("projMatrix",16,1,&proj[0]);
+  shader->sendUniformXfv("projMatrix",16,1,&projection_matrix[0][0]);
   GLfloat mview[16];
   glGetFloatv( GL_MODELVIEW_MATRIX,mview);
   shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
