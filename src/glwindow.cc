@@ -551,6 +551,7 @@ void GLWindow::paintGL()
   vr::VRCompositor()->WaitGetPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
   HandleInput();
   for(int eye = 0; eye < 2; eye++) {
+    m_projection_matrix = vr44ToGlm(vr_context->GetProjectionMatrix((vr::Hmd_Eye) eye, 0.1, 500));
     CPT++;
     //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
     //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
@@ -711,7 +712,7 @@ void GLWindow::paintGL()
       glDisable(GL_LINE_SMOOTH);
     }
 
-  m_model_matrix =glm::make_mat4(mRot)*glm::make_mat4(mScreen);
+  m_model_matrix =  glm::inverse(new_camera->getViewMatrix());
 
   // grid display
   if (store_options->show_grid) {
@@ -750,7 +751,6 @@ void GLWindow::paintGL()
 
     setModelMatrix(); // save ModelView  Matrix
     setProjMatrix();  // save Projection Matrix
-    auto proj_matrix = vr44ToGlm(vr_context->GetProjectionMatrix((vr::Hmd_Eye) eye, 0.1, 500));
 //    if(!nframe % 20) {
 //      std::cout << "vr proj matrix :  " << glm::to_string(proj_matrix) << std::endl;
 //      std::cout << "gl matrix :  " << glm::to_string(glm::make_mat4(mProj)) << std::endl;
@@ -788,7 +788,7 @@ void GLWindow::paintGL()
       bool first = true;
       bool obj_has_physic = false;
       for (int i = 0; i < (int) pov->size(); i++) {
-        gpv[i].display(mModel2, wheight, proj_matrix);
+        gpv[i].display(mModel2, wheight, m_projection_matrix);
 
         if (first) {
           const ParticlesObject *po = gpv[i].getPartObj();
@@ -999,13 +999,13 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
 //  }
 
   if (store_options->perspective) {
-    gluPerspective(110.,ratio,0.0005,(float) DOF);
+//    gluPerspective(110.,ratio,0.0005,(float) DOF);
 //    double mp[16];
 //    glGetDoublev(GL_PROJECTION_MATRIX, (GLdouble *) mp);
 //    for (int i=0;i<16;i++) std::cerr << "// "<< mp[i];
 //    std::cerr << "\n";
-    const GLfloat zNear = 0.0005, zFar = (GLfloat) DOF, fov = 45.0;
-    m_projection_matrix = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
+//    const GLfloat zNear = 0.0005, zFar = (GLfloat) DOF, fov = 45.0;
+//    m_projection_matrix = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
   }
   else {
     computeOrthoFactor();    
