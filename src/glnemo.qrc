@@ -96,6 +96,8 @@
         <file>../res/camera/path_03</file>
         <file>../res/shaders/camera.vert.cc</file>
         <file>../res/shaders/camera.frag.cc</file>
+        <file>../res/shaders/grid.frag</file>
+        <file>../res/shaders/grid.vert</file>
         <file>../res/camera/zoom+loop+rotate</file>
         <file>../res/camera/spiral</file>
         <file>../res/camera/snail</file>
