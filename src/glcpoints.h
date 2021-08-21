@@ -143,6 +143,8 @@ public:
 
   static CPointTextRenderer *text_renderer;
 
+  static glm::mat4 *m_projection_matrix_ptr, *m_view_matrix_ptr;
+
 protected:
   void genVboData();
 
@@ -229,6 +231,7 @@ public:
   void unselectAll();
   std::pair<CPointset *, GLCPoint*> getClickedCpoint(double *model, double *proj, glm::vec2 click_coords,
                                           int *viewport, int dof);
+  static void setMatricesPointer(glm::mat4*, glm::mat4*);
 
   typedef typename std::map<std::string, CPointset *> map_type;
   typedef typename map_type::iterator iterator;
@@ -265,6 +268,7 @@ public:
   void init(const std::string &shader_dir);
   void renderText(CPointset *pointset);
 
+  glm::mat4 *m_projection_matrix_ptr = nullptr, *m_view_matrix_ptr = nullptr;
 private:
   CShader *m_text_shader;
   GLuint m_text_vbo;

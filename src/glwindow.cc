@@ -1005,7 +1005,7 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
 //    for (int i=0;i<16;i++) std::cerr << "// "<< mp[i];
 //    std::cerr << "\n";
 //    const GLfloat zNear = 0.0005, zFar = (GLfloat) DOF, fov = 45.0;
-//    m_projection_matrix = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
+//    m_projection_matrix_ptr = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
   }
   else {
     computeOrthoFactor();    

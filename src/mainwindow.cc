@@ -96,8 +96,10 @@ MainWindow::MainWindow(std::string _ver)
     glsl_130 = false;
   }
 
-  if(is_cpoints_enabled)
+  if(is_cpoints_enabled) {
     pointset_manager->initShaders(glsl_130);
+    pointset_manager->setMatricesPointer(&gl_window->m_projection_matrix, &gl_window->m_model_matrix);
+  }
 
   camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
   // colormap object

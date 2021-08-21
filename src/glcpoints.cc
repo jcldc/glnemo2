@@ -26,6 +26,9 @@ CShader *CPointsetRegularPolygon::shader = nullptr;
 CShader *CPointsetTag::shader = nullptr;
 CShader *CPointsetSphere::shader = nullptr;
 
+glm::mat4 *CPointset::m_projection_matrix_ptr = nullptr;
+glm::mat4 *CPointset::m_view_matrix_ptr = nullptr;
+
 int GLCPoint::next_id = 0;
 int CPointset::wheight = 0;
 int CPointset::wwidth = 0;
@@ -82,16 +85,19 @@ void GLCPoint::unselect() {
 CPointTextRenderer *CPointset::text_renderer = nullptr;
 
 void CPointset::sendUniforms() {
-  GLfloat proj[16];
-  glGetFloatv(GL_PROJECTION_MATRIX, proj);
-  GLfloat mview[16];
-  glGetFloatv(GL_MODELVIEW_MATRIX, mview);
-
-  m_shader->sendUniformXfv("proj_matrix", 16, 1, &proj[0]);
-  m_shader->sendUniformXfv("model_view_matrix", 16, 1, &mview[0]);
+  m_shader->sendUniformXfv("proj_matrix", 16, 1, &(*m_projection_matrix_ptr)[0][0]);
+  m_shader->sendUniformXfv("model_view_matrix", 16, 1, &(*m_view_matrix_ptr)[0][0]);
   m_shader->sendUniformXfv("color", 3, 1, m_color.data());
   m_shader->sendUniformXfv("selected_color", 3, 1, selected_color.data());
 }
+
+void CPointsetManager::setMatricesPointer(glm::mat4 *proj, glm::mat4 *view){
+  CPointset::m_projection_matrix_ptr = proj;
+  CPointset::m_view_matrix_ptr = view;
+  CPointset::text_renderer->m_projection_matrix_ptr = proj;
+  CPointset::text_renderer->m_view_matrix_ptr = view;
+}
+
 
 CPointset::CPointset(CShader *shader, const std::string &name) :
         m_shader(shader), m_name(name) {
@@ -1043,13 +1049,8 @@ void CPointTextRenderer::renderText(CPointset *pointset) {
 
     m_text_shader->start();
 
-    GLfloat proj[16];
-    glGetFloatv(GL_PROJECTION_MATRIX, proj);
-    GLfloat mview[16];
-    glGetFloatv(GL_MODELVIEW_MATRIX, mview);
-
-    m_text_shader->sendUniformXfv("proj_matrix", 16, 1, &proj[0]);
-    m_text_shader->sendUniformXfv("model_view_matrix", 16, 1, &mview[0]);
+    m_text_shader->sendUniformXfv("proj_matrix", 16, 1, &(*m_projection_matrix_ptr)[0][0]);
+    m_text_shader->sendUniformXfv("model_view_matrix", 16, 1, &(*m_view_matrix_ptr)[0][0]);
 
     m_text_shader->sendUniformXfv("color", 3, 1, pointset->getColor().data());
     m_text_shader->sendUniformXfv("point_center", 3, 1, cpoint->getCoords().data());

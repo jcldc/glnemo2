@@ -47,9 +47,11 @@ class GLWindow : public QGLWidget {
   Q_OBJECT
 
 public:
+
     GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, CPointsetManager *, NewCamera*);
     ~GLWindow();
 
+    glm::mat4 m_projection_matrix, m_model_matrix, m_screen_matrix, m_scene_matrix, m_rotation_matrix;
     vr::IVRSystem* vr_context;
     void bestZoomFit();
     void resize(const int w, const int h ) { resizeGL(w,h);}
@@ -187,7 +189,6 @@ private slots:
   void resetMatScene() {
     memcpy(mScene,mIdentity, 16*sizeof(GLdouble));
   }
-
 private:
 
 
@@ -267,7 +268,6 @@ private:
   int zoom_dynam;
   // gl matrix
   //
-  glm::mat4 m_projection_matrix, m_model_matrix, m_screen_matrix, m_scene_matrix, m_rotation_matrix;
   GLdouble mProj[16], mModel[16], mModel2[16],
   mScreen[16], mScene[16], mRot[16];
   GLdouble static mIdentity[16];
