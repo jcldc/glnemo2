@@ -32,6 +32,7 @@ public:
   void genVertexBufferData();
   void display();
   ~GLNewGridObject();
+  void setGridProperties(int, float);
 private:
   void sendShaderData();
 

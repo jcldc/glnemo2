@@ -206,4 +206,13 @@ GLNewGridObject::~GLNewGridObject() {
 	glDeleteVertexArrays(1, &m_vertexarray);
 
 }
+
+void GLNewGridObject::setGridProperties(int nb_lines, float line_gap) {
+  if(nb_lines > 0)
+    m_nb_lines = nb_lines;
+  if(line_gap > 0)
+    m_line_gap = line_gap;
+
+
+}
 } // namespace glnemo

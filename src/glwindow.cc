@@ -322,12 +322,14 @@ void GLWindow::reverseColorMap()
 // rebuildGrid                                                             
 void GLWindow::rebuildGrid(bool ugl)
 {
-  GLGridObject::nsquare = store_options->nb_meshs;
-  GLGridObject::square_size = store_options->mesh_length;
-  gridx->rebuild();
-  gridy->rebuild();
-  gridz->rebuild();
-  cube->setSquareSize(store_options->nb_meshs*store_options->mesh_length);
+  new_grid->setGridProperties(store_options->nb_meshs, store_options->mesh_length);
+  new_grid->genVertexBufferData();
+//  GLGridObject::nsquare = store_options->nb_meshs;
+//  GLGridObject::square_size = store_options->mesh_length;
+//  gridx->rebuild();
+//  gridy->rebuild();
+//  gridz->rebuild();
+//  cube->setSquareSize(store_options->nb_meshs*store_options->mesh_length);
   if (ugl) updateGL();
 }
 // ============================================================================
