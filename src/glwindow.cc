@@ -252,8 +252,6 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   new_grid_y = new Grid(1, &m_projection_matrix, &m_model_matrix, false, store_options->col_y_grid);
   new_grid_z = new Grid(2, &m_projection_matrix, &m_model_matrix, false, store_options->col_z_grid);
 
-  new_grid = new GLNewGridObject(&m_projection_matrix, &m_model_matrix);
-
   // axes
   axes = new GLAxesObject();
 

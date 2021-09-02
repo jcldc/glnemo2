@@ -128,7 +128,6 @@ class MainWindow : public QMainWindow {
     // void actionMoveCameraRight();
     // void actionRotateCameraCW();
     // void actionRotateCameraCCW();
-    void actionUnselectCPoints();
     void actionToggleOsd();
     void actionToggleRotationScreen();
     void actionToggleCamera();

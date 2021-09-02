@@ -75,7 +75,7 @@ MainWindow::MainWindow(std::string _ver)
   new_camera = new NewCamera();
   // ------- openGL object ---------
   pointset_manager = new CPointsetManager();
-  gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager);
+  gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager, new_camera);
   uint32_t rtWidth;
   uint32_t rtHeight;
   gl_window->vr_context->GetRecommendedRenderTargetSize(&rtWidth, &rtHeight);

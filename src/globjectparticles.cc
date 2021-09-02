@@ -334,8 +334,6 @@ void GLObjectParticles::displayVboVelShader130()
 // ============================================================================
 // displayVboShader()                                                            
 void GLObjectParticles::displayVboShader(const int win_height, mat4 projection_matrix, const bool use_point)
-// displayVboShader()
-void GLObjectParticles::displayVboShader(const int win_height, const bool use_point)
 {
   static bool zsort=false;
   int err;
