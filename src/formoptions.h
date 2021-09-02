@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2018                                  
+// Copyright Jean-Charles LAMBERT - 2007-2020                                  
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -23,6 +23,7 @@
 #include <QMutex>
 #include "ui_formoptions.h"
 #include "globaloptions.h"
+#include "QLocale"
 namespace glnemo {
 
 class FormOptions: public QDialog {
@@ -331,6 +332,17 @@ class FormOptions: public QDialog {
       emit update_gcb_font();
       emit update_gl();
     }
+    // change physical quantity value factor
+    void on_gcb_factor_returnPressed() {
+      go->gcb_factor = QLocale().toFloat(form.gcb_factor->text());
+      emit update_gl();
+    }
+    // legend name
+    void on_gcb_name_returnPressed() {
+      go->gcb_legend_name = form.gcb_name->text();
+      emit update_gl();
+    }
+
 
     // change colorbar font color button
     void on_gcb_font_color_clicked() {

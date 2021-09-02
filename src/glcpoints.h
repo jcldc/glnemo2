@@ -1,3 +1,15 @@
+// ============================================================================
+// Copyright Jean-Charles LAMBERT - 2007-2020
+// e-mail:   Jean-Charles.Lambert@lam.fr
+// address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
+//           Laboratoire d'Astrophysique de Marseille
+//           P�le de l'Etoile, site de Ch�teau-Gombert
+//           38, rue Fr�d�ric Joliot-Curie
+//           13388 Marseille cedex 13 France
+//           CNRS U.M.R 7326
+// ============================================================================
+// See the complete license in LICENSE and/or "http://www.cecill.info".
+// ============================================================================
 //
 // Created by kalterkrieg on 25/11/2019.
 //
@@ -43,6 +55,7 @@ public:
   const std::string &getName() const;
   const int &getId() const;
   bool isSelected() const;
+  bool isVisible() const;
 
   inline bool operator<(const GLCPoint &other) const { return m_size > other.getSize(); }
   inline bool operator>(const GLCPoint &other) const { return *this < other; }
@@ -53,6 +66,7 @@ private:
   void setSize(float size);
   void setCoords(std::array<float, 3>);
   void setName(const std::string &name);
+  void setVisible(bool is_visible);
   void select();
   void unselect();
 
@@ -61,6 +75,7 @@ private:
   std::string m_name;
   int m_id;
   bool m_is_selected;
+  bool m_is_visible;
 
   static int next_id;
 
@@ -143,8 +158,6 @@ public:
 
   static CPointTextRenderer *text_renderer;
 
-  static glm::mat4 *m_projection_matrix_ptr, *m_view_matrix_ptr;
-
 protected:
   void genVboData();
 
@@ -161,6 +174,7 @@ protected:
   float m_name_offset;
   int m_name_angle;
   int m_nb_selected;
+  int m_nb_visible;
   int m_nb_sphere_sections = 12;
   CPointsetShapes m_shape;
 
@@ -231,7 +245,6 @@ public:
   void unselectAll();
   std::pair<CPointset *, GLCPoint*> getClickedCpoint(double *model, double *proj, glm::vec2 click_coords,
                                           int *viewport, int dof);
-  static void setMatricesPointer(glm::mat4*, glm::mat4*);
 
   typedef typename std::map<std::string, CPointset *> map_type;
   typedef typename map_type::iterator iterator;
@@ -268,7 +281,6 @@ public:
   void init(const std::string &shader_dir);
   void renderText(CPointset *pointset);
 
-  glm::mat4 *m_projection_matrix_ptr = nullptr, *m_view_matrix_ptr = nullptr;
 private:
   CShader *m_text_shader;
   GLuint m_text_vbo;

@@ -1,4 +1,8 @@
+<<<<<<< HEAD:factory/docker/opensuse15.1/Dockerfile
+FROM opensuse/leap:15.1
+=======
 FROM opensuse/tumbleweed
+>>>>>>> new_grid:factory/docker/opensuse-rolling/Dockerfile
 
 RUN zypper -n update &&\
 zypper -n install gcc-c++ gcc cmake libtirpc-devel &&\

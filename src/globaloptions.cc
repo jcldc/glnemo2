@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2018                                  
+// Copyright Jean-Charles LAMBERT - 2007-2020                                  
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -123,7 +123,9 @@ GlobalOptions::GlobalOptions()
   gcb_pheight=65.0/100.;
   gcb_font_size=13.;
   gcb_font_name= RESPATH+"/fonts/AvantGarde-Demi.txf";
-  gcb_color=QColor(Qt::gray);  
+  gcb_color=QColor(Qt::gray);
+  gcb_factor=1.0;
+  gcb_legend_name="";
   // vel 
   vel_req = false;
   new_frame = false;
@@ -331,6 +333,8 @@ const GlobalOptions& GlobalOptions::operator=(const GlobalOptions &m)
   gcb_font_size=m.gcb_font_size;
   gcb_font_name= m.gcb_font_name;
   gcb_color=m.gcb_color;  
+  gcb_factor=m.gcb_factor;
+  gcb_legend_name=m.gcb_legend_name;
   // vel 
   vel_req = m.vel_req;
   new_frame = m.new_frame;

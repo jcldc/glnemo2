@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2018                                  
+// Copyright Jean-Charles LAMBERT - 2007-2020
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -40,7 +40,7 @@ class fntTexFont;
 
 namespace glnemo {
 class GLGridObject;
-class GLNewGridObject;
+class Grid;
 class GlobalOptions;
 
 class GLWindow : public QGLWidget {
@@ -206,8 +206,8 @@ private:
   // global options
   GlobalOptions * store_options;
   // grid variables
-  GLGridObject * gridx, * gridy, * gridz;
-  GLNewGridObject *new_grid;
+//  GLGridObject * gridx, * gridy, * gridz;
+  Grid *new_grid_x, *new_grid_y, *new_grid_z;
   GLCubeObject * cube;
   // axes
   GLAxesObject * axes;

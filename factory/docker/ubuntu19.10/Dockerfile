@@ -14,7 +14,8 @@ RUN apt-get -y update && \
     git \
     libglm-dev \
     qt5-default \
-    libhdf5-dev
+    libhdf5-dev \
+    vim libsqlite3-dev
 
 cmd ["/bin/bash"]
 

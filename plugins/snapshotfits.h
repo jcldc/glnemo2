@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2018
+// Copyright Jean-Charles LAMBERT - 2007-2020
 // e-mail:   Jean-Charles.Lambert@lam.fr
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
 //           Laboratoire d'Astrophysique de Marseille

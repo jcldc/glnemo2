@@ -1,6 +1,6 @@
 # Introduction
 
-**Glnemo2** is an interactive 3D visualization program which displays particles positions of the different components (gas, stars, disk, dark mater halo, bulge) of an N-body snapshot. It's a very useful tool for everybody running N-body simulations from isolated galaxies to cosmological simulations. It can show quickly a lot of information about data by revealing shapes, dense areas, formation of structures such as spirals arms, bars, peanuts or clumps of galaxies. Glnemo2 has been designed to meet the requirements of the user, with simplicity in mind, easy to install, easy to use with an interactive and responsive graphical user interface (based on Nokia QT 5.X API) , powerful with a fast 3D engine (OPenGL and GLSL), and generic with the possibility to load different kinds of input files.
+**Glnemo2** is an interactive 3D visualization program which displays particles positions of the different components (gas, stars, disk, dark mater halo, bulge) of an N-body snapshot. It's a very useful tool for everybody running N-body simulations from isolated galaxies to cosmological simulations. It can show quickly a lot of information about data by revealing shapes, dense areas, formation of structures such as spirals arms, bars, peanuts or clumps of galaxies. Glnemo2 has been designed to meet the requirements of the user, with simplicity in mind, easy to install, easy to use with an interactive and responsive graphical user interface (based on QT 5.X API) , powerful with a fast 3D engine (OPenGL and GLSL), and generic with the possibility to load different kinds of input files.
 
 You can zoom in/out, rotate, scale, translate, select different particles
 and plot them in different blending colors, color particles according to their density,
@@ -46,7 +46,7 @@ license as circulated by CEA, CNRS and INRIA at the following URL
 # © Copyright
                              --  Glnemo2 --
                                  
-                Copyright © Jean-Charles LAMBERT 2007-2018
+                Copyright © Jean-Charles LAMBERT 2007-2020
                  http://projets.lam.fr/projects/glnemo2
  
                        Jean-Charles.Lambert_AT_lam_DOT_fr

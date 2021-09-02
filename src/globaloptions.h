@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2018                                  
+// Copyright Jean-Charles LAMBERT - 2007-2020                                  
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -117,6 +117,8 @@ public:
     float  gcb_pwidth, gcb_pheight; // factor size
     float  gcb_font_size;
     int    gcb_offset;       // colorbar offset in pixels
+    float  gcb_factor;       // colorbar factor value to multiply physical quantity
+    QString gcb_legend_name; // colorbar legend_name
     QString gcb_font_name;
     QColor  gcb_color;
     // network;

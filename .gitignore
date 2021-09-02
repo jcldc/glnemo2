@@ -1,13 +1,17 @@
 # qt creator / cmake
 build*
+!CI/scripts/build.sh
+!CI/scripts/buildOSX.sh
 *.pro.user
 *-debug/
 *.autosave
 .idea/
 .vscode/
+debug/
 
-# tilda
+# ithers
 *~
+.directory
 
 # Compiled Object files
 *.slo
@@ -63,5 +67,11 @@ Makefile.in
 *.cubin
 *.fatbin
 
-
-
+#
+Makefile
+#factory
+.tags
+.moc/
+._ui/
+.moc/
+.res/

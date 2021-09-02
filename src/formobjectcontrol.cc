@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2018                                  
+// Copyright Jean-Charles LAMBERT - 2007-2020
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -1920,6 +1920,7 @@ void FormObjectControl::setFormState(CPointset *pointset) {
   form.cpoints_threshold_slider->setValue(pointset->getThreshold());
   form.color_picker_button->setStyleSheet("background-color:" + pointset->getQColor().name());
   form.edit_cpointset_name->setText(QString::fromStdString(pointset->getName()));
+  form.edit_shape_name_angle->setValue(pointset->getNameAngle()+90);
 }
 void FormObjectControl::disableCpointsTab() {
   form.tab_cpoints->setEnabled(false);
@@ -1927,13 +1928,6 @@ void FormObjectControl::disableCpointsTab() {
 }
 void FormObjectControl::unselectTreeWidgetAll() {
   form.cpoints_set_treewidget->clearSelection();
-}
-void FormObjectControl::editGazSlideSizeValueByDelta(float delta) {
-  auto slider = form.gaz_slide_size;
-  auto current_value = slider->value();
-  int new_value = current_value + delta * slider->maximum()/2;
-  std::cout << "new value : " << new_value << std::endl;
-  form.gaz_slide_size->setValue(new_value);
 }
 void FormObjectControl::selectTreeWidgetItem(int cpoint_id) {
   auto item_matched = form.cpoints_set_treewidget->findItems(QString::number(cpoint_id), Qt::MatchExactly | Qt::MatchRecursive,1);
@@ -1960,5 +1954,10 @@ void FormObjectControl::unselectTreeWidgetItem(int cpoint_id) {
     form.cpoints_set_treewidget->setItemSelected(item, false);
   }
 }
-
+void FormObjectControl::editGazSlideSizeValueByDelta(float delta) {
+  auto slider = form.gaz_slide_size;
+  auto current_value = slider->value();
+  int new_value = current_value + delta * slider->maximum()/2;
+  std::cout << "new value : " << new_value << std::endl;
+  form.gaz_slide_size->setValue(new_value)
 }

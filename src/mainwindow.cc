@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2018                                  
+// Copyright Jean-Charles LAMBERT - 2007-2020
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -75,13 +75,12 @@ MainWindow::MainWindow(std::string _ver)
   new_camera = new NewCamera();
   // ------- openGL object ---------
   pointset_manager = new CPointsetManager();
-  gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager, new_camera);
+  gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager);
   uint32_t rtWidth;
   uint32_t rtHeight;
   gl_window->vr_context->GetRecommendedRenderTargetSize(&rtWidth, &rtHeight);
 
   setMinimumSize(QSize((int)rtWidth, (int)rtHeight));
-
 
   if(glewIsSupported("GL_VERSION_3_0")){
     is_cpoints_enabled = true;
@@ -96,10 +95,8 @@ MainWindow::MainWindow(std::string _ver)
     glsl_130 = false;
   }
 
-  if(is_cpoints_enabled) {
+  if(is_cpoints_enabled)
     pointset_manager->initShaders(glsl_130);
-    pointset_manager->setMatricesPointer(&gl_window->m_projection_matrix, &gl_window->m_model_matrix);
-  }
 
   camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
   // colormap object
@@ -781,6 +778,7 @@ void MainWindow::createActions()
   toggle_camera_mode_action->setShortcut(tr("d"));
   connect(toggle_camera_mode_action, SIGNAL(triggered() ), this, SLOT(actionToggleCameraMode() ) );
   addAction(toggle_camera_mode_action);
+  // Unselect all cpoints
 }
 
 // -----------------------------------------------------------------------------

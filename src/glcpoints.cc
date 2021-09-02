@@ -1,3 +1,15 @@
+// ============================================================================
+// Copyright Jean-Charles LAMBERT - 2007-2020
+// e-mail:   Jean-Charles.Lambert@lam.fr
+// address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
+//           Laboratoire d'Astrophysique de Marseille
+//           P�le de l'Etoile, site de Ch�teau-Gombert
+//           38, rue Fr�d�ric Joliot-Curie
+//           13388 Marseille cedex 13 France
+//           CNRS U.M.R 7326
+// ============================================================================
+// See the complete license in LICENSE and/or "http://www.cecill.info".
+// ============================================================================
 //
 // Created by kalterkrieg on 25/11/2019.
 //
@@ -26,9 +38,6 @@ CShader *CPointsetRegularPolygon::shader = nullptr;
 CShader *CPointsetTag::shader = nullptr;
 CShader *CPointsetSphere::shader = nullptr;
 
-glm::mat4 *CPointset::m_projection_matrix_ptr = nullptr;
-glm::mat4 *CPointset::m_view_matrix_ptr = nullptr;
-
 int GLCPoint::next_id = 0;
 int CPointset::wheight = 0;
 int CPointset::wwidth = 0;
@@ -41,6 +50,7 @@ GLCPoint::GLCPoint(std::array<float, 3> coords, float size, const std::string& t
   m_id = next_id;
   next_id++;
   m_is_selected = false;
+  m_is_visible = true;
 
   if (text.empty())
     m_name = "CPoint " + std::to_string(m_id);
@@ -80,24 +90,29 @@ void GLCPoint::unselect() {
   m_is_selected = false;
 }
 
+bool GLCPoint::isVisible() const {
+  return m_is_visible;
+}
+
+void GLCPoint::setVisible(bool is_visible) {
+  m_is_visible = is_visible;
+}
+
 
 /******* GLCPointset ********/
 CPointTextRenderer *CPointset::text_renderer = nullptr;
 
 void CPointset::sendUniforms() {
-  m_shader->sendUniformXfv("proj_matrix", 16, 1, &(*m_projection_matrix_ptr)[0][0]);
-  m_shader->sendUniformXfv("model_view_matrix", 16, 1, &(*m_view_matrix_ptr)[0][0]);
+  GLfloat proj[16];
+  glGetFloatv(GL_PROJECTION_MATRIX, proj);
+  GLfloat mview[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, mview);
+
+  m_shader->sendUniformXfv("proj_matrix", 16, 1, &proj[0]);
+  m_shader->sendUniformXfv("model_view_matrix", 16, 1, &mview[0]);
   m_shader->sendUniformXfv("color", 3, 1, m_color.data());
   m_shader->sendUniformXfv("selected_color", 3, 1, selected_color.data());
 }
-
-void CPointsetManager::setMatricesPointer(glm::mat4 *proj, glm::mat4 *view){
-  CPointset::m_projection_matrix_ptr = proj;
-  CPointset::m_view_matrix_ptr = view;
-  CPointset::text_renderer->m_projection_matrix_ptr = proj;
-  CPointset::text_renderer->m_view_matrix_ptr = view;
-}
-
 
 CPointset::CPointset(CShader *shader, const std::string &name) :
         m_shader(shader), m_name(name) {
@@ -179,6 +194,7 @@ bool CPointset::isVisible() {
 
 void CPointset::setThreshold(int threshold) {
   m_threshold = threshold < 0 ? 0 : threshold > 100 ? 100 : threshold; //clamp
+  genVboData();
 }
 
 void CPointset::setAttributes() {
@@ -216,16 +232,24 @@ void CPointset::genVboData() {
     return a->getSize() < b->getSize();
   });
 
-  for (auto point : cpoints_v) {
-    data.push_back(point->getCoords()[0]);
-    data.push_back(point->getCoords()[1]);
-    data.push_back(point->getCoords()[2]);
-    data.push_back(point->getSize());
-    if (point->isSelected()) {
-      selected_data.push_back(point->getCoords()[0]);
-      selected_data.push_back(point->getCoords()[1]);
-      selected_data.push_back(point->getCoords()[2]);
-      selected_data.push_back(point->getSize());
+  m_nb_visible = m_cpoints.size() * m_threshold / 100;
+
+  for(int i = 0; i <  m_cpoints.size(); ++i)
+    cpoints_v[i]->setVisible(i < m_nb_visible);
+
+  for (auto point_pair : m_cpoints) {
+    GLCPoint* point = point_pair.second;
+      if (point->isVisible()) {
+      data.push_back(point->getCoords()[0]);
+      data.push_back(point->getCoords()[1]);
+      data.push_back(point->getCoords()[2]);
+      data.push_back(point->getSize());
+      if(point->isSelected()){
+        selected_data.push_back(point->getCoords()[0]);
+        selected_data.push_back(point->getCoords()[1]);
+        selected_data.push_back(point->getCoords()[2]);
+        selected_data.push_back(point->getSize());
+      }
     }
   }
   // SEND DATA
@@ -315,7 +339,7 @@ bool CPointset::isNameVisible() {
   return m_is_name_visible;
 }
 void CPointset::setFillratio(float fill_ratio) {
-  m_fill_ratio = fill_ratio < 0 ? 0 : fill_ratio > 1 ? 1 : fill_ratio; //clamp
+  m_fill_ratio = fill_ratio < 0 ? 0 : fill_ratio >= 1 ? 0.9999 : fill_ratio; //clamp
 }
 float CPointset::getFillratio() const {
   return m_fill_ratio;
@@ -504,13 +528,13 @@ void CPointsetRegularPolygon::sendUniforms() {
 
 }
 void CPointsetRegularPolygon::display() {
-  int nb_objects = m_cpoints.size() * m_threshold / 100;
+
   m_shader->start();
   glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
   m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
-  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, nb_objects);
+  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, m_nb_visible);
   glBindVertexArray(0);
   m_shader->stop();
 
@@ -590,15 +614,12 @@ CPointsetTag::CPointsetTag(const CPointset &other) : CPointset(shader, other) {
 }
 
 void CPointsetTag::display() {
-
-  int nb_objects = m_cpoints.size() * m_threshold / 100;
-
   glLineWidth(1);
   m_shader->start();
   glBindVertexArray(m_selected_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", true);
-  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, nb_objects);
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, m_nb_selected);
   glBindVertexArray(0);
   m_shader->stop();
 
@@ -606,12 +627,11 @@ void CPointsetTag::display() {
   glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
-  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, nb_objects);
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, m_nb_visible);
   glBindVertexArray(0);
   m_shader->stop();
-
-
 }
+
 void CPointsetTag::sendUniforms() {
   CPointset::sendUniforms();
 
@@ -670,7 +690,6 @@ std::pair<GLCPoint *, float> CPointsetSphere::getClickedCPoint(double *model, do
 
 void CPointsetSphere::display() {
 
-  int nb_objects = m_cpoints.size() * m_threshold / 100;
   int nb_vertex_per_sphere = m_nb_sphere_sections * m_nb_sphere_sections + m_nb_sphere_sections;
 
   glLineWidth(1);
@@ -680,7 +699,7 @@ void CPointsetSphere::display() {
   glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
-  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, nb_objects);
+  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, m_nb_visible);
 
   glBindVertexArray(m_selected_vao);
   glEnable(GL_STENCIL_TEST);
@@ -831,7 +850,7 @@ void CPointsetManager::displayAll() {
   for (const auto& cpointset_pair: m_pointsets) {
     glDisable(GL_DEPTH_TEST);
     CPointset *cpointset = cpointset_pair.second;
-    if (cpointset->isNameVisible())
+    if (cpointset->isNameVisible() && cpointset->isVisible())
       cpointset->displayText();
   }
 }
@@ -969,7 +988,7 @@ void CPointTextRenderer::init(const std::string &shader_dir) {
   glPixelStorei(GL_UNPACK_ALIGNMENT,
                 1); // Disable byte-alignment restriction, maybe not needed since we have power of two texture
 
-  // Load json description file
+  //� Load json description file
   std::cout << "Loading font description json file\n";
   QFile font_description_file(GlobalOptions::RESPATH + "/fonts/dejavu_sans_mono_typeface.json");
   if (!font_description_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -1043,14 +1062,23 @@ void CPointTextRenderer::renderText(CPointset *pointset) {
   // Iterate through all cpoints
   for (auto cpoint_pair: pointset->getCPoints()) {
     GLCPoint *cpoint = cpoint_pair.second;
+
+    if(!cpoint->isVisible())
+      continue;
+
     float xpos = 0, ypos = 0;
     float scale = .004;
     std::string text = cpoint->getName();
 
     m_text_shader->start();
 
-    m_text_shader->sendUniformXfv("proj_matrix", 16, 1, &(*m_projection_matrix_ptr)[0][0]);
-    m_text_shader->sendUniformXfv("model_view_matrix", 16, 1, &(*m_view_matrix_ptr)[0][0]);
+    GLfloat proj[16];
+    glGetFloatv(GL_PROJECTION_MATRIX, proj);
+    GLfloat mview[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX, mview);
+
+    m_text_shader->sendUniformXfv("proj_matrix", 16, 1, &proj[0]);
+    m_text_shader->sendUniformXfv("model_view_matrix", 16, 1, &mview[0]);
 
     m_text_shader->sendUniformXfv("color", 3, 1, pointset->getColor().data());
     m_text_shader->sendUniformXfv("point_center", 3, 1, cpoint->getCoords().data());
