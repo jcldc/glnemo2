@@ -12,113 +12,17 @@
 // ============================================================================
 #include <iostream>
 #include "glgridobject.h"
+#include "globaloptions.h"
 #include <GL/glew.h>
-#include <glm/gtx/string_cast.hpp>
-namespace glnemo {
 
-int   GLGridObject::nsquare = 50;        // default #nsquare
-float GLGridObject::square_size = 1.0;   // default square size
+namespace glnemo {
 
 using namespace std;
 
-// ============================================================================
-// Constructor
-GLGridObject::GLGridObject(int axe_parm, const QColor &c, bool activated) : GLObject() {
-  if (axe_parm < 0 || axe_parm > 2)
-    axe_parm = 0;
-  dplist_index = glGenLists(1);
-  axe = axe_parm;
-  buildDisplayList();
-  setColor(c);
-  is_activated = activated;
 
-}
-
-// ============================================================================
-// Destructor
-// Delete display list
-GLGridObject::~GLGridObject() {
-  glDeleteLists(dplist_index, 1);
-}
-
-// ============================================================================
-// GLGridObject::buildDisplayList()
-// Build Display List
-void GLGridObject::buildDisplayList() {
-  float x = 0., y = 0., z = 0., x1 = 0., y1 = 0., z1 = 0.;
-  GLfloat
-          inf = ((GLfloat) (-nsquare / 2) * square_size),
-          sup = ((GLfloat) (nsquare / 2) * square_size);
-
-  // display list
-  glNewList(dplist_index, GL_COMPILE);
-  glBegin(GL_LINES);
-  // draw all the lines
-  for (int i = -nsquare / 2; i <= nsquare / 2; i++) {
-    switch (axe) {
-      case 0:                  // X/Y plane
-        x = x1 = square_size * (GLfloat) i;
-        y = inf;
-        y1 = sup;
-        z = 0.0;
-        z1 = 0.0;
-        break;
-      case 1:                  // Y/Z plane
-        y = y1 = square_size * (GLfloat) i;
-        z = inf;
-        z1 = sup;
-        x = 0.0;
-        x1 = 0.0;
-        break;
-      case 2:                 // X/Z plane
-        z = z1 = square_size * (GLfloat) i;
-        x = inf;
-        x1 = sup;
-        y = 0.0;
-        y1 = 0.0;
-        break;
-    }
-    // one line
-    glVertex3f(x, y, z);
-    glVertex3f(x1, y1, z1);
-
-  }
-  // perpendicular line
-  for (int i = -nsquare / 2; i <= nsquare / 2; i++) {
-    switch (axe) {
-      case 0:                  // X/Y plane
-        y = y1 = square_size * (GLfloat) i;
-        x = inf;
-        x1 = sup;
-        z = 0.0;
-        z1 = 0.0;
-        break;
-      case 1:                  // Y/Z plane
-        z = z1 = square_size * (GLfloat) i;
-        y = inf;
-        y1 = sup;
-        x = 0.0;
-        x1 = 0.0;
-        break;
-      case 2:                 // X/Z plane
-        x = x1 = square_size * (GLfloat) i;
-        z = inf;
-        z1 = sup;
-        y = 0.0;
-        y1 = 0.0;
-        break;
-    }
-    // one line
-    glVertex3f(x, y, z);
-    glVertex3f(x1, y1, z1);
-  }
-  glEnd();
-  glEndList();
-}
-
-
-GLNewGridObject::GLNewGridObject(glm::mat4 *proj, glm::mat4 *model) : m_proj(proj), m_model(model)
+Grid::Grid(int axis, glm::mat4 *proj, glm::mat4 *model, bool activated, QColor color = QColor(Qt::yellow)) : m_axis(axis), m_proj(proj), m_model(model), m_display(activated)
 {
+  m_color = color;
   m_shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + "/shaders/grid.vert",
           GlobalOptions::RESPATH.toStdString() + "/shaders/grid.frag"
@@ -140,12 +44,18 @@ GLNewGridObject::GLNewGridObject(glm::mat4 *proj, glm::mat4 *model) : m_proj(pro
 }
 
 
-void GLNewGridObject::sendShaderData() {
+void Grid::sendShaderData() {
   auto mvp = (*m_proj)*(*m_model);
   m_shader->sendUniformXfv("MVP",16,1,&mvp[0][0]);
+  auto rgb_color = m_color.toRgb();
+  m_shader->sendUniformXfv("grid_color",3,1,&glm::vec3(rgb_color.redF(),
+                                                       rgb_color.greenF(),
+                                                       rgb_color.blueF())[0]);
 }
 
-void GLNewGridObject::display() {
+void Grid::display() {
+  if(!m_display)
+    return
 //  glLineWidth(0.5);
   glEnable(GL_LINE_SMOOTH);
   m_shader->start();
@@ -172,34 +82,69 @@ void GLNewGridObject::display() {
 
 }
 
-void GLNewGridObject::genVertexBufferData() {
+void Grid::genVertexBufferData() {
 
-	vector<float> vertex_position;
+	vector<glm::vec3> vertices;
+	vector<float> position_data;
 
   for(int i = 0; i < m_nb_lines; i++) {
-    vertex_position.push_back(-(m_line_gap*m_nb_lines-m_line_gap)/2);
-    vertex_position.push_back(m_line_gap * (float) i-(m_line_gap*m_nb_lines-m_line_gap)/2);
-    vertex_position.push_back(0.0);
-    vertex_position.push_back((m_line_gap*m_nb_lines-m_line_gap)/2);
-    vertex_position.push_back(m_line_gap * (float) i-(m_line_gap*m_nb_lines-m_line_gap)/2);
-    vertex_position.push_back(0.0);
+    // horizontal lines
+    //left vertex
+    float x = -(m_line_gap*m_nb_lines-m_line_gap)/2;
+    float y = m_line_gap * (float) i-(m_line_gap*m_nb_lines-m_line_gap)/2;
+    float z = 0.0;
+    auto vertex = glm::vec3(x, y, z);
+    vertices.push_back(vertex);
+    //right vertex
+    x = (m_line_gap*m_nb_lines-m_line_gap)/2;
+    y = m_line_gap * (float) i-(m_line_gap*m_nb_lines-m_line_gap)/2;
+    z = 0.0;
+    vertex = glm::vec3(x, y, z);
+    vertices.push_back(vertex);
+    //vertical lines
+    //bottom vertex
+    x = (m_line_gap * (float) i-(m_line_gap*m_nb_lines-m_line_gap)/2);
+    y = (-(m_line_gap*m_nb_lines-m_line_gap)/2);
+    z = 0.0;
+    vertex = glm::vec3(x, y, z);
+    vertices.push_back(vertex);
+    //top vertex
+    x = (m_line_gap * (float) i-(m_line_gap*m_nb_lines-m_line_gap)/2);
+    y = ((m_line_gap*m_nb_lines-m_line_gap)/2);
+    z = 0;
+    vertex = glm::vec3(x, y, z);
+    vertices.push_back(vertex);
   }
 
-  for(int i = 0; i <= m_nb_lines; i++) {
-    vertex_position.push_back(m_line_gap * (float) i-(m_line_gap*m_nb_lines-m_line_gap)/2);
-    vertex_position.push_back(-(m_line_gap*m_nb_lines-m_line_gap)/2);
-    vertex_position.push_back(0.0);
-    vertex_position.push_back(m_line_gap * (float) i-(m_line_gap*m_nb_lines-m_line_gap)/2);
-    vertex_position.push_back((m_line_gap*m_nb_lines-m_line_gap)/2);
-    vertex_position.push_back(0.0);
+  // X/Y plane
+  auto rotation_matrix = glm::identity<glm::mat3>();
+
+  // Y/Z plane
+  if(m_axis == 1)
+    rotation_matrix = glm::mat3(0,0,1,
+                                0,1,0,
+                                1,0,0);
+  // X/Z plane
+  else if(m_axis == 2)
+    rotation_matrix = glm::mat3(1, 0, 0,
+                                0, 0, 1,
+                                0, 1, 0);
+
+  for(auto vertex : vertices) {
+    vertex = rotation_matrix * vertex;
+    position_data.push_back(vertex.x);
+    position_data.push_back(vertex.y);
+    position_data.push_back(vertex.z);
   }
+
+
 	glBindBufferARB(GL_ARRAY_BUFFER, m_vertexbuffer);
-	glBufferDataARB(GL_ARRAY_BUFFER, sizeof(float)*vertex_position.size(), vertex_position.data(), GL_STATIC_DRAW);
+	glBufferDataARB(GL_ARRAY_BUFFER, sizeof(float)*position_data.size(), position_data.data(), GL_STATIC_DRAW);
   glBindBufferARB(GL_ARRAY_BUFFER, 0);
 
 }
 
-GLNewGridObject::~GLNewGridObject() {
+Grid::~Grid() {
 	// Cleanup VBO and shader
 	glDeleteBuffers(1, &m_vertexbuffer);
 	glDeleteProgram(m_shader->getProgramId());
@@ -207,12 +152,38 @@ GLNewGridObject::~GLNewGridObject() {
 
 }
 
-void GLNewGridObject::setGridProperties(int nb_lines, float line_gap) {
+
+bool Grid::isDisplay() const {
+  return m_display;
+}
+
+void Grid::setDisplay(bool display) {
+  m_display = display;
+}
+
+const QColor &Grid::getColor() const {
+  return m_color;
+}
+
+void Grid::setColor(const QColor &color) {
+  m_color = color;
+}
+
+int Grid::getNbLines() const {
+  return m_nb_lines;
+}
+
+void Grid::setNbLines(int nb_lines) {
   if(nb_lines > 0)
     m_nb_lines = nb_lines;
+}
+
+float Grid::getLineGap() const {
+  return m_line_gap;
+}
+
+void Grid::setLineGap(float line_gap) {
   if(line_gap > 0)
     m_line_gap = line_gap;
-
-
 }
 } // namespace glnemo

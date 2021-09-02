@@ -20,49 +20,38 @@
 #include <QGLWidget>
 #include <glm/glm.hpp>
 
-#include "globject.h"
-#include "glgridobject.h"
-#include "globaloptions.h"
 namespace glnemo {
 
 
-class GLNewGridObject{
+class Grid{
 public:
-  GLNewGridObject(glm::mat4*, glm::mat4*);
+  Grid(int, glm::mat4*, glm::mat4*, bool, QColor);
   void genVertexBufferData();
   void display();
-  ~GLNewGridObject();
-  void setGridProperties(int, float);
+  ~Grid();
 private:
   void sendShaderData();
 
   GLuint m_vertexbuffer, m_vertexarray;
   CShader *m_shader;
+  bool m_display;
+  QColor m_color;
   glm::mat4* m_proj;
   glm::mat4* m_model;
 
   int m_nb_lines = 25;
-  float m_line_gap = 1.0;
-};
-
-class GLGridObject: public GLObject {
 public:
-
-  GLGridObject(int axe_parm=0,const QColor &c=Qt::yellow, bool activated=true);
-
-  ~GLGridObject();
-
-  // method
-  void setNbSquare(int _nsquare) { nsquare = _nsquare;}
-  void setSquareSize(float _square_size) { square_size = _square_size;}
-  void rebuild() { buildDisplayList(); }
-  static int nsquare;        // #square
-  static float square_size;  // size of square
-
- private:
-  int axe;
-  // method
-  void  buildDisplayList( );
+  bool isDisplay() const;
+  void setDisplay(bool display);
+  const QColor &getColor() const;
+  void setColor(const QColor &color);
+  int getNbLines() const;
+  void setNbLines(int nb_lines);
+  float getLineGap() const;
+  void setLineGap(float line_gap);
+private:
+  int m_axis;
+  float m_line_gap = 1.0;
 };
 
 }

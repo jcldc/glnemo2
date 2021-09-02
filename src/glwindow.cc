@@ -109,13 +109,10 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   camera->loadShader();
 
   // grid
-  GLGridObject::nsquare = store_options->nb_meshs;
-  GLGridObject::square_size = store_options->mesh_length;
-  gridx = new GLGridObject(0,store_options->col_x_grid,store_options->xy_grid);
-  gridy = new GLGridObject(1,store_options->col_y_grid,store_options->yz_grid);
-  gridz = new GLGridObject(2,store_options->col_z_grid,store_options->xz_grid);
 
-  new_grid = new GLNewGridObject(&m_projection_matrix, &m_model_matrix);
+  new_grid_x = new Grid(0, &m_projection_matrix, &m_model_matrix, true, store_options->col_x_grid);
+  new_grid_y = new Grid(1, &m_projection_matrix, &m_model_matrix, false, store_options->col_y_grid);
+  new_grid_z = new Grid(2, &m_projection_matrix, &m_model_matrix, false, store_options->col_z_grid);
 
   // axes
   axes = new GLAxesObject();
@@ -164,9 +161,9 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
 // Destructor
 GLWindow::~GLWindow()
 {
-  delete gridx;
-  delete gridy;
-  delete gridz;
+  delete new_grid_x;
+  delete new_grid_y;
+  delete new_grid_z;
   delete gl_select;
   delete cube;
   delete tree;
@@ -322,13 +319,17 @@ void GLWindow::reverseColorMap()
 // rebuildGrid                                                             
 void GLWindow::rebuildGrid(bool ugl)
 {
-  new_grid->setGridProperties(store_options->nb_meshs, store_options->mesh_length);
-  new_grid->genVertexBufferData();
-//  GLGridObject::nsquare = store_options->nb_meshs;
-//  GLGridObject::square_size = store_options->mesh_length;
-//  gridx->rebuild();
-//  gridy->rebuild();
-//  gridz->rebuild();
+  new_grid_x->setNbLines(store_options->nb_meshs);
+  new_grid_x->setLineGap(store_options->mesh_length);
+  new_grid_x->genVertexBufferData();
+
+  new_grid_y->setNbLines(store_options->nb_meshs);
+  new_grid_y->setLineGap(store_options->mesh_length);
+  new_grid_y->genVertexBufferData();
+
+  new_grid_z->setNbLines(store_options->nb_meshs);
+  new_grid_z->setLineGap(store_options->mesh_length);
+  new_grid_z->genVertexBufferData();
 //  cube->setSquareSize(store_options->nb_meshs*store_options->mesh_length);
   if (ugl) updateGL();
 }
@@ -336,14 +337,14 @@ void GLWindow::rebuildGrid(bool ugl)
 // updatedGrid                                                             
 void GLWindow::updateGrid(bool ugl)
 {
-  gridx->setActivate(store_options->xy_grid);
-  gridx->setColor(store_options->col_x_grid);
+  new_grid_x->setDisplay(store_options->xy_grid);
+  new_grid_x->setColor(store_options->col_x_grid);
   
-  gridy->setActivate(store_options->yz_grid);
-  gridy->setColor(store_options->col_y_grid);
+  new_grid_y->setDisplay(store_options->yz_grid);
+  new_grid_y->setColor(store_options->col_y_grid);
   
-  gridz->setActivate(store_options->xz_grid);
-  gridz->setColor(store_options->col_z_grid);
+  new_grid_z->setDisplay(store_options->xz_grid);
+  new_grid_z->setColor(store_options->col_z_grid);
   
   cube->setActivate(store_options->show_cube);
   cube->setColor(store_options->col_cube);
@@ -493,7 +494,9 @@ void GLWindow::paintGL()
     glDisable(GL_DEPTH_TEST);
 
     glEnable(GL_MULTISAMPLE);
-    new_grid->display();
+    new_grid_x->display();
+    new_grid_y->display();
+    new_grid_z->display();
     // old grid
 //    glDisable(GL_DEPTH_TEST);
 //    glEnable(GL_BLEND);
