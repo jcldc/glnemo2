@@ -38,7 +38,7 @@
                   }
                },
                "mode" : "trackpad",
-               "path" : "/user/hand/right/input/trackpad"
+               "path" : "/user/hand/right/input/joystick"
             },
             {
                "inputs" : {
