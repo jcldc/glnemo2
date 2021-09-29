@@ -20,7 +20,7 @@ namespace glnemo {
 using namespace std;
 
 
-Grid::Grid(int axis, glm::mat4 *proj, glm::mat4 *model, bool activated, QColor color = QColor(Qt::yellow)) : m_axis(axis), m_proj(proj), m_model(model), m_display(activated)
+Grid::Grid(int axis, glm::mat4 *proj, glm::mat4 *view, glm::mat4 *model, bool activated, QColor color = QColor(Qt::yellow)) : m_axis(axis), m_proj(proj), m_view(view), m_model(model), m_display(activated)
 {
   m_color = color;
   m_shader = new CShader(
@@ -45,7 +45,7 @@ Grid::Grid(int axis, glm::mat4 *proj, glm::mat4 *model, bool activated, QColor c
 
 
 void Grid::sendShaderData() {
-  auto mvp = (*m_proj)*(*m_model);
+  auto mvp = (*m_proj)*(*m_view)*(*m_model);
   m_shader->sendUniformXfv("MVP",16,1,&mvp[0][0]);
   auto rgb_color = m_color.toRgb();
   m_shader->sendUniformXfv("grid_color",3,1,&glm::vec3(rgb_color.redF(),

@@ -51,7 +51,8 @@ public:
     GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, CPointsetManager *, NewCamera*);
     ~GLWindow();
 
-    glm::mat4 m_projection_matrix, m_model_matrix, m_screen_matrix, m_scene_matrix, m_rotation_matrix;
+    glm::mat4 m_projection_matrix, m_view_matrix, m_screen_matrix, m_scene_matrix, m_rotation_matrix;
+    glm::vec3 m_starting_controller_position, m_starting_scene_position;
     vr::IVRSystem* vr_context;
     void bestZoomFit();
     void resize(const int w, const int h ) { resizeGL(w,h);}

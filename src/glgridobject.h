@@ -25,7 +25,7 @@ namespace glnemo {
 
 class Grid{
 public:
-  Grid(int, glm::mat4*, glm::mat4*, bool, QColor);
+  Grid(int, glm::mat4* proj, glm::mat4* view, glm::mat4* model, bool, QColor);
   void genVertexBufferData();
   void display();
   ~Grid();
@@ -36,8 +36,8 @@ private:
   CShader *m_shader;
   bool m_display;
   QColor m_color;
-  glm::mat4* m_proj;
-  glm::mat4* m_model;
+  glm::mat4 *m_proj, *m_view, *m_model;
+
 
   int m_nb_lines = 25;
 public:

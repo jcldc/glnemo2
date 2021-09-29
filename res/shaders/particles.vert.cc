@@ -126,8 +126,7 @@ void main()
     }
   }
   gl_TexCoord[0] = gl_MultiTexCoord0;
-  gl_Position = projMatrix*modelviewMatrix * vec4(vert.xyz,1.0);
-  //gl_Position = projMatrix*viewMatrix*modelMatrix * vec4(vert.xyz,1.0);
+  gl_Position = projMatrix * modelviewMatrix * modelMatrix * vec4(vert.xyz,1.0);
 //  if (1==0) {
 //    gl_FrontColor =  vec4( gl_Color.r+col.x +float(factor_size)*0. + float(use_point)*0.,          
 //                           gl_Color.g+col.y                                             ,

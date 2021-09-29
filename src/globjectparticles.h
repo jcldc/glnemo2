@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -131,7 +131,7 @@ class GLObjectParticles : public GLObject {
     void buildVboHsml();
     void buildVboPhysData();
     //void buildVboVel();
-    void display(const double *mModel, int win_height, glm::mat4 projection_matrix);
+    void display(const double *mModel, int win_height, glm::mat4 &projection_matrix, glm::mat4 &model_matrix);
     void setTexture(QString);
     void setTexture(const int);
     void setTexture();
@@ -160,14 +160,14 @@ class GLObjectParticles : public GLObject {
  
     // method
     void displaySprites(const double *mModel);
-    void displayVboShader(const int win_height, glm::mat4 projection_matrix, const bool use_point = false);
+    void displayVboShader(const int win_height, glm::mat4 &projection_matrix, glm::mat4 &model_matrix, const bool use_point = false);
     void displayVboVelShader330();
     void displayVboVelShader130();
     void sortByDepth();
     void sortByDensity();
     void selectParticles();
     void buildIndexHisto();    
-    void sendShaderData(const int win_height, const bool use_point, glm::mat4 projection_matrix);
+    void sendShaderData(const int win_height, const bool use_point,glm::mat4 projection_matrix, glm::mat4 model_matrix);
 
     // vbo
     GLuint vbo_pos, vbo_color , vbo_size, vbo_index, vbo_index2, vbo_data, vbo_vel, vbo_vel_X2;

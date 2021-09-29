@@ -180,6 +180,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   world_scale_value = 50;
   world_scale = glm::vec3(world_scale_value, world_scale_value, world_scale_value);
   world_offset_position = glm::vec3(0, -60, 35);
+  m_scene_matrix = glm::identity<mat4>();
 
   // copy parameters
   parent        = _parent;
@@ -248,9 +249,9 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
 
   // grid
 
-  new_grid_x = new Grid(0, &m_projection_matrix, &m_model_matrix, true, store_options->col_x_grid);
-  new_grid_y = new Grid(1, &m_projection_matrix, &m_model_matrix, false, store_options->col_y_grid);
-  new_grid_z = new Grid(2, &m_projection_matrix, &m_model_matrix, false, store_options->col_z_grid);
+  new_grid_x = new Grid(0, &m_projection_matrix, &m_view_matrix, &m_scene_matrix, true, store_options->col_x_grid);
+  new_grid_y = new Grid(1, &m_projection_matrix, &m_view_matrix, &m_scene_matrix, false, store_options->col_y_grid);
+  new_grid_z = new Grid(2, &m_projection_matrix, &m_view_matrix, &m_scene_matrix, false, store_options->col_z_grid);
 
   // axes
   axes = new GLAxesObject();
@@ -715,7 +716,7 @@ void GLWindow::paintGL()
       glDisable(GL_LINE_SMOOTH);
     }
 
-  m_model_matrix =  glm::inverse(new_camera->getViewMatrix());
+  m_view_matrix = glm::inverse(new_camera->getViewMatrix());
 
   // grid display
   if (store_options->show_grid) {
@@ -793,7 +794,7 @@ void GLWindow::paintGL()
       bool first = true;
       bool obj_has_physic = false;
       for (int i = 0; i < (int) pov->size(); i++) {
-        gpv[i].display(mModel2, wheight, m_projection_matrix);
+        gpv[i].display(mModel2, wheight, m_projection_matrix, m_scene_matrix);
 
         if (first) {
           const ParticlesObject *po = gpv[i].getPartObj();
@@ -1659,6 +1660,28 @@ bool GetDigitalActionRisingEdge(vr::VRActionHandle_t action, vr::VRInputValueHan
 	return actionData.bActive && actionData.bChanged && actionData.bState;
 }
 
+//---------------------------------------------------------------------------------------------------------------------
+// Purpose: Returns true if the action is active and its state is true
+//---------------------------------------------------------------------------------------------------------------------
+bool GetDigitalActionState(vr::VRActionHandle_t action, vr::VRInputValueHandle_t *pDevicePath = nullptr )
+{
+	vr::InputDigitalActionData_t actionData;
+	vr::VRInput()->GetDigitalActionData(action, &actionData, sizeof(actionData), vr::k_ulInvalidInputValueHandle );
+	if (pDevicePath)
+	{
+		*pDevicePath = vr::k_ulInvalidInputValueHandle;
+		if (actionData.bActive)
+		{
+			vr::InputOriginInfo_t originInfo;
+			if (vr::VRInputError_None == vr::VRInput()->GetOriginTrackedDeviceInfo(actionData.activeOrigin, &originInfo, sizeof(originInfo)))
+			{
+				*pDevicePath = originInfo.devicePath;
+			}
+		}
+	}
+	return actionData.bActive && actionData.bState;
+}
+
 bool GLWindow::HandleInput()
 {
 	bool bRet = false;
@@ -1679,27 +1702,54 @@ bool GLWindow::HandleInput()
 
 //	m_bShowCubes = !GetDigitalActionState( m_actionHideCubes );
 
-	vr::VRInputValueHandle_t ulHapticDevice;
-
-	if ( GetDigitalActionRisingEdge( m_actionTriggerHaptic, &ulHapticDevice ) )
-	{
-		if ( ulHapticDevice == m_rHand[Left].m_source )
-		{
-			vr::VRInput()->TriggerHapticVibrationAction( m_rHand[Left].m_actionHaptic, 0, 1, 4.f, 1.0f, vr::k_ulInvalidInputValueHandle );
-		}
-		if ( ulHapticDevice == m_rHand[Right].m_source )
-		{
-			vr::VRInput()->TriggerHapticVibrationAction( m_rHand[Right].m_actionHaptic, 0, 1, 4.f, 1.0f, vr::k_ulInvalidInputValueHandle );
-		}
-	}
 
 	vr::InputAnalogActionData_t analogData;
-	if ( vr::VRInput()->GetAnalogActionData( m_actionAnalongInput, &analogData, sizeof( analogData ), vr::k_ulInvalidInputValueHandle ) == vr::VRInputError_None && analogData.bActive )
-	{
-	  if(analogData.x != 0)
-	    //if(analogData.deltaX < 0.2) // FIXME could be better with a qtimer probably
-        emit editGazSlideSizeValueByDelta(analogData.x/50);
-	}
+	if ( vr::VRInput()->GetAnalogActionData( m_actionAnalongInput, &analogData, sizeof( analogData ), vr::k_ulInvalidInputValueHandle ) == vr::VRInputError_None && analogData.bActive ) {
+        if(analogData.x != 0) {
+            emit editGazSlideSizeValueByDelta(analogData.x / 50);
+            //world_scale_value += analogData.x/1000;
+            //world_scale = glm::vec3(world_scale_value, world_scale_value, world_scale_value);
+        }
+
+    }
+
+    vr::InputPoseActionData_t poseData;
+
+    vr::VRInputValueHandle_t ulHapticDevice;
+
+
+    if (GetDigitalActionRisingEdge(m_actionHideCubes, &ulHapticDevice)) {
+        if (ulHapticDevice == m_rHand[Left].m_source) {
+            if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[Left].m_actionPose, vr::TrackingUniverseStanding,
+                                                             &poseData, sizeof(poseData),
+                                                             vr::k_ulInvalidInputValueHandle) !=
+                vr::VRInputError_None
+                || !poseData.bActive || !poseData.pose.bPoseIsValid) {
+            } else {
+                m_starting_controller_position = glm::vec3(vr34ToGlm(poseData.pose.mDeviceToAbsoluteTracking)[3]);
+                m_starting_scene_position = glm::vec3(m_scene_matrix[3]);
+            }
+        }
+    }
+
+    if (GetDigitalActionState(m_actionHideCubes, &ulHapticDevice)) {
+        if (ulHapticDevice == m_rHand[Left].m_source) {
+            if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[Left].m_actionPose, vr::TrackingUniverseStanding,
+                                                             &poseData, sizeof(poseData),
+                                                             vr::k_ulInvalidInputValueHandle) !=
+                vr::VRInputError_None
+                || !poseData.bActive || !poseData.pose.bPoseIsValid) {
+            } else {
+
+                auto controller_position_delta = (glm::vec3(vr34ToGlm(poseData.pose.mDeviceToAbsoluteTracking)[3]) - m_starting_controller_position) * world_scale/2.f + m_starting_scene_position;
+                //controller_position_delta *= world_scale/3.f;
+                m_scene_matrix[3][0] = controller_position_delta[0];
+                m_scene_matrix[3][1] = controller_position_delta[1];
+                m_scene_matrix[3][2] = controller_position_delta[2];
+            }
+        }
+    }
+
 
 //
 //	m_rHand[Left].m_bShowController = true;
