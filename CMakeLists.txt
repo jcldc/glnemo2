@@ -11,16 +11,18 @@
 # ============================================================================
 # See the complete license in LICENSE and/or "http://www.cecill.info".        
 # ============================================================================
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 cmake_minimum_required(VERSION 2.8)
+set(CMAKE_CXX_STANDARD 14)
 
 # project name
 project (glnemo2)
 
-find_file(OPENVRPATHS openvrpaths.vrpath PATHS $ENV{HOME}/.config/openvr "$ENV{HOME}/Library/Application Support/OpenVR/.openvr")
-if(${OPENVRPATHS} MATCHES OPENVRPATHS-NOTFOUND)
-  message(FATAL_ERROR "${OPENVRPATHS} Please install SteamVR SDK to continue..")
-endif()
+#find_file(OPENVRPATHS openvrpaths.vrpath PATHS C:/Users/Gregoire/AppData/Local/openvr)
+#if(${OPENVRPATHS} MATCHES OPENVRPATHS-NOTFOUND)
+#  message(FATAL_ERROR "${OPENVRPATHS} Please install SteamVR SDK to continue..")
+#endif()
 
 set(OPENVR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/openvr")
 find_library(OPENVR_LIBRARIES
@@ -30,7 +32,7 @@ find_library(OPENVR_LIBRARIES
     ${OPENVR}/bin
     ${OPENVR}/lib
   PATH_SUFFIXES
-    linux64
+    win64
   NO_DEFAULT_PATH
   NO_CMAKE_FIND_ROOT_PATH
 )
@@ -105,7 +107,7 @@ find_package(Qt5PrintSupport)
 find_package(Qt5Gui)
 
 # HDF5 support
-FIND_PACKAGE(HDF5 COMPONENTS CXX REQUIRED)
+#FIND_PACKAGE(HDF5 COMPONENTS CXX REQUIRED)
 # find OpenGL package
 find_package(OpenGL REQUIRED)
 
@@ -168,17 +170,17 @@ if (APPLE)
   #ADD_DEFINITIONS(-mmacosx-version-min=10.9)
 endif()
 ADD_DEFINITIONS(-fPIC)
-set (CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
+set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 # Add compiler flags for building executables (-fPIE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 # Make sure the compiler can find include files from our Hello library.
 include_directories (${PROJECT_SOURCE_DIR}/plugins ${PROJECT_SOURCE_DIR}/plugins/nemolight/inc ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/plugins/ftm ${PROJECT_SOURCE_DIR}/plugins/gadget ${PROJECT_SOURCE_DIR}/plugins/tipsy ${PROJECT_SOURCE_DIR}/src/glew ${PROJECT_SOURCE_DIR}/plugins/network ${PROJECT_SOURCE_DIR}/plugins/ramses ${PROJECT_SOURCE_DIR}/plugins/zlib ${PROJECT_SOURCE_DIR}/3rdparty/pfntlib ${PROJECT_SOURCE_DIR}/utils)
-include_directories (${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS} {Qt5PrintSupport_INCLUDE_DIRS})
+include_directories (${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS} {Qt5PrintSupport_INCLUDE_DIRS} C:/Users/Gregoire/Documents/glm C:/Users/Gregoire/Documents/CCfits C:/Users/Gregoire/Documents/CCfits/CCfits C:/Users/Gregoire/Documents/cfitsio)
 include_directories(/usr/include/CCfits /opt/local/include /opt/local/include/CCfits  /usr/include/cfitsio /usr/local/include/CCfits)
 include_directories(/usr/include/tirpc)
-include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 ${HDF5_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/3rdparty/openvr/headers)
+include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 C:/Users/Gregoire/Documents/hdf5_build_from_source/CMake-hdf5-1.10.1/hdf5-1.10.1/cmake-build-debug C:/Users/Gregoire/Documents/hdf5_build_from_source/CMake-hdf5-1.10.1/hdf5-1.10.1/c++/src C:/Users/Gregoire/Documents/hdf5_build_from_source/CMake-hdf5-1.10.1/hdf5-1.10.1/src)
 
 if (APPLE)
   include_directories(/usr/include/malloc /usr/X11/include)
@@ -196,7 +198,7 @@ add_library (uns STATIC ${moc1_src} ${lib_files})
 # -----------------------
 
 # Make sure the linker can find the Hello library once it is built.
-link_directories (${CMAKE_BINARY_DIR}/LIB /opt/local/lib /usr/local/lib )
+link_directories (${CMAKE_BINARY_DIR}/LIB /opt/local/lib /usr/local/lib C:/Users/Gregoire/Documents/hdf5_build_from_source/CMake-hdf5-1.10.1/hdf5-1.10.1/cmake-build-debug/bin C:/Users/Gregoire/Documents/ C:/Users/Gregoire/Documents/zlib C:/Users/Gregoire/Documents/cfitsio/cmake-build-debug C:/Users/Gregoire/Documents/CCfits/CCfits)
 
 # Glew file
 set (glew src/glew/glew.c) 
@@ -250,7 +252,8 @@ if (EXISTS "/usr/lib64/libtirpc.so")
 else()
    set (TIRPC "")
 endif()
-target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${TIRPC}  ${HDF5_CXX_LIBRARIES}  ${OPENVR_LIBRARIES})
+
+target_link_libraries (glnemo2 uns ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${TIRPC} ${OPENVR_LIBRARIES} libhdf5_cpp_D libhdf5_D z)
 
 qt5_use_modules(glnemo2 Gui Widgets Core OpenGL Network PrintSupport)
 
