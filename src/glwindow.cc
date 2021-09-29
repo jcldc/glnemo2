@@ -300,7 +300,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
     for (int i =0; i < 2; i++) {
       glGenTextures(1, &renderedTexture[i]);
       glBindTexture(GL_TEXTURE_2D, renderedTexture[i]);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei) rtWidth, (GLsizei) rtHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, (GLsizei) rtWidth, (GLsizei) rtHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
@@ -320,7 +320,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   }
   checkGLErrors("GLWindow constructor");
 
-  vr::VRInput()->SetActionManifestPath( "/home/kalterkrieg/Documents/lam/glnemo/glnemo2/res/vr_controller_actions/hellovr_actions.json");
+  vr::VRInput()->SetActionManifestPath( "C:/Users/Gregoire/CLionProjects/glnemo2/res/vr_controller_actions/hellovr_actions.json");
 
 	vr::VRInput()->GetActionHandle( "/actions/demo/in/HideCubes", &m_actionHideCubes );
 	vr::VRInput()->GetActionHandle( "/actions/demo/in/HideThisController", &m_actionHideThisController);
@@ -819,7 +819,7 @@ void GLWindow::paintGL()
   if (store_options->octree_display || 1) {
     tree->display();
   }
-  
+
   // On Screen Display
   if (store_options->show_osd) osd->display();
     
@@ -1697,8 +1697,8 @@ bool GLWindow::HandleInput()
 	if ( vr::VRInput()->GetAnalogActionData( m_actionAnalongInput, &analogData, sizeof( analogData ), vr::k_ulInvalidInputValueHandle ) == vr::VRInputError_None && analogData.bActive )
 	{
 	  if(analogData.x != 0)
-	    if(analogData.deltaX < 0.2) // FIXME could be better with a qtimer probably
-        emit editGazSlideSizeValueByDelta(analogData.deltaX);
+	    //if(analogData.deltaX < 0.2) // FIXME could be better with a qtimer probably
+        emit editGazSlideSizeValueByDelta(analogData.x/50);
 	}
 
 //
