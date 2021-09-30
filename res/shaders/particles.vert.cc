@@ -118,7 +118,7 @@ void main()
   } 
   else {           // use texture, size change according to the distance
     float pointSize =  a_sprite_size*factor_size;
-    vec3 pos_eye = vec3 ( modelviewMatrix * vert);
+    vec3 pos_eye = vec3 ( modelviewMatrix * modelMatrix * vert);
     if (perspective==1) {
       gl_PointSize = max(0.0000001, pointSize / (1.0 - pos_eye.z));
     } else {
@@ -127,6 +127,7 @@ void main()
   }
   gl_TexCoord[0] = gl_MultiTexCoord0;
   gl_Position = projMatrix * modelviewMatrix * modelMatrix * vec4(vert.xyz,1.0);
+  //gl_Position = projMatrix * modelviewMatrix * vec4(vert.xyz,1.0);
 //  if (1==0) {
 //    gl_FrontColor =  vec4( gl_Color.r+col.x +float(factor_size)*0. + float(use_point)*0.,          
 //                           gl_Color.g+col.y                                             ,
