@@ -43,7 +43,16 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/demo/in/triggerhaptic"
+                     "output" : "/actions/demo/in/grip_left"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/demo/in/grip_right"
                   }
                },
                "mode" : "button",

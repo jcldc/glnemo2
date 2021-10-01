@@ -1965,11 +1965,24 @@ void FormObjectControl::unselectTreeWidgetItem(int cpoint_id) {
   }
 }
 
+
+void FormObjectControl::editDensSlideByDelta(float delta_x, float delta_y) {
+    //TODO
+    auto dens_slide_max = form.dens_slide_max;
+    auto current_value = dens_slide_max->value();
+    int new_value = current_value + delta_x;
+    dens_slide_max->setValue(new_value);
+
+    auto dens_slide_min = form.dens_slide_min;
+    current_value = dens_slide_min->value();
+    new_value = current_value + delta_y;
+    dens_slide_min->setValue(new_value);
+}
+
 void FormObjectControl::editGazSlideSizeValueByDelta(float delta) {
   auto slider = form.gaz_slide_size;
   auto current_value = slider->value();
   int new_value = current_value + delta * slider->maximum() / 2;
-  std::cout << "new value : " << new_value << std::endl;
   form.gaz_slide_size->setValue(new_value);
 }
 }

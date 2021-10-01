@@ -19,11 +19,19 @@
       "type": "boolean"
     },
     {
-      "name": "/actions/demo/in/triggerhaptic",
+      "name": "/actions/demo/in/grip_left",
       "type": "boolean"
     },
     {
-      "name": "/actions/demo/in/AnalogInput",
+      "name": "/actions/demo/in/grip_right",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/demo/in/AnalogInput_left",
+      "type": "vector2"
+    },
+    {
+      "name": "/actions/demo/in/AnalogInput_right",
       "type": "vector2"
     },
     {
@@ -48,8 +56,10 @@
             "language_tag": "en_US",
             "/actions/demo/in/HideCubes" : "Hide Cubes",
             "/actions/demo/in/HideThisController" : "Hide this Controller",
-            "/actions/demo/in/triggerhaptic" : "Trigger Haptic Pulse",
-            "/actions/demo/in/AnalogInput" : "Analog Input",
+            "/actions/demo/in/grip_left" : "Grip",
+            "/actions/demo/in/grip_right" : "Grip",
+            "/actions/demo/in/AnalogInput_right" : "Particle size",
+            "/actions/demo/in/AnalogInput_left" : "Threshold",
             "/actions/demo/in/Hand_Right" : "Right Hand Pose",
             "/actions/demo/in/Hand_Left" : "Left Hand Pose",
             "/actions/demo/out/haptic_left" : "Left Haptic Feedback",

@@ -52,7 +52,6 @@ public:
     ~GLWindow();
 
     glm::mat4 m_projection_matrix, m_view_matrix, m_screen_matrix, m_scene_matrix, m_rotation_matrix;
-    glm::vec3 m_starting_controller_position, m_starting_scene_position;
     vr::IVRSystem* vr_context;
     void bestZoomFit();
     void resize(const int w, const int h ) { resizeGL(w,h);}
@@ -97,6 +96,7 @@ public:
 
     // vr
     void editGazSlideSizeValueByDelta(float delta);
+    void editDensSlideByDelta(float delta_x, float delta_y);
 
 public slots:
    void  update(ParticlesData   * ,
@@ -333,7 +333,7 @@ private:
   NewCamera * new_camera;
   void getMatrices();
 
-  int world_scale_value;
+  float m_scale;
   glm::vec3 world_scale;
   glm::vec3 world_offset_position;
 
@@ -345,13 +345,20 @@ private:
 		vr::VRInputValueHandle_t m_source = vr::k_ulInvalidInputValueHandle;
 		vr::VRActionHandle_t m_actionPose = vr::k_ulInvalidActionHandle;
 		vr::VRActionHandle_t m_actionHaptic = vr::k_ulInvalidActionHandle;
+        vr::VRActionHandle_t m_grip = vr::k_ulInvalidActionHandle;
+
+        vr::VRActionHandle_t m_actionAnalongInput = vr::k_ulInvalidActionHandle;
+        glm::vec3 m_initial_controller_position = {0,0,0};
 //		Matrix4 m_rmat4Pose;
 //		CGLRenderModel *m_pRenderModel = nullptr;
-		std::string m_sRenderModelName;
-		bool m_bShowController;
+		//std::string m_sRenderModelName;
+	//	bool m_bShowController;
 	};
-
-	enum EHand
+    glm::vec3 m_initial_scene_position;
+    float m_initial_scale;
+    glm::quat m_initial_scene_orientation;
+        vec3 m_initial_controllers_orientation;
+        enum EHand
 	{
 		Left = 0,
 		Right = 1,
@@ -360,11 +367,8 @@ private:
 
 	vr::VRActionHandle_t m_actionHideCubes = vr::k_ulInvalidActionHandle;
 	vr::VRActionHandle_t m_actionHideThisController = vr::k_ulInvalidActionHandle;
-	vr::VRActionHandle_t m_actionTriggerHaptic = vr::k_ulInvalidActionHandle;
-	vr::VRActionHandle_t m_actionAnalongInput = vr::k_ulInvalidActionHandle;
 
 	vr::VRActionSetHandle_t m_actionsetDemo = vr::k_ulInvalidActionSetHandle;
-	vec2 m_vAnalogValue = {-2, -2};
 
   void ProcessVREvent( const vr::VREvent_t & event );
   bool HandleInput();

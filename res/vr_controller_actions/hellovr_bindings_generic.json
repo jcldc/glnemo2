@@ -34,7 +34,16 @@
             {
                "inputs" : {
                   "position" : {
-                     "output" : "/actions/demo/in/analoginput"
+                     "output" : "/actions/demo/in/analoginput_left"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/left/input/joystick"
+            },
+            {
+               "inputs" : {
+                  "position" : {
+                     "output" : "/actions/demo/in/analoginput_right"
                   }
                },
                "mode" : "trackpad",
@@ -43,7 +52,7 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/demo/in/triggerhaptic"
+                     "output" : "/actions/demo/in/grip_right"
                   }
                },
                "mode" : "button",
@@ -61,7 +70,7 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/demo/in/triggerhaptic"
+                     "output" : "/actions/demo/in/grip_left"
                   }
                },
                "mode" : "button",

@@ -40,8 +40,42 @@
 
 
 namespace glnemo {
+
+
+    quat RotationBetweenVectors(vec3 start, vec3 dest){
+        start = normalize(start);
+        dest = normalize(dest);
+
+        float cosTheta = dot(start, dest);
+        vec3 rotationAxis;
+
+        if (cosTheta < -1 + 0.001f){
+            // special case when vectors in opposite directions:
+            // there is no "ideal" rotation axis
+            // So guess one; any will do as long as it's perpendicular to start
+            rotationAxis = cross(vec3(0.0f, 0.0f, 1.0f), start);
+            if (glm::length(rotationAxis) < 0.01 ) // bad luck, they were parallel, try again!
+                rotationAxis = cross(vec3(1.0f, 0.0f, 0.0f), start);
+
+            rotationAxis = normalize(rotationAxis);
+            return glm::angleAxis(glm::radians(180.0f), rotationAxis);
+        }
+
+        rotationAxis = cross(start, dest);
+
+        float s = sqrt( (1+cosTheta)*2 );
+        float invs = 1 / s;
+
+        return {
+                s * 0.5f,
+                rotationAxis.x * invs,
+                rotationAxis.y * invs,
+                rotationAxis.z * invs
+        };
+
+    }
 #define DOF 4000000
-  
+
   bool GLWindow::GLSL_support = false;
   GLuint framebuffer, renderbuffer;
   GLuint renderedTexture[2];
@@ -169,16 +203,16 @@ vr::IVRSystem* init_VR()
 }
 
 // ============================================================================
-// Constructor                                                                 
+// Constructor
 // BEWARE when parent constructor QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
-// is called, we get antialiasing during screenshot capture but we can loose    
-// performance during rendering. You have been warned !!!!!                     
+// is called, we get antialiasing during screenshot capture but we can loose
+// performance during rendering. You have been warned !!!!!
 GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager, NewCamera* _new_camera) :QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
   vr_context = init_VR();
 
-  world_scale_value = 50;
-  world_scale = glm::vec3(world_scale_value, world_scale_value, world_scale_value);
+  m_scale = 1.f/10;
+  world_scale = glm::vec3(m_scale, m_scale, m_scale);
   world_offset_position = glm::vec3(0, -60, 35);
   m_scene_matrix = glm::identity<mat4>();
 
@@ -221,7 +255,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   i_umat = 0;
   i_vmat = 1;
   i_wmat = 2;
-  
+
   connect(gl_select, SIGNAL(updateGL()), this, SLOT(updateGL()));
   //connect(gl_select, SIGNAL(updateZoom()), this, SLOT(osdZoom()));
   connect(gl_select, SIGNAL(updateZoom()), this, SLOT(updateOsdZrt()));
@@ -233,7 +267,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   zoom_dynam = 0;
   // leave events : reset event when we leave opengl windows
   connect(this,SIGNAL(leaveEvent()),this,SLOT(resetEvents()));
-  
+
   initializeGL();
   checkGLErrors("initializeGL");
   shader = NULL;
@@ -243,7 +277,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   initShader();
   checkGLErrors("initShader");
   ////////
-  
+
   // camera
   camera->loadShader();
 
@@ -325,19 +359,20 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
 
 	vr::VRInput()->GetActionHandle( "/actions/demo/in/HideCubes", &m_actionHideCubes );
 	vr::VRInput()->GetActionHandle( "/actions/demo/in/HideThisController", &m_actionHideThisController);
-	vr::VRInput()->GetActionHandle( "/actions/demo/in/TriggerHaptic", &m_actionTriggerHaptic );
-	vr::VRInput()->GetActionHandle( "/actions/demo/in/AnalogInput", &m_actionAnalongInput );
 
 	vr::VRInput()->GetActionSetHandle( "/actions/demo", &m_actionsetDemo );
 
 	vr::VRInput()->GetActionHandle( "/actions/demo/out/Haptic_Left", &m_rHand[Left].m_actionHaptic );
 	vr::VRInput()->GetInputSourceHandle( "/user/hand/left", &m_rHand[Left].m_source );
 	vr::VRInput()->GetActionHandle( "/actions/demo/in/Hand_Left", &m_rHand[Left].m_actionPose );
+    vr::VRInput()->GetActionHandle( "/actions/demo/in/grip_left", &m_rHand[Left].m_grip );
+    vr::VRInput()->GetActionHandle( "/actions/demo/in/AnalogInput_left", &m_rHand[Left].m_actionAnalongInput );
 
 	vr::VRInput()->GetActionHandle( "/actions/demo/out/Haptic_Right", &m_rHand[Right].m_actionHaptic );
 	vr::VRInput()->GetInputSourceHandle( "/user/hand/right", &m_rHand[Right].m_source );
 	vr::VRInput()->GetActionHandle( "/actions/demo/in/Hand_Right", &m_rHand[Right].m_actionPose );
-
+    vr::VRInput()->GetActionHandle( "/actions/demo/in/grip_right", &m_rHand[Right].m_grip );
+    vr::VRInput()->GetActionHandle( "/actions/demo/in/AnalogInput_right", &m_rHand[Right].m_actionAnalongInput );
 
   auto play_timer   = new QTimer(this);
   connect(play_timer,SIGNAL(timeout()),this,SLOT(updateGL())); // update GL at every timeout()
@@ -413,7 +448,7 @@ void GLWindow::update(ParticlesData   * _p_data,
   store_options->octree_level = 0;
   //tree->update(p_data, _pov);
   gl_colorbar->update(&gpv,p_data->getPhysData(),store_options,mutex_data);
-  
+
   for (unsigned int i=0; i<pov->size() ;i++) {
     if (i>=gpv.size()) {
       GLObjectParticles * gp = new GLObjectParticles(p_data,&((*pov)[i]),
@@ -421,10 +456,10 @@ void GLWindow::update(ParticlesData   * _p_data,
       //GLObjectParticles * gp = new GLObjectParticles(&p_data,pov[i],store_options);
       gpv.push_back(*gp);
       delete gp;
-    } else {      
+    } else {
       gpv[i].update(p_data,&((*pov)[i]),store_options, update_old_obj);
       //gpv[i].update(&p_data ,pov[i],store_options);
-        
+
     }
   }
 
@@ -484,7 +519,7 @@ void GLWindow::updateVel(const int index)
   }
 }
 // ============================================================================
-// changeColorMap                                                              
+// changeColorMap
 void GLWindow::changeColorMap()
 {
   for (unsigned int i=0; i<pov->size() ;i++) {
@@ -494,7 +529,7 @@ void GLWindow::changeColorMap()
   updateGL();
 }
 // ============================================================================
-// reverseColorMap                                                             
+// reverseColorMap
 void GLWindow::reverseColorMap()
 {
   //store_options->reverse_cmap = !store_options->reverse_cmap;
@@ -504,7 +539,7 @@ void GLWindow::reverseColorMap()
   updateGL();
 }
 // ============================================================================
-// rebuildGrid                                                             
+// rebuildGrid
 void GLWindow::rebuildGrid(bool ugl)
 {
   new_grid_x->setNbLines(store_options->nb_meshs);
@@ -522,7 +557,7 @@ void GLWindow::rebuildGrid(bool ugl)
   if (ugl) updateGL();
 }
 // ============================================================================
-// updatedGrid                                                             
+// updatedGrid
 void GLWindow::updateGrid(bool ugl)
 {
   new_grid_x->setDisplay(store_options->xy_grid);
@@ -533,7 +568,7 @@ void GLWindow::updateGrid(bool ugl)
 
   new_grid_z->setDisplay(store_options->xz_grid);
   new_grid_z->setColor(store_options->col_z_grid);
-  
+
   cube->setActivate(store_options->show_cube);
   cube->setColor(store_options->col_cube);
 
@@ -555,7 +590,7 @@ void GLWindow::paintGL()
   vr::VRCompositor()->WaitGetPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
   HandleInput();
   for(int eye = 0; eye < 2; eye++) {
-    m_projection_matrix = vr44ToGlm(vr_context->GetProjectionMatrix((vr::Hmd_Eye) eye, 0.1, 500));
+    m_projection_matrix = vr44ToGlm(vr_context->GetProjectionMatrix((vr::Hmd_Eye) eye, 0.2, 500));
     CPT++;
     //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
     //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
@@ -624,48 +659,26 @@ void GLWindow::paintGL()
     float rz = store_options->zrot - last_zrot;
     float dzoom = store_options->zoom - last_zoom;
 
-    // the following code compute OpenGL rotation
-    // around XYZ screen axes
-    // new_camera->setZoom(abs(store_options->zoom));
-// Obtain tracking data for all devices
-// Process SteamVR events
     vr::VREvent_t vr_event;
 
-    //TODO
-//  while(vr_context->PollNextEvent(&vr_event,sizeof(vr_event)))
-//    process_vr_event(vr_event);
-
-    // Obtain tracking device poses
-
+    // Obtain hmd pose
     quat rot;
 
-    int tracked_device_count = 0;
     glm::vec3 hmd_position;
     for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; nDevice++) {
       if ((tracked_device_pose[nDevice].bDeviceIsConnected) && (tracked_device_pose[nDevice].bPoseIsValid) &&
           (nDevice == vr::k_unTrackedDeviceIndex_Hmd)) {
-//        (nDevice == 3)) { // use controller
-
-          // Check whether the tracked device is a controller. If so, set text color based on the trigger button state
-//      vr::VRControllerState_t controller_state;
-//      if (vr_context->GetControllerState(nDevice,&controller_state,sizeof(controller_state)))
-//        ((vr::ButtonMaskFromId(vr::EVRButtonId::k_EButton_Axis1) & controller_state.ulButtonPressed) == 0) ? color = green : color = blue;
 
         auto hmd_pos_and_rot = vr34ToGlm(tracked_device_pose[nDevice].mDeviceToAbsoluteTracking);
         auto head_to_eye_m = vr34ToGlm(vr_context->GetEyeToHeadTransform((vr::Hmd_Eye) eye));
         auto absolute_eye_pos_m = hmd_pos_and_rot * head_to_eye_m;
         hmd_position = absolute_eye_pos_m[3];
-        hmd_position *= world_scale;
-        hmd_position += world_offset_position;
-//        std::cout << glm::to_string(absolute_eye_pos_m) << std::endl;
+        //hmd_position *= world_scale;
+        //hmd_position += world_offset_position;
+
         rot = glm::quat(hmd_pos_and_rot);
-
-
-        tracked_device_count++;
       }
     }
-
-//    rot = glm::quat(glm::vec3(-90, 0, 0)) * rot;
 
     new_camera->setOrientation(rot);
     new_camera->setPosition(hmd_position);
@@ -815,7 +828,7 @@ void GLWindow::paintGL()
 
     //mutex_data->unlock();
   }
-  
+
   // octree
   if (store_options->octree_display || 1) {
     tree->display();
@@ -823,7 +836,7 @@ void GLWindow::paintGL()
 
   // On Screen Display
   if (store_options->show_osd) osd->display();
-    
+
   // display selected area
   gl_select->display(QGLWidget::width(),QGLWidget::height());
 
@@ -940,8 +953,8 @@ void GLWindow::initShader()
   std::cerr << "END OF INITSHADER \n";
 }
 // ============================================================================
-// check OpenGL error message                                                  
-void GLWindow::checkGLErrors(std::string s) 
+// check OpenGL error message
+void GLWindow::checkGLErrors(std::string s)
 {
   GLenum error;
   while ((error = glGetError()) != GL_NO_ERROR) {
@@ -970,7 +983,7 @@ void GLWindow::initializeGL()
 #endif
 
   makeCurrent();   // activate OpenGL context, can build display list by now
-  
+
 }
 // ============================================================================
 // resize the opengl viewport according to the new window size
@@ -1014,7 +1027,7 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
 //    m_projection_matrix_ptr = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
   }
   else {
-    computeOrthoFactor();    
+    computeOrthoFactor();
     //std::cerr << "RANGE="<<store_options->ortho_range<<" zoom="<<store_options->zoom<<" zoomo="<<store_options->zoomo<<"\n";
     //std::cerr << "fx = "<< fx << " fy=" << fy <<  " range*fx*zoom0=" <<  store_options->zoomo*fx*store_options->ortho_range <<  "\n";
     ortho_right = store_options->ortho_range;
@@ -1217,7 +1230,7 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
       if (store_options->rotate_screen)
         setRotationScreen(y_mouse,x_mouse,z_mouse);
       else
-        setRotationScene(y_mouse,x_mouse,z_mouse);      
+        setRotationScene(y_mouse,x_mouse,z_mouse);
     }
   }
   //!options_form->downloadOptions(store_options);
@@ -1351,7 +1364,7 @@ void GLWindow::rotateAroundAxis(const int axis)
       switch (axis) {
       case 0: // X
               store_options->xrot += store_options->ixrot;
-              y_mouse = (int) store_options->xrot;              
+              y_mouse = (int) store_options->xrot;
               break;
       case 1: // Y
               store_options->yrot += store_options->iyrot;
@@ -1363,7 +1376,7 @@ void GLWindow::rotateAroundAxis(const int axis)
               break;
       case 3: // U
               store_options->urot += store_options->iurot;
-              //y_mouse = (int) store_options->urot;              
+              //y_mouse = (int) store_options->urot;
               i_umat = 0;
               i_vmat = 1;
               i_wmat = 2;
@@ -1373,14 +1386,14 @@ void GLWindow::rotateAroundAxis(const int axis)
               //x_mouse = (int) store_options->vrot;
               i_umat = 4;
               i_vmat = 5;
-              i_wmat = 6;              
+              i_wmat = 6;
               break;
       case 5: // W
               store_options->wrot += store_options->iwrot;
               //z_mouse = (int) store_options->wrot;
               i_umat = 8;
               i_vmat = 9;
-              i_wmat = 10;              
+              i_wmat = 10;
               break;
       }
       if (axis < 3) {
@@ -1519,8 +1532,8 @@ void GLWindow::osdZoom(bool ugl)
   if (ugl) updateGL();
 }
 // ============================================================================
-// GLWindow::setOsd()                                                             
-// Set Text value to the specified HudObject                                   
+// GLWindow::setOsd()
+// Set Text value to the specified HudObject
 void GLWindow::setOsd(const GLObjectOsd::OsdKeys k, const QString text, bool show, bool ugl)
 {
   osd->keysActivate(k,show);
@@ -1528,8 +1541,8 @@ void GLWindow::setOsd(const GLObjectOsd::OsdKeys k, const QString text, bool sho
   if (ugl) updateGL();
 }
 // ============================================================================
-// GLWindow::setOsd()                                                             
-// Set Float value to the specified HudObject                                  
+// GLWindow::setOsd()
+// Set Float value to the specified HudObject
 void GLWindow::setOsd(const GLObjectOsd::OsdKeys k, const float value, bool show, bool ugl)
 {
   osd->keysActivate(k,show);
@@ -1537,18 +1550,18 @@ void GLWindow::setOsd(const GLObjectOsd::OsdKeys k, const float value, bool show
   if (ugl) updateGL();
 }
 // ============================================================================
-// GLWindow::setOsd()                                                             
-// Set Float value to the specified HudObject                                  
-void GLWindow::setOsd(const GLObjectOsd::OsdKeys k, const float value1, 
+// GLWindow::setOsd()
+// Set Float value to the specified HudObject
+void GLWindow::setOsd(const GLObjectOsd::OsdKeys k, const float value1,
                       const float value2, const float value3, bool show,bool ugl)
 {
   osd->keysActivate(k,show);
-  osd->setText(k,(const float) value1,(const float) value2,(const float) value3);  
+  osd->setText(k,(const float) value1,(const float) value2,(const float) value3);
   if (ugl) updateGL();
 }
 // ============================================================================
-// GLWindow::setOsd()                                                             
-// Set Int value to the specified HudObject                                    
+// GLWindow::setOsd()
+// Set Int value to the specified HudObject
 void GLWindow::setOsd(const GLObjectOsd::OsdKeys k, const int value, bool show, bool ugl)
 {
   osd->keysActivate(k,show);
@@ -1556,7 +1569,7 @@ void GLWindow::setOsd(const GLObjectOsd::OsdKeys k, const int value, bool show, 
   if (ugl) updateGL();
 }
 // ============================================================================
-// GLWindow::changeOsdFont()                                                             
+// GLWindow::changeOsdFont()
 // Change OSD font
 void GLWindow::changeOsdFont()
 {
@@ -1604,9 +1617,9 @@ void GLWindow::setPerspectiveMatrix()
   camera->setEye(0.0,  0.0,  -store_options->zoom);
   camera->moveTo();
   // apply screen rotation on the whole system
-  glMultMatrixd (mScreen);   
+  glMultMatrixd (mScreen);
   // apply scene/world rotation on the whole system
-  glMultMatrixd (mScene);   
+  glMultMatrixd (mScene);
   setModelMatrix(); // save ModelView  Matrix
 #endif
   setProjMatrix();  // save Projection Matrix
@@ -1627,13 +1640,13 @@ void GLWindow::bestZoomFit()
 
   Tools3D::bestZoomFromObject(mProj,mModel,
                               viewport, pov, p_data, store_options);
-    
+
   ortho_right = store_options->ortho_range;
   ortho_left  =-store_options->ortho_range;
   ortho_top   = store_options->ortho_range;
   ortho_bottom=-store_options->ortho_range;
   //store_options->zoomo = 1.;
-  
+
   osdZoom();
   if ( !store_options->duplicate_mem) mutex_data->unlock();
 }
@@ -1682,73 +1695,122 @@ bool GetDigitalActionState(vr::VRActionHandle_t action, vr::VRInputValueHandle_t
 	return actionData.bActive && actionData.bState;
 }
 
-bool GLWindow::HandleInput()
-{
-	bool bRet = false;
+bool GLWindow::HandleInput() {
+    bool bRet = false;
 
-	// Process SteamVR events
+    // Process SteamVR events
 //	vr::VREvent_t event;
 //	while( vr_context->PollNextEvent( &event, sizeof( event ) ) )
 //	{
 //		ProcessVREvent( event );
 //	}
 
-	// Process SteamVR action state
-	// UpdateActionState is called each frame to update the state of the actions themselves. The application
-	// controls which action sets are active with the provided array of VRActiveActionSet_t structs.
-	vr::VRActiveActionSet_t actionSet = { 0 };
-	actionSet.ulActionSet = m_actionsetDemo;
-	vr::VRInput()->UpdateActionState( &actionSet, sizeof(actionSet), 1 );
+    // Process SteamVR action state
+    // UpdateActionState is called each frame to update the state of the actions themselves. The application
+    // controls which action sets are active with the provided array of VRActiveActionSet_t structs.
+    vr::VRActiveActionSet_t actionSet = {0};
+    actionSet.ulActionSet = m_actionsetDemo;
+    vr::VRInput()->UpdateActionState(&actionSet, sizeof(actionSet), 1);
 
 //	m_bShowCubes = !GetDigitalActionState( m_actionHideCubes );
 
 
-	vr::InputAnalogActionData_t analogData;
-	if ( vr::VRInput()->GetAnalogActionData( m_actionAnalongInput, &analogData, sizeof( analogData ), vr::k_ulInvalidInputValueHandle ) == vr::VRInputError_None && analogData.bActive ) {
-        if(analogData.x != 0) {
-            emit editGazSlideSizeValueByDelta(analogData.x / 50);
-            //world_scale_value += analogData.x/1000;
-            //world_scale = glm::vec3(world_scale_value, world_scale_value, world_scale_value);
+    vr::InputAnalogActionData_t analogData[2];
+
+    if (vr::VRInput()->GetAnalogActionData(m_rHand[Right].m_actionAnalongInput, &analogData[Right], sizeof(analogData[Right]),
+                                           vr::k_ulInvalidInputValueHandle) == vr::VRInputError_None &&
+        analogData[Right].bActive) {
+        if (analogData[Right].x != 0) {
+            emit editGazSlideSizeValueByDelta(analogData[Right].x / 50);
+            //m_scale += analogData.x/1000;
+            //world_scale = glm::vec3(m_scale, m_scale, m_scale);
         }
 
     }
 
-    vr::InputPoseActionData_t poseData;
+//    if (vr::VRInput()->GetAnalogActionData(m_rHand[Left].m_actionAnalongInput, &analogData[Left], sizeof(analogData[Left]),
+//                                           vr::k_ulInvalidInputValueHandle) == vr::VRInputError_None &&
+//        analogData[Left].bActive) {
+//        if (analogData[Left].x != 0 || analogData[Left].y != 0)
+//            emit editDensSlideByDelta(analogData[Left].x / 50, analogData[Left].y / 50);
+//    }
 
-    vr::VRInputValueHandle_t ulHapticDevice;
+    vr::InputPoseActionData_t poseData[2];
+    glm::vec3 controller_position_delta[2];
+    glm::vec3 controller_position[2];
+    glm::mat4 pose[2];
 
-
-    if (GetDigitalActionRisingEdge(m_actionHideCubes, &ulHapticDevice)) {
-        if (ulHapticDevice == m_rHand[Left].m_source) {
-            if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[Left].m_actionPose, vr::TrackingUniverseStanding,
-                                                             &poseData, sizeof(poseData),
-                                                             vr::k_ulInvalidInputValueHandle) !=
-                vr::VRInputError_None
-                || !poseData.bActive || !poseData.pose.bPoseIsValid) {
+    for (EHand eHand = Left; eHand <= Right; ((int &) eHand)++) {
+        if (GetDigitalActionRisingEdge(m_rHand[eHand].m_grip)) {
+            if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[eHand].m_actionPose,
+                                                             vr::TrackingUniverseStanding,
+                                                             &poseData[eHand], sizeof(poseData[eHand]),
+                                                             vr::k_ulInvalidInputValueHandle) != vr::VRInputError_None || !poseData[eHand].bActive || !poseData[eHand].pose.bPoseIsValid) {
             } else {
-                m_starting_controller_position = glm::vec3(vr34ToGlm(poseData.pose.mDeviceToAbsoluteTracking)[3]);
-                m_starting_scene_position = glm::vec3(m_scene_matrix[3]);
+                m_rHand[eHand].m_initial_controller_position = glm::vec3(vr34ToGlm(poseData[eHand].pose.mDeviceToAbsoluteTracking)[3]);
+                m_initial_scene_position = glm::vec3(m_scene_matrix[3]);
+                m_initial_scale = m_scale;
+                m_initial_scene_orientation = glm::quat(m_scene_matrix);
+                m_initial_controllers_orientation = m_rHand[Left].m_initial_controller_position - m_rHand[Right].m_initial_controller_position;
             }
         }
     }
 
-    if (GetDigitalActionState(m_actionHideCubes, &ulHapticDevice)) {
-        if (ulHapticDevice == m_rHand[Left].m_source) {
-            if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[Left].m_actionPose, vr::TrackingUniverseStanding,
-                                                             &poseData, sizeof(poseData),
-                                                             vr::k_ulInvalidInputValueHandle) !=
-                vr::VRInputError_None
-                || !poseData.bActive || !poseData.pose.bPoseIsValid) {
-            } else {
+    if (GetDigitalActionState(m_rHand[Left].m_grip) && GetDigitalActionState(m_rHand[Right].m_grip)) {
+        // process left
 
-                auto controller_position_delta = (glm::vec3(vr34ToGlm(poseData.pose.mDeviceToAbsoluteTracking)[3]) - m_starting_controller_position) * world_scale/2.f + m_starting_scene_position;
-                //controller_position_delta *= world_scale/3.f;
-                m_scene_matrix[3][0] = controller_position_delta[0];
-                m_scene_matrix[3][1] = controller_position_delta[1];
-                m_scene_matrix[3][2] = controller_position_delta[2];
-            }
+        if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[Left].m_actionPose,
+                                                         vr::TrackingUniverseStanding,
+                                                         &poseData[Left], sizeof(poseData[Left]),
+                                                         vr::k_ulInvalidInputValueHandle) != vr::VRInputError_None || !poseData[Left].bActive || !poseData[Left].pose.bPoseIsValid) {
+        } else {
+            pose[Left] = vr34ToGlm(poseData[Left].pose.mDeviceToAbsoluteTracking);
+            controller_position[Left] = glm::vec3(pose[Left][3]);
+            controller_position_delta[Left] = (controller_position[Left] - m_rHand[Left].m_initial_controller_position) * world_scale / 2.f + m_initial_scene_position;
         }
+
+        // process right
+        if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[Right].m_actionPose,
+                                                         vr::TrackingUniverseStanding,
+                                                         &poseData[Right], sizeof(poseData[Right]),
+                                                         vr::k_ulInvalidInputValueHandle) != vr::VRInputError_None || !poseData[Right].bActive || !poseData[Right].pose.bPoseIsValid ) {
+        } else {
+            pose[Right] = vr34ToGlm(poseData[Right].pose.mDeviceToAbsoluteTracking);
+            controller_position[Right] = glm::vec3(pose[Right][3]);
+            controller_position_delta[Right] = (controller_position[Right] - m_rHand[Right].m_initial_controller_position) * world_scale / 2.f + m_initial_scene_position;
+        }
+
+
+        m_scene_matrix = glm::identity<glm::mat4>();
+
+        auto mean_controller_position = (controller_position[Right] - m_rHand[Right].m_initial_controller_position + controller_position[Left] - m_rHand[Left].m_initial_controller_position) / 2.f ;
+        auto new_scene_position = mean_controller_position * 50.f*world_scale + m_initial_scene_position;
+
+        m_scene_matrix[3][0] = new_scene_position[0];
+        m_scene_matrix[3][1] = new_scene_position[1];
+        m_scene_matrix[3][2] = new_scene_position[2];
+
+        auto current_rotation = normalize(glm::quat(controller_position[Right] - controller_position[Left]));
+
+        auto world_rotation = RotationBetweenVectors(m_initial_controllers_orientation, controller_position[Left] - controller_position[Right]) * m_initial_scene_orientation;
+
+
+        m_scene_matrix = mat4_cast(world_rotation) * m_scene_matrix;
+
+
+
+
+        m_scale = m_initial_scale + (glm::length(controller_position[Right] - controller_position[Left]) - length(m_rHand[Right].m_initial_controller_position - m_rHand[Left].m_initial_controller_position))  *m_initial_scale;
+
+        if (m_scale < 0)
+            m_scale = 0;
+
+
+        world_scale = glm::vec3(m_scale, m_scale, m_scale);
+        m_scene_matrix = glm::scale(m_scene_matrix, world_scale);
+
     }
+
 
 
 //
@@ -1768,31 +1830,6 @@ bool GLWindow::HandleInput()
 //		}
 //	}
 //
-//	for ( EHand eHand = Left; eHand <= Right; ((int&)eHand)++ )
-//	{
-//		vr::InputPoseActionData_t poseData;
-//		if ( vr::VRInput()->GetPoseActionDataForNextFrame( m_rHand[eHand].m_actionPose, vr::TrackingUniverseStanding, &poseData, sizeof( poseData ), vr::k_ulInvalidInputValueHandle ) != vr::VRInputError_None
-//			|| !poseData.bActive || !poseData.pose.bPoseIsValid )
-//		{
-//			m_rHand[eHand].m_bShowController = false;
-//		}
-//		else
-//		{
-//			m_rHand[eHand].m_rmat4Pose = ConvertSteamVRMatrixToMatrix4( poseData.pose.mDeviceToAbsoluteTracking );
-//
-//			vr::InputOriginInfo_t originInfo;
-//			if ( vr::VRInput()->GetOriginTrackedDeviceInfo( poseData.activeOrigin, &originInfo, sizeof( originInfo ) ) == vr::VRInputError_None
-//				&& originInfo.trackedDeviceIndex != vr::k_unTrackedDeviceIndexInvalid )
-//			{
-//				std::string sRenderModelName = GetTrackedDeviceString( originInfo.trackedDeviceIndex, vr::Prop_RenderModelName_String );
-//				if ( sRenderModelName != m_rHand[eHand].m_sRenderModelName )
-//				{
-//					m_rHand[eHand].m_pRenderModel = FindOrLoadRenderModel( sRenderModelName.c_str() );
-//					m_rHand[eHand].m_sRenderModelName = sRenderModelName;
-//				}
-//			}
-//		}
-//	}
 
 	return bRet;
 }
