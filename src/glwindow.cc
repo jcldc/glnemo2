@@ -1751,7 +1751,7 @@ bool GLWindow::HandleInput() {
                 m_initial_scene_position = glm::vec3(m_scene_matrix[3]);
                 m_initial_scale = m_scale;
                 m_initial_scene_orientation = glm::quat(m_scene_matrix);
-                m_initial_controllers_orientation = m_rHand[Left].m_initial_controller_position - m_rHand[Right].m_initial_controller_position;
+                m_prev_controller_orientation = m_rHand[Left].m_initial_controller_position - m_rHand[Right].m_initial_controller_position;
             }
         }
     }
@@ -1790,15 +1790,14 @@ bool GLWindow::HandleInput() {
         m_scene_matrix[3][1] = new_scene_position[1];
         m_scene_matrix[3][2] = new_scene_position[2];
 
-        auto current_rotation = normalize(glm::quat(controller_position[Right] - controller_position[Left]));
+        auto current_orientation = controller_position[Left] - controller_position[Right];
 
-        auto world_rotation = RotationBetweenVectors(m_initial_controllers_orientation, controller_position[Left] - controller_position[Right]) * m_initial_scene_orientation;
+        m_current_rotation = RotationBetweenVectors(m_prev_controller_orientation, current_orientation) * m_current_rotation;
 
+        m_prev_controller_orientation = current_orientation;
 
-        m_scene_matrix = mat4_cast(world_rotation) * m_scene_matrix;
-
-
-
+        // apply rotation
+        m_scene_matrix = mat4_cast(m_current_rotation) * m_scene_matrix;
 
         m_scale = m_initial_scale + (glm::length(controller_position[Right] - controller_position[Left]) - length(m_rHand[Right].m_initial_controller_position - m_rHand[Left].m_initial_controller_position))  *m_initial_scale;
 
@@ -1807,6 +1806,8 @@ bool GLWindow::HandleInput() {
 
 
         world_scale = glm::vec3(m_scale, m_scale, m_scale);
+
+        // apply scale
         m_scene_matrix = glm::scale(m_scene_matrix, world_scale);
 
     }

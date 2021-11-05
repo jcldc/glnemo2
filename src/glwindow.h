@@ -354,11 +354,13 @@ private:
 		//std::string m_sRenderModelName;
 	//	bool m_bShowController;
 	};
+    glm::vec3 m_prev_controller_orientation;
+    glm::quat m_current_rotation;
     glm::vec3 m_initial_scene_position;
     float m_initial_scale;
     glm::quat m_initial_scene_orientation;
-        vec3 m_initial_controllers_orientation;
-        enum EHand
+    vec3 m_initial_controllers_orientation;
+    enum EHand
 	{
 		Left = 0,
 		Right = 1,
