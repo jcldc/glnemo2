@@ -1979,6 +1979,22 @@ void FormObjectControl::editDensSlideByDelta(float delta_x, float delta_y) {
     dens_slide_min->setValue(new_value);
 }
 
+
+void FormObjectControl::editDebugInfo(std::vector<std::string> debug_info) {
+    //debug_info.resize(6);
+    //auto label_list = form.debug_grid_section->children();
+    //for(size_t i = 0; i < debug_info.size(); ++i) {
+      //auto info_string = debug_info[i];
+      //qobject_cast<QLabel*>(label_list[i])->setText(QString::fromStdString(info_string));
+    //}
+    form.debug_label_1->setText(QString::fromStdString(debug_info[0]));
+    form.debug_label_2->setText(QString::fromStdString(debug_info[1]));
+    form.debug_label_3->setText(QString::fromStdString(debug_info[2]));
+    form.debug_label_4->setText(QString::fromStdString(debug_info[3]));
+    //form.debug_label_5->setText(QString::fromStdString(debug_info[4]));
+    //form.debug_label_6->setText(QString::fromStdString(debug_info[5]));
+}
+
 void FormObjectControl::editGazSlideSizeValueByDelta(float delta) {
   auto slider = form.gaz_slide_size;
   auto current_value = slider->value();

@@ -216,6 +216,8 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   world_offset_position = glm::vec3(0, -60, 35);
   m_scene_matrix = glm::identity<mat4>();
 
+  m_current_rotation = quat(1,0,0,0);
+
   // copy parameters
   parent        = _parent;
   store_options = _go;
@@ -1736,23 +1738,31 @@ bool GLWindow::HandleInput() {
 //    }
 
     vr::InputPoseActionData_t poseData[2];
-    glm::vec3 controller_position_delta[2];
     glm::vec3 controller_position[2];
     glm::mat4 pose[2];
 
     for (EHand eHand = Left; eHand <= Right; ((int &) eHand)++) {
         if (GetDigitalActionRisingEdge(m_rHand[eHand].m_grip)) {
-            if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[eHand].m_actionPose,
+            if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[Right].m_actionPose,
                                                              vr::TrackingUniverseStanding,
-                                                             &poseData[eHand], sizeof(poseData[eHand]),
-                                                             vr::k_ulInvalidInputValueHandle) != vr::VRInputError_None || !poseData[eHand].bActive || !poseData[eHand].pose.bPoseIsValid) {
+                                                             &poseData[Right], sizeof(poseData[Right]),
+                                                             vr::k_ulInvalidInputValueHandle) != vr::VRInputError_None || !poseData[Right].bActive || !poseData[Right].pose.bPoseIsValid) {
             } else {
-                m_rHand[eHand].m_initial_controller_position = glm::vec3(vr34ToGlm(poseData[eHand].pose.mDeviceToAbsoluteTracking)[3]);
-                m_initial_scene_position = glm::vec3(m_scene_matrix[3]);
-                m_initial_scale = m_scale;
-                m_initial_scene_orientation = glm::quat(m_scene_matrix);
-                m_prev_controller_orientation = m_rHand[Left].m_initial_controller_position - m_rHand[Right].m_initial_controller_position;
+                m_rHand[Right].m_initial_controller_position = glm::vec3(vr34ToGlm(poseData[Right].pose.mDeviceToAbsoluteTracking)[3]);
+                m_rHand[Right].m_previous_orientation = quat_cast(vr34ToGlm(poseData[Right].pose.mDeviceToAbsoluteTracking));
             }
+            if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[Left].m_actionPose,
+                                                             vr::TrackingUniverseStanding,
+                                                             &poseData[Left], sizeof(poseData[Left]),
+                                                             vr::k_ulInvalidInputValueHandle) != vr::VRInputError_None || !poseData[Left].bActive || !poseData[Left].pose.bPoseIsValid) {
+            } else {
+                m_rHand[Left].m_initial_controller_position = glm::vec3(vr34ToGlm(poseData[Left].pose.mDeviceToAbsoluteTracking)[3]);
+                m_rHand[Left].m_previous_orientation = quat_cast(vr34ToGlm(poseData[Left].pose.mDeviceToAbsoluteTracking));
+            }
+            m_initial_scene_position = glm::vec3(m_scene_matrix[3]);
+            m_initial_scale = m_scale;
+            m_initial_scene_orientation = glm::quat(m_scene_matrix);
+            m_prev_controller_orientation = m_rHand[Left].m_initial_controller_position - m_rHand[Right].m_initial_controller_position;
         }
     }
 
@@ -1766,7 +1776,6 @@ bool GLWindow::HandleInput() {
         } else {
             pose[Left] = vr34ToGlm(poseData[Left].pose.mDeviceToAbsoluteTracking);
             controller_position[Left] = glm::vec3(pose[Left][3]);
-            controller_position_delta[Left] = (controller_position[Left] - m_rHand[Left].m_initial_controller_position) * world_scale / 2.f + m_initial_scene_position;
         }
 
         // process right
@@ -1777,33 +1786,48 @@ bool GLWindow::HandleInput() {
         } else {
             pose[Right] = vr34ToGlm(poseData[Right].pose.mDeviceToAbsoluteTracking);
             controller_position[Right] = glm::vec3(pose[Right][3]);
-            controller_position_delta[Right] = (controller_position[Right] - m_rHand[Right].m_initial_controller_position) * world_scale / 2.f + m_initial_scene_position;
         }
 
-
+        // reset scene matrix
         m_scene_matrix = glm::identity<glm::mat4>();
 
+        // apply combined orientation
+        auto current_orientation = controller_position[Left] - controller_position[Right];
+        m_current_rotation = normalize(normalize((RotationBetweenVectors(m_prev_controller_orientation, current_orientation))) * m_current_rotation);
+        m_prev_controller_orientation = current_orientation;
+/*
+        // apply both hands orientation separately
+        auto current_right_orientation = quat_cast(pose[Right]);
+        auto current_left_orientation = quat_cast(pose[Left]);
+
+        auto delta_right_orientation = current_right_orientation * inverse(m_rHand[Right].m_previous_orientation);
+        auto delta_left_orientation = current_left_orientation * inverse(m_rHand[Left].m_previous_orientation);
+
+        auto scaled_delta_right_orientation = slerp(quat(1,0,0,0), delta_right_orientation, 0.5f);
+        auto scaled_delta_left_orientation = slerp(quat(1,0,0,0), delta_left_orientation, 0.5f);
+
+        m_current_rotation = scaled_delta_right_orientation * m_current_rotation;
+        m_current_rotation = scaled_delta_left_orientation * m_current_rotation;
+
+        m_rHand[Right].m_previous_orientation = current_right_orientation;
+        m_rHand[Left].m_previous_orientation = current_left_orientation;
+*/
+        // apply orientation to scene matrix
+        m_scene_matrix = mat4_cast(m_current_rotation) * m_scene_matrix;
+
+        // translate by deplacement of the middle of the two controllers
         auto mean_controller_position = (controller_position[Right] - m_rHand[Right].m_initial_controller_position + controller_position[Left] - m_rHand[Left].m_initial_controller_position) / 2.f ;
-        auto new_scene_position = mean_controller_position * 50.f*world_scale + m_initial_scene_position;
+        auto new_scene_position = mean_controller_position  + m_initial_scene_position;
 
         m_scene_matrix[3][0] = new_scene_position[0];
         m_scene_matrix[3][1] = new_scene_position[1];
         m_scene_matrix[3][2] = new_scene_position[2];
 
-        auto current_orientation = controller_position[Left] - controller_position[Right];
-
-        m_current_rotation = RotationBetweenVectors(m_prev_controller_orientation, current_orientation) * m_current_rotation;
-
-        m_prev_controller_orientation = current_orientation;
-
-        // apply rotation
-        m_scene_matrix = mat4_cast(m_current_rotation) * m_scene_matrix;
-
+        // scale by distance between controllers
         m_scale = m_initial_scale + (glm::length(controller_position[Right] - controller_position[Left]) - length(m_rHand[Right].m_initial_controller_position - m_rHand[Left].m_initial_controller_position))  *m_initial_scale;
 
         if (m_scale < 0)
             m_scale = 0;
-
 
         world_scale = glm::vec3(m_scale, m_scale, m_scale);
 

@@ -195,6 +195,7 @@ MainWindow::MainWindow(std::string _ver)
   connect(gl_window, SIGNAL(unselectTreeWidgetItem(int)), form_o_c, SLOT(unselectTreeWidgetItem(int)));
   connect(gl_window, SIGNAL(unselectTreeWidgetAll()), form_o_c, SLOT(unselectTreeWidgetAll()));
   connect(gl_window, SIGNAL(editGazSlideSizeValueByDelta(float)), form_o_c, SLOT(editGazSlideSizeValueByDelta(float)));
+  connect(gl_window, SIGNAL(editDebugInfo(std::vector<std::string>)), form_o_c, SLOT(editDebugInfo(std::vector<std::string>)));
   connect(gl_window, SIGNAL(editDensSlideByDelta(float, float)), form_o_c, SLOT(editDensSlideByDelta(float, float)));
   // --------- init some stuffs
   initVariables();

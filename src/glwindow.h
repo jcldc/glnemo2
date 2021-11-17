@@ -96,6 +96,7 @@ public:
 
     // vr
     void editGazSlideSizeValueByDelta(float delta);
+    void editDebugInfo(std::vector<std::string>);
     void editDensSlideByDelta(float delta_x, float delta_y);
 
 public slots:
@@ -349,6 +350,7 @@ private:
 
         vr::VRActionHandle_t m_actionAnalongInput = vr::k_ulInvalidActionHandle;
         glm::vec3 m_initial_controller_position = {0,0,0};
+        glm::quat m_previous_orientation;
 //		Matrix4 m_rmat4Pose;
 //		CGLRenderModel *m_pRenderModel = nullptr;
 		//std::string m_sRenderModelName;

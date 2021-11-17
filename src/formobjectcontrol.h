@@ -156,6 +156,7 @@ namespace glnemo {
     void unselectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetAll();
     void editGazSlideSizeValueByDelta(float);
+    void editDebugInfo(std::vector<std::string>);
     void editDensSlideByDelta(float, float);
   private slots:
     void reject() {} // allow to de activate escape key to close the box

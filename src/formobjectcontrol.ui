@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../../../../../../../../../../../../home/jcl/.designer/backup</normaloff>../../../../../../../../../../../../../../home/jcl/.designer/backup</iconset>
+    <normaloff>../../../../../home/jcl/.designer/backup</normaloff>../../../../../home/jcl/.designer/backup</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_6">
    <item>
@@ -45,7 +45,7 @@
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tab_particles">
       <attribute name="title">
@@ -2241,6 +2241,68 @@ Physical value can be:
        <string>Stretching</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_13">
+       <item row="3" column="0">
+        <layout class="QGridLayout" name="debug_grid_section">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item row="3" column="0">
+          <widget class="QLabel" name="debug_label_4">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="debug_label_2">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="debug_label_1">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="debug_label_5">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="debug_label_3">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="debug_label_6">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="5" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>357</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_8">
          <property name="title">
@@ -2294,14 +2356,17 @@ Physical value can be:
         </widget>
        </item>
        <item row="1" column="0">
-        <spacer name="verticalSpacer">
+        <spacer name="verticalSpacer_5">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>357</height>
+           <height>20</height>
           </size>
          </property>
         </spacer>
