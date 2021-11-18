@@ -1968,14 +1968,22 @@ void FormObjectControl::unselectTreeWidgetItem(int cpoint_id) {
 
 void FormObjectControl::editDensSlideByDelta(float delta_x, float delta_y) {
     //TODO
+    static float accumulated_x = 0, accumulated_y = 0;
+    accumulated_x += delta_x;
+    accumulated_y += delta_y;
+
+    form.debug_label_1->setText(QString::fromStdString(std::to_string(accumulated_x)));
+
     auto dens_slide_max = form.dens_slide_max;
     auto current_value = dens_slide_max->value();
-    int new_value = current_value + delta_x;
+    int new_value = current_value + (int)accumulated_x;
+    accumulated_x -= (int)accumulated_x;
     dens_slide_max->setValue(new_value);
 
     auto dens_slide_min = form.dens_slide_min;
     current_value = dens_slide_min->value();
-    new_value = current_value + delta_y;
+    new_value = current_value - (int)accumulated_y;
+    accumulated_y -= (int)accumulated_y;
     dens_slide_min->setValue(new_value);
 }
 

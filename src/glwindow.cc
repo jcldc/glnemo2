@@ -1730,12 +1730,12 @@ bool GLWindow::HandleInput() {
 
     }
 
-//    if (vr::VRInput()->GetAnalogActionData(m_rHand[Left].m_actionAnalongInput, &analogData[Left], sizeof(analogData[Left]),
-//                                           vr::k_ulInvalidInputValueHandle) == vr::VRInputError_None &&
-//        analogData[Left].bActive) {
-//        if (analogData[Left].x != 0 || analogData[Left].y != 0)
-//            emit editDensSlideByDelta(analogData[Left].x / 50, analogData[Left].y / 50);
-//    }
+    if (vr::VRInput()->GetAnalogActionData(m_rHand[Left].m_actionAnalongInput, &analogData[Left], sizeof(analogData[Left]),
+                                         vr::k_ulInvalidInputValueHandle) == vr::VRInputError_None &&
+      analogData[Left].bActive) {
+      if (analogData[Left].x != 0 || analogData[Left].y != 0)
+          emit editDensSlideByDelta(analogData[Left].x, analogData[Left].y);
+  }
 
     vr::InputPoseActionData_t poseData[2];
     glm::vec3 controller_position[2];
