@@ -1826,8 +1826,8 @@ bool GLWindow::HandleInput() {
         // scale by distance between controllers
         m_scale = m_initial_scale + (glm::length(controller_position[Right] - controller_position[Left]) - length(m_rHand[Right].m_initial_controller_position - m_rHand[Left].m_initial_controller_position))  *m_initial_scale;
 
-        if (m_scale < 0)
-            m_scale = 0;
+        if (m_scale < 0.00001)
+            m_scale = 0.00001;
 
         world_scale = glm::vec3(m_scale, m_scale, m_scale);
 
