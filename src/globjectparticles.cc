@@ -698,9 +698,9 @@ void GLObjectParticles::buildVboPos()
   //rho.clear();      // clear rho density vector
   phys_itv.clear(); // clear ohysical value vector
   rho_itv.clear();
-  vindex_sel.clear();   // clear zdepth vector
+//  vindex_sel.clear();   // clear zdepth vector
   rho_itv.reserve(((po->npart/po->step)+1));
-  vindex_sel.reserve(((po->npart/po->step)+1));
+//  vindex_sel.reserve(((po->npart/po->step)+1));
   phys_itv.reserve(((po->npart/po->step)+1));
 
   for (int i=0; i < po->npart; i+=po->step) {
@@ -726,7 +726,7 @@ void GLObjectParticles::buildVboPos()
     GLObjectIndexTab myz;
     myz.index = index;
     myz.i_point = i;
-    vindex_sel.push_back(myz);
+//    vindex_sel.push_back(myz);
 #endif
   }
   if (BENCH) qWarning("Time elapsed to setup PHYSICAL arrays: %f s", tbloc.elapsed()/1000.);
@@ -1187,7 +1187,7 @@ void GLObjectParticles::buildOrbitsDisplayList()
 void GLObjectParticles::selectParticles()
 {
   phys_itv.clear();   // clear physical value vector
-  vindex_sel.clear(); // clear vindex vector
+//  vindex_sel.clear(); // clear vindex vector
   for (int i=0; i < po->npart; i+=po->step) {
     int index=po->index_tab[i];
     if (phys_select && phys_select->isValid()) {
@@ -1201,7 +1201,7 @@ void GLObjectParticles::selectParticles()
     GLObjectIndexTab myz;
     myz.index = index;
     myz.i_point = i;
-    vindex_sel.push_back(myz);
+//    vindex_sel.push_back(myz);
   }
   // sort by density
 #if GLDRAWARRAYS
