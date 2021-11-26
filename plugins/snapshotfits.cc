@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
 //           Laboratoire d'Astrophysique de Marseille
-//           Pôle de l'Etoile, site de Château-Gombert
-//           38, rue Frédéric Joliot-Curie
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert
+//           38, rue Frï¿½dï¿½ric Joliot-Curie
 //           13388 Marseille cedex 13 France
 //           CNRS U.M.R 7326
 // ============================================================================
@@ -41,9 +41,8 @@ SnapshotFits::~SnapshotFits()
   if (obj)       delete obj;
   if (part_data) delete part_data;
   if (valid) close();
-  if (valid) {
+  if (valid && pInfile) {
       delete pInfile;
-
   }
   //if (fits_io) delete fits_io;
 }
@@ -103,7 +102,7 @@ ComponentRangeVector * SnapshotFits::getSnapshotRange()
       // read all user-specifed, coordinate, and checksum keys in the image
       image->readAllKeys();
       std::cerr << "#axis ="<<image->axes() << std::endl;
-      std::cerr << "NBODY = " << contents.size() << "\n";
+//      std::cerr << "NBODY = " << contents.size() << "\n";
       // MUST BE SET from CLI or GUI
       double dmin = std::numeric_limits<double>::min();
       double dmax = std::numeric_limits<double>::max();
@@ -215,10 +214,10 @@ int SnapshotFits::nextFrame(const int * index_tab, const int nsel)
     double dmin = std::numeric_limits<double>::min();
     double dmax = std::numeric_limits<double>::max();
     if (go->phys_min_glob!=-1) {
-        //dmin = go->phys_min_glob;
+        dmin = go->phys_min_glob;
     }
     if (go->phys_max_glob!=-1) {
-        //dmax = go->phys_max_glob;
+        dmax = go->phys_max_glob;
     }
     int   zmin = std::numeric_limits<int>::min();
     int   zmax = std::numeric_limits<int>::max();
@@ -266,6 +265,11 @@ int SnapshotFits::nextFrame(const int * index_tab, const int nsel)
     *part_data->timu = 0.0;
     end_of_data=true; // only one frame from an gadget snapshot
   }
+  if (valid && pInfile) {
+    delete pInfile;
+    pInfile = NULL;
+  }
+  contents.resize(0);
   return status;
 }
 // ============================================================================
