@@ -107,10 +107,10 @@ ComponentRangeVector * SnapshotFits::getSnapshotRange()
       double dmin = std::numeric_limits<double>::min();
       double dmax = std::numeric_limits<double>::max();
       if (go->phys_min_glob!=-1) {
-          //dmin = go->phys_min_glob;
+          dmin = go->phys_min_glob;
       }
       if (go->phys_max_glob!=-1) {
-          //dmax = go->phys_max_glob;
+          dmax = go->phys_max_glob;
       }
       int   zmin = std::numeric_limits<int>::min();
       int   zmax = std::numeric_limits<int>::max();
