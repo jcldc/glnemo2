@@ -697,7 +697,7 @@ void GLObjectParticles::buildVboPos()
   rho_itv.clear();
 //  vindex_sel.clear();   // clear zdepth vector
 
-  if (po->rhoSorted() && phys_select->getType() != PhysicalData::rho && part_data->rho) {
+  if (phys_select && phys_select->isValid() && po->rhoSorted() && phys_select->getType() != PhysicalData::rho && part_data->rho) {
     rho_itv.reserve(((po->npart / po->step) + 1));
   }
 //  vindex_sel.reserve(((po->npart/po->step)+1));
