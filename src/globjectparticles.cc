@@ -25,7 +25,10 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
-#include <execution>
+#ifdef _OPENMP
+#include <parallel/algorithm>
+#include <omp.h>
+#endif
 
 #define OLDRENDER 0
 #define BENCH 1
@@ -731,14 +734,18 @@ void GLObjectParticles::buildVboPos()
   }
   if (BENCH) qWarning("Time elapsed to setup PHYSICAL arrays: %f s", tbloc.elapsed()/1000.);
 
+#ifdef _OPENMP
+  int ntask=omp_get_max_threads(); // return number of task requested
+  std::cerr << "#OpenMP TASKS = "<<ntask<<"\n";
+#endif
   // sort by density
 #if GLDRAWARRAYS
   tbloc.restart();
   if (po->rhoSorted() &&
       phys_select && phys_select->getType() != PhysicalData::rho && part_data->rho) {
-    sort(std::execution::par, rho_itv.begin(),rho_itv.end(),GLObjectIndexTab::compareLow);
+    sort(rho_itv.begin(),rho_itv.end(),GLObjectIndexTab::compareLow);
   } else {
-    sort(std::execution::par,phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
+    sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
   }
   if (BENCH) qWarning("Time elapsed to SORT PHYSICAL arrays: %f s", tbloc.elapsed()/1000.);
   //sort(rho.begin(),rho.end(),GLObjectIndexTab::compareHigh);

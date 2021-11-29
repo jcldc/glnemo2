@@ -147,7 +147,7 @@ if (APPLE)
   #ADD_DEFINITIONS(-mmacosx-version-min=10.9)
 endif()
 ADD_DEFINITIONS(-fPIC)
-set (CMAKE_CXX_FLAGS "-std=c++17 ${CMAKE_CXX_FLAGS}")
+set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 # Add compiler flags for building executables (-fPIE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
@@ -216,13 +216,19 @@ endif ()
 
 add_executable (glnemo2 WIN32 MACOSX_BUNDLE ${src_files} ${rc_src} ${ui_headers} ${moc_src} ${glew})
 
+# Link the executable to the Hello library.
+set (GOMP "gomp")
+if (APPLE)
+  set (GOMP "")
+endif()
+#target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${HDF5_CXX_LIBRARIES_LIST} )
 # special ARCH LINUX
 if (EXISTS "/usr/lib64/libtirpc.so")
    set (TIRPC "tirpc")
 else()
    set (TIRPC "")
 endif()
-target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} CCfits cfitsio ${TIRPC}  ${HDF5_CXX_LIBRARIES} tbb)
+target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${TIRPC}  ${HDF5_CXX_LIBRARIES} )
 
 qt5_use_modules(glnemo2 Gui Widgets Core OpenGL Network PrintSupport)
 
