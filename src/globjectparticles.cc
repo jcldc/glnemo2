@@ -30,6 +30,12 @@
 #include <omp.h>
 #endif
 
+#ifdef __GNUC__
+#define PARALLEL_SORT __gnu_parallel::sort
+#else
+#define PARALLEL_SORT sort
+#endif 
+
 #define OLDRENDER 0
 #define BENCH 1
 #define GLDRAWARRAYS 1
@@ -743,9 +749,9 @@ void GLObjectParticles::buildVboPos()
   tbloc.restart();
   if (po->rhoSorted() &&
       phys_select && phys_select->getType() != PhysicalData::rho && part_data->rho) {
-    __gnu_parallel::sort(rho_itv.begin(),rho_itv.end(),GLObjectIndexTab::compareLow);
+    PARALLEL_SORT(rho_itv.begin(),rho_itv.end(),GLObjectIndexTab::compareLow);
   } else {
-    __gnu_parallel::sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
+    PARALLEL_SORT(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
   }
   if (BENCH) qWarning("Time elapsed to SORT PHYSICAL arrays: %f s", tbloc.elapsed()/1000.);
   //sort(rho.begin(),rho.end(),GLObjectIndexTab::compareHigh);
@@ -1208,7 +1214,7 @@ void GLObjectParticles::selectParticles()
   }
   // sort by density
 #if GLDRAWARRAYS
-  __gnu_parallel::sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
+  PARALLEL_SORT(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
   //sort(rho.begin(),rho.end(),GLObjectIndexTab::compareHigh);
 #endif
 }
@@ -1341,7 +1347,7 @@ void GLObjectParticles::sortByDensity()
 {
       // sort according to the density
   if (part_data->rho)  {
-    __gnu_parallel::sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
+    PARALLEL_SORT(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
   }
   nind_sorted = 0;
     // creates vertex indices array for gLDrawElements
@@ -1417,7 +1423,7 @@ void GLObjectParticles::sortByDepth()
       }
       }
   // sort according to the Z Depth
-  __gnu_parallel::sort(vindex_sel.begin(),vindex_sel.begin()+nind_sorted,GLObjectIndexTab::compareLow);
+  PARALLEL_SORT(vindex_sel.begin(),vindex_sel.begin()+nind_sorted,GLObjectIndexTab::compareLow);
   //nind_sorted = 0;
   // creates vertex indices array for gLDrawElements
   if (! indexes_sorted || nind_sorted < vindex_sel.size()) {

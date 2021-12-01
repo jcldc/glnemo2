@@ -23,6 +23,13 @@
 #include <parallel/algorithm>
 #include <omp.h>
 #endif
+
+#ifdef __GNUC__
+#define PARALLEL_SORT __gnu_parallel::sort
+#else
+#define PARALLEL_SORT sort
+#endif 
+
 namespace glnemo {
 
 // ============================================================================
@@ -84,7 +91,7 @@ bool UserSelection::setSelection(std::string _sel,
     tbench.restart();
     // ascending sort according to the 'first' element
     int nobj=ParticlesObject::nobj;
-    __gnu_parallel::sort(pov->begin(),pov->end(),ParticlesObject::compareFirst);
+    PARALLEL_SORT(pov->begin(),pov->end(),ParticlesObject::compareFirst);
     ParticlesObject::nobj=nobj;
     
     int new_max=max;
@@ -95,7 +102,7 @@ bool UserSelection::setSelection(std::string _sel,
     }
     // ascending sort according to the 'pos' element
     nobj=ParticlesObject::nobj;
-    __gnu_parallel::sort(pov->begin(),pov->end(),ParticlesObject::comparePos);
+    PARALLEL_SORT(pov->begin(),pov->end(),ParticlesObject::comparePos);
     ParticlesObject::nobj=nobj;
 
     for (unsigned int i=0; i<pov->size(); i++) {
