@@ -24,7 +24,7 @@
 #include <omp.h>
 #endif
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && ! defined(__APPLE__)
 #define PARALLEL_SORT __gnu_parallel::sort
 #else
 #define PARALLEL_SORT sort
