@@ -743,9 +743,9 @@ void GLObjectParticles::buildVboPos()
   tbloc.restart();
   if (po->rhoSorted() &&
       phys_select && phys_select->getType() != PhysicalData::rho && part_data->rho) {
-    sort(rho_itv.begin(),rho_itv.end(),GLObjectIndexTab::compareLow);
+    __gnu_parallel::sort(rho_itv.begin(),rho_itv.end(),GLObjectIndexTab::compareLow);
   } else {
-    sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
+    __gnu_parallel::sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
   }
   if (BENCH) qWarning("Time elapsed to SORT PHYSICAL arrays: %f s", tbloc.elapsed()/1000.);
   //sort(rho.begin(),rho.end(),GLObjectIndexTab::compareHigh);
@@ -1208,7 +1208,7 @@ void GLObjectParticles::selectParticles()
   }
   // sort by density
 #if GLDRAWARRAYS
-  sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
+  __gnu_parallel::sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
   //sort(rho.begin(),rho.end(),GLObjectIndexTab::compareHigh);
 #endif
 }
@@ -1341,7 +1341,7 @@ void GLObjectParticles::sortByDensity()
 {
       // sort according to the density
   if (part_data->rho)  {
-    sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
+    __gnu_parallel::sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
   }
   nind_sorted = 0;
     // creates vertex indices array for gLDrawElements
@@ -1417,7 +1417,7 @@ void GLObjectParticles::sortByDepth()
       }
       }
   // sort according to the Z Depth
-  sort(vindex_sel.begin(),vindex_sel.begin()+nind_sorted,GLObjectIndexTab::compareLow);
+  __gnu_parallel::sort(vindex_sel.begin(),vindex_sel.begin()+nind_sorted,GLObjectIndexTab::compareLow);
   //nind_sorted = 0;
   // creates vertex indices array for gLDrawElements
   if (! indexes_sorted || nind_sorted < vindex_sel.size()) {

@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -18,6 +18,11 @@
 #include "userselection.h"
 #include <algorithm>
 #include "assert.h"
+
+#ifdef _OPENMP
+#include <parallel/algorithm>
+#include <omp.h>
+#endif
 namespace glnemo {
 
 // ============================================================================
@@ -79,7 +84,7 @@ bool UserSelection::setSelection(std::string _sel,
     tbench.restart();
     // ascending sort according to the 'first' element
     int nobj=ParticlesObject::nobj;
-    std::sort(pov->begin(),pov->end(),ParticlesObject::compareFirst);
+    __gnu_parallel::sort(pov->begin(),pov->end(),ParticlesObject::compareFirst);
     ParticlesObject::nobj=nobj;
     
     int new_max=max;
@@ -90,7 +95,7 @@ bool UserSelection::setSelection(std::string _sel,
     }
     // ascending sort according to the 'pos' element
     nobj=ParticlesObject::nobj;
-    std::sort(pov->begin(),pov->end(),ParticlesObject::comparePos);
+    __gnu_parallel::sort(pov->begin(),pov->end(),ParticlesObject::comparePos);
     ParticlesObject::nobj=nobj;
 
     for (unsigned int i=0; i<pov->size(); i++) {
