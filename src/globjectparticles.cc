@@ -218,7 +218,7 @@ void GLObjectParticles::displayVboVelShader330()
         glEnableVertexAttribArrayARB(vpositions);
         start = 2*3*min_index*sizeof(float);
         int stride=2*3*sizeof(GLfloat);
-        glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
+        glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (intptr_t)(start));
 #if 0 // glsl 330
         // velocities
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel);
@@ -296,7 +296,7 @@ void GLObjectParticles::displayVboVelShader130()
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_X2);
         start = 2*3*min_index*sizeof(float);
         stride= 0;
-        glVertexAttribPointerARB(vvel_factor,3,GL_FLOAT, 0, stride, (GLvoid *) (start));
+        glVertexAttribPointerARB(vvel_factor,3,GL_FLOAT, 0, stride, (GLvoid *) (intptr_t)(start));
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
         // positions and velocities (ending vector)
@@ -309,7 +309,7 @@ void GLObjectParticles::displayVboVelShader130()
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
         start = 2*3*min_index*sizeof(float);
         stride=0;
-        glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
+        glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (intptr_t)(start));
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
         int maxvert=max_index-min_index+1;
@@ -437,14 +437,14 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
       glEnableVertexAttribArrayARB(a_sprite_size);
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_size);
       int start = min_index*sizeof(float);
-      glVertexAttribPointerARB(a_sprite_size,1,GL_FLOAT, 0, 0, (void *) (start));
+      glVertexAttribPointerARB(a_sprite_size,1,GL_FLOAT, 0, 0, (void *) (intptr_t)(start));
     }
     // Send physical data
     if (hasPhysic && phys_select && phys_select->isValid()) {
       glEnableVertexAttribArrayARB(a_phys_data);
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_data);
       int start = min_index*sizeof(float);
-      glVertexAttribPointerARB(a_phys_data,1,GL_FLOAT, 0, 0, (void *) (start));
+      glVertexAttribPointerARB(a_phys_data,1,GL_FLOAT, 0, 0, (void *) (intptr_t)(start));
     }
   } else {
     if (hasPhysic) { // gas only
@@ -480,7 +480,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   }
   //glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
   glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) stride, (void *) start);
+  glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) stride, (void *) (intptr_t)(start));
   if (maxvert > 0 && maxvert<=nvert_pos) {
     glDrawArrays(GL_POINTS, 0, maxvert);
   }
