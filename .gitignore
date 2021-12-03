@@ -8,6 +8,10 @@ build*
 .idea/
 .vscode/
 debug/
+Makefile*
+*.Debug
+*.Release
+CMakeLists.txt.user
 
 # ithers
 *~
@@ -18,6 +22,9 @@ debug/
 *.lo
 *.o
 *.obj
+
+# Qt
+moc_*
 
 # Compiled Dynamic libraries
 *.so
