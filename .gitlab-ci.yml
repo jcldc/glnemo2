@@ -51,7 +51,7 @@ OSX:
 #
 fedora31 :
   stage : build
-  image: portus.lam.fr/jclamber/glnemo2/fedora31
+  image: registry.lam.fr/jclamber/glnemo2/fedora31
   only :
       variables:
         - $BUILD == "1"
@@ -66,7 +66,7 @@ fedora31 :
 
 fedora30 :
   stage : build
-  image: portus.lam.fr/jclamber/glnemo2/fedora30
+  image: registry.lam.fr/jclamber/glnemo2/fedora30
   only :
       variables:
         - $BUILD == "1"
@@ -82,7 +82,7 @@ fedora30 :
 # OpenSUSE
 opensuse15.1 :
   stage : build
-  image: portus.lam.fr/jclamber/glnemo2/opensuse15.1
+  image: registry.lam.fr/jclamber/glnemo2/opensuse15.1
   only :
       variables:
         - $BUILD == "1"
@@ -97,7 +97,7 @@ opensuse15.1 :
 
 opensuse-rolling :
   stage : build
-  image: portus.lam.fr/jclamber/glnemo2/tumbleweed
+  image: registry.lam.fr/jclamber/glnemo2/tumbleweed
   only :
       variables:
         - $BUILD == "1"
@@ -112,7 +112,7 @@ opensuse-rolling :
 
 centos7 :
   stage : build
-  image: portus.lam.fr/jclamber/glnemo2/centos7
+  image: registry.lam.fr/jclamber/glnemo2/centos7
   only :
       variables:
         - $BUILD == "1"
@@ -127,7 +127,7 @@ centos7 :
 
 centos8 :
   stage : build
-  image: portus.lam.fr/jclamber/glnemo2/centos8
+  image: registry.lam.fr/jclamber/glnemo2/centos8
   only :
       variables:
         - $BUILD == "1"
@@ -144,7 +144,7 @@ centos8 :
 # Ubuntu
 ubuntu16.04 :
   stage : build
-  image: portus.lam.fr/jclamber/glnemo2/ubuntu16.04
+  image: registry.lam.fr/jclamber/glnemo2/ubuntu16.04
   only :
       variables:
         - $BUILD == "1"
@@ -159,7 +159,7 @@ ubuntu16.04 :
 
 ubuntu18.04 :
   stage : build
-  image: portus.lam.fr/jclamber/glnemo2/ubuntu18.04
+  image: registry.lam.fr/jclamber/glnemo2/ubuntu18.04
   only :
       variables:
         - $BUILD == "1"
@@ -174,7 +174,7 @@ ubuntu18.04 :
 
 ubuntu19.10 :
   stage : build
-  image: portus.lam.fr/jclamber/glnemo2/ubuntu19.10
+  image: registry.lam.fr/jclamber/glnemo2/ubuntu19.10
   only :
        variables:
         - $BUILD == "1"
@@ -206,7 +206,7 @@ ubuntu20.04 :
 #
 mageia6 :
   stage : build
-  image: portus.lam.fr/jclamber/glnemo2/mageia6
+  image: registry.lam.fr/jclamber/glnemo2/mageia6
   only :
       variables:
         - $BUILD == "1"
@@ -221,7 +221,7 @@ mageia6 :
 
 mageia7 :
   stage : build
-  image: portus.lam.fr/jclamber/glnemo2/mageia7
+  image: registry.lam.fr/jclamber/glnemo2/mageia7
   only :
       variables:
         - $BUILD == "1"
