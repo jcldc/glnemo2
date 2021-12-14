@@ -131,6 +131,7 @@ centos8 :
   only :
       variables:
         - $BUILD == "1"
+        - $ONEBUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
@@ -192,7 +193,6 @@ ubuntu20.04 :
   only :
        variables:
         - $BUILD == "1"
-        - $ONEBUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
