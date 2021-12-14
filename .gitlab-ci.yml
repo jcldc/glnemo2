@@ -36,7 +36,7 @@ OSX:
   only :
     variables:
       - $OSX == "1"
-      - $ONEBUILD == "1"
+      - $ONEBUILD == "0"
   script:
     # build
     - CI/scripts/buildOSX.sh
@@ -188,10 +188,11 @@ ubuntu19.10 :
 
 ubuntu20.04 :
   stage : build
-  image: portus.lam.fr/jclamber/glnemo2/ubuntu20.04
+  image: registry.lam.fr/jclamber/glnemo2/ubuntu20.04
   only :
        variables:
         - $BUILD == "1"
+        - $ONEBUILD = "1"
   script:
     # build
     - CI/scripts/build.sh

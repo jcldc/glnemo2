@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -34,11 +34,11 @@ class PhysicalData {
   double getMax() const { return max;}
   bool isValid() const { return valid;}
   int getType()  const { return type;}
-  void setType(const PHYS i)  { // set the index of the physical value selected
-    if (i!=-1) {
-      type = i; 
-    }
-  }
+  // void setType(const PHYS i)  { // set the index of the physical value selected
+  //   if (i!=-1) {
+  //     type = i; 
+  //   }
+  // }
   float * data;
   const int nhisto; // #entries in  data_histo
   std::vector <int> data_histo; //data_histo[100]; // store #particles per percentage
