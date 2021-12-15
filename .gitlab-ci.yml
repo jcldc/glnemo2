@@ -49,28 +49,12 @@ OSX:
 #
 # RPM Distros
 #
-fedora31 :
-  stage : build
-  image: registry.lam.fr/jclamber/glnemo2/fedora31
-  only :
-      variables:
-        - $BUILD == "1"
-  script:
-    # build
-    - CI/scripts/build.sh
-  artifacts:
-    name: "fedora31"
-    paths:
-      - glnemo2*.rpm
-    expire_in: 1 week
-
 fedora35 :
   stage : build
   image: registry.lam.fr/jclamber/glnemo2/fedora35
   only :
       variables:
         - $BUILD == "1"
-        - $ONEBUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
@@ -80,10 +64,9 @@ fedora35 :
       - glnemo2*.rpm
     expire_in: 1 week
 
-# OpenSUSE
-opensuse15.1 :
+fedora34 :
   stage : build
-  image: registry.lam.fr/jclamber/glnemo2/opensuse15.1
+  image: registry.lam.fr/jclamber/glnemo2/fedora34
   only :
       variables:
         - $BUILD == "1"
@@ -91,7 +74,53 @@ opensuse15.1 :
     # build
     - CI/scripts/build.sh
   artifacts:
-    name: "opensuse15.1"
+    name: "fedora34"
+    paths:
+      - glnemo2*.rpm
+    expire_in: 1 week
+
+fedora33 :
+  stage : build
+  image: registry.lam.fr/jclamber/glnemo2/fedora33
+  only :
+      variables:
+        - $BUILD == "1"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "fedora33"
+    paths:
+      - glnemo2*.rpm
+    expire_in: 1 week
+
+# OpenSUSE
+opensuse15.3 :
+  stage : build
+  image: registry.lam.fr/jclamber/glnemo2/opensuse15.3
+  only :
+      variables:
+        - $BUILD == "1"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "opensuse15.3"
+    paths:
+      - glnemo2*.rpm
+    expire_in: 1 week
+
+opensuse15.2 :
+  stage : build
+  image: registry.lam.fr/jclamber/glnemo2/opensuse15.2
+  only :
+      variables:
+        - $BUILD == "1"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "opensuse15.2"
     paths:
       - glnemo2*.rpm
     expire_in: 1 week
@@ -157,24 +186,9 @@ ubuntu16.04 :
       - glnemo2*.deb
     expire_in: 1 week
 
-ubuntu18.04 :
+ubuntu21.10 :
   stage : build
-  image: registry.lam.fr/jclamber/glnemo2/ubuntu18.04
-  only :
-      variables:
-        - $BUILD == "1"
-  script:
-    # build
-    - CI/scripts/build.sh
-  artifacts:
-    name: "ubuntu18.04"
-    paths:
-      - glnemo2*.deb
-    expire_in: 1 week
-
-ubuntu19.10 :
-  stage : build
-  image: registry.lam.fr/jclamber/glnemo2/ubuntu19.10
+  image: registry.lam.fr/jclamber/glnemo2/ubuntu21.10
   only :
        variables:
         - $BUILD == "1"
@@ -182,7 +196,7 @@ ubuntu19.10 :
     # build
     - CI/scripts/build.sh
   artifacts:
-    name: "ubuntu19.10"
+    name: "ubuntu21.10"
     paths:
       - glnemo2*.deb
     expire_in: 1 week
@@ -200,36 +214,4 @@ ubuntu20.04 :
     name: "ubuntu20.04"
     paths:
       - glnemo2*.deb
-    expire_in: 1 week
-
-# mageia
-#
-mageia6 :
-  stage : build
-  image: registry.lam.fr/jclamber/glnemo2/mageia6
-  only :
-      variables:
-        - $BUILD == "1"
-  script:
-    # build
-    - CI/scripts/build.sh
-  artifacts:
-    name: "mageia6"
-    paths:
-      - glnemo2*.rpm
-    expire_in: 1 week
-
-mageia7 :
-  stage : build
-  image: registry.lam.fr/jclamber/glnemo2/mageia7
-  only :
-      variables:
-        - $BUILD == "1"
-  script:
-    # build
-    - CI/scripts/build.sh
-  artifacts:
-    name: "mageia7"
-    paths:
-      - glnemo2*.rpm
     expire_in: 1 week
