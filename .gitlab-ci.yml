@@ -64,17 +64,18 @@ fedora31 :
       - glnemo2*.rpm
     expire_in: 1 week
 
-fedora30 :
+fedora35 :
   stage : build
-  image: registry.lam.fr/jclamber/glnemo2/fedora30
+  image: registry.lam.fr/jclamber/glnemo2/fedora35
   only :
       variables:
         - $BUILD == "1"
+        - $ONEBUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
   artifacts:
-    name: "fedora30"
+    name: "fedora35"
     paths:
       - glnemo2*.rpm
     expire_in: 1 week
@@ -131,7 +132,6 @@ centos8 :
   only :
       variables:
         - $BUILD == "1"
-        - $ONEBUILD == "1"
   script:
     # build
     - CI/scripts/build.sh
