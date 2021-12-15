@@ -14,7 +14,7 @@ if [ -f /lib/x86_64-linux-gnu/libQt5Core.so ]; then
     strip --remove-section=.note.ABI-tag /lib/x86_64-linux-gnu/libQt5Core.so
 fi
 
-cmake .
+cmake . -DCMAKE_SKIP_RPATH:BOOL=ON
 make -j 8
 strip bin/glnemo2
 make package
