@@ -36,7 +36,7 @@ OSX:
   only :
     variables:
       - $OSX == "1"
-      - $ONEBUILD == "0"
+      - $ONEBUILD == "1"
   script:
     # build
     - CI/scripts/buildOSX.sh
