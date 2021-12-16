@@ -165,7 +165,7 @@ std::string VERSION = "VERSION="+release+"\n    "+__DATE__+"  - JCL  compiled at
     "hsize=750\n       Windows's height size                            ",
     "screenshot=\n     Screenshot name                                  ",
     "shot_ext=jpg\n    Screenshot's extension jpg|png                   ",
-    "smooth_gui=t\n    if true it allows a smoother interactivity with  ",
+    "smooth_gui=f\n    if true it allows a smoother interactivity with  ",
     "cpoint_file=\n    path to a json cpoint description file           ",
     "                   the GUI, but it **double** the memory usage. \n",
     VERSION.c_str(),

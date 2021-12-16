@@ -30,6 +30,12 @@
 #include <omp.h>
 #endif
 
+#if defined(__GNUC__) && ! defined(__APPLE__)
+#define PARALLEL_SORT __gnu_parallel::sort
+#else
+#define PARALLEL_SORT sort
+#endif 
+
 #define OLDRENDER 0
 #define BENCH 1
 #define GLDRAWARRAYS 1
@@ -212,7 +218,7 @@ void GLObjectParticles::displayVboVelShader330()
         glEnableVertexAttribArrayARB(vpositions);
         start = 2*3*min_index*sizeof(float);
         int stride=2*3*sizeof(GLfloat);
-        glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
+        glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (intptr_t)(start));
 #if 0 // glsl 330
         // velocities
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel);
@@ -290,7 +296,7 @@ void GLObjectParticles::displayVboVelShader130()
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_X2);
         start = 2*3*min_index*sizeof(float);
         stride= 0;
-        glVertexAttribPointerARB(vvel_factor,3,GL_FLOAT, 0, stride, (GLvoid *) (start));
+        glVertexAttribPointerARB(vvel_factor,3,GL_FLOAT, 0, stride, (GLvoid *) (intptr_t)(start));
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
         // positions and velocities (ending vector)
@@ -303,7 +309,7 @@ void GLObjectParticles::displayVboVelShader130()
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
         start = 2*3*min_index*sizeof(float);
         stride=0;
-        glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
+        glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (intptr_t)(start));
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
         int maxvert=max_index-min_index+1;
@@ -431,14 +437,14 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
       glEnableVertexAttribArrayARB(a_sprite_size);
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_size);
       int start = min_index*sizeof(float);
-      glVertexAttribPointerARB(a_sprite_size,1,GL_FLOAT, 0, 0, (void *) (start));
+      glVertexAttribPointerARB(a_sprite_size,1,GL_FLOAT, 0, 0, (void *) (intptr_t)(start));
     }
     // Send physical data
     if (hasPhysic && phys_select && phys_select->isValid()) {
       glEnableVertexAttribArrayARB(a_phys_data);
       glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_data);
       int start = min_index*sizeof(float);
-      glVertexAttribPointerARB(a_phys_data,1,GL_FLOAT, 0, 0, (void *) (start));
+      glVertexAttribPointerARB(a_phys_data,1,GL_FLOAT, 0, 0, (void *) (intptr_t)(start));
     }
   } else {
     if (hasPhysic) { // gas only
@@ -474,7 +480,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   }
   //glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
   glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) stride, (void *) start);
+  glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) stride, (void *) (intptr_t)(start));
   if (maxvert > 0 && maxvert<=nvert_pos) {
     glDrawArrays(GL_POINTS, 0, maxvert);
   }
@@ -698,9 +704,12 @@ void GLObjectParticles::buildVboPos()
   //rho.clear();      // clear rho density vector
   phys_itv.clear(); // clear ohysical value vector
   rho_itv.clear();
-  vindex_sel.clear();   // clear zdepth vector
-  rho_itv.reserve(((po->npart/po->step)+1));
-  vindex_sel.reserve(((po->npart/po->step)+1));
+//  vindex_sel.clear();   // clear zdepth vector
+
+  if (phys_select && phys_select->isValid() && po->rhoSorted() && phys_select->getType() != PhysicalData::rho && part_data->rho) {
+    rho_itv.reserve(((po->npart / po->step) + 1));
+  }
+//  vindex_sel.reserve(((po->npart/po->step)+1));
   phys_itv.reserve(((po->npart/po->step)+1));
 
   for (int i=0; i < po->npart; i+=po->step) {
@@ -726,7 +735,7 @@ void GLObjectParticles::buildVboPos()
     GLObjectIndexTab myz;
     myz.index = index;
     myz.i_point = i;
-    vindex_sel.push_back(myz);
+//    vindex_sel.push_back(myz);
 #endif
   }
   if (BENCH) qWarning("Time elapsed to setup PHYSICAL arrays: %f s", tbloc.elapsed()/1000.);
@@ -740,9 +749,9 @@ void GLObjectParticles::buildVboPos()
   tbloc.restart();
   if (po->rhoSorted() &&
       phys_select && phys_select->getType() != PhysicalData::rho && part_data->rho) {
-    sort(rho_itv.begin(),rho_itv.end(),GLObjectIndexTab::compareLow);
+    PARALLEL_SORT(rho_itv.begin(),rho_itv.end(),GLObjectIndexTab::compareLow);
   } else {
-    sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
+    PARALLEL_SORT(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
   }
   if (BENCH) qWarning("Time elapsed to SORT PHYSICAL arrays: %f s", tbloc.elapsed()/1000.);
   //sort(rho.begin(),rho.end(),GLObjectIndexTab::compareHigh);
@@ -1187,7 +1196,7 @@ void GLObjectParticles::buildOrbitsDisplayList()
 void GLObjectParticles::selectParticles()
 {
   phys_itv.clear();   // clear physical value vector
-  vindex_sel.clear(); // clear vindex vector
+//  vindex_sel.clear(); // clear vindex vector
   for (int i=0; i < po->npart; i+=po->step) {
     int index=po->index_tab[i];
     if (phys_select && phys_select->isValid()) {
@@ -1201,11 +1210,11 @@ void GLObjectParticles::selectParticles()
     GLObjectIndexTab myz;
     myz.index = index;
     myz.i_point = i;
-    vindex_sel.push_back(myz);
+//    vindex_sel.push_back(myz);
   }
   // sort by density
 #if GLDRAWARRAYS
-  sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
+  PARALLEL_SORT(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
   //sort(rho.begin(),rho.end(),GLObjectIndexTab::compareHigh);
 #endif
 }
@@ -1338,7 +1347,7 @@ void GLObjectParticles::sortByDensity()
 {
       // sort according to the density
   if (part_data->rho)  {
-    sort(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
+    PARALLEL_SORT(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
   }
   nind_sorted = 0;
     // creates vertex indices array for gLDrawElements
@@ -1414,7 +1423,7 @@ void GLObjectParticles::sortByDepth()
       }
       }
   // sort according to the Z Depth
-  sort(vindex_sel.begin(),vindex_sel.begin()+nind_sorted,GLObjectIndexTab::compareLow);
+  PARALLEL_SORT(vindex_sel.begin(),vindex_sel.begin()+nind_sorted,GLObjectIndexTab::compareLow);
   //nind_sorted = 0;
   // creates vertex indices array for gLDrawElements
   if (! indexes_sorted || nind_sorted < vindex_sel.size()) {

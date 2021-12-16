@@ -1191,6 +1191,12 @@ void MainWindow::parseNemoParameters()
   if ( hasvalue((char *) "maxphys") ) {
       store_options->phys_max_glob=getdparam((char *) "maxphys");
       store_options->phys_local=false;
+  } 
+  else {
+      if  ( hasvalue((char *) "minphys") ) { // minphys but not maxphys
+        store_options->phys_max_glob=std::numeric_limits<float>::max();
+        store_options->phys_local=false;
+      } 
   }
   // color map
   store_options->colormap += getiparam((char *) "cmapindex");
