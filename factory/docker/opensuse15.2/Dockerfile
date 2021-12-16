@@ -1,4 +1,4 @@
-FROM opensuse/leap:15.1
+FROM opensuse/leap:15.2
 
 RUN zypper -n update &&\
 zypper -n install gcc-c++ gcc cmake libtirpc-devel &&\

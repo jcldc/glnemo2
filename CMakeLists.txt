@@ -223,7 +223,7 @@ if (APPLE)
 endif()
 #target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${HDF5_CXX_LIBRARIES_LIST} )
 # special ARCH LINUX
-if (EXISTS "/usr/lib64/libtirpc.so")
+if (EXISTS "/usr/lib64/libtirpc.so" OR EXISTS "/usr/lib/x86_64-linux-gnu/libtirpc.so")
    set (TIRPC "tirpc")
 else()
    set (TIRPC "")
