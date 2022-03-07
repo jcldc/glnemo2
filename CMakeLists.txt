@@ -180,7 +180,7 @@ include_directories (${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5Ope
 include_directories(/usr/include/CCfits /opt/local/include /opt/local/include/CCfits  /usr/include/cfitsio /usr/local/include/CCfits)
 include_directories(/usr/include/tirpc)
 include_directories(${PROJECT_SOURCE_DIR}/3rdparty/openvr/headers)
-include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 C:/Users/Gregoire/Documents/hdf5_build_from_source/CMake-hdf5-1.10.1/hdf5-1.10.1/cmake-build-debug C:/Users/Gregoire/Documents/hdf5_build_from_source/CMake-hdf5-1.10.1/hdf5-1.10.1/c++/src C:/Users/Gregoire/Documents/hdf5_build_from_source/CMake-hdf5-1.10.1/hdf5-1.10.1/src)
+include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 C:/Users/Gregoire/Documents/hdf5-build-from-source/CMake-hdf5-1.8.22/hdf5-1.8.22/cmake-build-debug/src C:/Users/Gregoire/Documents/hdf5-build-from-source/CMake-hdf5-1.8.22/hdf5-1.8.22/c++/src C:/Users/Gregoire/Documents/hdf5-build-from-source/CMake-hdf5-1.8.22/hdf5-1.8.22/src)
 
 if (APPLE)
   include_directories(/usr/include/malloc /usr/X11/include)
@@ -198,7 +198,7 @@ add_library (uns STATIC ${moc1_src} ${lib_files})
 # -----------------------
 
 # Make sure the linker can find the Hello library once it is built.
-link_directories (${CMAKE_BINARY_DIR}/LIB /opt/local/lib /usr/local/lib C:/Users/Gregoire/Documents/hdf5_build_from_source/CMake-hdf5-1.10.1/hdf5-1.10.1/cmake-build-debug/bin C:/Users/Gregoire/Documents/ C:/Users/Gregoire/Documents/zlib C:/Users/Gregoire/Documents/cfitsio/cmake-build-debug C:/Users/Gregoire/Documents/CCfits/CCfits)
+link_directories (${CMAKE_BINARY_DIR}/LIB /opt/local/lib /usr/local/lib C:/Users/Gregoire/Documents/hdf5-build-from-source/CMake-hdf5-1.8.22/hdf5-1.8.22/cmake-build-debug/bin C:/Users/Gregoire/Documents/ C:/Users/Gregoire/Documents/zlib C:/Users/Gregoire/Documents/cfitsio/cmake-build-debug C:/Users/Gregoire/Documents/CCfits/CCfits)
 
 # Glew file
 set (glew src/glew/glew.c) 

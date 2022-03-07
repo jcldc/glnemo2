@@ -176,6 +176,7 @@ public:
     float od_radius;
     // debug info
     std::vector<std::string> debug_info;
+    bool vr_enable;
 };
 
 }

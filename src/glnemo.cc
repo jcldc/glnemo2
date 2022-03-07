@@ -168,6 +168,7 @@ std::string VERSION = "VERSION="+release+"\n    "+__DATE__+"  - JCL  compiled at
     "smooth_gui=t\n    if true it allows a smoother interactivity with  ",
     "cpoint_file=\n    path to a json cpoint description file           ",
     "                   the GUI, but it **double** the memory usage. \n",
+    "vr_enable=t\n            activates vr",
     VERSION.c_str(),
     NULL
   };

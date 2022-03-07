@@ -1237,6 +1237,7 @@ void MainWindow::parseNemoParameters()
 
   if (store_options->port) {;} // do nothing (remove compiler warning)
 
+  store_options->vr_enable = getbparam((char *) "vr");
   //                         finish NEMO
 }
 // -----------------------------------------------------------------------------

@@ -209,7 +209,6 @@ vr::IVRSystem* init_VR()
 // performance during rendering. You have been warned !!!!!
 GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager, NewCamera* _new_camera) :QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
-  vr_context = init_VR();
 
   m_scale = 1.f/10;
   world_scale = glm::vec3(m_scale, m_scale, m_scale);
@@ -224,6 +223,13 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   camera        = _camera;
   cpointset_manager = _pointset_manager;
   new_camera = _new_camera;
+
+  if(store_options->vr_enable){
+      std::cerr <<  "vr enabled" << std::endl;
+      vr_context = init_VR();
+  }
+
+
   //setAttribute(Qt::WA_NoSystemBackground);
   // reset coordinates
   resetEvents(true);
