@@ -32,7 +32,7 @@ variables :
 OSX:
   stage : build
   tags:
-    - osx
+    - osx2
   only :
     variables:
       - $OSX == "1"
