@@ -68,10 +68,12 @@ fedora35 :
 
 fedora34 :
   stage : build
+  tags:
+    - Linux
   image: registry.lam.fr/jclamber/glnemo2/fedora34
   only :
       variables:
-        - $BUILD == "1"
+        - $BUILD == "2"
   script:
     # build
     - CI/scripts/build.sh
