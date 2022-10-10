@@ -159,7 +159,7 @@ centos7 :
   image: registry.lam.fr/jclamber/glnemo2/centos7
   only :
       variables:
-        - $BUILD == "1"
+        - $BUILD == "2"
   script:
     # build
     - CI/scripts/build.sh
@@ -176,7 +176,7 @@ centos8 :
   image: registry.lam.fr/jclamber/glnemo2/centos8
   only :
       variables:
-        - $BUILD == "1"
+        - $BUILD == "2"
   script:
     # build
     - CI/scripts/build.sh
@@ -226,7 +226,7 @@ ubuntu20.04 :
   image: registry.lam.fr/jclamber/glnemo2/ubuntu20.04
   only :
        variables:
-        - $BUILD == "1"
+        - $BUILD == "2"
   script:
     # build
     - CI/scripts/build.sh
