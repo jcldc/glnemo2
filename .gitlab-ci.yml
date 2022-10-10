@@ -35,7 +35,7 @@ OSX:
     - osx2
   only :
     variables:
-      - $OSX == "0"
+      - $OSX == "1"
       - $ONEBUILD == "0"
   script:
     # build
@@ -56,8 +56,7 @@ fedora35 :
   image: registry.lam.fr/jclamber/glnemo2/fedora35
   only :
       variables:
-        - $BUILD == "1"
-        - $LINUXBUILD == "1"
+        - $BUILD == "2"
   script:
     # build
     - CI/scripts/build.sh
