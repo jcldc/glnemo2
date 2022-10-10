@@ -85,10 +85,12 @@ fedora34 :
 
 fedora33 :
   stage : build
+  tags:
+    - Linux
   image: registry.lam.fr/jclamber/glnemo2/fedora33
   only :
       variables:
-        - $BUILD == "1"
+        - $BUILD == "2"
   script:
     # build
     - CI/scripts/build.sh
@@ -101,10 +103,12 @@ fedora33 :
 # OpenSUSE
 opensuse15.3 :
   stage : build
+  tags:
+    - Linux
   image: registry.lam.fr/jclamber/glnemo2/opensuse15.3
   only :
       variables:
-        - $BUILD == "1"
+        - $BUILD == "2"
   script:
     # build
     - CI/scripts/build.sh
@@ -116,10 +120,12 @@ opensuse15.3 :
 
 opensuse15.2 :
   stage : build
+  tags:
+    - Linux
   image: registry.lam.fr/jclamber/glnemo2/opensuse15.2
   only :
       variables:
-        - $BUILD == "1"
+        - $BUILD == "2"
   script:
     # build
     - CI/scripts/build.sh
@@ -131,10 +137,12 @@ opensuse15.2 :
 
 opensuse-rolling :
   stage : build
+  tags:
+    - Linux
   image: registry.lam.fr/jclamber/glnemo2/tumbleweed
   only :
       variables:
-        - $BUILD == "1"
+        - $BUILD == "2"
   script:
     # build
     - CI/scripts/build.sh
@@ -146,6 +154,8 @@ opensuse-rolling :
 
 centos7 :
   stage : build
+  tags:
+    - Linux
   image: registry.lam.fr/jclamber/glnemo2/centos7
   only :
       variables:
@@ -161,6 +171,8 @@ centos7 :
 
 centos8 :
   stage : build
+  tags:
+    - Linux
   image: registry.lam.fr/jclamber/glnemo2/centos8
   only :
       variables:
@@ -177,6 +189,8 @@ centos8 :
 # Ubuntu
 ubuntu16.04 :
   stage : build
+  tags:
+    - Linux
   image: registry.lam.fr/jclamber/glnemo2/ubuntu16.04
   only :
       variables:
@@ -207,6 +221,8 @@ ubuntu21.10 :
 
 ubuntu20.04 :
   stage : build
+  tags:
+    - Linux
   image: registry.lam.fr/jclamber/glnemo2/ubuntu20.04
   only :
        variables:
