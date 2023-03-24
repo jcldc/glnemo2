@@ -76,7 +76,7 @@ void GH5<T>::readHeaderAttributes()
   header.NumFilesPerSnapshot = (int) getAttribute<int>("NumFilesPerSnapshot")[0];
   header.NumPart_ThisFile = getAttribute<int>("NumPart_ThisFile");
   header.NumPart_Total = getAttribute<unsigned int>("NumPart_Total");
-  header.NumPart_Total_HighWord = getAttribute<int>("NumPart_Total_HighWord");
+  //header.NumPart_Total_HighWord = getAttribute<int>("NumPart_Total_HighWord");
   // compute npart_total
   npart_total=0;
   for(int k=0; k<6; k++)  {
