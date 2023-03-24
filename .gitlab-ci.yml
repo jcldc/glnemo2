@@ -191,7 +191,6 @@ ubuntu22.10 :
   image: registry.lam.fr/jclamber/glnemo2/ubuntu22.10
   only :
        variables:
-        - $BUILD == "1"
         - $ONEBUILD == "1"
   script:
     # build
