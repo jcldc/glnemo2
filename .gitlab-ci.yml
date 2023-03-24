@@ -186,6 +186,22 @@ ubuntu16.04 :
       - glnemo2*.deb
     expire_in: 1 week
 
+ubuntu22.10 :
+  stage : build
+  image: registry.lam.fr/jclamber/glnemo2/ubuntu22.10
+  only :
+       variables:
+        - $BUILD == "1"
+        - $ONEBUILD == "1"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "ubuntu21.10"
+    paths:
+      - glnemo2*.deb
+    expire_in: 1 week
+
 ubuntu21.10 :
   stage : build
   image: registry.lam.fr/jclamber/glnemo2/ubuntu21.10
