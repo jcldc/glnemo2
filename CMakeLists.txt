@@ -49,7 +49,7 @@ if    (WIN32)
 endif ()
 if    (APPLE)
   MESSAGE(STATUS "\n\n\n- - - Mac OSX  - - -\n\n\nWARNING : DO NOT FORGET TO RUN CMAKE LIKE THIS\n\n ")
-  MESSAGE(STATUS "/opt/local/bin/cmake .. -DCMAKE_PREFIX_PATH=/Users/jcl/Qt2/5.10.0/clang_64/lib/cmake\n\n\n")
+  MESSAGE(STATUS "/opt/local/bin/cmake .. -DCMAKE_PREFIX_PATH=/Users/grunner/Qt/5.15.2/clang_64/lib/cmake\n\n\n")
 endif ()
 # check QTDIR5
 FILE(GLOB GLOB_TEMP_VAR1 $ENV{QTDIR5})
