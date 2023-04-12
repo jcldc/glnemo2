@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2020
+// Copyright Jean-Charles LAMBERT - 2007-2023
 // e-mail:   Jean-Charles.Lambert@lam.fr
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
 //           Laboratoire d'Astrophysique de Marseille
@@ -17,8 +17,8 @@
 #define VERSION_H
 
 #define GLNEMO2_MAJOR "1"
-#define GLNEMO2_MINOR "20"
-#define GLNEMO2_PATCH "1"
+#define GLNEMO2_MINOR "30"
+#define GLNEMO2_PATCH "0"
 #define GLNEMO2_EXTRA ""
 
 #endif // VERSION_H

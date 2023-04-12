@@ -1,5 +1,5 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2020
+// Copyright Jean-Charles LAMBERT - 2007-2023
 //           Yannick Dalbin
 // e-mail:   Jean-Charles.Lambert@lam.fr
 // address:  Dynamique des galaxies

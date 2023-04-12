@@ -206,6 +206,8 @@ ubuntu16.04 :
 
 ubuntu22.10 :
   stage : build
+  tags:
+    - Linux
   image: registry.lam.fr/jclamber/glnemo2/ubuntu22.10
   only :
        variables:
