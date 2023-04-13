@@ -27,7 +27,7 @@ GH5<T>::GH5(const std::string _f_name,unsigned int mode, const bool verb)
   f_name=_f_name;
   myfile = NULL;
   myfile = new H5File(f_name,mode);
-
+  gadget_number = 3;
   if (mode==H5F_ACC_RDONLY) { // reading mode only
     readHeaderAttributes();
   } else
@@ -76,7 +76,13 @@ void GH5<T>::readHeaderAttributes()
   header.NumFilesPerSnapshot = (int) getAttribute<int>("NumFilesPerSnapshot")[0];
   header.NumPart_ThisFile = getAttribute<int>("NumPart_ThisFile");
   header.NumPart_Total = getAttribute<unsigned int>("NumPart_Total");
-  //header.NumPart_Total_HighWord = getAttribute<int>("NumPart_Total_HighWord");
+  try {
+    header.NumPart_Total_HighWord = getAttribute<int>("NumPart_Total_HighWord");
+    gadget_number=3;
+  } catch (...) {
+    std::cerr << "WARNING: looks like to be a Gadget4 file";
+    gadget_number=4;
+  }
   // compute npart_total
   npart_total=0;
   for(int k=0; k<6; k++)  {

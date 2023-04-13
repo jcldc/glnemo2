@@ -1,3 +1,6 @@
+* Thu Apr 14 2023 - 1.30.0
+- read Gadget4 snapshots
+
 * Wed Dec 15 2021 - 1.20.1
 - improve FITS data support
 - decrease memory footprint on FITS
