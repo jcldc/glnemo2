@@ -174,7 +174,9 @@ add_library (uns STATIC ${moc1_src} ${lib_files})
 # -----------------------
 
 # Make sure the linker can find the Hello library once it is built.
-link_directories (${CMAKE_BINARY_DIR}/LIB /opt/local/lib /usr/local/lib )
+if (APPLE)
+  link_directories (${CMAKE_BINARY_DIR}/LIB /opt/local/lib /usr/local/lib )
+endif()
 
 # Glew file
 set (glew src/glew/glew.c) 

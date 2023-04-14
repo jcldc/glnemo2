@@ -11,7 +11,7 @@ using camera path. All this features are accessible from a very intuitive graphi
 Currently, glnemo2 reads:
 * NEMO files (http://carma.astro.umd.edu/nemo)
 * Gadget 1 and 2 -little and big endian- files (http://www.mpa-garching.mpg.de/gadget/)
-* Gadget 3 (HDF5) (http://www.mpa-garching.mpg.de/gadget/)
+* Gadget 3 and 4 (HDF5) (http://www.mpa-garching.mpg.de/gadget4/)
 * RAMSES files (http://www.ics.uzh.ch/~teyssier/ramses/RAMSES.html)
 * TIPSY files (http://www-hpcc.astro.washington.edu/tools/tipsy/tipsy.html)
 * FITS files, 2D and 3D datacube (http://fits.gsfc.nasa.gov/)
@@ -32,7 +32,7 @@ Glnemo2 runs fine on Linux, Windows(using minGW compiler), and MaxOSX, thanks to
 2. test purpose files: see **snapshot/README**
 
 # Webpage
- Glnemo2 has a dedicated web site : http://projets.lam.fr/projects/glnemo2
+ Glnemo2 has a dedicated web site : http://projets.lam.fr/projects/glnemo2/wiki
 
 # License
 
@@ -46,7 +46,7 @@ license as circulated by CEA, CNRS and INRIA at the following URL
 # © Copyright
                              --  Glnemo2 --
                                  
-                Copyright © Jean-Charles LAMBERT 2007-2021
+                Copyright © Jean-Charles LAMBERT 2007-2023
                  http://projets.lam.fr/projects/glnemo2
  
                        Jean-Charles.Lambert_AT_lam_DOT_fr

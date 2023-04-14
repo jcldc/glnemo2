@@ -49,6 +49,40 @@ OSX:
 #
 # RPM Distros
 #
+fedora37 :
+  stage : build
+  tags:
+    - Linux
+  image: registry.lam.fr/jclamber/glnemo2/fedora37
+  only :
+      variables:
+        - $BUILD == "2"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "fedora37"
+    paths:
+      - glnemo2*.rpm
+    expire_in: 1 week
+
+fedora36 :
+  stage : build
+  tags:
+    - Linux
+  image: registry.lam.fr/jclamber/glnemo2/fedora36
+  only :
+      variables:
+        - $BUILD == "2"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "fedora36"
+    paths:
+      - glnemo2*.rpm
+    expire_in: 1 week
+
 fedora35 :
   stage : build
   tags:
@@ -79,23 +113,6 @@ fedora34 :
     - CI/scripts/build.sh
   artifacts:
     name: "fedora34"
-    paths:
-      - glnemo2*.rpm
-    expire_in: 1 week
-
-fedora33 :
-  stage : build
-  tags:
-    - Linux
-  image: registry.lam.fr/jclamber/glnemo2/fedora33
-  only :
-      variables:
-        - $BUILD == "2"
-  script:
-    # build
-    - CI/scripts/build.sh
-  artifacts:
-    name: "fedora33"
     paths:
       - glnemo2*.rpm
     expire_in: 1 week
@@ -187,23 +204,6 @@ centos8 :
     expire_in: 1 week
 
 # Ubuntu
-ubuntu16.04 :
-  stage : build
-  tags:
-    - Linux
-  image: registry.lam.fr/jclamber/glnemo2/ubuntu16.04
-  only :
-      variables:
-        - $BUILD == "1"
-  script:
-    # build
-    - CI/scripts/build.sh
-  artifacts:
-    name: "ubuntu16.04"
-    paths:
-      - glnemo2*.deb
-    expire_in: 1 week
-
 ubuntu23.04 :
   stage : build
   tags:
@@ -211,7 +211,7 @@ ubuntu23.04 :
   image: registry.lam.fr/jclamber/glnemo2/ubuntu23.04
   only :
        variables:
-        - $ONEBUILD == "1"
+        - $BUILD == "2"
   script:
     # build
     - CI/scripts/build.sh
@@ -228,27 +228,12 @@ ubuntu22.10 :
   image: registry.lam.fr/jclamber/glnemo2/ubuntu22.10
   only :
        variables:
-        - $ONEBUILD == "1"
+        - $BUILD == "2"
   script:
     # build
     - CI/scripts/build.sh
   artifacts:
     name: "ubuntu22.10"
-    paths:
-      - glnemo2*.deb
-    expire_in: 1 week
-
-ubuntu21.10 :
-  stage : build
-  image: registry.lam.fr/jclamber/glnemo2/ubuntu21.10
-  only :
-       variables:
-        - $BUILD == "1"
-  script:
-    # build
-    - CI/scripts/build.sh
-  artifacts:
-    name: "ubuntu21.10"
     paths:
       - glnemo2*.deb
     expire_in: 1 week
@@ -266,6 +251,23 @@ ubuntu20.04 :
     - CI/scripts/build.sh
   artifacts:
     name: "ubuntu20.04"
+    paths:
+      - glnemo2*.deb
+    expire_in: 1 week
+
+ubuntu16.04 :
+  stage : build
+  tags:
+    - Linux
+  image: registry.lam.fr/jclamber/glnemo2/ubuntu16.04
+  only :
+      variables:
+        - $BUILD == "1"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "ubuntu16.04"
     paths:
       - glnemo2*.deb
     expire_in: 1 week

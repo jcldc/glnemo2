@@ -19,7 +19,7 @@ command line parameters, just enter : glnemo2
 known.
 Currently, glnemo2 reads:
 - NEMO files (http://carma.astro.umd.edu/nemo)
-- Gadget 1 and 2 -little and big endian- files (http://www.mpa-garching.mpg.de/gadget/)
+- Gadget 1/2/3/4 -little and big endian- files (http://www.mpa-garching.mpg.de/gadget/)
 - RAMSES files (http://www.ics.uzh.ch/~teyssier/ramses/RAMSES.html)
 - TIPSY files (http://www-hpcc.astro.washington.edu/tools/tipsy/tipsy.html)
 - FTM files (Clayton Heller's sph/nbody code)
