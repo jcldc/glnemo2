@@ -238,6 +238,23 @@ ubuntu22.10 :
       - glnemo2*.deb
     expire_in: 1 week
 
+ubuntu22.04 :
+  stage : build
+  tags:
+    - Linux
+  image: registry.lam.fr/jclamber/glnemo2/ubuntu22.04
+  only :
+       variables:
+        - $BUILD == "2"
+  script:
+    # build
+    - CI/scripts/build.sh
+  artifacts:
+    name: "ubuntu22.04"
+    paths:
+      - glnemo2*.deb
+    expire_in: 1 week
+
 ubuntu20.04 :
   stage : build
   tags:
