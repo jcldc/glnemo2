@@ -12,7 +12,7 @@
 // ============================================================================
 #include <iostream>
 #include <sstream>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QString>
 #include <QTime>
 #include "userselection.h"
@@ -87,7 +87,7 @@ bool UserSelection::setSelection(std::string _sel,
 
   bool status=parse();
   if (status || 1 ) { // we force here
-    QTime tbench;
+    QElapsedTimer tbench;
     tbench.restart();
     // ascending sort according to the 'first' element
     int nobj=ParticlesObject::nobj;
@@ -147,7 +147,7 @@ int UserSelection::isRange(const std::string comp)
 {
   int status;
   // Regular expression => first:last:step
-  QRegExp rx("^(\\d{1,})((:)(\\d{1,})){,1}((:)(\\d{1,})){,1}$");
+  QRegularExpression rx("^(\\d{1,})((:)(\\d{1,})){,1}((:)(\\d{1,})){,1}$");
   int match=rx.indexIn(QString(comp.c_str()));
   if (match == -1) { // not match
     status=1;        // misformated
@@ -194,7 +194,7 @@ int UserSelection::isComponent(const std::string comp)
 {
   int status;
   // Regular expression => all|halo|disk ......
-  QRegExp rx("^(all|halo|disk|disc|bulge|stars|gas|gaz|bndry|other(\\d{,}))$");
+  QRegularExpression rx("^(all|halo|disk|disc|bulge|stars|gas|gaz|bndry|other(\\d{,}))$");
   int match=rx.indexIn(QString(comp.c_str()));
   if (match == -1) { // not match
     status=1;        // misformated

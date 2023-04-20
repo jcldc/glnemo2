@@ -12,7 +12,7 @@
 // ============================================================================
 #include <QtGlobal>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <GL/glew.h>
+//#include <GL/glew.h>
 #include <QtGui>
 #else
 #include <QtGui>
@@ -191,10 +191,10 @@ void GLWindow::updateGL()
     if (store_options->new_frame)
       update();
     else
-      QGLWidget::update();
+      QOpenGLWidget::update();
     mutex_data->unlock();
   }
-  else QGLWidget::update();
+  else QOpenGLWidget::update();
 }
 //QMutex mutex1;
 
@@ -384,7 +384,7 @@ void GLWindow::paintGL()
   } 
   //setFocus();
   
-  qglClearColor(store_options->background_color);
+  f_context->qglClearColor(store_options->background_color);
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   // set projection
@@ -693,7 +693,7 @@ void GLWindow::initializeGL()
 #endif
 
   makeCurrent();   // activate OpenGL context, can build display list by now
-  
+  f_context = QOpenGLContext::currentContext()->functions();
 }
 // ============================================================================
 // resize the opengl viewport according to the new window size

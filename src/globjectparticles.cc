@@ -10,7 +10,7 @@
 // ============================================================================
 // See the complete license in LICENSE and/or "http://www.cecill.info".
 // ============================================================================
-#include <GL/glew.h>
+//#include <GL/glew.h>
 #include "globjectparticles.h"
 #include "particlesobject.h"
 #include "particlesdata.h"
@@ -21,7 +21,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QMessageBox>
-#include <QTime>
+#include <QElapsedTimer>
 #include <vector>
 #include <sstream>
 #include <algorithm>
@@ -644,7 +644,7 @@ void GLObjectParticles::updateBoundaryPhys()
 // usefull only with OpenGL >= 3.00 (glsl 130)
 void GLObjectParticles::buildVboVelFactor()
 {
-    QTime tbloc;
+    QElapsedTimer tbloc;
     tbloc.restart();
     assert(part_data->vel != NULL);
     std::vector <GLfloat> vel_factor;
@@ -691,7 +691,7 @@ void GLObjectParticles::buildVboVelFactor()
 // Build Vector Buffer Object for positions array
 void GLObjectParticles::buildVboPos()
 {
-  QTime tbench,tbloc;
+  QElapsedTimer tbench,tbloc;
   tbench.restart();
   nvert_pos=0;
   tbloc.restart();
@@ -843,7 +843,7 @@ if (BENCH) qWarning("Transfert Speed (POS) VBO arrays to GPU: %f MB/s", factor *
 // Build Vector Buffer Object for size point array
 void GLObjectParticles::buildVboHsml()
 {
-  QTime tbench;
+  QElapsedTimer tbench;
   tbench.restart();
 
   std::vector <GLfloat> hsml_value;
@@ -892,7 +892,7 @@ void GLObjectParticles::buildVboHsml()
 // Build Vector Buffer Object for physical data  array
 void GLObjectParticles::buildVboPhysData()
 {
-  QTime tbench;
+  QElapsedTimer tbench;
   tbench.restart();
 
   std::vector <GLfloat> phys_data;
@@ -1115,7 +1115,7 @@ void GLObjectParticles::updateVel()
 // buildDisplayList
 void GLObjectParticles::buildDisplayList()
 {
-  QTime tbench;
+  QElapsedTimer tbench;
   tbench.restart();
   // display list
   glNewList( dplist_index, GL_COMPILE );
@@ -1140,7 +1140,7 @@ void GLObjectParticles::buildDisplayList()
 void GLObjectParticles::buildVelDisplayList()
 {
   if (part_data->vel) {
-    QTime tbench;
+    QElapsedTimer tbench;
     tbench.restart();
 
     // display list

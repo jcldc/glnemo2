@@ -75,13 +75,17 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake ${QTDIR5}
 # Instruct CMake to run moc automatically when needed.
 #set(CMAKE_AUTOMOC ON)
 
-# find QT5 files
-find_package(Qt5Widgets)
-find_package(Qt5Core)
-find_package(Qt5OpenGL)
-find_package(Qt5Network)
-find_package(Qt5PrintSupport)
-find_package(Qt5Gui)
+# find Qt6 files
+find_package(Qt6Widgets)
+find_package(Qt6Core)
+find_package(Qt6 REQUIRED COMPONENTS Core) 
+find_package(Qt6 REQUIRED COMPONENTS OpenGLWidgets) 
+find_package(Qt6 REQUIRED COMPONENTS Core5Compat) 
+find_package(Qt6OpenGL)
+find_package(Qt6OpenGLWidgets)
+find_package(Qt6Network)
+find_package(Qt6PrintSupport)
+find_package(Qt6Gui)
 
 # HDF5 support
 FIND_PACKAGE(HDF5 COMPONENTS CXX REQUIRED)
@@ -147,13 +151,13 @@ if (APPLE)
   #ADD_DEFINITIONS(-mmacosx-version-min=10.9)
 endif()
 ADD_DEFINITIONS(-fPIC)
-set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+set (CMAKE_CXX_FLAGS "-std=c++17 ${CMAKE_CXX_FLAGS}")
 # Add compiler flags for building executables (-fPIE)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 # Make sure the compiler can find include files from our Hello library.
 include_directories (${PROJECT_SOURCE_DIR}/plugins ${PROJECT_SOURCE_DIR}/plugins/nemolight/inc ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/plugins/ftm ${PROJECT_SOURCE_DIR}/plugins/gadget ${PROJECT_SOURCE_DIR}/plugins/tipsy ${PROJECT_SOURCE_DIR}/src/glew ${PROJECT_SOURCE_DIR}/plugins/network ${PROJECT_SOURCE_DIR}/plugins/ramses ${PROJECT_SOURCE_DIR}/plugins/zlib ${PROJECT_SOURCE_DIR}/3rdparty/pfntlib ${PROJECT_SOURCE_DIR}/utils)
-include_directories (${Qt5Widgets_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS} {Qt5PrintSupport_INCLUDE_DIRS})
+include_directories (${Qt6Widgets_INCLUDE_DIRS} ${Qt6Core_INCLUDE_DIRS} ${Qt6OpenGL_INCLUDE_DIRS} ${Qt6Core5Compat_INCLUDE_DIRS} ${Qt6OpenGLWidgets_INCLUDE_DIRS} ${Qt6Network_INCLUDE_DIRS} ${Qt6PrintSupport_INCLUDE_DIRS})
 include_directories(/usr/include/CCfits /opt/local/include /opt/local/include/CCfits  /usr/include/cfitsio /usr/local/include/CCfits)
 include_directories(/usr/include/tirpc)
 include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 ${HDF5_INCLUDE_DIRS})
@@ -162,7 +166,7 @@ if (APPLE)
   include_directories(/usr/include/malloc /usr/X11/include)
 endif()
 # run moc files
-QT5_WRAP_CPP(moc1_src ${hdrs1_files})
+Qt6_WRAP_CPP(moc1_src ${hdrs1_files})
 
 # create library "uns"
 add_library (uns STATIC ${moc1_src} ${lib_files})
@@ -194,13 +198,13 @@ FILE(GLOB ui_files src/*.ui)
 SET(rcs_file src/glnemo.qrc)
 
 # compute ressources
-QT5_ADD_RESOURCES( rc_src ${rcs_file} )
+QT6_ADD_RESOURCES( rc_src ${rcs_file} )
 
 # run uic files
-QT5_WRAP_UI(ui_headers ${ui_files})
+QT6_WRAP_UI(ui_headers ${ui_files})
 
 # run moc files
-QT5_WRAP_CPP(moc_src ${hdrs_files})
+QT6_WRAP_CPP(moc_src ${hdrs_files})
 
 # we need the following to be able to include headers produced by uic in our code
 # (CMAKE_BINARY_DIR holds a path to the build directory, while INCLUDE_DIRECTORIES() 
@@ -232,7 +236,7 @@ else()
 endif()
 target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${TIRPC}  ${HDF5_CXX_LIBRARIES} )
 
-qt5_use_modules(glnemo2 Gui Widgets Core OpenGL Network PrintSupport)
+#qt6_use_modules(glnemo2 Gui Widgets Core OpenGL Network PrintSupport)
 
 # INSTALLATION
 IF (NEMO_INSTALLED) 
@@ -377,7 +381,7 @@ if(APPLE)
 endif()
 
 if(APPLE) # OR WIN32)
-  include(DeployQt5)
+  include(DeployQt6)
 
   #set(LIST_PLUGIN "Qt5::AccessibleFactory;Qt5::QJpegPlugin;Qt5::QICNSPlugin;Qt5::QCocoaPrinterSupportPlugin")
   # The following part give me a big headeach, seriously....
@@ -387,7 +391,7 @@ if(APPLE) # OR WIN32)
   #
  
   #set(LIST_PLUGIN "Qt5::AccessibleFactory;Qt5::QJpegPlugin;Qt5::QICNSPlugin")
-  set(LIST_PLUGIN "Qt5::QJpegPlugin;Qt5::QICNSPlugin")
+  set(LIST_PLUGIN "Qt6::QJpegPlugin;Qt6::QICNSPlugin")
   set (QT_ADD_PLUGIN "")
   foreach (plugin ${LIST_PLUGIN})
     get_property(QT_GET_PLUGIN TARGET ${plugin} PROPERTY LOCATION_RELEASE) 
@@ -406,5 +410,5 @@ if(APPLE) # OR WIN32)
   message ("PrinterPlugin = " ${PrinterPlugin})
   list (APPEND QT_ADD_PLUGIN ${PrinterPlugin})
   
-  install_qt5_executable("${EXECUTABLE}" "${QT_ADD_PLUGIN}")
+  install_qt6_executable("${EXECUTABLE}" "${QT_ADD_PLUGIN}")
 endif()

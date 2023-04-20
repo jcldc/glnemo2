@@ -905,7 +905,7 @@ void MainWindow::loadNewData(const std::string select,
 
     // load from disk
     mutex_data->lock();
-    QTime tbench;
+    QElapsedTimer tbench;
     tbench.restart();
 
     if (current_data->nextFrame(user_select->getIndexesTab(),user_select->getNSel())) {

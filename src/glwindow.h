@@ -17,7 +17,7 @@
 #define GLNEMOGLWINDOW_H
 
 #include  "cshader.h"
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #include <QImage>
 #include <QMutex>
 #include "particlesobject.h"
@@ -39,7 +39,7 @@ namespace glnemo {
 class GLGridObject;
 class GlobalOptions;
 
-class GLWindow : public QGLWidget {
+class GLWindow : public QOpenGLWidget {
   Q_OBJECT
 public:
     GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, CPointsetManager *);

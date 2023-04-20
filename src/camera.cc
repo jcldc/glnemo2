@@ -12,7 +12,7 @@
 // ============================================================================
 #include <QtGlobal>
 //#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <GL/glew.h>
+//#include <GL/glew.h>
 #include <QtGui>
 //#endif
 #include <QtOpenGL>
@@ -41,6 +41,7 @@ namespace glnemo {
     up=glm::vec3(0.0,0.0,1.0);
     play_loop=true;
     reset();
+    ogl_function = new QOpenGLFunctions(QOpenGLContext::currentContext());
   }
   // ============================================================================
   // destructor                                                                 
@@ -58,8 +59,8 @@ namespace glnemo {
   void Camera::loadShader()
   {
     if (GLWindow::GLSL_support) {
-      glGenBuffersARB(1,&vbo_path);
-      glGenBuffersARB(1,&vbo_ctrl);
+      ogl_function->glGenBuffers(1,&vbo_path);
+      ogl_function->glGenBuffers(1,&vbo_ctrl);
       // particles shader
       shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/camera.vert.cc",
                            GlobalOptions::RESPATH.toStdString()+"/shaders/camera.frag.cc");
@@ -78,7 +79,8 @@ namespace glnemo {
   void Camera::checkGSLSupport()
   {
     GLSL_support=true;
-
+//QT6
+#if 0
     int err=glewInit();
     if (err==GLEW_OK && GLEW_ARB_multitexture && GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader && GL_VERSION_2_0)
       qDebug() << "Camera : Ready for GLSL\n";
@@ -86,6 +88,8 @@ namespace glnemo {
       qDebug() << "Camera : BE CAREFULL : No GLSL support\n";
       GLSL_support = false;
     }
+#endif
+//QT6
   }
 
   // ============================================================================
@@ -260,11 +264,11 @@ namespace glnemo {
       vpos.push_back(rv.z);
     }
     // bind VBO buffer for sending data
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_path);
+    ogl_function->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_path);
     // upload Positions (and Velocities) to VBO
-    glBufferDataARB(GL_ARRAY_BUFFER_ARB,vpos.size()*sizeof(GLfloat),&vpos[0], GL_STATIC_DRAW_ARB);
+    ogl_function->glBufferData(GL_ARRAY_BUFFER_ARB,vpos.size()*sizeof(GLfloat),&vpos[0], GL_STATIC_DRAW_ARB);
     // unbind
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+    ogl_function->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
     // ---> control points
     vpos.clear();
@@ -275,11 +279,11 @@ namespace glnemo {
       vpos.push_back(rv.z);
     }
     // bind VBO buffer for sending data
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_ctrl);
+    ogl_function->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_ctrl);
     // upload Positions (and Velocities) to VBO
-    glBufferDataARB(GL_ARRAY_BUFFER_ARB,vpos.size()*sizeof(GLfloat),&vpos[0], GL_STATIC_DRAW_ARB);
+    ogl_function->glBufferData(GL_ARRAY_BUFFER_ARB,vpos.size()*sizeof(GLfloat),&vpos[0], GL_STATIC_DRAW_ARB);
     // unbind
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+    ogl_function->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
   }
   // ============================================================================
   //  buildDisplayList                                                           
@@ -327,23 +331,23 @@ namespace glnemo {
     shader->start();
 
     // texture
-    glActiveTextureARB(GL_TEXTURE0_ARB);
+    ogl_function->glActiveTexture(GL_TEXTURE0_ARB);
     texture->glBindTexture();  // bind texture
 
     // send matrix
     GLfloat proj[16];
-    glGetFloatv( GL_PROJECTION_MATRIX,proj);
+    ogl_function->glGetFloatv( GL_PROJECTION_MATRIX,proj);
     shader->sendUniformXfv("projMatrix",16,1,&proj[0]);
     GLfloat mview[16];
-    glGetFloatv( GL_MODELVIEW_MATRIX,mview);
+    ogl_function->glGetFloatv( GL_MODELVIEW_MATRIX,mview);
     shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
 
     // Send data to Pixel Shader
     shader->sendUniformi("splatTexture",0);
 
     // get attribute location for sprite size
-    int a_sprite_size = glGetAttribLocationARB(shader->getProgramId(), "a_sprite_size");
-    glVertexAttrib1fARB(a_sprite_size,5.0);
+    int a_sprite_size = ogl_function->glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
+    ogl_function->glVertexAttrib1f(a_sprite_size,5.0);
     if ( a_sprite_size == -1) {
       std::cerr << "Error occured when getting \"a_sprite_size\" attribute\n";
       exit(1);
@@ -360,11 +364,11 @@ namespace glnemo {
       glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
       glLineWidth (4.5);
 
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_path);
+      ogl_function->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_path);
       glEnableClientState(GL_VERTEX_ARRAY);
       glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) 0, (void *) 0);
       glDrawArrays(GL_LINE_STRIP, 0, npoints);
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+      ogl_function->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
     }
 
     if (display_ctrl) {
@@ -373,11 +377,11 @@ namespace glnemo {
       glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
       glEnable(GL_POINT_SMOOTH);
 
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_ctrl);
+      ogl_function->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_ctrl);
       glEnableClientState(GL_VERTEX_ARRAY);
       glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) 0, (void *) 0);
       glDrawArrays(GL_POINTS, 0, spline->GetNumPoints());
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+      ogl_function->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
     }
 
     shader->stop();

@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -16,7 +16,8 @@
 #include <QObject>
 #include <QColor>
 #include <QTimer>
-//#include <QGLWidget>
+//#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
 #include <fstream>
 #include "cshader.h"
 #include "catmull_rom_spline.h"
@@ -96,6 +97,7 @@ namespace glnemo {
     void checkGSLSupport();
     bool GLSL_support;
     GLTexture * texture;
+    QOpenGLFunctions * ogl_function;
   private:
     GlobalOptions * store_options;
     float

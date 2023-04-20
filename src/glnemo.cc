@@ -16,7 +16,7 @@
 
 #include <QtGlobal>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <GL/glew.h>
+//#include <GL/glew.h>
 #include <QApplication>
 #else // QT4
 #include <QtGui>
@@ -26,7 +26,7 @@
 #include <QtPlugin>
 //#include <QtOpenGL>
 //#include <QGLFormat>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <iostream>
 #include <QSplashScreen>
 // Nemo stuffs
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
   QApplication::setDesktopSettingsAware(true);
   glnemo::QMyApplication app(argc, argv);
   setlocale(LC_NUMERIC,"C"); // force numerics functions to use decimal point
-
+#if 0
   if ( !QGLFormat::hasOpenGL() ) {
     qWarning( "This system has no OpenGL support. Exiting." );
     return -1;
@@ -189,11 +189,11 @@ int main(int argc, char *argv[])
 //   f.setDirectRendering(false);
 //   QGLFormat::setDefaultFormat(f);
   // Get screen coordinates
-  QDesktopWidget  * desktop1 = QApplication::desktop();
+  QScreen  * desktop1 = QApplication::desktop();
   std::cerr << "# screens = " << desktop1->numScreens()<< "\n";
   std::cerr << "Is virtual desktop : " << desktop1->isVirtualDesktop() << "\n";
   QWidget  * desktop = desktop1->screen(desktop1->primaryScreen());
-
+#endif
   // initialyze NEMO engine
   initparam(argv,const_cast<char**>(defv));
   // CAUTION !!! do not call getparam function after **MainWindow** object    
@@ -219,8 +219,8 @@ int main(int argc, char *argv[])
   glnemo::MainWindow main_win(release); // main window object
 
   // compute window size
-  const int x=((desktop->width()  - wsize)/2);
-  const int y=((desktop->height() - hsize)/2);
+  const int x=1024;//((desktop->width()  - wsize)/2);
+  const int y=1024;//((desktop->height() - hsize)/2);
   main_win.setGeometry(x,y,wsize,hsize);
   // move to the center of the screen
   main_win.move(x,y);

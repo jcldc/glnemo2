@@ -87,7 +87,7 @@ FormObjectControl::FormObjectControl(CPointsetManager *_pointset_manager, Global
   // intialyze texture combobox according to the texture array
   // loop and load all embeded textures
   int i=0;
-  while (GLTexture::TEXTURE[i][0]!=NULL) {
+  while (!GLTexture::TEXTURE[i][0].isEmpty()) {
     form.texture_box->addItem(QIcon(GlobalOptions::RESPATH+GLTexture::TEXTURE[i][0]),GLTexture::TEXTURE[i][1]);
     std::cerr << "texture i="<<i<<" = " << GLTexture::TEXTURE[i][1].toStdString() << "\n";
     i++;
@@ -113,7 +113,7 @@ FormObjectControl::FormObjectControl(CPointsetManager *_pointset_manager, Global
   form.objects_properties->setTabEnabled(1,false);
   form.objects_properties->setCurrentIndex(0); // set position to first tab
 
-  my_mutex2 = new QMutex(QMutex::Recursive);
+  my_mutex2 = new QRecursiveMutex();
 
   auto custom_delete_cpointset_btn = new DeletePushButton();
   custom_delete_cpointset_btn->setObjectName(form.delete_cpointset_btn->objectName());
@@ -1933,8 +1933,9 @@ void FormObjectControl::selectTreeWidgetItem(int cpoint_id) {
   auto item_matched = form.cpoints_set_treewidget->findItems(QString::number(cpoint_id), Qt::MatchExactly | Qt::MatchRecursive,1);
   if(!item_matched.empty()){
     auto item = item_matched[0];
+    item->setSelected(true);
     item->parent()->setExpanded(true);
-    form.cpoints_set_treewidget->setItemSelected(item, true);
+    form.cpoints_set_treewidget->setCurrentItem(item);
   }
 }
 void FormObjectControl::unselectTreeWidgetItem(int cpoint_id) {
@@ -1951,7 +1952,8 @@ void FormObjectControl::unselectTreeWidgetItem(int cpoint_id) {
           child->setSelected(true);
       }
     }
-    form.cpoints_set_treewidget->setItemSelected(item, false);
+    item->setSelected(false);
+    form.cpoints_set_treewidget->setCurrentItem(item);
   }
 }
 

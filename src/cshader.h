@@ -13,7 +13,8 @@
 #ifndef CSHADER_H
 #define CSHADER_H
 #include <string>
-#include <GL/glew.h>
+#include <QOpenGLFunctions>
+//#include <GL/glew.h>
 
 namespace glnemo {
 class CShader {
@@ -53,6 +54,7 @@ private:
   // handle to the shader program itself
   GLhandleARB m_program;
   
+  QOpenGLFunctions * ogl_function;
 };
 
 }

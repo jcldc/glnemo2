@@ -10,7 +10,7 @@
 // ============================================================================
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
-#include <GL/glew.h>
+//#include <GL/glew.h>
 #include "gltexture.h"
 #include "globaloptions.h"
 #include <QImage>
@@ -45,7 +45,7 @@ bool GLTexture::load(QString _texture_name, QString _path,bool embeded)
 {
   status=false;
   if (embeded) {;} // ! remove compiler warning
-  if (_path != NULL && _path != "none")
+  if (!_path.isEmpty() && _path != ((const char *)"none"))
     _texture_name = _path + _texture_name;
 
   if (_texture_name == texture_name) {
@@ -83,7 +83,9 @@ bool GLTexture::load(QString _texture_name, QString _path,bool embeded)
 	  img = img.copy(0, 0, newWidth, newHeight);
 	}
 	//tratio = newWidth / (float)newHeight;
-	QImage glImg = QGLWidget::convertToGLFormat(img);  // flipped 32bit RGBA
+	//QT6 QImage glImg = QOpenGLWidget::convertToGLFormat(img);  // flipped 32bit RGBA
+  QImage glImg = img;
+  //QT6
 	glEnable(GL_TEXTURE_2D);
 	glGenTextures(1,&texture);             // Create The Texture
 	//std::cerr << "TEXTURE Id =" << texture << "\n";
