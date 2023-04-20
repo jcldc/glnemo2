@@ -185,7 +185,7 @@ int GLTexture::loadTextureVector(GLTextureVector & gtv)
   gtv.clear(); // delete texture vector
   int i=0;
   // loop and load all embeded texture
-  while (GLTexture::TEXTURE[i][0]!=NULL) {
+  while (!GLTexture::TEXTURE[i][0].isEmpty()) {
     GLTexture * p = new GLTexture();
     p->load(QString(GlobalOptions::RESPATH+TEXTURE[i][0]),NULL);
     gtv.push_back(*p);

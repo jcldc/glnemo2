@@ -127,10 +127,12 @@ CPointset::CPointset(CShader *shader, const std::string &name) :
   m_nb_sphere_sections = 12;
   m_nb_selected = 0;
   // SHADER INIT
-  glGenBuffersARB(1, &m_vbo);
-  glGenBuffersARB(1, &m_selected_vbo);
-  glGenVertexArrays(1, &m_vao);
-  glGenVertexArrays(1, &m_selected_vao);
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
+  ogl_function->glGenBuffers(1, &m_vbo);
+  ogl_function->glGenBuffers(1, &m_selected_vbo);
+  f->glGenVertexArrays(1, &m_vao);
+  f->glGenVertexArrays(1, &m_selected_vao);
 
 }
 
@@ -148,17 +150,25 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
   m_shape = other.m_shape;
   m_nb_sphere_sections = other.m_nb_sphere_sections;
   m_nb_selected = other.m_nb_selected;
+
+  ogl_function = QOpenGLContext::currentContext()->functions();
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
+
   // SHADER INIT
-  glGenBuffersARB(1, &m_vbo);
-  glGenBuffersARB(1, &m_selected_vbo);
-  glGenVertexArrays(1, &m_vao);
-  glGenVertexArrays(1, &m_selected_vao);
+  ogl_function->glGenBuffers(1, &m_vbo);
+  ogl_function->glGenBuffers(1, &m_selected_vbo);
+  f->glGenVertexArrays(1, &m_vao);
+  f->glGenVertexArrays(1, &m_selected_vao);
   copyCPoints(other);
 }
 
 CPointset::~CPointset() {
-  glDeleteBuffers(1, &m_vbo);
-  glDeleteVertexArrays(1, &m_vao);
+  ogl_function = QOpenGLContext::currentContext()->functions();
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
+  ogl_function->glDeleteBuffers(1, &m_vbo);
+  f->glDeleteVertexArrays(1, &m_vao);
 }
 
 bool CPointset::ready() {
@@ -198,8 +208,11 @@ void CPointset::setThreshold(int threshold) {
 }
 
 void CPointset::setAttributes() {
-  GLuint point_center_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "point_center");
-  GLuint radius_disk_attrib = glGetAttribLocation(m_shader->getProgramId(), "radius");
+  ogl_function = QOpenGLContext::currentContext()->functions();
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
+  GLuint point_center_disk_attrib = ogl_function->glGetAttribLocation(m_shader->getProgramId(), "point_center");
+  GLuint radius_disk_attrib = ogl_function->glGetAttribLocation(m_shader->getProgramId(), "radius");
   if (point_center_disk_attrib == -1) {
     std::cerr << "Error occured when getting \"point_center\" attribute\n";
     exit(1);
@@ -208,17 +221,20 @@ void CPointset::setAttributes() {
     std::cerr << "Error occured when getting \"radius\" attribute\n";
     exit(1);
   }
-  glEnableVertexAttribArrayARB(point_center_disk_attrib);
-  glVertexAttribPointerARB(point_center_disk_attrib, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
-  glVertexAttribDivisorARB(point_center_disk_attrib, 1);
+  f->glEnableVertexAttribArray(point_center_disk_attrib);
+  f->glVertexAttribPointer(point_center_disk_attrib, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
+  f->glVertexAttribDivisor(point_center_disk_attrib, 1);
 
-  glEnableVertexAttribArrayARB(radius_disk_attrib);
-  glVertexAttribPointerARB(radius_disk_attrib, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
+  f->glEnableVertexAttribArray(radius_disk_attrib);
+  f->glVertexAttribPointer(radius_disk_attrib, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
                            (void *) (3 * sizeof(float)));
-  glVertexAttribDivisorARB(radius_disk_attrib, 1);
+  f->glVertexAttribDivisor(radius_disk_attrib, 1);
 }
 
 void CPointset::genVboData() {
+  ogl_function = QOpenGLContext::currentContext()->functions();
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
   // DATA INIT
   std::vector<float> data, selected_data;
   //maybe use reserve to preallocate,
@@ -253,15 +269,15 @@ void CPointset::genVboData() {
     }
   }
   // SEND DATA
-  glBindVertexArray(m_vao);
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_vbo);
-  glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
+  f->glBindVertexArray(m_vao);
+  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, m_vbo);
+  f->glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
   setAttributes(); // needed only once at init ?
-  glBindVertexArray(m_selected_vao);
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_selected_vbo);
-  glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(float) * selected_data.size(), selected_data.data(), GL_STATIC_DRAW);
+  f->glBindVertexArray(m_selected_vao);
+  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, m_selected_vbo);
+  f->glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * selected_data.size(), selected_data.data(), GL_STATIC_DRAW);
   setAttributes();
-  glBindVertexArray(0);
+  f->glBindVertexArray(0);
 }
 
 const glcpointmap_t &CPointset::getCPoints() const {
@@ -529,23 +545,26 @@ void CPointsetRegularPolygon::sendUniforms() {
 }
 void CPointsetRegularPolygon::display() {
 
+  ogl_function = QOpenGLContext::currentContext()->functions();
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
   m_shader->start();
-  glBindVertexArray(m_vao);
+  f->glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
   m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
-  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, m_nb_visible);
-  glBindVertexArray(0);
+  f->glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, m_nb_visible);
+  f->glBindVertexArray(0);
   m_shader->stop();
 
 
   m_shader->start();
-  glBindVertexArray(m_selected_vao);
+  f->glBindVertexArray(m_selected_vao);
   m_shader->sendUniformi("second_pass", true);
   sendUniforms();
   m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
-  glDrawArraysInstancedARB(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, m_nb_selected);
-  glBindVertexArray(0);
+  f->glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, m_nb_selected);
+  f->glBindVertexArray(0);
   m_shader->stop();
 
 }
@@ -614,21 +633,24 @@ CPointsetTag::CPointsetTag(const CPointset &other) : CPointset(shader, other) {
 }
 
 void CPointsetTag::display() {
+  ogl_function = QOpenGLContext::currentContext()->functions();
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
   glLineWidth(1);
   m_shader->start();
-  glBindVertexArray(m_selected_vao);
+  f->glBindVertexArray(m_selected_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", true);
-  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, m_nb_selected);
-  glBindVertexArray(0);
+  f->glDrawArraysInstanced(GL_LINE_STRIP, 0, 3, m_nb_selected);
+  f->glBindVertexArray(0);
   m_shader->stop();
 
   m_shader->start();
-  glBindVertexArray(m_vao);
+  f->glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
-  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, 3, m_nb_visible);
-  glBindVertexArray(0);
+  f->glDrawArraysInstanced(GL_LINE_STRIP, 0, 3, m_nb_visible);
+  f->glBindVertexArray(0);
   m_shader->stop();
 }
 
@@ -691,17 +713,19 @@ std::pair<GLCPoint *, float> CPointsetSphere::getClickedCPoint(double *model, do
 void CPointsetSphere::display() {
 
   int nb_vertex_per_sphere = m_nb_sphere_sections * m_nb_sphere_sections + m_nb_sphere_sections;
+  ogl_function = QOpenGLContext::currentContext()->functions();
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   glLineWidth(1);
   glEnable(GL_BLEND);
 
   m_shader->start();
-  glBindVertexArray(m_vao);
+  f->glBindVertexArray(m_vao);
   sendUniforms();
   m_shader->sendUniformi("second_pass", false);
-  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, m_nb_visible);
+  f->glDrawArraysInstanced(GL_LINE_STRIP, 0, nb_vertex_per_sphere, m_nb_visible);
 
-  glBindVertexArray(m_selected_vao);
+  f->glBindVertexArray(m_selected_vao);
   glEnable(GL_STENCIL_TEST);
   glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
   glDepthMask(GL_TRUE);
@@ -710,16 +734,16 @@ void CPointsetSphere::display() {
   glStencilMask(0xFF);
   glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
   m_shader->sendUniformi("second_pass", false);
-  glDrawArraysInstancedARB(GL_TRIANGLE_FAN, 0, nb_vertex_per_sphere, m_nb_selected);
+  f->glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, nb_vertex_per_sphere, m_nb_selected);
 
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glDepthMask(GL_TRUE);
   glStencilMask(0x00);
   glStencilFunc(GL_EQUAL, 0, 0xFF);
   m_shader->sendUniformi("second_pass", true);
-  glDrawArraysInstancedARB(GL_LINE_STRIP, 0, nb_vertex_per_sphere, m_nb_selected);
+  f->glDrawArraysInstanced(GL_LINE_STRIP, 0, nb_vertex_per_sphere, m_nb_selected);
   glDisable(GL_STENCIL_TEST);
-  glBindVertexArray(0);
+  f->glBindVertexArray(0);
 
   m_shader->stop();
 
@@ -973,17 +997,19 @@ void CPointTextRenderer::init(const std::string &shader_dir) {
     std::cerr << "Failed to initialize tag text shader\n";
     exit(1);
   }
+  QOpenGLFunctions * ogl_function = QOpenGLContext::currentContext()->functions();
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   // generate buffers
-  glGenVertexArrays(1, &m_text_vao);
-  glGenBuffers(1, &m_text_vbo);
-  glBindVertexArray(m_text_vao);
-  glBindBuffer(GL_ARRAY_BUFFER, m_text_vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
+  f->glGenVertexArrays(1, &m_text_vao);
+  f->glGenBuffers(1, &m_text_vbo);
+  f->glBindVertexArray(m_text_vao);
+  f->glBindBuffer(GL_ARRAY_BUFFER, m_text_vbo);
+  f->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+  f->glEnableVertexAttribArray(0);
+  f->glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+  f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+  f->glBindVertexArray(0);
 
   glPixelStorei(GL_UNPACK_ALIGNMENT,
                 1); // Disable byte-alignment restriction, maybe not needed since we have power of two texture
@@ -1057,6 +1083,9 @@ void CPointTextRenderer::init(const std::string &shader_dir) {
 }
 
 void CPointTextRenderer::renderText(CPointset *pointset) {
+  QOpenGLFunctions * ogl_function = QOpenGLContext::currentContext()->functions();
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   // Iterate through all cpoints
@@ -1090,7 +1119,7 @@ void CPointTextRenderer::renderText(CPointset *pointset) {
     scale *= cpoint->getSize() * pointset->getNameSizeFactor();
 //
     glActiveTextureARB(GL_TEXTURE0_ARB);
-    glBindVertexArray(m_text_vao);
+    f->glBindVertexArray(m_text_vao);
 
     glBindTexture(GL_TEXTURE_2D, m_texture);
     // Iterate through all characters
@@ -1120,24 +1149,26 @@ void CPointTextRenderer::renderText(CPointset *pointset) {
       };
       // Render glyph texture over quad
       // Update content of VBO memory
-      glBindBuffer(GL_ARRAY_BUFFER, m_text_vbo);
-      glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      f->glBindBuffer(GL_ARRAY_BUFFER, m_text_vbo);
+      f->glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+      f->glBindBuffer(GL_ARRAY_BUFFER, 0);
       // Render quad
-      glDrawArrays(GL_TRIANGLES, 0, 6);
+      f->glDrawArrays(GL_TRIANGLES, 0, 6);
       // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
       xpos += ch.Advance * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
     }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    f->glBindVertexArray(0);
+    f->glBindTexture(GL_TEXTURE_2D, 0);
     m_text_shader->stop();
   }
   glDisable(GL_BLEND);
 }
 CPointTextRenderer::~CPointTextRenderer() {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
   glDeleteTextures(1, &m_texture);
 
-  glDeleteBuffers(1, &m_text_vbo);
-  glDeleteVertexArrays(1, &m_text_vao);
+  f->glDeleteBuffers(1, &m_text_vbo);
+  f->glDeleteVertexArrays(1, &m_text_vao);
 }
 }

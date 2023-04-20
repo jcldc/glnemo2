@@ -48,6 +48,7 @@ namespace glnemo {
 // performance during rendering. You have been warned !!!!!                     
 GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   // copy parameters
   parent        = _parent;
   store_options = _go;
@@ -384,7 +385,7 @@ void GLWindow::paintGL()
   } 
   //setFocus();
   
-  f_context->qglClearColor(store_options->background_color);
+  qglClearColor(store_options->background_color);
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   // set projection

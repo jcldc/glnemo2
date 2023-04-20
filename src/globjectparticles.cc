@@ -49,22 +49,24 @@ int nhisto=10000;
 // constructor
 GLObjectParticles::GLObjectParticles(GLTextureVector * _gtv ):GLObject()
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
   dplist_index = glGenLists( 1 );    // get a new display list index
   texture = NULL;                    // no texture yet
   gtv = _gtv;
   // reserve memory
   index_histo.reserve(nhisto);
   if (GLWindow::GLSL_support) {
-    glGenBuffersARB(1,&vbo_pos);
-    glGenBuffersARB(1,&vbo_data);
+    f->glGenBuffers(1,&vbo_pos);
+    f->glGenBuffers(1,&vbo_data);
 //    glGenBuffersARB(1,&vbo_color);
 #if 0 // glsl 330
     glGenBuffersARB(1,&vbo_vel);     // get Vertex Buffer Object
 #endif
-    glGenBuffersARB(1,&vbo_vel_X2);     // get Vertex Buffer Object
-    glGenBuffersARB(1,&vbo_size);
-    glGenBuffersARB(1,&vbo_index);
-    glGenBuffersARB(1,&vbo_index2);
+    f->glGenBuffers(1,&vbo_vel_X2);     // get Vertex Buffer Object
+    f->glGenBuffers(1,&vbo_size);
+    f->glGenBuffers(1,&vbo_index);
+    f->glGenBuffers(1,&vbo_index2);
   }
   indexes_sorted = NULL;
   nind_sorted = 0;
@@ -78,6 +80,7 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
                                      const GlobalOptions   * _go,
                                      GLTextureVector * _gtv, CShader * _shader, CShader * _vel_shader):GLObject()
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   shader     = _shader; // link shader program pointer (particles)
   vel_shader = _vel_shader; // link shader program pointer (velocities)
   dplist_index = glGenLists( 1 );    // get a new display list index
@@ -86,16 +89,16 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
   // reserve memory
   index_histo.reserve(nhisto);
   if (GLWindow::GLSL_support) {
-    glGenBuffersARB(1,&vbo_pos);     // get Vertex Buffer Object
-    glGenBuffersARB(1,&vbo_size);    // get Vertex Buffer Object
-    glGenBuffersARB(1,&vbo_index);   // get Vertex Buffer Object
-    glGenBuffersARB(1,&vbo_index2);
-    glGenBuffersARB(1,&vbo_data);
+    f->glGenBuffers(1,&vbo_pos);     // get Vertex Buffer Object
+    f->glGenBuffers(1,&vbo_size);    // get Vertex Buffer Object
+    f->glGenBuffers(1,&vbo_index);   // get Vertex Buffer Object
+    f->glGenBuffers(1,&vbo_index2);
+    f->glGenBuffers(1,&vbo_data);
     if (_part_data->vel) {
 #if 0 // glsl 330
         glGenBuffersARB(1,&vbo_vel);     // get Vertex Buffer Object
 #endif
-        glGenBuffersARB(1,&vbo_vel_X2);     // get Vertex Buffer Object
+        f->glGenBuffers(1,&vbo_vel_X2);     // get Vertex Buffer Object
     }
   }
   indexes_sorted = NULL;
@@ -177,6 +180,7 @@ void GLObjectParticles::displayVboVelShader330()
 {
     //static bool zsort=false;
     //int err;
+    QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
     int start=3*min_index*sizeof(float);
     int maxvert=max_index-min_index+1;
@@ -213,12 +217,12 @@ void GLObjectParticles::displayVboVelShader330()
         vel_shader->sendUniformi("z_stretch_jit",(int) go->z_stretch_jit);
 
         // positions
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
-        vpositions=glGetAttribLocation(vel_shader->getProgramId(), "position");
-        glEnableVertexAttribArrayARB(vpositions);
+        f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_pos);
+        vpositions=f->glGetAttribLocation(vel_shader->getProgramId(), "position");
+        f->glEnableVertexAttribArray(vpositions);
         start = 2*3*min_index*sizeof(float);
         int stride=2*3*sizeof(GLfloat);
-        glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (intptr_t)(start));
+        f->glVertexAttribPointer(vpositions,3,GL_FLOAT, 0, stride, (void *) (intptr_t)(start));
 #if 0 // glsl 330
         // velocities
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel);
@@ -234,10 +238,10 @@ void GLObjectParticles::displayVboVelShader330()
           //glDrawArrays(GL_LINES, 0, maxvert);
           //std::cerr << "<< rendering...\n";
         }
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+        f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
         vel_shader->stop();
 
-        glDisableVertexAttribArray(vpositions);
+        f->glDisableVertexAttribArray(vpositions);
 #if 0 // glsl 330
         glDisableVertexAttribArray(vvelocities);
 #endif
@@ -253,6 +257,7 @@ void GLObjectParticles::displayVboVelShader330()
 // displayVboVelShader()
 void GLObjectParticles::displayVboVelShader130()
 {
+       QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
     // Velocity vectors with shader
     if (po->isVelEnable() && part_data->vel && vel_shader) {
@@ -287,30 +292,30 @@ void GLObjectParticles::displayVboVelShader130()
         vel_shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
 
         // send vel factor
-        int vvel_factor=glGetAttribLocation(vel_shader->getProgramId(), "velocity");
+        int vvel_factor=f->glGetAttribLocation(vel_shader->getProgramId(), "velocity");
         if ( vvel_factor == -1) {
           std::cerr << "Error occured when getting \"vvel_factor\" attribute\n";
           exit(1);
         }
-        glEnableVertexAttribArrayARB(vvel_factor);
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_X2);
+        f->glEnableVertexAttribArray(vvel_factor);
+        f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_vel_X2);
         start = 2*3*min_index*sizeof(float);
         stride= 0;
-        glVertexAttribPointerARB(vvel_factor,3,GL_FLOAT, 0, stride, (GLvoid *) (intptr_t)(start));
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+        f->glVertexAttribPointer(vvel_factor,3,GL_FLOAT, 0, stride, (GLvoid *) (intptr_t)(start));
+        f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
         // positions and velocities (ending vector)
-        int vpositions=glGetAttribLocation(vel_shader->getProgramId(), "position");
+        int vpositions=f->glGetAttribLocation(vel_shader->getProgramId(), "position");
         if ( vpositions == -1) {
           std::cerr << "Error occured when getting \"vpositions\" attribute\n";
           exit(1);
         }
-        glEnableVertexAttribArrayARB(vpositions);
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
+        f->glEnableVertexAttribArray(vpositions);
+        f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_pos);
         start = 2*3*min_index*sizeof(float);
         stride=0;
-        glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (intptr_t)(start));
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+        f->glVertexAttribPointer(vpositions,3,GL_FLOAT, 0, stride, (void *) (intptr_t)(start));
+        f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
         int maxvert=max_index-min_index+1;
 
@@ -327,8 +332,8 @@ void GLObjectParticles::displayVboVelShader130()
 
         vel_shader->stop();
 
-        glDisableVertexAttribArray(vpositions);
-        glDisableVertexAttribArray(vvel_factor);
+        f->glDisableVertexAttribArray(vpositions);
+        f->glDisableVertexAttribArray(vvel_factor);
         //glDisableClientState(GL_VERTEX_ARRAY);
 
         glDisable(GL_POINT_SPRITE_ARB);
@@ -343,6 +348,8 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
 {
   static bool zsort=false;
   int err;
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
 #if 0
   //  detect if rho exist for the component
   int index;
@@ -414,16 +421,16 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   texture->glBindTexture();  // bind texture
 
   // get attribute location for sprite size
-  int a_sprite_size = glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
-  glVertexAttrib1f(a_sprite_size,1.0);
+  int a_sprite_size = f->glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
+  f->glVertexAttrib1f(a_sprite_size,1.0);
   if ( a_sprite_size == -1) {
     std::cerr << "Error occured when getting \"a_sprite_size\" attribute\n";
     exit(1);
   }
 
   // get attribute location for phys data
-  int a_phys_data = glGetAttribLocation(shader->getProgramId(), "a_phys_data");
-  glVertexAttrib1f(a_phys_data,1.0);
+  int a_phys_data = f->glGetAttribLocation(shader->getProgramId(), "a_phys_data");
+  f->glVertexAttrib1f(a_phys_data,1.0);
   if ( a_phys_data == -1) {
     std::cerr << "Error occured when getting \"a_phys_data\" attribute\n";
     exit(1);
@@ -434,17 +441,17 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
       // set back texture_size to one for gas
       //po->setGazSize(1.0);
       //po->setGazSizeMax(1.0);
-      glEnableVertexAttribArrayARB(a_sprite_size);
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_size);
+      f->glEnableVertexAttribArray(a_sprite_size);
+      f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_size);
       int start = min_index*sizeof(float);
-      glVertexAttribPointerARB(a_sprite_size,1,GL_FLOAT, 0, 0, (void *) (intptr_t)(start));
+      f->glVertexAttribPointer(a_sprite_size,1,GL_FLOAT, 0, 0, (void *) (intptr_t)(start));
     }
     // Send physical data
     if (hasPhysic && phys_select && phys_select->isValid()) {
-      glEnableVertexAttribArrayARB(a_phys_data);
-      glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_data);
+      f->glEnableVertexAttribArray(a_phys_data);
+      f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_data);
       int start = min_index*sizeof(float);
-      glVertexAttribPointerARB(a_phys_data,1,GL_FLOAT, 0, 0, (void *) (intptr_t)(start));
+      f->glVertexAttribPointer(a_phys_data,1,GL_FLOAT, 0, 0, (void *) (intptr_t)(start));
     }
   } else {
     if (hasPhysic) { // gas only
@@ -458,7 +465,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   maxvert=max_index-min_index+1;
 
   // send vertex positions only
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
+  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_pos);
 #if 0 // deactivate positions
   int vpositions=glGetAttribLocation(shader->getProgramId(), "position");
   if (vpositions == -1) {
@@ -486,7 +493,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   }
 
   //glDrawArrays(GL_POINTS, 0, nvert_pos);
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
   // deactivate shaders programs
   shader->stop();
@@ -494,8 +501,8 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   if (hasPhysic && ( go->render_mode == 1)) {
     //glDisableClientState(GL_NORMAL_ARRAY);
     if (phys_select && phys_select->isValid()) {
-      glDisableVertexAttribArray(a_sprite_size);
-      glDisableVertexAttribArray(a_phys_data);
+      f->glDisableVertexAttribArray(a_sprite_size);
+      f->glDisableVertexAttribArray(a_phys_data);
     }
     //glDisableClientState(GL_COLOR_ARRAY);
 
@@ -644,6 +651,7 @@ void GLObjectParticles::updateBoundaryPhys()
 // usefull only with OpenGL >= 3.00 (glsl 130)
 void GLObjectParticles::buildVboVelFactor()
 {
+    QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
     QElapsedTimer tbloc;
     tbloc.restart();
     assert(part_data->vel != NULL);
@@ -670,16 +678,16 @@ void GLObjectParticles::buildVboVelFactor()
     }
 
     // bind VBO buffer for sending data
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_vel_X2);
+    f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_vel_X2);
 
     std::cerr << "buildVbo vel_factor nvert = "<<vel_factor.size()<<"\n";
     std::cerr << "Velocity factor = " << vel_factor[1] << "\n";
 
     // upload Positions (and Velocities) to VBO
-    glBufferDataARB(GL_ARRAY_BUFFER_ARB, vel_factor.size() * sizeof(float), &vel_factor[0], GL_STATIC_DRAW_ARB);
+    f->glBufferData(GL_ARRAY_BUFFER_ARB, vel_factor.size() * sizeof(float), &vel_factor[0], GL_STATIC_DRAW_ARB);
 
     //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+    f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
     if (BENCH) qWarning("Time elapsed to build and transfert VBO vel_factor to GPU: %f s", tbloc.elapsed()/1000.);
     vel_factor.clear();
@@ -691,6 +699,7 @@ void GLObjectParticles::buildVboVelFactor()
 // Build Vector Buffer Object for positions array
 void GLObjectParticles::buildVboPos()
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   QElapsedTimer tbench,tbloc;
   tbench.restart();
   nvert_pos=0;
@@ -799,7 +808,7 @@ void GLObjectParticles::buildVboPos()
   tbloc.restart();
   // POSITIONS
   // bind VBO buffer for sending data
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_pos);
+  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_pos);
   assert( nvert_pos <= (po->npart/po->step)+1);
   std::cerr << "buildVbo Pos nvert_pos="<<nvert_pos<<"\n";
 
@@ -808,10 +817,10 @@ void GLObjectParticles::buildVboPos()
       factor = 2.0;
   }
   // upload Positions (and Velocities) to VBO
-  glBufferDataARB(GL_ARRAY_BUFFER_ARB, factor * nvert_pos * 3 * sizeof(float), &vertices[0], GL_STATIC_DRAW_ARB);
+  f->glBufferData(GL_ARRAY_BUFFER_ARB, factor * nvert_pos * 3 * sizeof(float), &vertices[0], GL_STATIC_DRAW_ARB);
 
   //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 if (BENCH) qWarning("Transfert Speed (POS) VBO arrays to GPU: %f MB/s", factor * nvert_pos * 3 * sizeof(float)/1024/1024/(tbloc.elapsed()/1000.));
 
   if (part_data->vel) {
@@ -843,6 +852,7 @@ if (BENCH) qWarning("Transfert Speed (POS) VBO arrays to GPU: %f MB/s", factor *
 // Build Vector Buffer Object for size point array
 void GLObjectParticles::buildVboHsml()
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   QElapsedTimer tbench;
   tbench.restart();
 
@@ -875,13 +885,13 @@ void GLObjectParticles::buildVboHsml()
   }
 
   // bind VBO buffer for sending data
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_size);
+  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_size);
 
   assert( (int) hsml_value.size() <= (po->npart/po->step)+1);
   // upload data to VBO
-  glBufferDataARB(GL_ARRAY_BUFFER_ARB, hsml_value.size() * sizeof(float), &hsml_value[0], GL_STATIC_DRAW_ARB);
+  f->glBufferData(GL_ARRAY_BUFFER_ARB, hsml_value.size() * sizeof(float), &hsml_value[0], GL_STATIC_DRAW_ARB);
   //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
   std::cerr << "buildVboHsml ="<<hsml_value.size()<<"\n";
 
   hsml_value.clear();
@@ -892,6 +902,7 @@ void GLObjectParticles::buildVboHsml()
 // Build Vector Buffer Object for physical data  array
 void GLObjectParticles::buildVboPhysData()
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   QElapsedTimer tbench;
   tbench.restart();
 
@@ -929,13 +940,13 @@ void GLObjectParticles::buildVboPhysData()
   }
 
   // bind VBO buffer for sending data
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_data);
+  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_data);
 
   assert( (int)phys_data.size() <= (po->npart/po->step)+1);
   // upload data to VBO
-  glBufferDataARB(GL_ARRAY_BUFFER_ARB,phys_data.size() * sizeof(float), &phys_data[0], GL_STATIC_DRAW_ARB);
+  f->glBufferData(GL_ARRAY_BUFFER_ARB,phys_data.size() * sizeof(float), &phys_data[0], GL_STATIC_DRAW_ARB);
   checkGlError("2222");
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
   checkGlError("3333");
   std::cerr << "Phys_data size="<<phys_data.size()<<"\n";
   phys_data.clear();
@@ -946,8 +957,9 @@ void GLObjectParticles::buildVboPhysData()
 //
 void GLObjectParticles::checkVboAllocation(const int sizebuf)
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   GLint size;
-  glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+  f->glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
   if (size != sizebuf) {
     std::cerr << "FATAL: Pixel Buffer Object allocation failed!";
     std::cerr << "Expected size ["<<sizebuf<<"] != from "<<size<<"\n";
@@ -1345,7 +1357,8 @@ void GLObjectParticles::setTexture()
 // sortDyDensity
 void GLObjectParticles::sortByDensity()
 {
-      // sort according to the density
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  // sort according to the density
   if (part_data->rho)  {
     PARALLEL_SORT(phys_itv.begin(),phys_itv.end(),GLObjectIndexTab::compareLow);
   }
@@ -1380,18 +1393,18 @@ void GLObjectParticles::sortByDensity()
   nind_sorted=cpt;
   //std::cerr << "index_min="<< index_min <<"   index_max=" << index_max << " index sorted="<< nind_sorted <<"\n";
       // bind VBO in order to use
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vbo_index);
+  f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, vbo_index);
     // upload data to VBO
   //glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, (nind_sorted/2)*sizeof(GLuint), indexes_sorted, GL_STATIC_DRAW_ARB);
-  glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, nind_sorted*sizeof(GLuint), indexes_sorted, GL_STATIC_DRAW_ARB);
+  f->glBufferData(GL_ELEMENT_ARRAY_BUFFER_ARB, nind_sorted*sizeof(GLuint), indexes_sorted, GL_STATIC_DRAW_ARB);
     //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+  f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vbo_index2);
+  f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, vbo_index2);
     // upload data to VBO
-  glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, (nind_sorted/2)*sizeof(GLuint), indexes_sorted+nind_sorted/2, GL_STATIC_DRAW_ARB);
+  f->glBufferData(GL_ELEMENT_ARRAY_BUFFER_ARB, (nind_sorted/2)*sizeof(GLuint), indexes_sorted+nind_sorted/2, GL_STATIC_DRAW_ARB);
     //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+  f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
 }
 // ============================================================================
@@ -1399,6 +1412,7 @@ void GLObjectParticles::sortByDensity()
 void GLObjectParticles::sortByDepth()
 {
 #define MM(row,col)  mModel[col*4+row]
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   GLdouble mModel[16];
   // get ModelView Matrix
   glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel);
@@ -1436,11 +1450,11 @@ void GLObjectParticles::sortByDepth()
     indexes_sorted[i] = index;
   }
       // bind VBO in order to use
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vbo_index);
+  f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, vbo_index);
     // upload data to VBO
-  glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, (nind_sorted)*sizeof(GLuint), indexes_sorted, GL_STATIC_DRAW_ARB);
+  f->glBufferData(GL_ELEMENT_ARRAY_BUFFER_ARB, (nind_sorted)*sizeof(GLuint), indexes_sorted, GL_STATIC_DRAW_ARB);
     //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+  f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 }
 // ============================================================================
 // displaySprites()

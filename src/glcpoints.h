@@ -19,6 +19,8 @@
 
 #include "cshader.h"
 #include <QColor>
+#include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
 #include <iostream>
 #include <json.hpp>
 #include <map>
@@ -179,6 +181,7 @@ protected:
   CPointsetShapes m_shape;
 
   static const std::array<float, 3> selected_color;
+  QOpenGLFunctions * ogl_function;
 };
 
 class CPointsetRegularPolygon : public CPointset {
