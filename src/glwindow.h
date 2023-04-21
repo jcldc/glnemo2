@@ -20,6 +20,7 @@
 #include <QOpenGLWidget>
 #include <QImage>
 #include <QMutex>
+#include <QRecursiveMutex>
 #include "particlesobject.h"
 #include "globjectparticles.h"
 #include "glcubeobject.h"
@@ -42,7 +43,7 @@ class GlobalOptions;
 class GLWindow : public QOpenGLWidget {
   Q_OBJECT
 public:
-    GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, CPointsetManager *);
+    GLWindow(QWidget *, GlobalOptions *, QRecursiveMutex * , Camera *, CPointsetManager *);
     ~GLWindow();
 
     void bestZoomFit();
@@ -280,7 +281,7 @@ private:
   // Texture vector
   GLTextureVector gtv;
   // Thread
-  QMutex * mutex_data;
+  QRecursiveMutex * mutex_data;
   
   bool is_shift_pressed;
   // bench

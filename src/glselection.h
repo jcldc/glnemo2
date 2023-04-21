@@ -19,6 +19,7 @@
 #include <QMouseEvent>
 #include <QTimer>
 #include <QMutex>
+#include <QRecursiveMutex>
 #include <globaloptions.h>
 #include <particlesdata.h>
 #include "globjectparticles.h"
@@ -36,7 +37,7 @@ public:
     ~GLSelection();
     void reset();
     void update(const GLObjectParticlesVector *,
-                GlobalOptions   *, QMutex * );
+                GlobalOptions   *, QRecursiveMutex * );
     bool isEnable()   { return enable;}
     void setEnable(bool _b) { enable=_b;    }
     void getMouse(QMouseEvent *);
@@ -73,7 +74,7 @@ private:
   Vec3D trans_in, trans_out, comvec;
   double zoom_dynamic, zoomo_dynamic;
   int total_frame, frame_counter;
-  QMutex * mutex_data;
+  QRecursiveMutex * mutex_data;
   int in_area;
   double com[3];
   const ParticlesData * part_data;

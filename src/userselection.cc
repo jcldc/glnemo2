@@ -13,12 +13,13 @@
 #include <iostream>
 #include <sstream>
 #include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <QString>
 #include <QTime>
 #include "userselection.h"
 #include <algorithm>
 #include "assert.h"
-
+#include <QElapsedTimer>
 #ifdef _OPENMP
 #include <parallel/algorithm>
 #include <omp.h>
@@ -148,22 +149,22 @@ int UserSelection::isRange(const std::string comp)
   int status;
   // Regular expression => first:last:step
   QRegularExpression rx("^(\\d{1,})((:)(\\d{1,})){,1}((:)(\\d{1,})){,1}$");
-  int match=rx.indexIn(QString(comp.c_str()));
-  if (match == -1) { // not match
+  QRegularExpressionMatch match=rx.match(QString(comp.c_str()));
+  if (! match.hasMatch()) { // not match
     status=1;        // misformated
   }
   else {
     int first,last,step=1;
     // get first
-    std::istringstream iss((rx.cap(1)).toStdString());
+    std::istringstream iss((match.captured(1)).toStdString());
     iss >> first;
     // get last
     if (rx.captureCount()>4) {
-      std::istringstream  iss((rx.cap(4)).toStdString());
+      std::istringstream  iss((match.captured(4)).toStdString());
       iss >> last;
       // get step
       if (rx.captureCount()>=7) {
-        std::istringstream  iss((rx.cap(7)).toStdString());
+        std::istringstream  iss((match.captured(7)).toStdString());
         iss >> step;
       }
     }
@@ -195,14 +196,14 @@ int UserSelection::isComponent(const std::string comp)
   int status;
   // Regular expression => all|halo|disk ......
   QRegularExpression rx("^(all|halo|disk|disc|bulge|stars|gas|gaz|bndry|other(\\d{,}))$");
-  int match=rx.indexIn(QString(comp.c_str()));
-  if (match == -1) { // not match
+  QRegularExpressionMatch match=rx.match(QString(comp.c_str()));
+  if (! match.hasMatch() == -1) { // not match
     status=1;        // misformated
   }
   else {
     int first,last,step=1;
     // get component's type
-    std::string type=(rx.cap(1)).toStdString();
+    std::string type=(match.captured(1)).toStdString();
     int icrv=ComponentRange::getIndexMatchType(crv,type);
     if (icrv != -1 ) {
       assert(icrv<(int)crv->size());

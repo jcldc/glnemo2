@@ -22,6 +22,7 @@
 #include "glcpoints.h"
 #include "globaloptions.h"
 #include "glnemoexception.h"
+#include <GL/glu.h>
 
 #if defined(__APPLE__)
 #define glGenVertexArrays glGenVertexArraysAPPLE

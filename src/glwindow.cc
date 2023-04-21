@@ -12,14 +12,16 @@
 // ============================================================================
 #include <QtGlobal>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-//#include <GL/glew.h>
+#include <GL/glew.h>
 #include <QtGui>
 #else
 #include <QtGui>
 #include <GL/glew.h>
 #endif
 #include <QtOpenGL>
+#include <QOpenGLExtraFunctions>
 #include <QMutex>
+#include <QRecursiveMutex>
 #include <assert.h>
 #include <limits>
 #include <math.h>
@@ -46,7 +48,7 @@ namespace glnemo {
 // BEWARE when parent constructor QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 // is called, we get antialiasing during screenshot capture but we can loose    
 // performance during rendering. You have been warned !!!!!                     
-GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
+GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   // copy parameters
@@ -359,6 +361,8 @@ void GLWindow::initLight()
 long int CPT=0;
 void GLWindow::paintGL()
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
   CPT++;
   //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
   //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
@@ -385,7 +389,10 @@ void GLWindow::paintGL()
   } 
   //setFocus();
   
-  qglClearColor(store_options->background_color);
+  f->glClearColor(store_options->background_color.redF(),
+                  store_options->background_color.greenF(),
+                  store_options->background_color.blueF(),
+                  store_options->background_color.alphaF());
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   // set projection
@@ -558,7 +565,7 @@ void GLWindow::paintGL()
       if (fbo) // offscreen rendering activated
         gl_colorbar->display(texWidth,texHeight);
       else
-        gl_colorbar->display(QGLWidget::width(),QGLWidget::height());
+        gl_colorbar->display(QOpenGLWidget::width(),QOpenGLWidget::height());
     }
 
     //mutex_data->unlock();
@@ -573,7 +580,7 @@ void GLWindow::paintGL()
   if (store_options->show_osd) osd->display();
     
   // display selected area
-  gl_select->display(QGLWidget::width(),QGLWidget::height());
+  gl_select->display(QOpenGLWidget::width(),QOpenGLWidget::height());
 
   // draw axes
   if (store_options->axes_enable)
@@ -694,7 +701,7 @@ void GLWindow::initializeGL()
 #endif
 
   makeCurrent();   // activate OpenGL context, can build display list by now
-  f_context = QOpenGLContext::currentContext()->functions();
+  //f_context = QOpenGLContext::currentContext()->functions();
 }
 // ============================================================================
 // resize the opengl viewport according to the new window size
@@ -787,8 +794,8 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
     is_mouse_pressed       = TRUE;
     is_pressed_left_button = TRUE;
     setMouseTracking(TRUE);
-    last_posx = e->x();
-    last_posy = e->y();
+    last_posx = e->position().x();
+    last_posy = e->position().y();
     if  (is_translation) {;} //!parent->statusBar()->message("Translating X/Y");
     else                 {;} //!parent->statusBar()->message("Rotating X/Y");
   }
@@ -796,18 +803,18 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
     is_mouse_pressed        = TRUE;
     is_pressed_right_button = TRUE;
     setMouseTracking(TRUE);
-    last_posz = e->x();
+    last_posz = e->position().x();
     if (is_translation) {;} //!parent->statusBar()->message("Translating Z");
     else                {;} //!parent->statusBar()->message("Rotating Z");
   }
   //if ( e->button() == Qt::MiddleButton ) {
-  if ( e->button() == Qt::MidButton ) {
+  if ( e->button() == Qt::MiddleButton ) {
     //std::cerr << "Middle button pressed\n";
     is_mouse_pressed        = TRUE;
     is_pressed_middle_button= TRUE;
     setMouseTracking(TRUE);
-    last_posx = e->x();
-    last_posy = e->y();
+    last_posx = e->position().x();
+    last_posy = e->position().y();
   }
   emit sigKeyMouse( is_key_pressed, is_mouse_pressed);
   //!options_form->downloadOptions(store_options);
@@ -840,7 +847,7 @@ void GLWindow::mouseReleaseEvent(QMouseEvent *e) {
   if (is_a_key_pressed) {
     if (e->button() == Qt::LeftButton) {
       std::pair<CPointset*, GLCPoint*> cpoint_pair = cpointset_manager->getClickedCpoint(mModel2, mProj,
-                                                                                         {e->x(), e->y()}, viewport,
+                                                                                         {e->position().x(), e->position().y()}, viewport,
                                                                                          DOF);
       auto closest_cpoint_parent_set = cpoint_pair.first;
       auto closest_cpoint = cpoint_pair.second;
@@ -873,12 +880,12 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
   setFocus();
   if (is_pressed_left_button && !is_a_key_pressed) {
     // offset displcacement
-    dx = e->x()-last_posx;
-    dy = e->y()-last_posy;
+    dx = e->position().x()-last_posx;
+    dy = e->position().y()-last_posy;
     //std::cerr << "dxdy="<< dx << " " << dy << "\n";
     // save last position
-    last_posx = e->x();
-    last_posy = e->y();
+    last_posx = e->position().x();
+    last_posy = e->position().y();
     if (is_shift_pressed && !is_mouse_zoom) { // user selection request
       gl_select->getMouse(e);
       updateGL();
@@ -903,9 +910,9 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
   if ( !gl_select->isEnable()) {
     if ( is_pressed_right_button && !is_a_key_pressed) {
       // offset displcacement
-      dz = e->x()-last_posz;
+      dz = e->position().x()-last_posz;
       // save last position
-      last_posz = e->x();
+      last_posz = e->position().x();
       if (is_translation) {
         tz_mouse-=dz; // total rotation
       }
@@ -927,11 +934,11 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
   }
   //!options_form->downloadOptions(store_options);
   if (is_pressed_middle_button) {
-    dx = e->x()-last_posx;
-    dy = e->y()-last_posy;
+    dx = e->position().x()-last_posx;
+    dy = e->position().y()-last_posy;
     // save last position
-    last_posx = e->x();
-    last_posy = e->y();
+    last_posx = e->position().x();
+    last_posy = e->position().y();
     emit sigMouseXY(dx,dy);
     //std::cerr << "dx="<<dx<< "  dy="<<dy<<"\n";
   }
@@ -940,7 +947,7 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
 // manage zoom according to wheel event
 void GLWindow::wheelEvent(QWheelEvent * e)
 {
-  setZoom(e->delta());
+  setZoom((int) e->angleDelta().x());
   //!options_form->downloadOptions(store_options);
 }
 // ============================================================================

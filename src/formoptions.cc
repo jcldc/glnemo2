@@ -26,7 +26,7 @@ namespace glnemo {
   };
 // ============================================================================
 // Constructor                                                                 
-FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):QDialog(parent)
+FormOptions::FormOptions(GlobalOptions * _go, QRecursiveMutex * _mutex, QWidget *parent):QDialog(parent)
 {
   if (parent) {;}  // remove compiler warning
   form.setupUi(this);

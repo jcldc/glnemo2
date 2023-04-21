@@ -12,6 +12,7 @@
 // ============================================================================
 #include <QtGlobal>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <GL/glew.h>
 #include "glwindow.h"
 #include <QtGui>
 #include <QtWidgets>
@@ -49,7 +50,7 @@ MainWindow::MainWindow(std::string _ver)
   setAcceptDrops(true); // grant drag n drop files
   user_select = NULL;
   version = _ver;
-  mutex_data = new QMutex(QMutex::Recursive); // Recursive: a thread can lock a mutex more than
+  mutex_data = new QRecursiveMutex(); // Recursive: a thread can lock a mutex more than
                                               // once time, but mustunlock it as much as it
   is_cpoints_enabled = false;
   glsl_130 = false;
@@ -909,7 +910,7 @@ void MainWindow::loadNewData(const std::string select,
     tbench.restart();
 
     if (current_data->nextFrame(user_select->getIndexesTab(),user_select->getNSel())) {
-      qDebug("Time elapsed to load snapshot: %d s", tbench.elapsed()/1000);
+      qDebug("Time elapsed to load snapshot: %lld s", tbench.elapsed()/1000);
       store_options->new_frame=true;
       mutex_data->unlock();
       listObjects(pov);
@@ -980,7 +981,7 @@ void MainWindow::loadNewData(const std::string select,
         actionCenterToCom(false);
       }
       gl_window->update( current_data->part_data, &pov2,store_options);
-      qDebug("Time elapsed to update GL with new data: %d s", tbench.elapsed()/1000);
+      qDebug("Time elapsed to update GL with new data: %lld s", tbench.elapsed()/1000);
       if (!reload && bestzoom) gl_window->bestZoomFit();
       statusBar()->showMessage(tr("Snapshot loaded."));
     }
@@ -1504,7 +1505,8 @@ void MainWindow::actionPrint()
   QPrintDialog *dlg = new QPrintDialog(&printer, this);
   if (dlg->exec() != QDialog::Accepted) return;
   gl_window->updateGL();
-  QImage img=gl_window->grabFrameBuffer();
+  QImage img=gl_window->grabFramebuffer();
+
   QPainter painter( &printer );
   painter.drawImage(0,0,img);
 }

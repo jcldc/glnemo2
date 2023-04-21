@@ -19,6 +19,7 @@
 #include <QMouseEvent>
 #include <QTimer>
 #include <QMutex>
+#include <QRecursiveMutex>
 #include <globaloptions.h>
 #include <particlesdata.h>
 #include "globjectparticles.h"
@@ -40,14 +41,14 @@ public:
     bool isEnable()   { return is_activated;}
     void setEnable(bool _b) { is_activated=_b;    }
     void update( GLObjectParticlesVector *,PhysicalData * phys_select,
-                GlobalOptions   *, QMutex * );      
+                GlobalOptions   *, QRecursiveMutex * );      
     void display(const int, const int);  
 public slots:
     void updateFont();
 private:
     const GLObjectParticlesVector * gpv;
     const GlobalOptions * go;
-    QMutex * mutex_data;
+    QRecursiveMutex * mutex_data;
     bool is_activated;
     int width,height;
     void drawBox  ();

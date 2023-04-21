@@ -21,6 +21,7 @@
 #include <QTemporaryFile>
 #include <iostream>
 #include <QMutex>
+#include <QRecursiveMutex>
 #include "ui_formoptions.h"
 #include "globaloptions.h"
 #include "QLocale"
@@ -29,7 +30,7 @@ namespace glnemo {
 class FormOptions: public QDialog {
   Q_OBJECT
   public:
-    FormOptions(GlobalOptions * ,QMutex * _mutex, QWidget *parent = 0);
+    FormOptions(GlobalOptions * ,QRecursiveMutex * _mutex, QWidget *parent = 0);
     ~FormOptions();
   public slots:
     void update();
@@ -62,7 +63,7 @@ class FormOptions: public QDialog {
     QElapsedTimer time;
     QTimer * limited_timer;
     static int windows_size[][2];
-    QMutex * mutex_data;
+    QRecursiveMutex * mutex_data;
     bool EMIT;
     bool playing_camera;
     QTemporaryFile tmp_cam_file; // temporary camera file path

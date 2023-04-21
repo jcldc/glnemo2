@@ -20,6 +20,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QMutex>
+#include <QRecursiveMutex>
 #include <QDropEvent>
 #include <QTemporaryFile>
 #include <QApplication>
@@ -279,7 +280,7 @@ class MainWindow : public QMainWindow {
     bool bestzoom;
     // mutex
     QMutex mutex_loading;
-    QMutex  * mutex_data;
+    QRecursiveMutex  * mutex_data;
     QMutex sel_part;
     // user selection class
     UserSelection * user_select;
