@@ -35,7 +35,6 @@ CShader::CShader(std::string _vert_file, std::string _frag_file,  std::string _g
 bool CShader::init()
 {
     bool ret=false;
-    ogl_function = new QOpenGLFunctions(QOpenGLContext::currentContext());
 
     if (processVertex()) {
         if(processPixel()) {
@@ -52,30 +51,33 @@ bool CShader::init()
 // start
 void CShader::start() {
   //QT6 glUseProgramObjectARB(m_program);
-  ogl_function->glUseProgram(m_program);
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  f->glUseProgram(m_program);
   
 }
 // ============================================================================
 // stop
 void CShader::stop() {
   //QT6  glUseProgramObjectARB(0);
-  ogl_function->glUseProgram(0);
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  f->glUseProgram(0);
 }
 // ============================================================================
 // sendUniformXfv
 void CShader::sendUniformXfv(const char * s,const int _dim, const int _count, const float * _v)
 {
-  GLint loc = ogl_function->glGetUniformLocation(m_program, s);
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  GLint loc = f->glGetUniformLocation(m_program, s);
   if (loc == -1) {
     std::cerr << "Error occured when sending \""<<s<<"\" to shader..\n";
 //    exit(1);
   }
   switch (_dim) {
-  case 1: ogl_function->glUniform1fv(loc,_count,_v); break;// 
-  case 2: ogl_function->glUniform2fv(loc,_count,_v); break;// 
-  case 3: ogl_function->glUniform3fv(loc,_count,_v); break;// 
-  case 4: ogl_function->glUniform4fv(loc,_count,_v); break;//
-  case 16:ogl_function->glUniformMatrix4fv(loc,1,false,_v); break;
+  case 1: f->glUniform1fv(loc,_count,_v); break;// 
+  case 2: f->glUniform2fv(loc,_count,_v); break;// 
+  case 3: f->glUniform3fv(loc,_count,_v); break;// 
+  case 4: f->glUniform4fv(loc,_count,_v); break;//
+  case 16:f->glUniformMatrix4fv(loc,1,false,_v); break;
   default: 
     std::cerr << "CShader::sendUniformXfv unknown dimension ["<<_dim<<"], abort\n";
     std::exit(1);
@@ -84,16 +86,17 @@ void CShader::sendUniformXfv(const char * s,const int _dim, const int _count, co
 // sendUniformXfv
 void CShader::sendUniformXiv(const char * s,const int _dim, const int _count, const int * _v)
 {
-  GLint loc = ogl_function->glGetUniformLocation(m_program, s);
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  GLint loc = f->glGetUniformLocation(m_program, s);
   if (loc == -1) {
     std::cerr << "Error occured when sending \""<<s<<"\" to shader..\n";
 //    exit(1);
   }
   switch (_dim) {
-  case 1: ogl_function->glUniform1iv(loc,_count,_v); break;//
-  case 2: ogl_function->glUniform2iv(loc,_count,_v); break;//
-  case 3: ogl_function->glUniform3iv(loc,_count,_v); break;//
-  case 4: ogl_function->glUniform4iv(loc,_count,_v); break;//
+  case 1: f->glUniform1iv(loc,_count,_v); break;//
+  case 2: f->glUniform2iv(loc,_count,_v); break;//
+  case 3: f->glUniform3iv(loc,_count,_v); break;//
+  case 4: f->glUniform4iv(loc,_count,_v); break;//
   default:
     std::cerr << "CShader::sendUniformXiv unknown dimension ["<<_dim<<"], abort\n";
     std::exit(1);
@@ -103,55 +106,58 @@ void CShader::sendUniformXiv(const char * s,const int _dim, const int _count, co
 // sendUniformf
 void CShader::sendUniformf(const char * s,const float _v)
 {
-  GLint loc = ogl_function->glGetUniformLocation(m_program, s);
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  GLint loc = f->glGetUniformLocation(m_program, s);
   if (loc == -1) {
     std::cerr << "CShader::sendUniformf Error occured when sending \""<<s<<"\" to shader..\n";
 //    exit(1);
   }
-  ogl_function->glUniform1f(loc, _v);  
+  f->glUniform1f(loc, _v);  
 }
 // ============================================================================
 // sendUniformi
 void CShader::sendUniformi(const char * s,const int _v)
 {
-  GLint loc = ogl_function->glGetUniformLocation(m_program, s);
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  GLint loc = f->glGetUniformLocation(m_program, s);
   if (loc == -1) {
     std::cerr << "CShader::sendUniformi Error occured when sending \""<<s<<"\" to shader..\n";
 //    exit(1);
   }
-  ogl_function->glUniform1i(loc, _v);  
+  f->glUniform1i(loc, _v);  
 }
 // ============================================================================
 // createProgram()      
 bool CShader::createProgram()
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   bool ret=true;
   std::cerr << "Creating program\n";
-  m_program = ogl_function->glCreateProgram();
+  m_program = f->glCreateProgram();
   std::cerr << "Attaching vertex shader["<<vert_file<<"]\n";
-  ogl_function->glAttachShader(m_program, m_vertexShader);
+  f->glAttachShader(m_program, m_vertexShader);
   std::cerr << "Attaching pixel shader["<<frag_file<<"]\n";
-  ogl_function->glAttachShader(m_program, m_pixelShader);
+  f->glAttachShader(m_program, m_pixelShader);
   if (geom_file!="") {
       std::cerr << "Attaching geom shader["<<geom_file<<"]\n";
-      ogl_function->glAttachShader(m_program, m_geomShader);
+      f->glAttachShader(m_program, m_geomShader);
   }
   // bind attribute
   //glBindAttribLocation(m_program, 100, "a_sprite_size");
   std::cerr << "Linking  program\n";
-  ogl_function->glLinkProgram(m_program);
+  f->glLinkProgram(m_program);
   GLWindow::checkGLErrors("link Shader program");
   printLog(m_program,"Linking  program");
   int  link_status;
-  ogl_function->glGetProgramiv(m_program, GL_LINK_STATUS, &link_status);
+  f->glGetProgramiv(m_program, GL_LINK_STATUS, &link_status);
   if(link_status != GL_TRUE) {
     cerr << "Unable to LINK Shader program .....\n";
     return false;
   }
-  ogl_function->glDeleteShader(m_vertexShader);
-  ogl_function->glDeleteShader(m_pixelShader);
+  f->glDeleteShader(m_vertexShader);
+  f->glDeleteShader(m_pixelShader);
   if (geom_file!="") {
-      ogl_function->glDeleteShader(m_geomShader);
+      f->glDeleteShader(m_geomShader);
   }
   std::cerr << "ending init shader\n";
   return ret;
@@ -160,23 +166,24 @@ bool CShader::createProgram()
 // processVertex()      
 bool CShader::processVertex()
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   bool ret=true;
   // process VERTEX
   std::string vert_src = load(vert_file);
   if (vert_src.size()>0) {
-    m_vertexShader = ogl_function->glCreateShader(GL_VERTEX_SHADER);
+    m_vertexShader = f->glCreateShader(GL_VERTEX_SHADER);
     if (!m_vertexShader) {
       cerr << "Unable to create VERTEX SHADER["<<vert_file<<"]......\n";
       return false;
     }
     const char * v =  vert_src.c_str();
-    ogl_function->glShaderSource(m_vertexShader, 1, &v , NULL);
+    f->glShaderSource(m_vertexShader, 1, &v , NULL);
     std::cerr << "Compiling vertex shader["<<vert_file<<"]\n";
     GLint compile_status;
-    ogl_function->glCompileShader(m_vertexShader);
+    f->glCompileShader(m_vertexShader);
     GLWindow::checkGLErrors("compile Vertex Shader");
     printLog(m_vertexShader,"Compiling vertex shader");
-    ogl_function->glGetShaderiv(m_vertexShader, GL_COMPILE_STATUS, &compile_status);
+    f->glGetShaderiv(m_vertexShader, GL_COMPILE_STATUS, &compile_status);
     if(compile_status != GL_TRUE) {
       cerr << "Unable to COMPILE VERTEX SHADER["<<vert_file<<"].....\n";
       return false;
@@ -189,23 +196,24 @@ bool CShader::processVertex()
 // processPixel()      
 bool CShader::processPixel()
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   bool ret=true;
   // process PIXEL
   std::string  frag_src = load(frag_file);
   if (frag_src.size()>0) {
-    m_pixelShader = ogl_function->glCreateShader(GL_FRAGMENT_SHADER);
+    m_pixelShader = f->glCreateShader(GL_FRAGMENT_SHADER);
     if (!m_pixelShader) {
       cerr << "Unable to create PIXEL SHADER["<<frag_file<<"].....\n";
       return false;
     }
     const char * v =  frag_src.c_str();
-    ogl_function->glShaderSource(m_pixelShader, 1, &v , NULL);
+    f->glShaderSource(m_pixelShader, 1, &v , NULL);
     std::cerr << "Compiling pixel shader["<<frag_file<<"]\n";
     GLint compile_status;
-    ogl_function->glCompileShader(m_pixelShader);
+    f->glCompileShader(m_pixelShader);
     GLWindow::checkGLErrors("compile Pixel Shader");
     printLog(m_pixelShader,"Compiling pixel shader");
-    ogl_function->glGetShaderiv(m_pixelShader, GL_COMPILE_STATUS, &compile_status);
+    f->glGetShaderiv(m_pixelShader, GL_COMPILE_STATUS, &compile_status);
     if(compile_status != GL_TRUE) {
       cerr << "Unable to COMPILE PIXEL SHADER["<<frag_file<<"]......\n";
       return false;
@@ -218,22 +226,23 @@ bool CShader::processPixel()
 bool CShader::processGeom()
 {
   bool ret=true;
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   // process PIXEL
   std::string  geom_src = load(geom_file);
   if (geom_file!= "" && geom_src.size()>0) {
-    m_geomShader = ogl_function->glCreateShader(GL_GEOMETRY_SHADER);
+    m_geomShader = f->glCreateShader(GL_GEOMETRY_SHADER);
     if (!m_geomShader) {
       cerr << "Unable to create GEOMETRY SHADER["<<geom_file<<"]......\n";
       return false;
     }
     const char * v =  geom_src.c_str();
-    ogl_function->glShaderSource(m_geomShader, 1, &v , NULL);
+    f->glShaderSource(m_geomShader, 1, &v , NULL);
     std::cerr << "Compiling geometry shader\n";
     GLint compile_status;
-    ogl_function->glCompileShader(m_geomShader);
+    f->glCompileShader(m_geomShader);
     GLWindow::checkGLErrors("compile geometry Shader");
     printLog(m_geomShader,"Compiling geometry shader");
-    ogl_function->glGetShaderiv(m_geomShader, GL_COMPILE_STATUS, &compile_status);
+    f->glGetShaderiv(m_geomShader, GL_COMPILE_STATUS, &compile_status);
     if(compile_status != GL_TRUE) {
       cerr << "Unable to COMPILE GEOMETRY SHADER["<<geom_file<<"].....\n";
       return false;
@@ -274,18 +283,19 @@ void CShader::printLog(GLuint obj,std::string s)
 {
   int infologLength = 0;
   int maxLength;
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   
-  if(ogl_function->glIsShader(obj))
-    ogl_function->glGetShaderiv(obj,GL_INFO_LOG_LENGTH,&maxLength);
+  if(f->glIsShader(obj))
+    f->glGetShaderiv(obj,GL_INFO_LOG_LENGTH,&maxLength);
   else
-    ogl_function->glGetProgramiv(obj,GL_INFO_LOG_LENGTH,&maxLength);
+    f->glGetProgramiv(obj,GL_INFO_LOG_LENGTH,&maxLength);
   
   char infoLog[maxLength];
   
-  if (ogl_function->glIsShader(obj))
-    ogl_function->glGetShaderInfoLog(obj, maxLength, &infologLength, infoLog);
+  if (f->glIsShader(obj))
+    f->glGetShaderInfoLog(obj, maxLength, &infologLength, infoLog);
   else
-    ogl_function->glGetProgramInfoLog(obj, maxLength, &infologLength, infoLog);
+    f->glGetProgramInfoLog(obj, maxLength, &infologLength, infoLog);
   
   if (infologLength > 0) {
     std::cerr << "CShader::printLog [" << s<< "]:"<<infoLog<<"\n";

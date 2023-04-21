@@ -54,7 +54,6 @@ private:
   // handle to the shader program itself
   GLhandleARB m_program;
   
-  QOpenGLFunctions * ogl_function;
 };
 
 }

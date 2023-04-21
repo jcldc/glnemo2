@@ -17,7 +17,7 @@
 #include <QColor>
 #include <QTimer>
 //#include <QOpenGLWidget>
-#include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
 #include <fstream>
 #include "cshader.h"
 #include "catmull_rom_spline.h"
@@ -97,7 +97,6 @@ namespace glnemo {
     void checkGSLSupport();
     bool GLSL_support;
     GLTexture * texture;
-    QOpenGLFunctions * ogl_function;
   private:
     GlobalOptions * store_options;
     float

@@ -20,6 +20,7 @@
 #endif
 #include <QtOpenGL>
 #include <QOpenGLExtraFunctions>
+#include <QOpenGLFunctions>
 #include <QMutex>
 #include <QRecursiveMutex>
 #include <assert.h>
@@ -50,7 +51,7 @@ namespace glnemo {
 // performance during rendering. You have been warned !!!!!                     
 GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
-  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   // copy parameters
   parent        = _parent;
   store_options = _go;
@@ -98,7 +99,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mute
   zoom_dynam = 0;
   // leave events : reset event when we leave opengl windows
   connect(this,SIGNAL(leaveEvent()),this,SLOT(resetEvents()));
-  
+  initializeOpenGLFunctions();
   initializeGL();
   checkGLErrors("initializeGL");
   shader = NULL;
@@ -611,6 +612,9 @@ void GLWindow::paintGL()
 // ============================================================================
 void GLWindow::initShader()
 {
+  //QOpenGLExtraFunctions *f = QOpenGLContext::cre
+  //QOpenGLContext::currentContext()->extraFunctions();
+
   if (store_options->init_glsl) {
     const GLubyte* gl_version=glGetString ( GL_VERSION );
     std::cerr << "OpenGL version : ["<< gl_version << "]\n";
@@ -675,7 +679,9 @@ void GLWindow::initShader()
 void GLWindow::checkGLErrors(std::string s) 
 {
   GLenum error;
-  while ((error = glGetError()) != GL_NO_ERROR) {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
+  while ((error = f->glGetError()) != GL_NO_ERROR) {
     std::cerr << "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * \n";
     std::cerr << s << ": error - " << (char *) gluErrorString(error)<<"\n";
   }
@@ -699,8 +705,10 @@ void GLWindow::initializeGL()
   //PRINT_D std::cerr << "-- Initialize GL --\n";
 
 #endif
-
+  
   makeCurrent();   // activate OpenGL context, can build display list by now
+  initializeOpenGLFunctions();
+
   //f_context = QOpenGLContext::currentContext()->functions();
 }
 // ============================================================================

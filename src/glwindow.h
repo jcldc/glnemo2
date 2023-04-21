@@ -40,7 +40,7 @@ namespace glnemo {
 class GLGridObject;
 class GlobalOptions;
 
-class GLWindow : public QOpenGLWidget {
+class GLWindow : public QOpenGLWidget, protected QOpenGLFunctions {
   Q_OBJECT
 public:
     GLWindow(QWidget *, GlobalOptions *, QRecursiveMutex * , Camera *, CPointsetManager *);

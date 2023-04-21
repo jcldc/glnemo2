@@ -130,8 +130,8 @@ CPointset::CPointset(CShader *shader, const std::string &name) :
   // SHADER INIT
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
-  ogl_function->glGenBuffers(1, &m_vbo);
-  ogl_function->glGenBuffers(1, &m_selected_vbo);
+  f->glGenBuffers(1, &m_vbo);
+  f->glGenBuffers(1, &m_selected_vbo);
   f->glGenVertexArrays(1, &m_vao);
   f->glGenVertexArrays(1, &m_selected_vao);
 
@@ -152,23 +152,20 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
   m_nb_sphere_sections = other.m_nb_sphere_sections;
   m_nb_selected = other.m_nb_selected;
 
-  ogl_function = QOpenGLContext::currentContext()->functions();
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
-
   // SHADER INIT
-  ogl_function->glGenBuffers(1, &m_vbo);
-  ogl_function->glGenBuffers(1, &m_selected_vbo);
+  f->glGenBuffers(1, &m_vbo);
+  f->glGenBuffers(1, &m_selected_vbo);
   f->glGenVertexArrays(1, &m_vao);
   f->glGenVertexArrays(1, &m_selected_vao);
   copyCPoints(other);
 }
 
 CPointset::~CPointset() {
-  ogl_function = QOpenGLContext::currentContext()->functions();
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
-  ogl_function->glDeleteBuffers(1, &m_vbo);
+  f->glDeleteBuffers(1, &m_vbo);
   f->glDeleteVertexArrays(1, &m_vao);
 }
 
@@ -209,11 +206,10 @@ void CPointset::setThreshold(int threshold) {
 }
 
 void CPointset::setAttributes() {
-  ogl_function = QOpenGLContext::currentContext()->functions();
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
-  GLuint point_center_disk_attrib = ogl_function->glGetAttribLocation(m_shader->getProgramId(), "point_center");
-  GLuint radius_disk_attrib = ogl_function->glGetAttribLocation(m_shader->getProgramId(), "radius");
+  GLuint point_center_disk_attrib = f->glGetAttribLocation(m_shader->getProgramId(), "point_center");
+  GLuint radius_disk_attrib = f->glGetAttribLocation(m_shader->getProgramId(), "radius");
   if (point_center_disk_attrib == -1) {
     std::cerr << "Error occured when getting \"point_center\" attribute\n";
     exit(1);
@@ -233,7 +229,6 @@ void CPointset::setAttributes() {
 }
 
 void CPointset::genVboData() {
-  ogl_function = QOpenGLContext::currentContext()->functions();
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   // DATA INIT
@@ -546,7 +541,6 @@ void CPointsetRegularPolygon::sendUniforms() {
 }
 void CPointsetRegularPolygon::display() {
 
-  ogl_function = QOpenGLContext::currentContext()->functions();
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   m_shader->start();
@@ -634,7 +628,7 @@ CPointsetTag::CPointsetTag(const CPointset &other) : CPointset(shader, other) {
 }
 
 void CPointsetTag::display() {
-  ogl_function = QOpenGLContext::currentContext()->functions();
+  
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   glLineWidth(1);
@@ -714,7 +708,7 @@ std::pair<GLCPoint *, float> CPointsetSphere::getClickedCPoint(double *model, do
 void CPointsetSphere::display() {
 
   int nb_vertex_per_sphere = m_nb_sphere_sections * m_nb_sphere_sections + m_nb_sphere_sections;
-  ogl_function = QOpenGLContext::currentContext()->functions();
+  
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   glLineWidth(1);
@@ -998,7 +992,7 @@ void CPointTextRenderer::init(const std::string &shader_dir) {
     std::cerr << "Failed to initialize tag text shader\n";
     exit(1);
   }
-  QOpenGLFunctions * ogl_function = QOpenGLContext::currentContext()->functions();
+
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   // generate buffers
@@ -1084,7 +1078,7 @@ void CPointTextRenderer::init(const std::string &shader_dir) {
 }
 
 void CPointTextRenderer::renderText(CPointset *pointset) {
-  QOpenGLFunctions * ogl_function = QOpenGLContext::currentContext()->functions();
+  
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   glEnable(GL_BLEND);
