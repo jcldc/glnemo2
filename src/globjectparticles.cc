@@ -417,7 +417,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   // process shader color variables
   sendShaderData(win_height,use_point);
 
-  glActiveTextureARB(GL_TEXTURE0_ARB);
+  glActiveTexture(GL_TEXTURE0_ARB);
   texture->glBindTexture();  // bind texture
 
   // get attribute location for sprite size

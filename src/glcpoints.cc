@@ -1119,7 +1119,7 @@ void CPointTextRenderer::renderText(CPointset *pointset) {
     m_text_shader->sendUniformi("angle", angle);
     scale *= cpoint->getSize() * pointset->getNameSizeFactor();
 //
-    glActiveTextureARB(GL_TEXTURE0_ARB);
+    glActiveTexture(GL_TEXTURE0_ARB);
     f->glBindVertexArray(m_text_vao);
 
     glBindTexture(GL_TEXTURE_2D, m_texture);
