@@ -49,7 +49,7 @@ namespace glnemo {
 // BEWARE when parent constructor QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 // is called, we get antialiasing during screenshot capture but we can loose    
 // performance during rendering. You have been warned !!!!!                     
-GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
+GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager):QOpenGLWidget(_parent) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   // copy parameters
@@ -99,7 +99,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mute
   zoom_dynam = 0;
   // leave events : reset event when we leave opengl windows
   connect(this,SIGNAL(leaveEvent()),this,SLOT(resetEvents()));
-  initializeOpenGLFunctions();
+  
   initializeGL();
   checkGLErrors("initializeGL");
   shader = NULL;
@@ -706,7 +706,12 @@ void GLWindow::initializeGL()
 
 #endif
   
-  makeCurrent();   // activate OpenGL context, can build display list by now
+  
+  //QOpenGLContext * f = QOpenGLContext::currentContext();
+  QOpenGLContext * f = new QOpenGLContext(this);
+  //f->setFormat(requestedFormat());
+  // f->create();
+  // f->makeCurrent(this);   // activate OpenGL context, can build display list by now
   initializeOpenGLFunctions();
 
   //f_context = QOpenGLContext::currentContext()->functions();

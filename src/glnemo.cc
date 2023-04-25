@@ -17,6 +17,7 @@
 #include <QtGlobal>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 //#include <GL/glew.h>
+#include <QSurfaceFormat>
 #include <QApplication>
 #else // QT4
 #include <QtGui>
@@ -179,6 +180,10 @@ int main(int argc, char *argv[])
 {
   QApplication::setDesktopSettingsAware(true);
   glnemo::QMyApplication app(argc, argv);
+  QSurfaceFormat format;
+  format.setDepthBufferSize(24);
+  QSurfaceFormat::setDefaultFormat(format);
+  
   setlocale(LC_NUMERIC,"C"); // force numerics functions to use decimal point
 #if 0
   if ( !QGLFormat::hasOpenGL() ) {

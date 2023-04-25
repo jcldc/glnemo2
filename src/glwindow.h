@@ -20,6 +20,7 @@
 #include <QOpenGLWidget>
 #include <QImage>
 #include <QMutex>
+#include <QSurface>
 #include <QRecursiveMutex>
 #include "particlesobject.h"
 #include "globjectparticles.h"
@@ -133,7 +134,7 @@ public slots:
    void resetFrame() { nframe=0; }
    int getFrame() { return nframe;}
 protected:
-  void	initializeGL();
+  void	initializeGL() override;
   void	paintGL();
   void	resizeGL( int w, int h );
 
