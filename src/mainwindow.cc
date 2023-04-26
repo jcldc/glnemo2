@@ -183,7 +183,7 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_options,SIGNAL(update_osd_font()),gl_window,SLOT(changeOsdFont()));
   connect(form_options,SIGNAL(update_gl()),gl_window,SLOT(updateGL()));
   // options GL colorbar tab
-  connect(form_options,SIGNAL(update_gcb_font()),gl_window->gl_colorbar,SLOT(updateFont()));
+  //qt6 connect(form_options,SIGNAL(update_gcb_font()),gl_window->gl_colorbar,SLOT(updateFont()));
   // open cpoint help page
   connect(form_o_c, SIGNAL(cpointHelpClicked()), form_help, SLOT(showCpointHelp()));
   connect(gl_window, SIGNAL(selectTreeWidgetItem(int)), form_o_c, SLOT(selectTreeWidgetItem(int)));

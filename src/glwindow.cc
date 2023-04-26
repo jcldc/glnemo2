@@ -19,7 +19,7 @@
 #include <GL/glew.h>
 #endif
 #include <QtOpenGL>
-#include <QOpenGLExtraFunctions>
+#include <QOpenGLExtraFunctions> 
 #include <QOpenGLFunctions>
 #include <QMutex>
 #include <QRecursiveMutex>
@@ -52,6 +52,7 @@ namespace glnemo {
 GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager):QOpenGLWidget(_parent) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  
   // copy parameters
   parent        = _parent;
   store_options = _go;
@@ -100,19 +101,20 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mute
   // leave events : reset event when we leave opengl windows
   connect(this,SIGNAL(leaveEvent()),this,SLOT(resetEvents()));
   
-  initializeGL();
-  checkGLErrors("initializeGL");
+  //qt6 initializeGL();
+  //qt6 checkGLErrors("initializeGL");
   shader = NULL;
   vel_shader = NULL;
 
-  initShader();
-  checkGLErrors("initShader");
+  //qt6 initShader();
+  //qt6 checkGLErrors("initShader");
   ////////
   
   // camera
-  camera->loadShader();
+  //qt6 camera->loadShader();
 
   // grid
+#if 0
   GLGridObject::nsquare = store_options->nb_meshs;
   GLGridObject::square_size = store_options->mesh_length;
   gridx = new GLGridObject(0,store_options->col_x_grid,store_options->xy_grid);
@@ -159,7 +161,8 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mute
     glGenFramebuffersEXT(1, &framebuffer);
     glGenRenderbuffersEXT(1, &renderbuffer);
   }
-  checkGLErrors("GLWindow constructor");
+#endif
+  //qt6 checkGLErrors("GLWindow constructor");
 }
 
 // ============================================================================
@@ -704,17 +707,61 @@ void GLWindow::initializeGL()
   glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
   //PRINT_D std::cerr << "-- Initialize GL --\n";
 
-#endif
-  
-  
-  //QOpenGLContext * f = QOpenGLContext::currentContext();
-  QOpenGLContext * f = new QOpenGLContext(this);
-  //f->setFormat(requestedFormat());
-  // f->create();
-  // f->makeCurrent(this);   // activate OpenGL context, can build display list by now
+#endif   
   initializeOpenGLFunctions();
 
-  //f_context = QOpenGLContext::currentContext()->functions();
+  // initialyze shaders
+  initShader();
+
+  // camera
+  camera->loadShader();
+
+  GLGridObject::nsquare = store_options->nb_meshs;
+  GLGridObject::square_size = store_options->mesh_length;
+  gridx = new GLGridObject(0,store_options->col_x_grid,store_options->xy_grid);
+  gridy = new GLGridObject(1,store_options->col_y_grid,store_options->yz_grid);
+  gridz = new GLGridObject(2,store_options->col_z_grid,store_options->xz_grid);
+
+  // axes
+  axes = new GLAxesObject();
+  
+  // cube
+  cube  = new GLCubeObject(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
+  // load texture
+  GLTexture::loadTextureVector(gtv);
+  
+  // build display list in case of screenshot
+  if (store_options->show_part && pov ) {
+    //std::cerr << "GLWindow::initializeGL() => build display list\n";
+    for (int i=0; i<(int)pov->size(); i++) {
+      // !!!! DEACTIVATE gpv[i].buildDisplayList();;
+      gpv[i].buildVelDisplayList();;
+      gpv[i].setTexture();
+      //gpv[i].buildVboPos();
+    }
+  }
+  
+  // Osd
+  fntRenderer text;
+  font = new fntTexFont(store_options->osd_font_name.toStdString().c_str());
+  text.setFont(font);
+  text.setPointSize(store_options->osd_font_size );
+  osd = new GLObjectOsd(wwidth,wheight,text,store_options->osd_color);
+  // colorbar
+  gl_colorbar = new GLColorbar(store_options,true);
+  
+  ////////
+  // FBO
+  // Set the width and height appropriately for you image
+  fbo = false;
+  //Set up a FBO with one renderbuffer attachment
+  // init octree
+  tree = new GLOctree(store_options);
+  tree->setActivate(true);
+  if (GLWindow::GLSL_support) {
+    glGenFramebuffersEXT(1, &framebuffer);
+    glGenRenderbuffersEXT(1, &renderbuffer);
+  }
 }
 // ============================================================================
 // resize the opengl viewport according to the new window size
