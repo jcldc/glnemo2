@@ -1007,7 +1007,7 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
 // manage zoom according to wheel event
 void GLWindow::wheelEvent(QWheelEvent * e)
 {
-  setZoom((int) e->angleDelta().x());
+  setZoom((int) e->angleDelta().y());
   //!options_form->downloadOptions(store_options);
 }
 // ============================================================================
