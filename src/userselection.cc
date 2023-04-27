@@ -148,12 +148,18 @@ int UserSelection::isRange(const std::string comp)
 {
   int status;
   // Regular expression => first:last:step
-  QRegularExpression rx("^(\\d{1,})((:)(\\d{1,})){,1}((:)(\\d{1,})){,1}$");
+  // to test RegExp : https://regexr.com/
+  QRegularExpression rx("^(\\d{1,})((:)(\\d{1,})){0,1}((:)(\\d{1,})){0,1}$");
   QRegularExpressionMatch match=rx.match(QString(comp.c_str()));
+  
   if (! match.hasMatch()) { // not match
     status=1;        // misformated
   }
   else {
+    for (int i=0; i < rx.captureCount(); i++) {
+      std::istringstream iss((match.captured(i)).toStdString());
+      std::cerr << i << " " <<  iss.str() << "\n";
+    }
     int first,last,step=1;
     // get first
     std::istringstream iss((match.captured(1)).toStdString());
