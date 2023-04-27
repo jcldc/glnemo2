@@ -133,6 +133,9 @@ public slots:
 
    void resetFrame() { nframe=0; }
    int getFrame() { return nframe;}
+   void updateColorbarFont() {
+    gl_colorbar->updateFont();
+   }
 protected:
   void	initializeGL() override;
   void	paintGL();
