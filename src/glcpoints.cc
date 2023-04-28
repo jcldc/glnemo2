@@ -22,6 +22,7 @@
 #include "glcpoints.h"
 #include "globaloptions.h"
 #include "glnemoexception.h"
+#include "glwindow.h"
 #include <GL/glu.h>
 
 #if defined(__APPLE__)
@@ -129,12 +130,12 @@ CPointset::CPointset(CShader *shader, const std::string &name) :
   m_nb_selected = 0;
   // SHADER INIT
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
-
+  GLWindow::checkGLErrors("In Pointset::CPointset");
   f->glGenBuffers(1, &m_vbo);
   f->glGenBuffers(1, &m_selected_vbo);
   f->glGenVertexArrays(1, &m_vao);
   f->glGenVertexArrays(1, &m_selected_vao);
-
+  GLWindow::checkGLErrors("Out Pointset::CPointset");
 }
 
 CPointset::CPointset(CShader *shader, const CPointset &other) {
@@ -153,13 +154,14 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
   m_nb_selected = other.m_nb_selected;
 
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
-
+  GLWindow::checkGLErrors("In Pointset::CPointset2");
   // SHADER INIT
   f->glGenBuffers(1, &m_vbo);
   f->glGenBuffers(1, &m_selected_vbo);
   f->glGenVertexArrays(1, &m_vao);
   f->glGenVertexArrays(1, &m_selected_vao);
   copyCPoints(other);
+  GLWindow::checkGLErrors("Out Pointset::CPointset2");
 }
 
 CPointset::~CPointset() {
@@ -178,18 +180,23 @@ const std::string &CPointset::getName() const {
 }
 
 GLCPoint *CPointset::addPoint(std::array<float, 3> coords, float size, const std::string &text) {
+  GLWindow::checkGLErrors("In Pointset::addPoint");
   auto cpoint = new GLCPoint(coords, size, text);
   m_cpoints[cpoint->getId()] = cpoint;
   genVboData();
+  GLWindow::checkGLErrors("Out Pointset::addPoint");
   return cpoint;
 }
 
 void CPointset::addPoints(const std::vector<GLCPointData>& cpoint_data_v) { // return vector maybe
+    GLWindow::checkGLErrors("In Pointset::addPoint2");
   for (const GLCPointData& cpoint_data : cpoint_data_v) {
     auto cpoint = new GLCPoint(cpoint_data.coords, cpoint_data.size, cpoint_data.text);
     m_cpoints[cpoint->getId()] = cpoint;
   }
   genVboData();
+  GLWindow::checkGLErrors("In Pointset::addPoint2");
+
 }
 
 void CPointset::setVisible(bool visible) {
@@ -207,6 +214,8 @@ void CPointset::setThreshold(int threshold) {
 
 void CPointset::setAttributes() {
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
+  GLWindow::checkGLErrors("In Pointset::setAttributes");
 
   GLuint point_center_disk_attrib = f->glGetAttribLocation(m_shader->getProgramId(), "point_center");
   GLuint radius_disk_attrib = f->glGetAttribLocation(m_shader->getProgramId(), "radius");
@@ -226,11 +235,12 @@ void CPointset::setAttributes() {
   f->glVertexAttribPointer(radius_disk_attrib, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
                            (void *) (3 * sizeof(float)));
   f->glVertexAttribDivisor(radius_disk_attrib, 1);
+  GLWindow::checkGLErrors("out Pointset::setAttributes");
 }
 
 void CPointset::genVboData() {
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
-
+  GLWindow::checkGLErrors("In Pointset::sgenVboData");
   // DATA INIT
   std::vector<float> data, selected_data;
   //maybe use reserve to preallocate,
@@ -274,6 +284,7 @@ void CPointset::genVboData() {
   f->glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * selected_data.size(), selected_data.data(), GL_STATIC_DRAW);
   setAttributes();
   f->glBindVertexArray(0);
+  GLWindow::checkGLErrors("Out Pointset::sgenVboData");
 }
 
 const glcpointmap_t &CPointset::getCPoints() const {
@@ -542,15 +553,23 @@ void CPointsetRegularPolygon::sendUniforms() {
 void CPointsetRegularPolygon::display() {
 
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
-
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display");
   m_shader->start();
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 1");
   f->glBindVertexArray(m_vao);
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 2");
   sendUniforms();
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 3");
   m_shader->sendUniformi("second_pass", false);
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 4");
   m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 5");
   f->glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, m_nb_visible);
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 5");
   f->glBindVertexArray(0);
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 7");
   m_shader->stop();
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 8");
 
 
   m_shader->start();
@@ -561,6 +580,7 @@ void CPointsetRegularPolygon::display() {
   f->glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, m_nb_selected);
   f->glBindVertexArray(0);
   m_shader->stop();
+  GLWindow::checkGLErrors("stop CPointsetRegularPolygon::display");
 
 }
 
@@ -630,7 +650,8 @@ CPointsetTag::CPointsetTag(const CPointset &other) : CPointset(shader, other) {
 void CPointsetTag::display() {
   
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
-
+  
+  GLWindow::checkGLErrors("start CPointsetTag::display");
   glLineWidth(1);
   m_shader->start();
   f->glBindVertexArray(m_selected_vao);
@@ -647,6 +668,8 @@ void CPointsetTag::display() {
   f->glDrawArraysInstanced(GL_LINE_STRIP, 0, 3, m_nb_visible);
   f->glBindVertexArray(0);
   m_shader->stop();
+  GLWindow::checkGLErrors("stop CPointsetTag::display");
+
 }
 
 void CPointsetTag::sendUniforms() {
@@ -710,6 +733,7 @@ void CPointsetSphere::display() {
   int nb_vertex_per_sphere = m_nb_sphere_sections * m_nb_sphere_sections + m_nb_sphere_sections;
   
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  GLWindow::checkGLErrors("start CPointsetSphere::display");
 
   glLineWidth(1);
   glEnable(GL_BLEND);
@@ -741,6 +765,7 @@ void CPointsetSphere::display() {
   f->glBindVertexArray(0);
 
   m_shader->stop();
+  GLWindow::checkGLErrors("stop CPointsetSphere::display");
 
 
 }
@@ -858,6 +883,7 @@ void CPointsetManager::initShaders(bool glsl_130) {
 }
 
 void CPointsetManager::displayAll() {
+  GLWindow::checkGLErrors("start Display all");
   for (const auto& cpointset_pair: m_pointsets) {
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -869,9 +895,11 @@ void CPointsetManager::displayAll() {
   for (const auto& cpointset_pair: m_pointsets) {
     glDisable(GL_DEPTH_TEST);
     CPointset *cpointset = cpointset_pair.second;
-    if (cpointset->isNameVisible() && cpointset->isVisible())
+    if (cpointset->isNameVisible() && cpointset->isVisible()) {
       cpointset->displayText();
+    }
   }
+  GLWindow::checkGLErrors("stop Display all");
 }
 
 CPointset *CPointsetManager::createNewCPointset() {
@@ -1006,7 +1034,7 @@ void CPointTextRenderer::init(const std::string &shader_dir) {
   f->glBindBuffer(GL_ARRAY_BUFFER, 0);
   f->glBindVertexArray(0);
 
-  glPixelStorei(GL_UNPACK_ALIGNMENT,
+  f->glPixelStorei(GL_UNPACK_ALIGNMENT,
                 1); // Disable byte-alignment restriction, maybe not needed since we have power of two texture
 
   //� Load json description file

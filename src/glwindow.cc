@@ -12,11 +12,6 @@
 // ============================================================================
 #include <QtGlobal>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <GL/glew.h>
-#include <QtGui>
-#else
-#include <QtGui>
-#include <GL/glew.h>
 #endif
 #include <QtOpenGL>
 #include <QOpenGLExtraFunctions> 
@@ -57,7 +52,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mute
   parent        = _parent;
   store_options = _go;
   camera        = _camera;
-    cpointset_manager = _pointset_manager;
+  cpointset_manager = _pointset_manager;
   //setAttribute(Qt::WA_NoSystemBackground);
   // reset coordinates
   resetEvents(true);
@@ -177,8 +172,8 @@ GLWindow::~GLWindow()
   delete tree;
   delete axes;
   if (GLWindow::GLSL_support) {
-    glDeleteRenderbuffersEXT(1, &renderbuffer);
-    glDeleteRenderbuffersEXT(1, &framebuffer);
+    glDeleteRenderbuffers(1, &renderbuffer);
+    glDeleteRenderbuffers(1, &framebuffer);
     if (shader) delete shader;
     if (vel_shader) delete vel_shader;
   }
@@ -381,13 +376,13 @@ void GLWindow::paintGL()
   if (fbo && GLWindow::GLSL_support) {
     //std::cerr << "FBO GLWindow::paintGL() --> "<<CPT<<"\n";
     //glGenFramebuffersEXT(1, &framebuffer);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER_EXT, framebuffer);
     //glGenRenderbuffersEXT(1, &renderbuffer);
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+    glBindRenderbuffer(GL_RENDERBUFFER_EXT, renderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                   GL_RENDERBUFFER_EXT, renderbuffer);
-    GLuint status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
     if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
     }
   } 
@@ -600,7 +595,7 @@ void GLWindow::paintGL()
     imgFBO = QImage( texWidth, texHeight,QImage::Format_RGB32);
     glReadPixels( 0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits() );
     // Make the window the target
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
 
    // Delete the renderbuffer attachment
    //glDeleteRenderbuffersEXT(1, &renderbuffer);
@@ -618,82 +613,61 @@ void GLWindow::initShader()
   //QOpenGLExtraFunctions *f = QOpenGLContext::cre
   //QOpenGLContext::currentContext()->extraFunctions();
 
-  if (store_options->init_glsl) {
-    const GLubyte* gl_version=glGetString ( GL_VERSION );
-    std::cerr << "OpenGL version : ["<< gl_version << "]\n";
-    int major = 0;
-    int minor = 0;
-    glGetIntegerv(GL_MAJOR_VERSION, &major);
-    glGetIntegerv(GL_MINOR_VERSION, &minor);
-    std::cerr << "OpenGL :"<< major << "." << minor << "\n";
-    GLSL_support = true;
-    std::cerr << "begining init shader\n";
- 
-    int err=glewInit();
-  #if 0
-    if (err==GLEW_OK && GLEW_ARB_multitexture && GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader && GL_VERSION_2_0)
+  if (store_options->init_glsl) {       
+    qDebug() << "begining init shader\n";
+  
+    foreach (const QByteArray &value, gl_extensions)
+      qDebug() << value ;
+
+    if (gl_extensions.contains("GL_ARB_multitexture") &&
+        gl_extensions.contains("GL_ARB_vertex_shader") &&
+        gl_extensions.contains("GL_ARB_fragment_shader")) {
       qDebug() << "Ready for GLSL\n";
+      GLSL_support = true;
+    }
     else {
       qDebug() << "BE CAREFULL : No GLSL support\n";
-      GLSL_support = false;
-      //exit(1);
+      GLSL_support = false;   
     }
-  #else
-  
-  foreach (const QByteArray &value, gl_extensions)
-    qDebug() << value ;
 
-  if (gl_extensions.contains("GL_ARB_multitexture") &&
-      gl_extensions.contains("GL_ARB_vertex_shader") &&
-      gl_extensions.contains("GL_ARB_fragment_shader")) {
-     qDebug() << "Ready for GLSL\n";
-  }
-  else {
-     qDebug() << "BE CAREFULL : No GLSL support\n";
-     GLSL_support = false;   
-  }
-
-  #endif
 
     if (GLSL_support ) {
       // check GLSL version supported
       const GLubyte* glsl_version=glGetString ( GL_SHADING_LANGUAGE_VERSION );
-      std::cerr << "GLSL version supported : ["<< glsl_version << "]\n";
+      qDebug() << "GLSL version supported : ["<< glsl_version << "]\n";
       //GLuint glsl_num;
       //glGetStringi(GL_SHADING_LANGUAGE_VERSION,glsl_num);
       //std::cerr << "GLSL version NUM : ["<< glsl_num << "]\n";
       // particles shader
       shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/particles.vert.cc",
-                           GlobalOptions::RESPATH.toStdString()+"/shaders/particles.frag.cc");
+                            GlobalOptions::RESPATH.toStdString()+"/shaders/particles.frag.cc");
       shader->init();
       // velocity shader
       if (1) {
 
-#if 0
-          // Geometry shader OpenGL 3.30 and above only
-          vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert330.cc",
-                                   GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag330.cc",
-                                   GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.geom330.cc");
+  #if 0
+        // Geometry shader OpenGL 3.30 and above only
+        vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert330.cc",
+                                GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag330.cc",
+                                GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.geom330.cc");
 
 #else
-          vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert.cc",
-                                   GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag.cc");
+        vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert.cc",
+                                GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag.cc");
 
 #endif
-          if (!vel_shader->init() ) {
-              delete vel_shader;
-              vel_shader=NULL;
-          }
+        if (!vel_shader->init() ) {
+            delete vel_shader;
+            vel_shader=NULL;
+        }
       }
-
     }
-
   }
   else { // Initialisation of GLSL not requested
-    std::cerr << "GLSL desactivated from user request, slow rendering ...\n";
+    qDebug() << "GLSL desactivated from user request, slow rendering ...\n";
     GLSL_support = false;
   }
-  std::cerr << "END OF INITSHADER \n";
+  qDebug() << "END OF INITSHADER \n";
 }
 // ============================================================================
 // check OpenGL error message                                                  
@@ -715,10 +689,25 @@ void GLWindow::initializeGL()
 
   initializeOpenGLFunctions();
    
+  // Get OpenGL versions
+  gl_version=glGetString ( GL_VERSION );
+  std::cerr << "OpenGL version : ["<< gl_version << "]\n";
+  gl_major = 0;
+  gl_minor = 0;
+  glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
+  glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
+  std::cerr << "OpenGL :"<< gl_major << "." << gl_minor << "\n";
+
+  // get OPenGL extensions
   QOpenGLContext *f = QOpenGLContext::currentContext();
   gl_extensions = f->extensions();
 
-  // initialyze shaders
+  // some request for pointset_manager
+  if (gl_major >= 3 || gl_extensions.contains("GL_EXT_gpu_shader4")) {
+    cpointset_manager->initShaders(true);
+  }
+
+  // initialyze rendering shaders
   initShader();
 
   // camera
@@ -767,8 +756,8 @@ void GLWindow::initializeGL()
   tree = new GLOctree(store_options);
   tree->setActivate(true);
   if (GLWindow::GLSL_support) {
-    glGenFramebuffersEXT(1, &framebuffer);
-    glGenRenderbuffersEXT(1, &renderbuffer);
+    glGenFramebuffers(1, &framebuffer);
+    glGenRenderbuffers(1, &renderbuffer);
   }
 }
 // ============================================================================

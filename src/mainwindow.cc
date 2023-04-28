@@ -12,7 +12,7 @@
 // ============================================================================
 #include <QtGlobal>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <GL/glew.h>
+//#include <GL/glew.h>
 #include "glwindow.h"
 #include <QtGui>
 #include <QtWidgets>
@@ -77,6 +77,7 @@ MainWindow::MainWindow(std::string _ver)
   pointset_manager = new CPointsetManager();
   gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager);
 
+#if 0
   if(glewIsSupported("GL_VERSION_3_0")){
     is_cpoints_enabled = true;
     glsl_130 = true;
@@ -92,13 +93,16 @@ MainWindow::MainWindow(std::string _ver)
 
   if(is_cpoints_enabled)
     pointset_manager->initShaders(glsl_130);
-
+#endif
   camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
   // colormap object
   colormap  = new Colormap(store_options);
 
   // ----- build GUI ------------
   createForms();
+  // !!!
+  is_cpoints_enabled=true;
+  // !!!
   if(!is_cpoints_enabled)
     form_o_c->disableCpointsTab();
   createDockWindows();

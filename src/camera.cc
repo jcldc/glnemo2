@@ -11,10 +11,7 @@
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
 #include <QtGlobal>
-//#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-//#include <GL/glew.h>
 #include <QtGui>
-//#endif
 #include <QtOpenGL>
 #include <QFile>
 #include <QString>
@@ -74,7 +71,7 @@ namespace glnemo {
     }
 
   }
-  
+
   // ============================================================================
   // reset
   void Camera::reset()

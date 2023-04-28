@@ -14,7 +14,6 @@
 #define CSHADER_H
 #include <string>
 #include <QOpenGLFunctions>
-//#include <GL/glew.h>
 
 namespace glnemo {
 class CShader {

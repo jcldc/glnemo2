@@ -10,7 +10,6 @@
 // ============================================================================
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
-//#include <GL/glew.h>
 #include "gltexture.h"
 #include "globaloptions.h"
 #include <QImage>

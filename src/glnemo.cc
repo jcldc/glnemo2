@@ -16,15 +16,11 @@
 
 #include <QtGlobal>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-//#include <GL/glew.h>
+#endif
 #include <QSurfaceFormat>
 #include <QApplication>
 #include <QOpenGLContext>
-#else // QT4
-#include <QtGui>
-#include <QApplication>
-#include <GL/glew.h>
-#endif
+
 #include <QtPlugin>
 //#include <QtOpenGL>
 //#include <QGLFormat>

@@ -10,7 +10,6 @@
 // ============================================================================
 // See the complete license in LICENSE and/or "http://www.cecill.info".
 // ============================================================================
-//#include <GL/glew.h>
 #include "globjectparticles.h"
 #include "particlesobject.h"
 #include "particlesdata.h"

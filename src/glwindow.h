@@ -185,6 +185,9 @@ private slots:
 private:
   // OpenGL
   QSet<QByteArray> gl_extensions;
+  const GLubyte * gl_version;
+  int gl_minor, gl_major;
+
   // my parent
   QWidget * parent;
   // global options
