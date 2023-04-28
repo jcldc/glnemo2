@@ -628,7 +628,9 @@ void GLWindow::initShader()
     std::cerr << "OpenGL :"<< major << "." << minor << "\n";
     GLSL_support = true;
     std::cerr << "begining init shader\n";
+ 
     int err=glewInit();
+  #if 0
     if (err==GLEW_OK && GLEW_ARB_multitexture && GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader && GL_VERSION_2_0)
       qDebug() << "Ready for GLSL\n";
     else {
@@ -636,6 +638,22 @@ void GLWindow::initShader()
       GLSL_support = false;
       //exit(1);
     }
+  #else
+  
+  foreach (const QByteArray &value, gl_extensions)
+    qDebug() << value ;
+
+  if (gl_extensions.contains("GL_ARB_multitexture") &&
+      gl_extensions.contains("GL_ARB_vertex_shader") &&
+      gl_extensions.contains("GL_ARB_fragment_shader")) {
+     qDebug() << "Ready for GLSL\n";
+  }
+  else {
+     qDebug() << "BE CAREFULL : No GLSL support\n";
+     GLSL_support = false;   
+  }
+
+  #endif
 
     if (GLSL_support ) {
       // check GLSL version supported
@@ -694,21 +712,11 @@ void GLWindow::checkGLErrors(std::string s)
 void GLWindow::initializeGL()
 {
   std::cerr << "\n>>>>>>>>> initializeGL()\n\n";
-#if 0
-  qglClearColor( Qt::black );		// Let OpenGL clear to black
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_LINE_SMOOTH);
-#ifdef GL_MULTISAMPLE
-  glEnable(GL_MULTISAMPLE);
-#endif
-  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-  //store_options->zoom = -10.;
-  // Nice texture coordinate interpolation
-  glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
-  //PRINT_D std::cerr << "-- Initialize GL --\n";
 
-#endif   
   initializeOpenGLFunctions();
+   
+  QOpenGLContext *f = QOpenGLContext::currentContext();
+  gl_extensions = f->extensions();
 
   // initialyze shaders
   initShader();

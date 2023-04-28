@@ -19,6 +19,7 @@
 //#include <GL/glew.h>
 #include <QSurfaceFormat>
 #include <QApplication>
+#include <QOpenGLContext>
 #else // QT4
 #include <QtGui>
 #include <QApplication>
@@ -185,6 +186,11 @@ int main(int argc, char *argv[])
   QSurfaceFormat::setDefaultFormat(format);
   
   setlocale(LC_NUMERIC,"C"); // force numerics functions to use decimal point
+  if (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGL) {
+        qDebug("Requesting 3.3 core context");
+        // fmt.setVersion(3, 3);
+        // fmt.setProfile(QSurfaceFormat::CoreProfile);        
+  }
 #if 0
   if ( !QGLFormat::hasOpenGL() ) {
     qWarning( "This system has no OpenGL support. Exiting." );

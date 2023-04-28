@@ -12,7 +12,7 @@
 // ============================================================================
 #include <QtGlobal>
 //#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <GL/glew.h>
+//#include <GL/glew.h>
 #include <QtGui>
 //#endif
 #include <QtOpenGL>
@@ -74,24 +74,7 @@ namespace glnemo {
     }
 
   }
-
-  // ============================================================================
-  // checkGSLSupport
-  void Camera::checkGSLSupport()
-  {
-    GLSL_support=true;
-
-    int err=glewInit();
-    if (err==GLEW_OK && GLEW_ARB_multitexture && GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader && GL_VERSION_2_0)
-      qDebug() << "Camera : Ready for GLSL\n";
-    else {
-      qDebug() << "Camera : BE CAREFULL : No GLSL support\n";
-      GLSL_support = false;
-    }
-
-//QT6
-  }
-
+  
   // ============================================================================
   // reset
   void Camera::reset()

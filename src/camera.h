@@ -94,7 +94,6 @@ namespace glnemo {
     void updateVbo();
     void displayVbo();
     void displayShaderCtrl();
-    void checkGSLSupport();
     bool GLSL_support;
     GLTexture * texture;
   private:

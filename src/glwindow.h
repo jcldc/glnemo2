@@ -183,6 +183,8 @@ private slots:
   }
 
 private:
+  // OpenGL
+  QSet<QByteArray> gl_extensions;
   // my parent
   QWidget * parent;
   // global options
