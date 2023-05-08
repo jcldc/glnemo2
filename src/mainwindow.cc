@@ -1885,7 +1885,7 @@ void MainWindow::actionPlay()
 {
   if ( ! current_data ) {
     QString message=tr("No Data loaded");
-    QMessageBox::information( this,tr("Warning"),message,"Ok");
+    QMessageBox::information( this->window(),tr("Warning"),tr("No Data loaded"),"Ok");
   }
   else {
     play_animation = !play_animation;

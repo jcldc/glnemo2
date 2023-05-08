@@ -156,7 +156,7 @@ set (CMAKE_CXX_FLAGS "-std=c++17 ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 # Make sure the compiler can find include files from our Hello library.
-include_directories (${PROJECT_SOURCE_DIR}/plugins ${PROJECT_SOURCE_DIR}/plugins/nemolight/inc ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/plugins/ftm ${PROJECT_SOURCE_DIR}/plugins/gadget ${PROJECT_SOURCE_DIR}/plugins/tipsy ${PROJECT_SOURCE_DIR}/src/glew ${PROJECT_SOURCE_DIR}/plugins/network ${PROJECT_SOURCE_DIR}/plugins/ramses ${PROJECT_SOURCE_DIR}/plugins/zlib ${PROJECT_SOURCE_DIR}/3rdparty/pfntlib ${PROJECT_SOURCE_DIR}/utils)
+include_directories (${PROJECT_SOURCE_DIR}/plugins ${PROJECT_SOURCE_DIR}/plugins/nemolight/inc ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/plugins/ftm ${PROJECT_SOURCE_DIR}/plugins/gadget ${PROJECT_SOURCE_DIR}/plugins/tipsy ${PROJECT_SOURCE_DIR}/plugins/network ${PROJECT_SOURCE_DIR}/plugins/ramses ${PROJECT_SOURCE_DIR}/plugins/zlib ${PROJECT_SOURCE_DIR}/3rdparty/pfntlib ${PROJECT_SOURCE_DIR}/utils)
 include_directories (${Qt6Widgets_INCLUDE_DIRS} ${Qt6Core_INCLUDE_DIRS} ${Qt6OpenGL_INCLUDE_DIRS} ${Qt6Core5Compat_INCLUDE_DIRS} ${Qt6OpenGLWidgets_INCLUDE_DIRS} ${Qt6Network_INCLUDE_DIRS} ${Qt6PrintSupport_INCLUDE_DIRS})
 include_directories(/usr/include/CCfits /opt/local/include /opt/local/include/CCfits  /usr/include/cfitsio /usr/local/include/CCfits)
 include_directories(/usr/include/tirpc)
@@ -183,7 +183,7 @@ if (APPLE)
 endif()
 
 # Glew file
-set (glew src/glew/glew.c) 
+#set (glew src/glew/glew.c) 
 
 # Find all cpp sources files
 FILE(GLOB src_files src/*.cc)
@@ -220,7 +220,7 @@ if (APPLE)
   set(EXECUTABLE_OUTPUT_PATH "")
 endif ()
 
-add_executable (glnemo2 WIN32 MACOSX_BUNDLE ${src_files} ${rc_src} ${ui_headers} ${moc_src} ${glew})
+add_executable (glnemo2 WIN32 MACOSX_BUNDLE ${src_files} ${rc_src} ${ui_headers} ${moc_src})
 
 # Link the executable to the Hello library.
 set (GOMP "gomp")
