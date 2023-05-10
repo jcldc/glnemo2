@@ -135,6 +135,7 @@ CPointset::CPointset(CShader *shader, const std::string &name) :
   f->glGenBuffers(1, &m_selected_vbo);
   f->glGenVertexArrays(1, &m_vao);
   f->glGenVertexArrays(1, &m_selected_vao);
+  
   GLWindow::checkGLErrors("Out Pointset::CPointset");
 }
 
@@ -161,6 +162,7 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
   f->glGenVertexArrays(1, &m_vao);
   f->glGenVertexArrays(1, &m_selected_vao);
   copyCPoints(other);
+  
   GLWindow::checkGLErrors("Out Pointset::CPointset2");
 }
 
@@ -556,6 +558,7 @@ void CPointsetRegularPolygon::display() {
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display");
   m_shader->start();
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 1");
+  //f->glGenVertexArrays(1, &m_vao);
   f->glBindVertexArray(m_vao);
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 2");
   sendUniforms();
@@ -570,17 +573,23 @@ void CPointsetRegularPolygon::display() {
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 7");
   m_shader->stop();
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 8");
-
-
   m_shader->start();
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 9");
+  //f->glGenVertexArrays(1, &m_selected_vao);
   f->glBindVertexArray(m_selected_vao);
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 10");
   m_shader->sendUniformi("second_pass", true);
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 11");
   sendUniforms();
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 12");
   m_shader->sendUniformi("nb_vertices", m_nb_vertices * 2);
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 13");
   f->glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, m_nb_vertices * 2 + 2, m_nb_selected);
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 14");
   f->glBindVertexArray(0);
+  GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 15");
   m_shader->stop();
-  GLWindow::checkGLErrors("stop CPointsetRegularPolygon::display");
+  GLWindow::checkGLErrors("stop CPointsetRegularPolygon::display 16");
 
 }
 

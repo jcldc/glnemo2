@@ -705,6 +705,8 @@ void GLWindow::initializeGL()
   // some request for pointset_manager
   if (gl_major >= 3 || gl_extensions.contains("GL_EXT_gpu_shader4")) {
     cpointset_manager->initShaders(true);
+    // std::cerr << "initializeGL cpointset_manager->createNewCPointset();\n";
+    // cpointset_manager->createNewCPointset();
   }
 
   // initialyze rendering shaders
