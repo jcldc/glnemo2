@@ -18,6 +18,9 @@
  *		
  */
 
+extern int isakey(string key);
+extern int secret_location(string key);
+
 void kprintf(string key, const string fmt, ...)
 {
     va_list ap;
