@@ -17,7 +17,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #endif
-
+#include <ctype.h>
 extern string *burststring(string,string);
 extern void freestrings(string *);
 extern int nemo_file_lines(string, int);
