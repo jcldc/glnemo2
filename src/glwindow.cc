@@ -701,6 +701,9 @@ void GLWindow::initializeGL()
 
   // get OPenGL extensions
   QOpenGLContext *f = QOpenGLContext::currentContext();
+  gl_context = f;
+  CPointset::gl_context = gl_context;
+  std::cerr << "Initialyze current context : ["<< f << "]\n";
   gl_extensions = f->extensions();
 
   // some request for pointset_manager

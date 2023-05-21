@@ -140,7 +140,7 @@ protected:
   void	initializeGL() override;
   void	paintGL();
   void	resizeGL( int w, int h );
-
+  QOpenGLContext * gl_context;
 private slots:
   void updateVel(const  int); // update velocity vector
   void updateIpvs(const int ipvs=-1) {
