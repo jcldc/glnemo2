@@ -705,7 +705,7 @@ void GLWindow::initializeGL()
   CPointset::gl_context = gl_context;
   std::cerr << "Initialyze current context : ["<< f << "]\n";
   gl_extensions = f->extensions();
-
+  std::cerr << "GLWindow::initializeGL OpenGL context =["<<QOpenGLContext::currentContext()<<"]\n";
   // some request for pointset_manager
   if (gl_major >= 3 || gl_extensions.contains("GL_EXT_gpu_shader4")) {
     cpointset_manager->initShaders(true);

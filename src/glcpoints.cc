@@ -131,6 +131,7 @@ CPointset::CPointset(CShader *shader, const std::string &name) :
   m_nb_selected = 0;
   // SHADER INIT
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  std::cerr << "In  CPointset::CPointset() OpenGL context =["<<QOpenGLContext::currentContext()<<"]\n";
   GLWindow::checkGLErrors("In Pointset::CPointset");
   f->glGenBuffers(1, &m_vbo);
   f->glGenBuffers(1, &m_selected_vbo);
@@ -243,6 +244,7 @@ void CPointset::setAttributes() {
 
 void CPointset::genVboData() {
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  std::cerr << "In  CPointset::genVboData() OpenGL context =["<<QOpenGLContext::currentContext()<<"]\n";
   GLWindow::checkGLErrors("In Pointset::sgenVboData");
   // DATA INIT
   std::vector<float> data, selected_data;
@@ -558,6 +560,7 @@ void CPointsetRegularPolygon::sendUniforms() {
 void CPointsetRegularPolygon::display() {
 
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  std::cerr << "In  CPointsetRegularPolygon::display OpenGL context =["<<QOpenGLContext::currentContext()<<"]\n";
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display");
   m_shader->start();
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 1");

@@ -45,6 +45,8 @@ int osfile =0;
 FormObjectControl::FormObjectControl(CPointsetManager *_pointset_manager, GlobalOptions *global_options,
                                      QWidget *parent) : QDialog(parent)
 {
+  std::cerr << "In  FormObjectControl::FormObjectControl OpenGL context =["<<QOpenGLContext::currentContext()<<"]\n";
+  std::cerr << "In  FormObjectControl::FormObjectControl OpenGL global context =["<<QOpenGLContext::globalShareContext()<<"]\n";
   pointset_manager = _pointset_manager;
   go = global_options;
   ignoreCloseEvent = true;
@@ -1630,6 +1632,9 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
 // ============================================================================
 //
 void FormObjectControl::on_add_cpointset_clicked(bool) {
+  std::cerr << "In  FormObjectControl::on_add_cpointset_clicked OpenGL context =["<<QOpenGLContext::currentContext()<<"]\n";
+  std::cerr << "In  FormObjectControl::on_add_cpointset_clicked OpenGL global context =["<<QOpenGLContext::globalShareContext()<<"]\n";
+
   CPointset *new_pointset = pointset_manager->createNewCPointset();
   auto item = new QTreeWidgetItem(form.cpoints_set_treewidget,
                                   QStringList() << QString::fromStdString(new_pointset->getName())<< QString() << QString::number(new_pointset->getNbCpoints()), 0);
