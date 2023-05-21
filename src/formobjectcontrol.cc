@@ -1630,9 +1630,15 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
 // ============================================================================
 //
 void FormObjectControl::on_add_cpointset_clicked(bool) {
-  CPointset *new_pointset = pointset_manager->createNewCPointset();
+  //CPointset *new_pointset = pointset_manager->createNewCPointset();
+  //std:cerr << "new_pointset->getName(): " <<  new_pointset->getName() << " nbCPoints=" << new_pointset->getNbCpoints() << "\n";
+  std::cerr << "FormObjectControl::on_add_cpointset_clicked current context : ["<< QOpenGLContext::currentContext() << "]\n";
+  emit sig_createNewCPointset();
+  
+}
+void FormObjectControl::updateCPointInfo(QString name, int nb_cpoints) {
   auto item = new QTreeWidgetItem(form.cpoints_set_treewidget,
-                                  QStringList() << QString::fromStdString(new_pointset->getName())<< QString() << QString::number(new_pointset->getNbCpoints()), 0);
+                                  QStringList() << name<< QString() << QString::number(nb_cpoints), 0);
   form.cpoints_set_treewidget->setCurrentItem(item, 0);
 }
 // ============================================================================

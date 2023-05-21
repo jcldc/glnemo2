@@ -175,6 +175,7 @@ std::string VERSION = "VERSION="+release+"\n    "+__DATE__+"  - JCL  compiled at
 //  The main program is here                                                   
 int main(int argc, char *argv[])
 {
+  QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   QApplication::setDesktopSettingsAware(true);
   glnemo::QMyApplication app(argc, argv);
   QSurfaceFormat format;

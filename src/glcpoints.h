@@ -18,6 +18,7 @@
 #define GLNEMO2_GLCPOINTS_H
 
 #include "cshader.h"
+#include "globject.h"
 #include <QColor>
 #include <QOpenGLFunctions>
 #include <QOpenGLExtraFunctions>
@@ -159,11 +160,13 @@ public:
   static std::map<std::string, CPointsetShapes> strToShape;
 
   static CPointTextRenderer *text_renderer;
-
+  static QOpenGLContext * gl_context;
+  
 protected:
   void genVboData();
 
   CShader *m_shader;
+  
   glcpointmap_t m_cpoints;
   GLuint m_vao, m_selected_vao, m_vbo, m_selected_vbo;
   std::string m_name;

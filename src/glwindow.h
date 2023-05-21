@@ -86,6 +86,7 @@ public:
     void selectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetAll();
+    void sig_CPointInfo(QString name, int nb_cpoints);
 public slots:
    void  update(ParticlesData   * ,
                 ParticlesObjectVector * ,
@@ -136,11 +137,13 @@ public slots:
    void updateColorbarFont() {
     gl_colorbar->updateFont();
    }
+   //CPOints
+   void createNewCPointset();
 protected:
   void	initializeGL() override;
   void	paintGL();
   void	resizeGL( int w, int h );
-
+  QOpenGLContext * gl_context;
 private slots:
   void updateVel(const  int); // update velocity vector
   void updateIpvs(const int ipvs=-1) {

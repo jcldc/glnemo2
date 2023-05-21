@@ -142,6 +142,9 @@ MainWindow::MainWindow(std::string _ver)
           gl_window,SLOT(updateIpvs(int)));
   connect(form_o_c,SIGNAL(updateIpvs(int)),
           this,SLOT(updateIpvs(int)));
+  // cpoint
+  connect(form_o_c,SIGNAL(sig_createNewCPointset()),gl_window,SLOT(createNewCPointset()));
+  connect(gl_window,SIGNAL(sig_CPointInfo(QString, int)),form_o_c,SLOT(updateCPointInfo(QString, int)));
   // Interactive select/ glselect connections
   connect(gl_window->gl_select, SIGNAL(updatePareticlesSelected(const int)),
           form_options,SLOT(updateParticlesSelect(const int)));
@@ -1885,7 +1888,7 @@ void MainWindow::actionPlay()
 {
   if ( ! current_data ) {
     QString message=tr("No Data loaded");
-    QMessageBox::information( this->window(),tr("Warning"),tr("No Data loaded"),"Ok");
+    QMessageBox::information( this->window(),tr("Warning"),tr("No Data loaded"));//,"Ok");
   }
   else {
     play_animation = !play_animation;
@@ -1894,7 +1897,7 @@ void MainWindow::actionPlay()
         if (store_options->enable_gui) {
             std::cerr << "store_options->enable_gui.......\n";
             QMessageBox::information( this,tr("Warning"),
-                                      current_data->endOfDataMessage(),"Ok");
+                                      current_data->endOfDataMessage());//,"Ok");
             emit endOfSnapshot(1);
         }
         else {
@@ -2008,7 +2011,7 @@ void MainWindow::uploadNewFrame()
       play_timer->stop();
       emit endOfSnapshot(1);
       if (store_options->enable_gui)
-          QMessageBox::information( this,tr("Warning"),current_data->endOfDataMessage(),"Ok");
+          QMessageBox::information( this,tr("Warning"),current_data->endOfDataMessage());//,"Ok");
       else {
           mutex_loading.unlock();
           //killPlayingEvent();

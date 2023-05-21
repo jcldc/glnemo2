@@ -145,6 +145,9 @@ namespace glnemo {
   void customColormap();
   void changeBoundaryPhys(const int, const bool b);
   void cpointHelpClicked();
+  // cpoint
+  void sig_createNewCPointset();
+  
   public slots:
     void changeColorMap() {
       form.dynamic_cmap->setChecked(go->dynamic_cmap);
@@ -155,6 +158,8 @@ namespace glnemo {
     void selectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetAll();
+    // CPoint
+    void updateCPointInfo(QString name, int nb_cpoints);
   private slots:
     void reject() {} // allow to de activate escape key to close the box
     // global slots

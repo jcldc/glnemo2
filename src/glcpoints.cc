@@ -103,6 +103,7 @@ void GLCPoint::setVisible(bool is_visible) {
 
 /******* GLCPointset ********/
 CPointTextRenderer *CPointset::text_renderer = nullptr;
+QOpenGLContext * CPointset::gl_context = nullptr;
 
 void CPointset::sendUniforms() {
   GLfloat proj[16];
@@ -129,7 +130,12 @@ CPointset::CPointset(CShader *shader, const std::string &name) :
   m_nb_sphere_sections = 12;
   m_nb_selected = 0;
   // SHADER INIT
-  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  std::cerr << "CPointset::CPointset MY GL CONTEXT : " << gl_context << "\n";
+  std::cerr << "CPointset::CPointset current context 1["<<QOpenGLContext::currentContext()<<"\n";
+  QOpenGLContext * my_context = QOpenGLContext::currentContext();
+  my_context->setShareContext(gl_context);
+  std::cerr << "CPointset::CPointset current context 2["<<QOpenGLContext::currentContext()<<"\n";
+  QOpenGLExtraFunctions *f = gl_context->extraFunctions();//QOpenGLContext::currentContext()->extraFunctions();
   GLWindow::checkGLErrors("In Pointset::CPointset");
   f->glGenBuffers(1, &m_vbo);
   f->glGenBuffers(1, &m_selected_vbo);
@@ -154,7 +160,7 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
   m_nb_sphere_sections = other.m_nb_sphere_sections;
   m_nb_selected = other.m_nb_selected;
 
-  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  QOpenGLExtraFunctions *f = gl_context->extraFunctions();//QOpenGLContext::currentContext()->extraFunctions();
   GLWindow::checkGLErrors("In Pointset::CPointset2");
   // SHADER INIT
   f->glGenBuffers(1, &m_vbo);
@@ -167,7 +173,7 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
 }
 
 CPointset::~CPointset() {
-  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  QOpenGLExtraFunctions *f = gl_context->extraFunctions();//QOpenGLContext::currentContext()->extraFunctions();
 
   f->glDeleteBuffers(1, &m_vbo);
   f->glDeleteVertexArrays(1, &m_vao);
@@ -215,7 +221,7 @@ void CPointset::setThreshold(int threshold) {
 }
 
 void CPointset::setAttributes() {
-  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  QOpenGLExtraFunctions *f = gl_context->extraFunctions();//QOpenGLContext::currentContext()->extraFunctions();
 
   GLWindow::checkGLErrors("In Pointset::setAttributes");
 
@@ -241,7 +247,9 @@ void CPointset::setAttributes() {
 }
 
 void CPointset::genVboData() {
-  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  std::cerr << "CPointset::CPointset MY GL CONTEXT : " << gl_context << "\n";
+  std::cerr << "CPointset::genVboData() current context : ["<< QOpenGLContext::currentContext() << "]\n";
+  QOpenGLExtraFunctions *f = gl_context->extraFunctions();//QOpenGLContext::currentContext()->extraFunctions();
   GLWindow::checkGLErrors("In Pointset::sgenVboData");
   // DATA INIT
   std::vector<float> data, selected_data;
@@ -276,17 +284,26 @@ void CPointset::genVboData() {
       }
     }
   }
-  // SEND DATA
-  f->glBindVertexArray(m_vao);
-  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, m_vbo);
-  f->glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
-  setAttributes(); // needed only once at init ?
-  f->glBindVertexArray(m_selected_vao);
-  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, m_selected_vbo);
-  f->glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * selected_data.size(), selected_data.data(), GL_STATIC_DRAW);
-  setAttributes();
-  f->glBindVertexArray(0);
-  GLWindow::checkGLErrors("Out Pointset::sgenVboData");
+  if (data.size() > 0) {
+    // SEND DATA
+    GLWindow::checkGLErrors("In Pointset::sgenVboData 1");
+    f->glBindVertexArray(m_vao);
+    GLWindow::checkGLErrors("In Pointset::sgenVboData 2");
+    f->glBindBuffer(GL_ARRAY_BUFFER_ARB, m_vbo);
+    GLWindow::checkGLErrors("In Pointset::sgenVboData 3");
+    f->glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
+    GLWindow::checkGLErrors("In Pointset::sgenVboData 4");
+    setAttributes(); // needed only once at init ?
+    GLWindow::checkGLErrors("In Pointset::sgenVboData 5");
+    f->glBindVertexArray(m_selected_vao);
+    GLWindow::checkGLErrors("In Pointset::sgenVboData 6");
+    f->glBindBuffer(GL_ARRAY_BUFFER_ARB, m_selected_vbo);
+    GLWindow::checkGLErrors("In Pointset::sgenVboData 7");
+    f->glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float) * selected_data.size(), selected_data.data(), GL_STATIC_DRAW);
+    setAttributes();
+    f->glBindVertexArray(0);
+    GLWindow::checkGLErrors("Out Pointset::sgenVboData");
+  }
 }
 
 const glcpointmap_t &CPointset::getCPoints() const {
@@ -553,8 +570,8 @@ void CPointsetRegularPolygon::sendUniforms() {
 
 }
 void CPointsetRegularPolygon::display() {
-
-  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  std::cerr << "CPointsetRegularPolygon::display() current context : ["<< QOpenGLContext::currentContext() << "]\n";
+  QOpenGLExtraFunctions *f = gl_context->extraFunctions();//QOpenGLContext::currentContext()->extraFunctions();
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display");
   m_shader->start();
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 1");
@@ -658,7 +675,7 @@ CPointsetTag::CPointsetTag(const CPointset &other) : CPointset(shader, other) {
 
 void CPointsetTag::display() {
   
-  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  QOpenGLExtraFunctions *f = gl_context->extraFunctions();//QOpenGLContext::currentContext()->extraFunctions();
   
   GLWindow::checkGLErrors("start CPointsetTag::display");
   glLineWidth(1);
@@ -741,7 +758,7 @@ void CPointsetSphere::display() {
 
   int nb_vertex_per_sphere = m_nb_sphere_sections * m_nb_sphere_sections + m_nb_sphere_sections;
   
-  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  QOpenGLExtraFunctions *f = gl_context->extraFunctions();//QOpenGLContext::currentContext()->extraFunctions();
   GLWindow::checkGLErrors("start CPointsetSphere::display");
 
   glLineWidth(1);
@@ -897,14 +914,15 @@ void CPointsetManager::displayAll() {
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     CPointset *cpointset = cpointset_pair.second;
-    if (cpointset->ready() && cpointset->isVisible()) {
+    std::cerr << ">> cpointset size" << cpointset->getNbCpoints() << "\n";
+    if ((cpointset->getNbCpoints() > 0) && cpointset->ready() && cpointset->isVisible()) {
       cpointset->display();
     }
   }
   for (const auto& cpointset_pair: m_pointsets) {
     glDisable(GL_DEPTH_TEST);
     CPointset *cpointset = cpointset_pair.second;
-    if (cpointset->isNameVisible() && cpointset->isVisible()) {
+    if ((cpointset->getNbCpoints() > 0) && cpointset->isNameVisible() && cpointset->isVisible()) {
       cpointset->displayText();
     }
   }
@@ -1029,7 +1047,7 @@ void CPointTextRenderer::init(const std::string &shader_dir) {
     std::cerr << "Failed to initialize tag text shader\n";
     exit(1);
   }
-
+  std::cerr << "CPointTextRenderer::init current context ["<<QOpenGLContext::currentContext()<<"\n";
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   // generate buffers
