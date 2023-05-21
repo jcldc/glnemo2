@@ -59,13 +59,20 @@ void GLSelection::update(const GLObjectParticlesVector * _gpv,
 //
 void GLSelection::getMouse(QMouseEvent * e)
 {
+  #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  int pos_x=e->position().x();
+  int pos_y=e->position().y();
+  #else
+  int pos_x=e->x();
+  int pos_y=e->y();
+  #endif
   enable=true;
   if (x0 == -1) {
-    x0 = e->position().x();
-    y0 = e->position().y();
+    x0 = pos_x;
+    y0 = pos_y;
   }
-  x1 = e->position().x();
-  y1 = e->position().y();
+  x1 = pos_x;
+  y1 = pos_y;
 }
 // ============================================================================
 //

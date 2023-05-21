@@ -616,8 +616,9 @@ void GLWindow::initShader()
   if (store_options->init_glsl) {       
     qDebug() << "begining init shader\n";
   
-    foreach (const QByteArray &value, gl_extensions)
-      qDebug() << value ;
+    // display OpenGL extension list
+    //foreach (const QByteArray &value, gl_extensions)
+    //  qDebug() << value ;
 
     if (gl_extensions.contains("GL_ARB_multitexture") &&
         gl_extensions.contains("GL_ARB_vertex_shader") &&
@@ -846,6 +847,13 @@ void GLWindow::resetEvents(bool pos)
 // manage rotation/translation according to mousePresssEvent
 void GLWindow::mousePressEvent( QMouseEvent *e )
 {
+ #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  int pos_x=e->position().x();
+  int pos_y=e->position().y();
+  #else
+  int pos_x=e->x();
+  int pos_y=e->y();
+  #endif
   setFocus();
   if ( e->button() == Qt::LeftButton ) {  // left button pressed
     if (is_shift_pressed)
@@ -853,8 +861,8 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
     is_mouse_pressed       = TRUE;
     is_pressed_left_button = TRUE;
     setMouseTracking(TRUE);
-    last_posx = e->position().x();
-    last_posy = e->position().y();
+    last_posx =pos_x;
+    last_posy =pos_y;
     if  (is_translation) {;} //!parent->statusBar()->message("Translating X/Y");
     else                 {;} //!parent->statusBar()->message("Rotating X/Y");
   }
@@ -862,7 +870,7 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
     is_mouse_pressed        = TRUE;
     is_pressed_right_button = TRUE;
     setMouseTracking(TRUE);
-    last_posz = e->position().x();
+    last_posz =pos_x;
     if (is_translation) {;} //!parent->statusBar()->message("Translating Z");
     else                {;} //!parent->statusBar()->message("Rotating Z");
   }
@@ -872,8 +880,8 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
     is_mouse_pressed        = TRUE;
     is_pressed_middle_button= TRUE;
     setMouseTracking(TRUE);
-    last_posx = e->position().x();
-    last_posy = e->position().y();
+    last_posx =pos_x;
+    last_posy =pos_y;
   }
   emit sigKeyMouse( is_key_pressed, is_mouse_pressed);
   //!options_form->downloadOptions(store_options);
@@ -882,6 +890,13 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
 // GLObjectWindow::mouseReleaseEvent()
 // manage mouseReleaseEvent
 void GLWindow::mouseReleaseEvent(QMouseEvent *e) {
+  #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  int pos_x=e->position().x();
+  int pos_y=e->position().y();
+  #else
+  int pos_x=e->x();
+  int pos_y=e->y();
+  #endif
   if (e) { ; }  // do nothing... just to remove the warning :p
   is_pressed_left_button = FALSE;
   is_pressed_right_button = FALSE;
@@ -937,14 +952,21 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
 {
   int dx=0,dy=0,dz=0;
   setFocus();
+  #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  int pos_x=e->position().x();
+  int pos_y=e->position().y();
+  #else
+  int pos_x=e->x();
+  int pos_y=e->y();
+  #endif
   if (is_pressed_left_button && !is_a_key_pressed) {
     // offset displcacement
-    dx = e->position().x()-last_posx;
-    dy = e->position().y()-last_posy;
+    dx =pos_x-last_posx;
+    dy =pos_y-last_posy;
     //std::cerr << "dxdy="<< dx << " " << dy << "\n";
     // save last position
-    last_posx = e->position().x();
-    last_posy = e->position().y();
+    last_posx =pos_x;
+    last_posy =pos_y;
     if (is_shift_pressed && !is_mouse_zoom) { // user selection request
       gl_select->getMouse(e);
       updateGL();
@@ -969,9 +991,9 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
   if ( !gl_select->isEnable()) {
     if ( is_pressed_right_button && !is_a_key_pressed) {
       // offset displcacement
-      dz = e->position().x()-last_posz;
+      dz =pos_x-last_posz;
       // save last position
-      last_posz = e->position().x();
+      last_posz =pos_x;
       if (is_translation) {
         tz_mouse-=dz; // total rotation
       }
@@ -993,11 +1015,11 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
   }
   //!options_form->downloadOptions(store_options);
   if (is_pressed_middle_button) {
-    dx = e->position().x()-last_posx;
-    dy = e->position().y()-last_posy;
+    dx =pos_x-last_posx;
+    dy =pos_y-last_posy;
     // save last position
-    last_posx = e->position().x();
-    last_posy = e->position().y();
+    last_posx =pos_x;
+    last_posy =pos_y;
     emit sigMouseXY(dx,dy);
     //std::cerr << "dx="<<dx<< "  dy="<<dy<<"\n";
   }
