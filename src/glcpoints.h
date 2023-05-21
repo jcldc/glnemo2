@@ -159,6 +159,7 @@ public:
   static std::map<std::string, CPointsetShapes> strToShape;
 
   static CPointTextRenderer *text_renderer;
+  static QOpenGLContext * gl_context;
 
 protected:
   void genVboData();

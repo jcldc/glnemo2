@@ -103,6 +103,7 @@ void GLCPoint::setVisible(bool is_visible) {
 
 /******* GLCPointset ********/
 CPointTextRenderer *CPointset::text_renderer = nullptr;
+QOpenGLContext * CPointset::gl_context = nullptr;
 
 void CPointset::sendUniforms() {
   GLfloat proj[16];
@@ -276,6 +277,7 @@ void CPointset::genVboData() {
       }
     }
   }
+  if (data.size() > 0) {
   // SEND DATA
   f->glBindVertexArray(m_vao);
   f->glBindBuffer(GL_ARRAY_BUFFER_ARB, m_vbo);
@@ -287,6 +289,7 @@ void CPointset::genVboData() {
   setAttributes();
   f->glBindVertexArray(0);
   GLWindow::checkGLErrors("Out Pointset::sgenVboData");
+  }
 }
 
 const glcpointmap_t &CPointset::getCPoints() const {
