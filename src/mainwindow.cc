@@ -1885,7 +1885,7 @@ void MainWindow::actionPlay()
 {
   if ( ! current_data ) {
     QString message=tr("No Data loaded");
-    QMessageBox::information( this->window(),tr("Warning"),tr("No Data loaded"),"Ok");
+    QMessageBox::information( this->window(),tr("Warning"),tr("No Data loaded"));
   }
   else {
     play_animation = !play_animation;
@@ -1894,7 +1894,7 @@ void MainWindow::actionPlay()
         if (store_options->enable_gui) {
             std::cerr << "store_options->enable_gui.......\n";
             QMessageBox::information( this,tr("Warning"),
-                                      current_data->endOfDataMessage(),"Ok");
+                                      current_data->endOfDataMessage());
             emit endOfSnapshot(1);
         }
         else {
@@ -2008,7 +2008,7 @@ void MainWindow::uploadNewFrame()
       play_timer->stop();
       emit endOfSnapshot(1);
       if (store_options->enable_gui)
-          QMessageBox::information( this,tr("Warning"),current_data->endOfDataMessage(),"Ok");
+          QMessageBox::information( this,tr("Warning"),current_data->endOfDataMessage());
       else {
           mutex_loading.unlock();
           //killPlayingEvent();
