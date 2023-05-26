@@ -7,6 +7,7 @@ string defv[] = {
 };
 
 string usage = "test";
+extern string *burststring(string,string);
 
 nemo_main()
 {

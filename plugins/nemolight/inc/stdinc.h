@@ -82,7 +82,9 @@ ERROR!  Sorry, NEMO now requires an ANSI C compiler
 #include <stdlib.h>
 #include <errno.h>
 #if defined(linux)
+#ifdef HAVE_MALLOC_H
 #include <malloc.h>
+#endif
 #endif
 
 #if !defined(NOMATH)

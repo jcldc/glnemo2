@@ -106,7 +106,7 @@
 #define HAVE_LIMITS_H 1
 
 /* Define if you have the <malloc.h> header file.  */
-//#define HAVE_MALLOC_H 1
+#define HAVE_MALLOC_H 1
 
 /* Define if you have the <ndir.h> header file.  */
 /* #undef HAVE_NDIR_H */
