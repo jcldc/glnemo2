@@ -29,7 +29,9 @@
  */
 
 #include <stdinc.h>
+#if defined(linux)
 #include <malloc.h>
+#endif
 
 /*-----------------------------------------------------------------------------
  *  snode     --  a node in a tree structure, containing one character pointer
