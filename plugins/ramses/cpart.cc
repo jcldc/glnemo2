@@ -119,6 +119,7 @@ int CPart::loadData(ramses::CHilbert3D &h3d, bool take_halo, bool take_stars,flo
   std::vector<int> cpu_list=h3d.getCpuList();
 
   for (int iicpu=0; iicpu<cpu_list.size(); iicpu++) {
+    int nread_cpu=0; // #particles read in cpu file
     std::ostringstream osf;
     int icpu=cpu_list[iicpu];
     osf << std::fixed << std::setw(5) << std::setfill('0') <<icpu;
@@ -267,6 +268,7 @@ int CPart::loadData(ramses::CHilbert3D &h3d, bool take_halo, bool take_stars,flo
                 nstar_box++;
               }
               nselect++;
+              nread_cpu++;
             }
             else {
               int idx=666;//index[nbody];
@@ -287,6 +289,7 @@ int CPart::loadData(ramses::CHilbert3D &h3d, bool take_halo, bool take_stars,flo
                     }
                   }
                   cpt_dm++;
+                  nread_cpu++;
                 } 
 #if 0
                 if (take_stars /*&& age[k]!=0*/) { // STARS selected and it's a star
@@ -317,6 +320,9 @@ int CPart::loadData(ramses::CHilbert3D &h3d, bool take_halo, bool take_stars,flo
       }
      
     part.close(); // close current file  
+    
+    std::cerr << "#particles read : " << nread_cpu <<"\n";
+    
   } // for ... 
   return nselect;
 }
