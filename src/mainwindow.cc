@@ -941,12 +941,7 @@ void MainWindow::loadNewData(const std::string select,
           //store_options->texture_size = pow(current_data->part_data->getMaxSize(),3)/(*(current_data->part_data->nbody));
           std::cerr << "Resampled Texture Size = "<< store_options->texture_size <<"\n";
         } else {
-          if (store_options->auto_texture_size && store_options->rho_exist) {
-            //store_options->texture_size = current_data->part_data->rneib->getMin()*2.;
-            store_options->texture_size = current_data->part_data->getMaxSize()/300.;
-            std::cerr << "Use HSMLx2 as Texture Size = "<< store_options->texture_size <<"\n";
-            if (store_options->texture_size>1.0) store_options->texture_size=1.0;
-          }
+            std::cerr << "User Texture Size = "<< store_options->texture_size <<"\n";        
         }
       }
 
@@ -1071,8 +1066,10 @@ void MainWindow::setDefaultParamObject(ParticlesObjectVector & pov){
       pov[i].setGazAlpha(store_options->texture_alpha*255);
       if (pov[i].hasPhysic()) {
         std::cerr << "object ["<<i<<"] has physic\n";
-        pov[i].setGazSize(1.0);
-        pov[i].setGazSizeMax(1.0);
+        // pov[i].setGazSize(1.0);
+        // pov[i].setGazSizeMax(1.0);
+        pov[i].setGazSize(store_options->texture_size);
+        pov[i].setGazSizeMax(store_options->texture_size);
       } else {
         std::cerr << "object ["<<i<<"] has no physic\n";
         pov[i].setGazSize(store_options->texture_size);
@@ -1127,6 +1124,7 @@ void MainWindow::parseNemoParameters()
   store_options->osd_trans= getbparam((char *) "osdtrans");
   store_options->osd_title= getbparam((char *) "osdtitle");
   store_options->osd_data_type = getbparam((char *) "osddata");
+  store_options->osd_projection= getbparam((char* )"osdproj");
   if (hasvalue((char *) "osd_set_title") ) {
     store_options->osd_title_name = getparam((char *) "osd_set_title");
   }
