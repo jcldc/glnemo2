@@ -132,6 +132,7 @@ std::string VERSION = "VERSION="+release+"\n    "+__DATE__+"  - JCL  compiled at
     "osdtrans=t\n      Show transformation on OSD                       ",
     "osdtitle=t\n      Show title on OSD                                ",
     "osddata=t\n       Show data type on OSD                            ",
+    "osdproj=t\n       Show projection type                            ",
     "osd_set_title=\n  Set an explicit title on OSD                     ",
     "osdfs=13.0\n Size of OSD's font                                    ",
     "od=f\n            enable opaque disc for hiding spherical objects  ",
