@@ -1,3 +1,6 @@
+# bfg
+..bfg-report
+
 # qt creator / cmake
 build*
 !CI/scripts/build.sh
