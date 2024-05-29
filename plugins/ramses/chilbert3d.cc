@@ -157,7 +157,7 @@ bool CHilbert3D::readInfoFile()
       int cpt=0;
       ncpu = int(mapinfo["ncpu"]);
       bound_key = new double[ncpu+1];
-      cpu_read  = new bool[ncpu];
+      cpu_read  = new bool[ncpu+1];
       //cpu_list  = new int[ncpu];
 
       for (int i=1; i<=ncpu; i++) {
