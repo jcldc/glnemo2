@@ -50,6 +50,9 @@ endif ()
 if    (APPLE)
   MESSAGE(STATUS "\n\n\n- - - Mac OSX  - - -\n\n\nWARNING : DO NOT FORGET TO RUN CMAKE LIKE THIS\n\n ")
   MESSAGE(STATUS "/opt/local/bin/cmake .. -DCMAKE_PREFIX_PATH=/Users/grunner/Qt/5.15.2/clang_64/lib/cmake\n\n\n")
+  MESSAGE(STATUS "Mac ARM M[1-4] compilation :")
+  MESSAGE(STATUS "cmake -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qt@5/lib/cmake -DCMAKE_OSX_ARCHITECTURES=arm64\n\n\n")
+  set(CMAKE_SKIP_RPATH TRUE)
 endif ()
 # check QTDIR5
 FILE(GLOB GLOB_TEMP_VAR1 $ENV{QTDIR5})
@@ -132,19 +135,22 @@ ADD_DEFINITIONS(-DQT_OPENGL_LIB)
 ADD_DEFINITIONS(-DQT_GUI_LIB)
 ADD_DEFINITIONS(-DQT_CORE_LIB)
 ADD_DEFINITIONS(-DQT_PRINTSUPPORT_LIB)
-ADD_DEFINITIONS(-D__x86_64__=1)  # fix compilation on fedora > 30
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 if   (WIN32)
   ADD_DEFINITIONS(-DUNICODE -DGLEW_STATIC)
 endif()
 
 if (NOT APPLE)
+  ADD_DEFINITIONS(-D__x86_64__=1)  # fix compilation on fedora > 30
   ADD_DEFINITIONS(-fopenmp)
 endif()
 if (APPLE)
   #set(QMAKE_MACOSX_DEPLOYMENT_TARGET 10.9)
-  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13)
+  #set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13)
   #ADD_DEFINITIONS(-mmacosx-version-min=10.9)
+  ADD_DEFINITIONS(-Wno-implicit-function-declaration)
+  ADD_DEFINITIONS(-Wno-int-conversion)
+  ADD_DEFINITIONS(-Wno-implicit-int)
 endif()
 ADD_DEFINITIONS(-fPIC)
 set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
@@ -159,7 +165,7 @@ include_directories(/usr/include/tirpc)
 include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 ${HDF5_INCLUDE_DIRS})
 
 if (APPLE)
-  include_directories(/usr/include/malloc /usr/X11/include /usr/local/include)
+  include_directories(/usr/include/malloc /usr/X11/include /usr/local/include /opt/homebrew/opt/ccfits/include/CCfits /opt/homebrew/opt/hdf5/include)
 endif()
 # run moc files
 QT5_WRAP_CPP(moc1_src ${hdrs1_files})
@@ -175,7 +181,7 @@ add_library (uns STATIC ${moc1_src} ${lib_files})
 
 # Make sure the linker can find the Hello library once it is built.
 if (APPLE)
-  link_directories (${CMAKE_BINARY_DIR}/LIB /opt/local/lib /usr/local/lib )
+  link_directories (${CMAKE_BINARY_DIR}/LIB /opt/local/lib /usr/local/lib /opt/homebrew/opt/ccfits/lib /opt/homebrew/opt/cfitsio/lib/)
 endif()
 
 # Glew file
