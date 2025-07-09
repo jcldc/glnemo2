@@ -94,7 +94,7 @@ MainWindow::MainWindow(std::string _ver)
   if(is_cpoints_enabled)
     pointset_manager->initShaders(glsl_130);
 #endif
-  camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
+  //JCL camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
   // colormap object
   colormap  = new Colormap(store_options);
 
@@ -115,6 +115,7 @@ MainWindow::MainWindow(std::string _ver)
   setWindowIcon(QIcon(GlobalOptions::RESPATH+"/images/glnemo2.png"));
 
   // create SIGNAL/SLOTS connexions
+  connect(gl_window,SIGNAL(sendGLWindow(GLWindow * )),form_o_c,SLOT(getGLWindow(GLWindow *)));
   connect(gl_window, SIGNAL(sigKeyMouse(const bool, const bool)),
           this,    SLOT(pressedKeyMouse(const bool, const bool)));
   connect(gl_window, SIGNAL(sigMouseXY(int,int)),

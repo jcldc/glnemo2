@@ -30,11 +30,14 @@
 #include "tools3d.h"
 #include "fnt.h"
 #include "glcpoints.h"
+#include <QOpenGLVersionFunctionsFactory>
 
 namespace glnemo {
 #define DOF 4000000
   
   bool GLWindow::GLSL_support = false;
+  GLWindow * GLWindow::m_glWidget=NULL;
+  QOpenGLFunctions_3_3_Core * GLWindow::m_glFunctions=NULL;
   GLuint framebuffer, renderbuffer;
   GLdouble GLWindow::mIdentity[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
   //float store_options->ortho_range;
@@ -198,6 +201,7 @@ void GLWindow::updateGL()
   }
   else QOpenGLWidget::update();
 }
+
 //QMutex mutex1;
 
 // ============================================================================
@@ -226,18 +230,24 @@ void GLWindow::update(ParticlesData   * _p_data,
   store_options->octree_display = true;
   store_options->octree_level = 0;
   //tree->update(p_data, _pov);
+  
   gl_colorbar->update(&gpv,p_data->getPhysData(),store_options,mutex_data);
+  
 
 
   for (unsigned int i=0; i<pov->size() ;i++) {
     if (i>=gpv.size()) {
+      //makeCurrent();
       GLObjectParticles * gp = new GLObjectParticles(p_data,&((*pov)[i]),
                                                      store_options,&gtv,shader,vel_shader);
+      //doneCurrent();
       //GLObjectParticles * gp = new GLObjectParticles(&p_data,pov[i],store_options);
       gpv.push_back(*gp);
       delete gp;
     } else {      
+      //makeCurrent();
       gpv[i].update(p_data,&((*pov)[i]),store_options, update_old_obj);
+      //doneCurrent();
       //gpv[i].update(&p_data ,pov[i],store_options);
         
     }
@@ -541,8 +551,9 @@ void GLWindow::paintGL()
   else                        glDisable(GL_DEPTH_TEST);
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
+  //makeCurrent();
   cpointset_manager->displayAll();
-
+  //doneCurrent();
   if (store_options->show_part && pov ) {
     //mutex_data->lock();
     bool first=true;
@@ -675,9 +686,9 @@ void GLWindow::initShader()
 void GLWindow::checkGLErrors(std::string s) 
 {
   GLenum error;
-  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  // QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
-  while ((error = f->glGetError()) != GL_NO_ERROR) {
+  while ((error = m_glFunctions->glGetError()) != GL_NO_ERROR) {
     std::cerr << "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * \n";
     std::cerr << s << ": error - " << (char *) gluErrorString(error)<<"\n";
   }
@@ -699,6 +710,10 @@ void GLWindow::initializeGL()
   glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
   std::cerr << "OpenGL :"<< gl_major << "." << gl_minor << "\n";
 
+  //
+  m_glWidget = this; 
+  m_glFunctions = QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_3_3_Core>(m_glWidget->context());
+
   // get OPenGL extensions
   QOpenGLContext *f = QOpenGLContext::currentContext();
   gl_context = f;
@@ -717,14 +732,18 @@ void GLWindow::initializeGL()
   initShader();
 
   // camera
-  camera->loadShader();
+  //makeCurrent();
+  //camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
+  //camera->loadShader();
+  //doneCurrent();
 
+  //makeCurrent();
   GLGridObject::nsquare = store_options->nb_meshs;
   GLGridObject::square_size = store_options->mesh_length;
   gridx = new GLGridObject(0,store_options->col_x_grid,store_options->xy_grid);
   gridy = new GLGridObject(1,store_options->col_y_grid,store_options->yz_grid);
   gridz = new GLGridObject(2,store_options->col_z_grid,store_options->xz_grid);
-
+  //doneCurrent();
   // axes
   axes = new GLAxesObject();
   
@@ -745,26 +764,33 @@ void GLWindow::initializeGL()
   }
   
   // Osd
+  //makeCurrent();
   fntRenderer text;
   font = new fntTexFont(store_options->osd_font_name.toStdString().c_str());
+  //doneCurrent();
   text.setFont(font);
   text.setPointSize(store_options->osd_font_size );
   osd = new GLObjectOsd(wwidth,wheight,text,store_options->osd_color);
   // colorbar
+  //makeCurrent();
   gl_colorbar = new GLColorbar(store_options,true);
-  
+  //doneCurrent();
   ////////
   // FBO
   // Set the width and height appropriately for you image
   fbo = false;
   //Set up a FBO with one renderbuffer attachment
   // init octree
+  //makeCurrent();
   tree = new GLOctree(store_options);
   tree->setActivate(true);
   if (GLWindow::GLSL_support) {
     glGenFramebuffers(1, &framebuffer);
     glGenRenderbuffers(1, &renderbuffer);
   }
+  //doneCurrent();
+  //doneCurrent();
+  emit sendGLWindow(this);
 }
 // ============================================================================
 // resize the opengl viewport according to the new window size

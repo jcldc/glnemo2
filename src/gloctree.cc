@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -14,6 +14,7 @@
 #include "globaloptions.h"
 #include "particlesdata.h"
 #include "particlesobject.h"
+#include "glwindow.h"
 #include <math.h>
 #include <assert.h>
 #define MAX(A,B) ((A)>(B)?(A):(B))
@@ -74,6 +75,7 @@ GLOctree::~GLOctree()
 // Display                                                                     
 void GLOctree::display()
 {
+  GLWindow::m_glWidget->makeCurrent();
 #if 1  
   glEnable (GL_LINE_SMOOTH);
   
@@ -86,6 +88,7 @@ void GLOctree::display()
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   GLObject::display();
   glDisable(GL_BLEND);
+  GLWindow::m_glWidget->doneCurrent();
 }
 // ============================================================================
 // Constructor                                                                 

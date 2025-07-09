@@ -33,6 +33,7 @@
 #include "glaxesobject.h"
 #include "camera.h"
 #include "glcpoints.h"
+#include <QOpenGLFunctions_3_3_Core>
 
 
 class fntTexFont;
@@ -62,6 +63,8 @@ public:
     }
     void gpvClear() { gpv.clear(); }
     static bool GLSL_support;
+    static GLWindow * m_glWidget;
+    static QOpenGLFunctions_3_3_Core *m_glFunctions;
     void setFBO(bool _b) { fbo = _b; }
     void setFBOSize(GLuint w, GLuint h) { texWidth=w; texHeight=h;}
     QImage grabFrameBufferObject() { return imgFBO;}
@@ -86,6 +89,7 @@ public:
     void selectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetAll();
+    void sendGLWindow(GLWindow *);
 public slots:
    void  update(ParticlesData   * ,
                 ParticlesObjectVector * ,

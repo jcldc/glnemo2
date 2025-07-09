@@ -15,7 +15,7 @@
 */
 #ifndef GLNEMOFORMOBJECTCONTROL_H
 #define GLNEMOFORMOBJECTCONTROL_H
-
+#include "glwindow.h"
 #include "ui_formobjectcontrol.h"
 #include "glcpoints.h"
 #include "particlesobject.h"
@@ -28,6 +28,7 @@
 #include <QRecursiveMutex>
 #include <QResizeEvent>
 #include <QStyledItemDelegate>
+#include <QOpenGLFunctions_3_3_Core>
 
 namespace glnemo {
   // =========================================================================
@@ -155,6 +156,8 @@ namespace glnemo {
     void selectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetAll();
+    // get GL context
+    void getGLWindow(GLWindow *);
   private slots:
     void reject() {} // allow to de activate escape key to close the box
     // global slots
@@ -270,6 +273,8 @@ namespace glnemo {
     }
 
   private:
+    GLWindow * m_glWindow;
+    QOpenGLFunctions_3_3_Core *m_glFunctions;
     CPointset *getPointsetFromItem(QTreeWidgetItem *item);
     void checkPhysic();
     void physicalSelected();

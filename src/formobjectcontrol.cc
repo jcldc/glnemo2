@@ -23,6 +23,7 @@
 #include "globaloptions.h"
 #include "gltexture.h"
 #include "glnemoexception.h"
+#include <QOpenGLVersionFunctionsFactory>
 
 namespace glnemo {
 #define RT_VISIB 0
@@ -1429,6 +1430,20 @@ void FormObjectControl::on_z_stretch_max_spin_valueChanged(double value)
     if (go->z_stretch_value!=0.0)
       go->ztrans=ztransref*go->z_stretch_value; // compute the new translation to keep centered on it
     if (EMIT) emit objectSettingsChanged();
+  }
+}
+// Get GLwindow
+void FormObjectControl::getGLWindow(GLWindow * _m_glWindow)
+{
+  m_glWindow = _m_glWindow;
+  if (m_glWindow) {
+    m_glWindow->makeCurrent();
+    m_glFunctions = QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_3_3_Core>(m_glWindow->context());
+    if (!m_glFunctions) {
+        qWarning("Could not obtain OpenGL 3.3 Core functions.");
+        return;
+    }
+    m_glWindow->doneCurrent();
   }
 }
 // ============================================================================

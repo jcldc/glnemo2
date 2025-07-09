@@ -11,6 +11,7 @@
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
 #include "globjectosd.h"
+#include "glwindow.h"
 #include <GL/glu.h>
 
 namespace glnemo {
@@ -250,6 +251,7 @@ void GLObjectOsd::updateDisplay(const OsdKeys k)
 // render Osd text object
 void GLObjectOsd::display()
 {
+  GLWindow::m_glWidget->makeCurrent();
   if (is_activated) {
     // save OpenGL state
     glDisable( GL_DEPTH_TEST );
@@ -282,6 +284,7 @@ void GLObjectOsd::display()
     glPopMatrix();
     glEnable( GL_DEPTH_TEST );
   }
+  GLWindow::m_glWidget->doneCurrent();
 }
 // ============================================================================
 // GLObjectOsd::updateColor()

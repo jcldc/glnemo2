@@ -79,6 +79,7 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
                                      const GlobalOptions   * _go,
                                      GLTextureVector * _gtv, CShader * _shader, CShader * _vel_shader):GLObject()
 {
+  GLWindow::m_glWidget->makeCurrent();
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   shader     = _shader; // link shader program pointer (particles)
   vel_shader = _vel_shader; // link shader program pointer (velocities)
@@ -109,6 +110,7 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
   hasPhysic = false;
   phys_select=NULL;
   update(_part_data,_po,_go);
+  GLWindow::m_glWidget->doneCurrent();
 }
 // ============================================================================
 // desstructor
@@ -124,6 +126,7 @@ GLObjectParticles::~GLObjectParticles()
 // update
 void GLObjectParticles::display(const double * mModel, int win_height)
 {
+  GLWindow::m_glWidget->makeCurrent();
   if (po->isVisible()) {
     // display particles
     if (po->isPartEnable()) {
@@ -171,7 +174,8 @@ void GLObjectParticles::display(const double * mModel, int win_height)
     setColor(Qt::yellow);
     GLObject::display(orb_dp_list);
     glDisable(GL_BLEND);
-  }
+   }
+  GLWindow::m_glWidget->doneCurrent();
 }
 // ============================================================================
 // displayVboVelShader()

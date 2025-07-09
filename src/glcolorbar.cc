@@ -11,6 +11,7 @@
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
 #include "glcolorbar.h"
+#include "glwindow.h"
 #include <GL/glu.h>
 
 namespace glnemo {
@@ -65,7 +66,8 @@ void GLColorbar::display(const int _width, const int _height)
 {
   height = _height;
   width  = _width;
-  
+
+  GLWindow::m_glWidget->makeCurrent();
   if (go && go->gcb_enable && phys_select && phys_select->isValid()) {
     glDisable( GL_DEPTH_TEST );
     glMatrixMode(GL_PROJECTION);
@@ -95,6 +97,7 @@ void GLColorbar::display(const int _width, const int _height)
     glPopMatrix();
     glEnable( GL_DEPTH_TEST );
   }
+  GLWindow::m_glWidget->doneCurrent();
 }
 
 // ============================================================================
