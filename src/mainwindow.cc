@@ -115,7 +115,6 @@ MainWindow::MainWindow(std::string _ver)
   setWindowIcon(QIcon(GlobalOptions::RESPATH+"/images/glnemo2.png"));
 
   // create SIGNAL/SLOTS connexions
-  connect(gl_window,SIGNAL(sendGLWindow(GLWindow * )),form_o_c,SLOT(getGLWindow(GLWindow *)));
   connect(gl_window, SIGNAL(sigKeyMouse(const bool, const bool)),
           this,    SLOT(pressedKeyMouse(const bool, const bool)));
   connect(gl_window, SIGNAL(sigMouseXY(int,int)),

@@ -74,7 +74,7 @@ FormOptions::FormOptions(GlobalOptions * _go, QRecursiveMutex * _mutex, QWidget 
     } while (!line.isNull());
 
     // load camera file in text area
-    on_cam_load_select_activated(form.cam_load_select->itemText(0));
+    camLoadSelected(form.cam_load_select->itemText(0));
   }
   // frame spin box
   form.frame_spin->setKeyboardTracking(false);
@@ -383,7 +383,7 @@ void FormOptions::on_cam_save_button_pressed()
   }
 }
 // ============================================================================
-void FormOptions::on_cam_load_select_activated(const QString &text)
+void FormOptions::camLoadSelected(QString text)
 {
   QString select=text;
   if (select[0]!=QChar('/')) { // path from ressource file only
@@ -393,6 +393,11 @@ void FormOptions::on_cam_load_select_activated(const QString &text)
   if (displayCameraFile(select)) {
     emit loadCameraPath(select.toStdString(),form.spline_points->value(),(float) form.spline_scale->value());
   }
+}
+// ============================================================================
+void FormOptions::on_cam_load_select_activated(int i_text)
+{
+  camLoadSelected(form.cam_load_select->itemText(i_text));
 }
 // ============================================================================
 bool FormOptions::displayCameraFile(const QString &infile)

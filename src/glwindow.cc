@@ -510,20 +510,6 @@ void GLWindow::paintGL()
     glDisable(GL_BLEND);
   }
 
-  // sphere display
-  if (0) {
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    GLUquadricObj *quadric=gluNewQuadric();
-    gluQuadricDrawStyle(quadric,GLU_LINE);
-    gluQuadricNormals(quadric, GLU_SMOOTH);
-    GLdouble radius=GLdouble(store_options->mesh_length*store_options->nb_meshs/2.0);
-    GLint subdivisions=16;
-    gluSphere(quadric, radius, subdivisions,subdivisions);
-    gluDeleteQuadric(quadric);
-    glDisable(GL_BLEND);
-
-  }
   // camera display path and control points
   camera->display(wheight);
 
@@ -724,26 +710,21 @@ void GLWindow::initializeGL()
   // some request for pointset_manager
   if (gl_major >= 3 || gl_extensions.contains("GL_EXT_gpu_shader4")) {
     cpointset_manager->initShaders(true);
-    // std::cerr << "initializeGL cpointset_manager->createNewCPointset();\n";
-    // cpointset_manager->createNewCPointset();
   }
 
   // initialyze rendering shaders
   initShader();
 
   // camera
-  //makeCurrent();
-  //camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
-  //camera->loadShader();
-  //doneCurrent();
-
-  //makeCurrent();
+  camera->loadShader();
+  camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
+  
   GLGridObject::nsquare = store_options->nb_meshs;
   GLGridObject::square_size = store_options->mesh_length;
   gridx = new GLGridObject(0,store_options->col_x_grid,store_options->xy_grid);
   gridy = new GLGridObject(1,store_options->col_y_grid,store_options->yz_grid);
   gridz = new GLGridObject(2,store_options->col_z_grid,store_options->xz_grid);
-  //doneCurrent();
+  
   // axes
   axes = new GLAxesObject();
   
@@ -764,33 +745,26 @@ void GLWindow::initializeGL()
   }
   
   // Osd
-  //makeCurrent();
   fntRenderer text;
   font = new fntTexFont(store_options->osd_font_name.toStdString().c_str());
-  //doneCurrent();
   text.setFont(font);
   text.setPointSize(store_options->osd_font_size );
   osd = new GLObjectOsd(wwidth,wheight,text,store_options->osd_color);
   // colorbar
-  //makeCurrent();
   gl_colorbar = new GLColorbar(store_options,true);
-  //doneCurrent();
+  
   ////////
   // FBO
   // Set the width and height appropriately for you image
   fbo = false;
   //Set up a FBO with one renderbuffer attachment
   // init octree
-  //makeCurrent();
   tree = new GLOctree(store_options);
   tree->setActivate(true);
   if (GLWindow::GLSL_support) {
     glGenFramebuffers(1, &framebuffer);
     glGenRenderbuffers(1, &renderbuffer);
   }
-  //doneCurrent();
-  //doneCurrent();
-  emit sendGLWindow(this);
 }
 // ============================================================================
 // resize the opengl viewport according to the new window size

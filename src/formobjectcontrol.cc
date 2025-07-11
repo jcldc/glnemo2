@@ -23,7 +23,6 @@
 #include "globaloptions.h"
 #include "gltexture.h"
 #include "glnemoexception.h"
-#include <QOpenGLVersionFunctionsFactory>
 
 namespace glnemo {
 #define RT_VISIB 0
@@ -1432,20 +1431,6 @@ void FormObjectControl::on_z_stretch_max_spin_valueChanged(double value)
     if (EMIT) emit objectSettingsChanged();
   }
 }
-// Get GLwindow
-void FormObjectControl::getGLWindow(GLWindow * _m_glWindow)
-{
-  m_glWindow = _m_glWindow;
-  if (m_glWindow) {
-    m_glWindow->makeCurrent();
-    m_glFunctions = QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_3_3_Core>(m_glWindow->context());
-    if (!m_glFunctions) {
-        qWarning("Could not obtain OpenGL 3.3 Core functions.");
-        return;
-    }
-    m_glWindow->doneCurrent();
-  }
-}
 // ============================================================================
 // -- CPoints Tab --
 //
@@ -1647,9 +1632,6 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
 // ============================================================================
 //
 void FormObjectControl::on_add_cpointset_clicked(bool) {
-  std::cerr << "In  FormObjectControl::on_add_cpointset_clicked OpenGL context =["<<QOpenGLContext::currentContext()<<"]\n";
-  std::cerr << "In  FormObjectControl::on_add_cpointset_clicked OpenGL global context =["<<QOpenGLContext::globalShareContext()<<"]\n";
-
   CPointset *new_pointset = pointset_manager->createNewCPointset();
   auto item = new QTreeWidgetItem(form.cpoints_set_treewidget,
                                   QStringList() << QString::fromStdString(new_pointset->getName())<< QString() << QString::number(new_pointset->getNbCpoints()), 0);

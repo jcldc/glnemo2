@@ -287,7 +287,6 @@ void CPointset::genVboData() {
   }
   if (data.size() > 0) {
   GLWindow::m_glWidget->makeCurrent();
-  std::cerr << "In  CPointset::genVboData() OpenGL context =["<<QOpenGLContext::currentContext()<<"]\n";
   GLWindow::checkGLErrors("In Pointset::sgenVboData");
   // SEND DATA
   GLWindow::m_glFunctions->glBindVertexArray(m_vao);
@@ -570,7 +569,6 @@ void CPointsetRegularPolygon::sendUniforms() {
 void CPointsetRegularPolygon::display() {
 
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
-  std::cerr << "In  CPointsetRegularPolygon::display OpenGL context =["<<QOpenGLContext::currentContext()<<"]\n";
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display");
   GLWindow::m_glWidget->makeCurrent();
   m_shader->start();

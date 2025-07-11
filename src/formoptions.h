@@ -84,6 +84,8 @@ class FormOptions: public QDialog {
     void on_button_sel_all_part_pressed()    { emit select_all_part();}
     //                     
     // camera selection tab
+    void camLoadSelected(QString text);
+
     void on_cam_pts_display_clicked() { 
       emit setCamDisplay(form.cam_pts_display->isChecked(),
                          form.cam_path_display->isChecked());
@@ -118,7 +120,7 @@ class FormOptions: public QDialog {
     void on_cam_load_button_pressed();
     void on_cam_save_button_pressed();
     void on_cam_commit_button_pressed();
-    void on_cam_load_select_activated(const QString &text);
+    void on_cam_load_select_activated(int);
     //   spline
     void on_view_on_radio_clicked() {
       emit sig_updateVectorUp(0,form.xup_dspin->value(),false);
