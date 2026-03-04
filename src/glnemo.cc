@@ -32,7 +32,7 @@
 #include <nemo.h>
 #include <string>
 #include "mainwindow.h"
-
+#include <QProcessEnvironment>
 #include "version.h"
 
 using namespace std;
@@ -175,6 +175,13 @@ std::string VERSION = "VERSION="+release+"\n    "+__DATE__+"  - JCL  compiled at
 //  The main program is here                                                   
 int main(int argc, char *argv[])
 {
+   // Get current systemEnvironment 
+  auto env = QProcessEnvironment::systemEnvironment();
+  
+  // If wayland session, we force XCB (wayland)
+  if (env.value("XDG_SESSION_TYPE") == "wayland") {
+      qputenv("QT_QPA_PLATFORM", "xcb");
+  }
  // QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
  // QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   QApplication::setDesktopSettingsAware(true);
