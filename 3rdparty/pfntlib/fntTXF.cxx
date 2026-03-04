@@ -178,12 +178,12 @@ static void tex_make_mip_maps ( GLubyte *image, int xsize,
 
 int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
 {
-  if ( ! glIsValidContext () )
-  {
-    ulSetError ( UL_FATAL,
-      "FNT font loader called without a valid OpenGL context.");
-  }
-
+  // if ( ! glisvalidcontext () )
+  // {
+  //   ulseterror ( ul_fatal,
+  //     "fnt font loader called without a valid opengl context.");
+  // }
+  //
   FILE *fd ;
 #if NOTQT
   if ( (fd = fopen ( fname, "rb" )) == NULL )
