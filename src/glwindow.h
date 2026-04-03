@@ -109,6 +109,7 @@ public slots:
    void forcePaintGL() {
        makeCurrent();
        paintGL();
+       doneCurrent();
    }
    void select_all_particles_on_screen() { // from gui, interactive select, press button select all particles
        gl_select->selectOnArea(pov->size(),mProj,mModel,viewport,true);

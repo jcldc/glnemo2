@@ -80,7 +80,6 @@ void GLSelection::getMouse(QMouseEvent * e)
 void GLSelection::display(const int width, const int height)
 {
   if (enable) {
-    GLWindow::m_glWidget->makeCurrent();
     glDisable( GL_DEPTH_TEST );
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -119,7 +118,6 @@ void GLSelection::display(const int width, const int height)
     glMatrixMode( GL_MODELVIEW );
     glPopMatrix();
     glEnable( GL_DEPTH_TEST );
-    GLWindow::m_glWidget->doneCurrent();
   }
 }
 // ============================================================================

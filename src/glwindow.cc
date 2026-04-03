@@ -235,23 +235,18 @@ void GLWindow::update(ParticlesData   * _p_data,
   
 
 
+  makeCurrent();
   for (unsigned int i=0; i<pov->size() ;i++) {
     if (i>=gpv.size()) {
-      //makeCurrent();
       GLObjectParticles * gp = new GLObjectParticles(p_data,&((*pov)[i]),
                                                      store_options,&gtv,shader,vel_shader);
-      //doneCurrent();
-      //GLObjectParticles * gp = new GLObjectParticles(&p_data,pov[i],store_options);
       gpv.push_back(*gp);
       delete gp;
     } else {      
-      //makeCurrent();
       gpv[i].update(p_data,&((*pov)[i]),store_options, update_old_obj);
-      //doneCurrent();
-      //gpv[i].update(&p_data ,pov[i],store_options);
-        
     }
   }
+  doneCurrent();
 
   store_options->new_frame=false;
   gl_select->update(&gpv,store_options,mutex_data);
@@ -370,6 +365,7 @@ void GLWindow::initLight()
 long int CPT=0;
 void GLWindow::paintGL()
 {
+  if (!QOpenGLContext::currentContext()) return;
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   CPT++;

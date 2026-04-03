@@ -54,7 +54,6 @@ namespace glnemo {
   // loadShader
   void Camera::loadShader()
   {
-    //GLWindow::m_glWidget->makeCurrent();
     QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
     if (GLWindow::GLSL_support) {
@@ -70,7 +69,6 @@ namespace glnemo {
     } else {
       std::cerr << "\n\nUnable to load TEXTURE.....\n\n";
     }
-    //GLWindow::m_glWidget->doneCurrent();
   }
 
   // ============================================================================
@@ -193,7 +191,6 @@ namespace glnemo {
   //  loadSplinePoints                                                           
   int Camera::loadSplinePoints(std::string filen)
   {
-    //GLWindow::m_glWidget->makeCurrent();
     QFile infile(QString(filen.c_str()));
     if (!infile.open(QIODevice::ReadOnly | QIODevice::Text))
       return 0;
@@ -228,7 +225,6 @@ namespace glnemo {
         buildDisplayList();
       }
     }
-    //GLWindow::m_glWidget->doneCurrent();
     return valid;
   }
   // ============================================================================
@@ -381,7 +377,6 @@ namespace glnemo {
   // display ctrl and camera path                                                
   void Camera::display(const int _win_height)
   {
-    //GLWindow::m_glWidget->makeCurrent();
     win_height = _win_height;
     if (GLWindow::GLSL_support) {
       if (spline->GetNumPoints() > 0 ) {
@@ -391,7 +386,6 @@ namespace glnemo {
       if (display_path) displayCameraPath();
       if (display_ctrl) {;}
     }
-    //GLWindow::m_glWidget->doneCurrent();
   }
   // ============================================================================
   // setSplineParam                                                              

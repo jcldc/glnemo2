@@ -75,7 +75,6 @@ GLOctree::~GLOctree()
 // Display                                                                     
 void GLOctree::display()
 {
-  GLWindow::m_glWidget->makeCurrent();
 #if 1  
   glEnable (GL_LINE_SMOOTH);
   
@@ -88,7 +87,6 @@ void GLOctree::display()
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   GLObject::display();
   glDisable(GL_BLEND);
-  GLWindow::m_glWidget->doneCurrent();
 }
 // ============================================================================
 // Constructor                                                                 

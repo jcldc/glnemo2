@@ -251,7 +251,6 @@ void GLObjectOsd::updateDisplay(const OsdKeys k)
 // render Osd text object
 void GLObjectOsd::display()
 {
-  GLWindow::m_glWidget->makeCurrent();
   if (is_activated) {
     // save OpenGL state
     glDisable( GL_DEPTH_TEST );
@@ -284,7 +283,6 @@ void GLObjectOsd::display()
     glPopMatrix();
     glEnable( GL_DEPTH_TEST );
   }
-  GLWindow::m_glWidget->doneCurrent();
 }
 // ============================================================================
 // GLObjectOsd::updateColor()
