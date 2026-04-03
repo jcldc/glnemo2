@@ -1,15 +1,15 @@
-#-*-cmake-*- 
+#-*-cmake-*-
 # ============================================================================
-# Copyright Jean-Charles LAMBERT - 2007-2023                                  
-# e-mail:   Jean-Charles.Lambert@lam.fr                                      
-# address:  Centre de donneeS Astrophysique de Marseille (CeSAM)                                          
-#           Laboratoire d'Astrophysique de Marseille                          
-#           Pôle de l'Etoile, site de Château-Gombert                         
-#           38, rue Frédéric Joliot-Curie                                     
-#           13388 Marseille cedex 13 France                                   
-#           CNRS U.M.R 7326                                                   
+# Copyright Jean-Charles LAMBERT - 2007-2023
+# e-mail:   Jean-Charles.Lambert@lam.fr
+# address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
+#           Laboratoire d'Astrophysique de Marseille
+#           Pôle de l'Etoile, site de Château-Gombert
+#           38, rue Frédéric Joliot-Curie
+#           13388 Marseille cedex 13 France
+#           CNRS U.M.R 7326
 # ============================================================================
-# See the complete license in LICENSE and/or "http://www.cecill.info".        
+# See the complete license in LICENSE and/or "http://www.cecill.info".
 # ============================================================================
 
 cmake_minimum_required(VERSION 2.8)
@@ -71,7 +71,7 @@ IF(GLOB_TEMP_VAR)
 ENDIF()
 
 # MODULEs PATH
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake ${QTDIR5}) 
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake ${QTDIR5})
 
 # Instruct CMake to run moc automatically when needed.
 #set(CMAKE_AUTOMOC ON)
@@ -79,9 +79,9 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake ${QTDIR5}
 # find Qt6 files
 find_package(Qt6Widgets)
 find_package(Qt6Core)
-find_package(Qt6 REQUIRED COMPONENTS Core) 
-find_package(Qt6 REQUIRED COMPONENTS OpenGLWidgets) 
-find_package(Qt6 REQUIRED COMPONENTS Core5Compat) 
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS OpenGLWidgets)
+find_package(Qt6 REQUIRED COMPONENTS Core5Compat)
 find_package(Qt6OpenGL)
 find_package(Qt6OpenGLWidgets)
 find_package(Qt6Network)
@@ -93,15 +93,15 @@ FIND_PACKAGE(HDF5 COMPONENTS CXX REQUIRED)
 # find OpenGL package
 find_package(OpenGL REQUIRED)
 
-# contains the full path to the top level directory of your build tree 
+# contains the full path to the top level directory of your build tree
 MESSAGE( STATUS "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
 
 # contains the full path to the root of your project source directory,
-# i.e. to the nearest directory where CMakeLists.txt contains the PROJECT() command 
+# i.e. to the nearest directory where CMakeLists.txt contains the PROJECT() command
 MESSAGE( STATUS "PROJECT_SOURCE_DIR: " ${PROJECT_SOURCE_DIR} )
 
 # Library's files
-FILE(GLOB lib_files 
+FILE(GLOB lib_files
   "plugins/nemolight/*.c"
   "plugins/*.cc"
   "plugins/ftm/*.cc"
@@ -117,13 +117,13 @@ FILE(GLOB lib_files
 
 # Find plugins qt headers
 FILE(GLOB hdrs1_files plugins/*.h plugins/ftm/*.h plugins/gadget/*.h plugins/gadgeth5/*.h
-  plugins/network/*.h plugins/ramses/*.h  plugins/tipsy/*.h 
+  plugins/network/*.h plugins/ramses/*.h  plugins/tipsy/*.h
   )
 
 # Tipsy is not suported by  WIN32
-if   (WIN32) 
-  list (REMOVE_ITEM lib_files   ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.cc ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.cc)   
-  list (REMOVE_ITEM hdrs1_files ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.h  ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.h) 
+if   (WIN32)
+  list (REMOVE_ITEM lib_files   ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.cc ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.cc)
+  list (REMOVE_ITEM hdrs1_files ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.h  ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.h)
 endif()
 
 # Destination path for the lib
@@ -152,6 +152,7 @@ if (APPLE)
   #ADD_DEFINITIONS(-mmacosx-version-min=10.9)
 endif()
 ADD_DEFINITIONS(-fPIC)
+set (CMAKE_C_FLAGS "-std=gnu17 -Wno-implicit-function-declaration -Wno-int-conversion -Wno-implicit-int ${CMAKE_C_FLAGS}")
 set (CMAKE_CXX_FLAGS "-std=c++17 ${CMAKE_CXX_FLAGS}")
 # Add compiler flags for building executables (-fPIE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
@@ -175,7 +176,7 @@ add_library (uns STATIC ${moc1_src} ${lib_files})
 #
 
 # -----------------------
-# Glnemo2 binary PROGRAM 
+# Glnemo2 binary PROGRAM
 # -----------------------
 
 # Make sure the linker can find the Hello library once it is built.
@@ -184,7 +185,7 @@ if (APPLE)
 endif()
 
 # Glew file
-#set (glew src/glew/glew.c) 
+#set (glew src/glew/glew.c)
 
 # Find all cpp sources files
 FILE(GLOB src_files src/*.cc)
@@ -208,12 +209,12 @@ QT6_WRAP_UI(ui_headers ${ui_files})
 QT6_WRAP_CPP(moc_src ${hdrs_files})
 
 # we need the following to be able to include headers produced by uic in our code
-# (CMAKE_BINARY_DIR holds a path to the build directory, while INCLUDE_DIRECTORIES() 
+# (CMAKE_BINARY_DIR holds a path to the build directory, while INCLUDE_DIRECTORIES()
 # works just like INCLUDEPATH from qmake)
 INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR} )
 
 # Executbale output path
-if (UNIX AND NOT APPLE ) 
+if (UNIX AND NOT APPLE )
   set(EXECUTABLE_OUTPUT_PATH bin)
 endif ()
 
@@ -231,21 +232,21 @@ endif()
 #target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${HDF5_CXX_LIBRARIES_LIST} )
 # special ARCH LINUX
 if (EXISTS "/usr/lib64/libtirpc.so" OR EXISTS "/usr/lib/x86_64-linux-gnu/libtirpc.so")
-   set (TIRPC "tirpc")
+  set (TIRPC "tirpc")
 else()
-   set (TIRPC "")
+  set (TIRPC "")
 endif()
 target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  Qt6Core Qt6Widgets Qt6PrintSupport Qt6OpenGL Qt6OpenGLWidgets Qt6Network Qt6Gui Qt6Core5Compat ${QT6_LIBRARIES} ${GOMP} CCfits cfitsio ${TIRPC}  ${HDF5_CXX_LIBRARIES} )
 
 #qt6_use_modules(glnemo2 Gui Widgets Core OpenGL Network PrintSupport)
 
 # INSTALLATION
-IF (NEMO_INSTALLED) 
+IF (NEMO_INSTALLED)
   set (CMAKE_INSTALL_PREFIX $ENV{NEMO})
   INSTALL(FILES  ${PROJECT_SOURCE_DIR}/man/man1/glnemo2.1 DESTINATION man/man1)
 ELSE()
   set(CMAKE_INSTALL_PREFIX  "/usr")
-ENDIF () 
+ENDIF ()
 
 MESSAGE(STATUS "CMAKE_INSTALL_PREFIX :" ${CMAKE_INSTALL_PREFIX} )
 
@@ -269,7 +270,7 @@ if (EXISTS "${PROJECT_SOURCE_DIR}/src/version.h") # detect version from "version
   # GLNEMO2_EXTRA
   string(REGEX MATCH "GLNEMO2_EXTRA \"([_a-zA-Z0-9.-]+)\"" XXXX "${CURRENT_VERSION_H}")
   set(PROJECT_VERSION_EXTRA ${CMAKE_MATCH_1})
-  
+
   # PROJECT_VERSION
   set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${PROJECT_VERSION_EXTRA}")
 
@@ -295,11 +296,11 @@ message("${PROJECT_NAME} will be installed to ${CMAKE_INSTALL_PREFIX}")
 
 if (UNIX AND NOT APPLE)
   INSTALL(PROGRAMS   ${PROJECT_BINARY_DIR}/${EXECUTABLE_OUTPUT_PATH}/glnemo2   DESTINATION bin)
-  #INSTALL(CODE "execute_process(COMMAND ${CMAKE_STRIP} bin/glnemo2)") 
+  #INSTALL(CODE "execute_process(COMMAND ${CMAKE_STRIP} bin/glnemo2)")
   #INSTALL(CODE "execute_process(COMMAND ${CMAKE_STRIP} _CPack_Packages/${CPACK_TOPLEVEL_TAG}/${CPACK_GENERATOR}/${PACK_PACKAGE_FILE_NAME}/${CMAKE_INSTALL_PREFIX}/bin/glnemo2)")
   #include(PostInstall)
   if (NOT NEMO_INSTALLED)
-  	INSTALL(FILES  ${PROJECT_SOURCE_DIR}/man/man1/glnemo2.1 DESTINATION share/man/man1)
+    INSTALL(FILES  ${PROJECT_SOURCE_DIR}/man/man1/glnemo2.1 DESTINATION share/man/man1)
   endif()
 endif ()
 
@@ -341,9 +342,9 @@ set(CPACK_RPM_PACKAGE_DESCRIPTION "An interactive 3D visualization program for N
 set(CPACK_DEBIAN_PACKAGE_NAME ${CPACK_PACKAGE_NAME})
 set(CPACK_DEBIAN_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${LINUX_NAME})
 IF(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
-	SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE amd64)
+  SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE amd64)
 ELSEIF(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686")
-	SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE i386)
+  SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE i386)
 ENDIF(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION ${CPACK_RPM_PACKAGE_DESCRIPTION})
 
@@ -355,19 +356,19 @@ if (APPLE)
   set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME}")
   set(CPACK_SYSTEM_NAME "OSX")
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}")
- #set(CPACK_PACKAGE_ICON "${ICONS_DIR}/DMG.icns")
+  #set(CPACK_PACKAGE_ICON "${ICONS_DIR}/DMG.icns")
   #set(CPACK_DMG_DS_STORE "${ICONS_DIR}/DMGDSStore")
   #set(CPACK_DMG_BACKGROUND_IMAGE "${ICONS_DIR}/DMGBackground.png")
 endif()
 
 # stripping
 if (NOT WIN32)
-	#SET(CPACK_STRIP_FILES {CMAKE_INSTALL_PREFIX}/bin/glnemo2)
-	#SET(CPACK_STRIP_FILES "True")
-	#SET(CPACK_SET_DESTDIR On)
-        set(CMAKE_INSTALL_DO_STRIP TRUE)  
-	#SET(CPACK_INSTALL_PREFIX "/usr")	
-	#SET(CMAKE_INSTALL_PREFIX ${CPACK_INSTALL_PREFIX})
+  #SET(CPACK_STRIP_FILES {CMAKE_INSTALL_PREFIX}/bin/glnemo2)
+  #SET(CPACK_STRIP_FILES "True")
+  #SET(CPACK_SET_DESTDIR On)
+  set(CMAKE_INSTALL_DO_STRIP TRUE)
+  #SET(CPACK_INSTALL_PREFIX "/usr")
+  #SET(CMAKE_INSTALL_PREFIX ${CPACK_INSTALL_PREFIX})
 endif()
 
 # This must always be last!
@@ -390,26 +391,26 @@ if(APPLE) # OR WIN32)
   # So far, I am not abble to add PrintingSupport though... :( ...which should come from
   # Qt5::QCocoaPrinterSupportPlugin.... but fails when I run cmake command...
   #
- 
+
   #set(LIST_PLUGIN "Qt5::AccessibleFactory;Qt5::QJpegPlugin;Qt5::QICNSPlugin")
   set(LIST_PLUGIN "Qt6::QJpegPlugin;Qt6::QICNSPlugin")
   set (QT_ADD_PLUGIN "")
   foreach (plugin ${LIST_PLUGIN})
-    get_property(QT_GET_PLUGIN TARGET ${plugin} PROPERTY LOCATION_RELEASE) 
+    get_property(QT_GET_PLUGIN TARGET ${plugin} PROPERTY LOCATION_RELEASE)
     message( ${plugin} " : " ${QT_GET_PLUGIN})
     get_filename_component(xx ${QT_GET_PLUGIN} DIRECTORY)
     list (APPEND QT_ADD_PLUGIN ${QT_GET_PLUGIN})
   endforeach()
-  
+
   # See macdeployqt source code to find a hack :
   # https://qt.gitorious.org/qt/qttools/source/4b711fec48c395ab4e486dd1a789309d4d488e9d:src/macdeployqt/shared/shared.cpp
   # Ugly hack to add printerplugin support
-  
+
   get_filename_component(xx ${QT_GET_PLUGIN} DIRECTORY)
   get_filename_component(xx ${xx} DIRECTORY)
   set (PrinterPlugin "${xx}/printsupport/libcocoaprintersupport.dylib")
   message ("PrinterPlugin = " ${PrinterPlugin})
   list (APPEND QT_ADD_PLUGIN ${PrinterPlugin})
-  
+
   install_qt6_executable("${EXECUTABLE}" "${QT_ADD_PLUGIN}")
 endif()
