@@ -6,7 +6,7 @@ build*
 *-debug/
 *.autosave
 .idea/
-.vscode/
+#.vscode/
 debug/
 Makefile*
 *.Debug
