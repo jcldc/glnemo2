@@ -399,7 +399,7 @@ void MainWindow::createToolBars()
   icons_tool_bar->addAction(print_file_action);
   icons_tool_bar->addAction(movie_form_action);
   //icons_tool_bar->addAction(com_action);
-  icons_tool_bar->addAction(toggle_rotation_screen_action);
+  //icons_tool_bar->addAction(toggle_rotation_screen_action);
 
   QSize icons;
   icons.scale(ICONSIZE,ICONSIZE,Qt::KeepAspectRatio);
@@ -673,10 +673,10 @@ void MainWindow::createActions()
   addAction(zsorting_action);
 #endif
   // Toggle rotation screen
-  toggle_rotation_screen_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/3daxis.png"),tr("Toggle rotation mode around axes screen/world"),this);
-  toggle_rotation_screen_action->setShortcut(tr("Ctrl+L"));
-  connect( toggle_rotation_screen_action, SIGNAL( triggered() ), this, SLOT( toggleRotateScreen()) );
-  addAction(toggle_rotation_screen_action);
+  // toggle_rotation_screen_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/3daxis.png"),tr("Toggle rotation mode around axes screen/world"),this);
+  // toggle_rotation_screen_action->setShortcut(tr("Ctrl+L"));
+  // connect( toggle_rotation_screen_action, SIGNAL( triggered() ), this, SLOT( toggleRotateScreen()) );
+  // addAction(toggle_rotation_screen_action);
 
   // Auto rotate around X
   rotatex_action = new QAction(this);
