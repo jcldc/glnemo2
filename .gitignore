@@ -10,6 +10,7 @@ build*
 debug/
 Makefile*
 *.Debug
+.cache
 *.Release
 CMakeLists.txt.user
 
