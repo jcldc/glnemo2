@@ -88,7 +88,7 @@ void GLOctree::display()
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   GLObject::display();
   glDisable(GL_BLEND);
-  GLWindow::m_glWidget->doneCurrent();
+  //GLWindow::m_glWidget->doneCurrent();
 }
 // ============================================================================
 // Constructor                                                                 

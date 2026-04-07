@@ -81,7 +81,7 @@ void GLAxesObject::display(const double * mScreen,const double * mScene, const i
   glDisable(GL_BLEND);
   
   glPopMatrix ();
-  GLWindow::m_glWidget->doneCurrent();
+  //GLWindow::m_glWidget->doneCurrent();
   
 }
 

@@ -699,6 +699,10 @@ void GLWindow::initializeGL()
   //
   m_glWidget = this; 
   m_glFunctions = QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_3_3_Core>(m_glWidget->context());
+  if (!m_glFunctions) {
+    qFatal("Cannot get OpenGL 3.3 Core functions !");
+  }
+  m_glFunctions->initializeOpenGLFunctions(); // ← OBLIGATOIRE en Qt 6
 
   // get OPenGL extensions
   QOpenGLContext *f = QOpenGLContext::currentContext();

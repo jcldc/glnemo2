@@ -284,7 +284,7 @@ void GLObjectOsd::display()
     glPopMatrix();
     glEnable( GL_DEPTH_TEST );
   }
-  GLWindow::m_glWidget->doneCurrent();
+  //GLWindow::m_glWidget->doneCurrent();
 }
 // ============================================================================
 // GLObjectOsd::updateColor()

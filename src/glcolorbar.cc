@@ -97,7 +97,7 @@ void GLColorbar::display(const int _width, const int _height)
     glPopMatrix();
     glEnable( GL_DEPTH_TEST );
   }
-  GLWindow::m_glWidget->doneCurrent();
+  //GLWindow::m_glWidget->doneCurrent();
 }
 
 // ============================================================================

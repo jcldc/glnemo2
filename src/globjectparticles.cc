@@ -48,6 +48,7 @@ int nhisto=10000;
 // constructor
 GLObjectParticles::GLObjectParticles(GLTextureVector * _gtv ):GLObject()
 {
+  if (GLWindow::m_glWidget) GLWindow::m_glWidget->makeCurrent();
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   dplist_index = glGenLists( 1 );    // get a new display list index
@@ -110,7 +111,7 @@ GLObjectParticles::GLObjectParticles(const ParticlesData   * _part_data,
   hasPhysic = false;
   phys_select=NULL;
   update(_part_data,_po,_go);
-  GLWindow::m_glWidget->doneCurrent();
+  //GLWindow::m_glWidget->doneCurrent();
 }
 // ============================================================================
 // desstructor
@@ -126,7 +127,7 @@ GLObjectParticles::~GLObjectParticles()
 // update
 void GLObjectParticles::display(const double * mModel, int win_height)
 {
-  GLWindow::m_glWidget->makeCurrent();
+  //GLWindow::m_glWidget->makeCurrent();
   if (po->isVisible()) {
     // display particles
     if (po->isPartEnable()) {
@@ -175,7 +176,7 @@ void GLObjectParticles::display(const double * mModel, int win_height)
     GLObject::display(orb_dp_list);
     glDisable(GL_BLEND);
    }
-  GLWindow::m_glWidget->doneCurrent();
+  //GLWindow::m_glWidget->doneCurrent();
 }
 // ============================================================================
 // displayVboVelShader()
@@ -891,13 +892,15 @@ void GLObjectParticles::buildVboHsml()
   f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_size);
 
   assert( (int) hsml_value.size() <= (po->npart/po->step)+1);
-  // upload data to VBO
-  f->glBufferData(GL_ARRAY_BUFFER_ARB, hsml_value.size() * sizeof(float), &hsml_value[0], GL_STATIC_DRAW_ARB);
-  //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
-  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
-  std::cerr << "buildVboHsml ="<<hsml_value.size()<<"\n";
+  if (hsml_value.size()>0) {
+    // upload data to VBO
+    f->glBufferData(GL_ARRAY_BUFFER_ARB, hsml_value.size() * sizeof(float), &hsml_value[0], GL_STATIC_DRAW_ARB);
+    //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
+    f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+    std::cerr << "buildVboHsml ="<<hsml_value.size()<<"\n";
 
-  hsml_value.clear();
+    hsml_value.clear();
+  }
   if (BENCH) qWarning("Time elapsed to build VBO Hsml: %f s", tbench.elapsed()/1000.);
 }
 // ============================================================================

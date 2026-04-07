@@ -119,7 +119,7 @@ void GLSelection::display(const int width, const int height)
     glMatrixMode( GL_MODELVIEW );
     glPopMatrix();
     glEnable( GL_DEPTH_TEST );
-    GLWindow::m_glWidget->doneCurrent();
+    //GLWindow::m_glWidget->doneCurrent();
   }
 }
 // ============================================================================
