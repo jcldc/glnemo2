@@ -1,10 +1,10 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2023                                  
+// Copyright Jean-Charles LAMBERT - 2007-2026                                  
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           P�le de l'Etoile, site de Ch�teau-Gombert                         
-//           38, rue Fr�d�ric Joliot-Curie                                     
+//           Pole de l'Etoile, site de Ch�teau-Gombert                         
+//           38, rue Frederic Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -28,7 +28,7 @@ FormAbout::FormAbout(QWidget *parent):QDialog(parent)
   //"<b>Glnemo2:</b> an interactive 3D visualisation program for nbody simulation data"
   
   QString info(tr((
-       "<center>Copyright (c) <b>Jean-Charles LAMBERT</b> 2007-2023"
+       "<center>Copyright (c) <b>Jean-Charles LAMBERT</b> 2007-2026"
       "<br><a href=\"mailto:Jean-Charles.Lambert@lam.fr\">Jean-Charles.Lambert@lam.fr</a>"
                     "<br>"
                     "<br>Contributions:"

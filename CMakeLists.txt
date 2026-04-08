@@ -1,6 +1,6 @@
 #-*-cmake-*-
 # ============================================================================
-# Copyright Jean-Charles LAMBERT - 2007-2023
+# Copyright Jean-Charles LAMBERT - 2007-2026
 # e-mail:   Jean-Charles.Lambert@lam.fr
 # address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
 #           Laboratoire d'Astrophysique de Marseille
@@ -23,6 +23,8 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 # load setup flags
 include(SetupFlags)
 
+# Ckeck Compilers Flags
+include(CheckCompilersFlags)
 # contains the full path to the top level directory of your build tree
 MESSAGE( STATUS "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
 

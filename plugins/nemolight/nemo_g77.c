@@ -1,6 +1,6 @@
 /* =================================================================
 |  Copyright Jean-Charles LAMBERT - 2010                            
-|  e-mail:   Jean-Charles.Lambert@oamp.fr                           
+|  e-mail:   Jean-Charles.Lambert@lam.fr                           
 |  address:  Dynamique des galaxies                                 
 |            Laboratoire d'Astrophysique de Marseille               
 |            2, place Le Verrier                                    
@@ -9,11 +9,6 @@
 | ==================================================================
 |* Main program necessary with g77 compiler                         
 +----------------------------------------------------------------  */
-#if (__GNUC__ >= 4 && __GNUC_MINOR__ >= 5)  // we are running gcc 4.5
-#pragma message "GCC compiler >= 4.5.0"
-#pragma message "Gfortran has its own main() function..." 
-#else
-#pragma message "GCC compiler <= 4.5.0"
 void f_setarg(int argc, char ** argv);
 void f_setsig();
 void f_init();
@@ -34,7 +29,6 @@ int main(int argc, char ** argv)
   MAIN__();
   return 0; /* For compilers that complain of missing return values; */
 }
-#endif
 /* ----------------------------------------------------------------
 |  End of nemo_g77.c                                               
 +---------------------------------------------------------------- */
