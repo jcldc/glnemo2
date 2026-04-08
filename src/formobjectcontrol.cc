@@ -16,7 +16,7 @@
 #include <sstream>
 #include <QTableWidgetItem>
 #include <QColorDialog>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <assert.h>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -437,22 +437,22 @@ void FormObjectControl::checkComboLine(const int row, const int col)
   assert(item);
   if (item) {
     //construct regexp
-    QRegExp rx("^(\\d{1,})((:)(\\d{1,})){,1}((:)(\\d{1,})){,1}$");
-    int match=rx.indexIn(combobox->currentText());
-    if (match == -1) { // not match
+    QRegularExpression rx("^(\\d{1,})((:)(\\d{1,})){,1}((:)(\\d{1,})){,1}$");
+    QRegularExpressionMatch match=rx.match(combobox->currentText());
+    if (! match.hasMatch()) { // not match
     }
     else {
       int first,last,step=1;
       // get first
-      std::istringstream iss((rx.cap(1)).toStdString());
+      std::istringstream iss(match.captured(1).toStdString());
       iss >> first;
       // get last
-      if (rx.captureCount()>4) {
-        std::istringstream  iss((rx.cap(4)).toStdString());
+      if (match.lastCapturedIndex()>4) {
+        std::istringstream  iss(match.captured(4).toStdString());
         iss >> last;
         // get step
-        if (rx.captureCount()>=7) {
-          std::istringstream  iss((rx.cap(7)).toStdString());
+        if (match.lastCapturedIndex()>=7) {
+          std::istringstream  iss(match.captured(7).toStdString());
           iss >> step;
         }
       }

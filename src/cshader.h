@@ -27,7 +27,7 @@ public:
   void sendUniformi(const char *,const int   v1);  
   void sendUniformXfv(const char *,const int _dim, const int _count, const float * _v);
   void sendUniformXiv(const char * s,const int _dim, const int _count, const int * _v);
-  GLhandleARB getProgramId() {
+  GLuint getProgramId() {
     return m_program;
   }
 
@@ -45,13 +45,13 @@ private:
   void printLog(GLuint obj,std::string);
   
   // This handle stores our vertex shader information
-  GLhandleARB m_vertexShader;
+  GLuint m_vertexShader;
   // This handle stores our fragment shader information
-  GLhandleARB m_pixelShader;
+  GLuint m_pixelShader;
   // This handle stores our geometry shader information
-  GLhandleARB m_geomShader;
+  GLuint m_geomShader;
   // handle to the shader program itself
-  GLhandleARB m_program;
+  GLuint m_program;
   
 };
 

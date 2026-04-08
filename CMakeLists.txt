@@ -12,7 +12,7 @@
 # See the complete license in LICENSE and/or "http://www.cecill.info".
 # ============================================================================
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 
 # project name
 project (glnemo2)
@@ -86,12 +86,12 @@ find_package(Qt6Widgets)
 find_package(Qt6Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS OpenGLWidgets)
-find_package(Qt6 REQUIRED COMPONENTS Core5Compat)
 find_package(Qt6OpenGL)
 find_package(Qt6OpenGLWidgets)
 find_package(Qt6Network)
 find_package(Qt6PrintSupport)
 find_package(Qt6Gui)
+#find_package(Qt6 COMPONENTS ImageFormats REQUIRED)
 
 # HDF5 support
 FIND_PACKAGE(HDF5 COMPONENTS CXX REQUIRED)
@@ -244,8 +244,26 @@ if (EXISTS "/usr/lib64/libtirpc.so" OR EXISTS "/usr/lib/x86_64-linux-gnu/libtirp
 else()
   set (TIRPC "")
 endif()
-target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  Qt6Core Qt6Widgets Qt6PrintSupport Qt6OpenGL Qt6OpenGLWidgets Qt6Network Qt6Gui Qt6Core5Compat ${QT6_LIBRARIES} ${GOMP} CCfits cfitsio ${TIRPC}  ${HDF5_CXX_LIBRARIES} )
+#target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  Qt6Core Qt6Widgets Qt6PrintSupport Qt6OpenGL Qt6OpenGLWidgets Qt6Network Qt6Gui Qt6Core5Compat ${QT6_LIBRARIES} ${GOMP} CCfits cfitsio ${TIRPC}  ${HDF5_CXX_LIBRARIES} )
 
+target_link_libraries(glnemo2
+    PRIVATE
+        uns
+        z
+        ${OPENGL_LIBRARY}
+        Qt6::Core
+        Qt6::Widgets
+        Qt6::PrintSupport
+        Qt6::OpenGL
+        Qt6::OpenGLWidgets
+        Qt6::Network
+        Qt6::Gui
+        ${GOMP}
+        CCfits
+        cfitsio
+        ${TIRPC}
+        ${HDF5_CXX_LIBRARIES}
+)
 #qt6_use_modules(glnemo2 Gui Widgets Core OpenGL Network PrintSupport)
 
 # INSTALLATION
@@ -400,14 +418,18 @@ if(APPLE) # OR WIN32)
   # Qt5::QCocoaPrinterSupportPlugin.... but fails when I run cmake command...
   #
 
-  #set(LIST_PLUGIN "Qt5::AccessibleFactory;Qt5::QJpegPlugin;Qt5::QICNSPlugin")
-  set(LIST_PLUGIN "Qt6::QJpegPlugin;Qt6::QICNSPlugin")
-  set (QT_ADD_PLUGIN "")
-  foreach (plugin ${LIST_PLUGIN})
-    get_property(QT_GET_PLUGIN TARGET ${plugin} PROPERTY LOCATION_RELEASE)
-    message( ${plugin} " : " ${QT_GET_PLUGIN})
-    get_filename_component(xx ${QT_GET_PLUGIN} DIRECTORY)
-    list (APPEND QT_ADD_PLUGIN ${QT_GET_PLUGIN})
+  set(LIST_PLUGIN "QJpegPlugin" "QICNSPlugin")
+  set(QT_ADD_PLUGIN "")
+
+  foreach(plugin ${LIST_PLUGIN})
+      if(TARGET Qt6::${plugin})
+          get_target_property(QT_GET_PLUGIN Qt6::${plugin} LOCATION)
+          message(STATUS "${plugin} : ${QT_GET_PLUGIN}")
+          get_filename_component(plugin_dir ${QT_GET_PLUGIN} DIRECTORY)
+          list(APPEND QT_ADD_PLUGIN ${QT_GET_PLUGIN})
+      else()
+          message(WARNING "Plugin ${plugin} not found")
+      endif()
   endforeach()
 
   # See macdeployqt source code to find a hack :

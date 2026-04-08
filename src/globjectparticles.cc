@@ -377,8 +377,11 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   // setup point sprites
   glEnable(GL_POINT_SPRITE_ARB);
   glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+#ifdef Q_OS_MAC
+  glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+#else
   glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
-
+#endif
   if (hasPhysic && go->render_mode==1) {                 // if physic
     GLObject::setColor(Qt::black); // send black color to the shader
   } else {                              // else

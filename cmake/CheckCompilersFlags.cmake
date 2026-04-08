@@ -22,6 +22,7 @@ set(COMPILER_FLAGS_TO_CHECK
     -Wno-conversion-null
     -Wno-deprecated-declarations
     -Wno-format-overflow
+    -Wno-inconsistent-missing-override
 )
 
 # Check C/C++ flags

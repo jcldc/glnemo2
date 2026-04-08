@@ -358,7 +358,11 @@ namespace glnemo {
     if (display_ctrl) {
       // setup point sprites
       glEnable(GL_POINT_SPRITE_ARB);
+#ifdef Q_OS_MAC
+      glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+#else
       glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
+#endif
       glEnable(GL_POINT_SMOOTH);
 
       f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_ctrl);

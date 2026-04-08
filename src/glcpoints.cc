@@ -25,11 +25,11 @@
 #include "glwindow.h"
 #include <GL/glu.h>
 
-#if defined(__APPLE__)
-#define glGenVertexArrays glGenVertexArraysAPPLE
-#define glBindVertexArray glBindVertexArrayAPPLE
-#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
-#endif
+// #if defined(__APPLE__)
+// #define glGenVertexArrays glGenVertexArraysAPPLE
+// #define glBindVertexArray glBindVertexArrayAPPLE
+// #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+// #endif
 
 namespace glnemo {
 
