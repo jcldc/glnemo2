@@ -9,12 +9,16 @@ build*
 *-debug/
 *.autosave
 .idea/
-.vscode/
+#.vscode/
 debug/
 Makefile*
 *.Debug
+.cache
 *.Release
 CMakeLists.txt.user
+
+# git
+*stash
 
 # ithers
 *~

@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -18,8 +18,9 @@
 #ifndef GL_TEXT_OBJECT_H
 #define GL_TEXT_OBJECT_H
 
-#include <qgl.h>
+//#include <qgl.h>
 #include "globject.h"
+#include <QOpenGLFunctions>
 #include <iostream>
 #include "fnt.h"
 namespace glnemo { 
@@ -50,6 +51,7 @@ class GLTextObject : public GLObject {
   fntRenderer font;
   int x,y;      // xy label text position
   int x_text;   // x offset text position
+  QOpenGLFunctions *f_context;
 };
 } // namespace
 #endif

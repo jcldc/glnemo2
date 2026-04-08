@@ -16,17 +16,15 @@
 
 #include <QtGlobal>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <GL/glew.h>
-#include <QApplication>
-#else // QT4
-#include <QtGui>
-#include <QApplication>
-#include <GL/glew.h>
 #endif
+#include <QSurfaceFormat>
+#include <QApplication>
+#include <QOpenGLContext>
+
 #include <QtPlugin>
 //#include <QtOpenGL>
 //#include <QGLFormat>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <iostream>
 #include <QSplashScreen>
 // Nemo stuffs
@@ -178,17 +176,22 @@ std::string VERSION = "VERSION="+release+"\n    "+__DATE__+"  - JCL  compiled at
 //  The main program is here                                                   
 int main(int argc, char *argv[])
 {
-  // Get current systemEnvironment 
-  auto env = QProcessEnvironment::systemEnvironment();
-  
-  // If wayland session, we force XCB (wayland)
-  if (env.value("XDG_SESSION_TYPE") == "wayland") {
-      qputenv("QT_QPA_PLATFORM", "xcb");
-  }
   QApplication::setDesktopSettingsAware(true);
+ // glnemo::QMyApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   glnemo::QMyApplication app(argc, argv);
-  setlocale(LC_NUMERIC,"C"); // force numerics functions to use decimal point
+ // glnemo::QMyApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
+  QSurfaceFormat format;
+  format.setDepthBufferSize(24);
+  QSurfaceFormat::setDefaultFormat(format);
+  
+  setlocale(LC_NUMERIC,"C"); // force numerics functions to use decimal point
+  if (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGL) {
+        qDebug("Requesting 3.3 core context");
+        // fmt.setVersion(3, 3);
+        // fmt.setProfile(QSurfaceFormat::CoreProfile);        
+  }
+#if 0
   if ( !QGLFormat::hasOpenGL() ) {
     qWarning( "This system has no OpenGL support. Exiting." );
     return -1;
@@ -197,11 +200,11 @@ int main(int argc, char *argv[])
 //   f.setDirectRendering(false);
 //   QGLFormat::setDefaultFormat(f);
   // Get screen coordinates
-  QDesktopWidget  * desktop1 = QApplication::desktop();
+  QScreen  * desktop1 = QApplication::desktop();
   std::cerr << "# screens = " << desktop1->numScreens()<< "\n";
   std::cerr << "Is virtual desktop : " << desktop1->isVirtualDesktop() << "\n";
   QWidget  * desktop = desktop1->screen(desktop1->primaryScreen());
-
+#endif
   // initialyze NEMO engine
   initparam(argv,const_cast<char**>(defv));
   // CAUTION !!! do not call getparam function after **MainWindow** object    
@@ -227,8 +230,8 @@ int main(int argc, char *argv[])
   glnemo::MainWindow main_win(release); // main window object
 
   // compute window size
-  const int x=((desktop->width()  - wsize)/2);
-  const int y=((desktop->height() - hsize)/2);
+  const int x=1024;//((desktop->width()  - wsize)/2);
+  const int y=1024;//((desktop->height() - hsize)/2);
   main_win.setGeometry(x,y,wsize,hsize);
   // move to the center of the screen
   main_win.move(x,y);

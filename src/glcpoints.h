@@ -19,6 +19,8 @@
 
 #include "cshader.h"
 #include <QColor>
+#include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
 #include <iostream>
 #include <json.hpp>
 #include <map>
@@ -157,6 +159,7 @@ public:
   static std::map<std::string, CPointsetShapes> strToShape;
 
   static CPointTextRenderer *text_renderer;
+  static QOpenGLContext * gl_context;
 
 protected:
   void genVboData();

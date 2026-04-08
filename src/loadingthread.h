@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -22,6 +22,7 @@
 
 #include <QThread>
 #include <QMutex>
+#include <QRecursiveMutex>
 namespace glnemo {
 
 
@@ -31,7 +32,7 @@ class LoadingThread : public QThread {
     LoadingThread(SnapshotInterface *,
                   UserSelection *,
                   ParticlesObjectVector *, const std::string,
-                  QMutex *, GlobalOptions *);
+                  QRecursiveMutex *, GlobalOptions *);
     void run();
     ~LoadingThread();
     bool isValidLoading() { return valid_new_frame;};
@@ -42,7 +43,7 @@ class LoadingThread : public QThread {
     bool valid_new_frame;
     ParticlesObjectVector * pov;
     std::string select;
-    QMutex * mutex_data;
+    QRecursiveMutex * mutex_data;
 };
 
 }

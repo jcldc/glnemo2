@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -15,6 +15,8 @@
 #include "frustumculling.h"
 #include "tools3d.h"
 #include "vec3d.h"
+#include "glwindow.h"
+#include <GL/glu.h>
 
 namespace glnemo {
 #define MP(row,col)  mProj[col*4+row]
@@ -47,7 +49,7 @@ void GLSelection::reset()
 // ============================================================================
 // void update
 void GLSelection::update(const GLObjectParticlesVector * _gpv,
-                         GlobalOptions   * _go, QMutex * _mutex)
+                         GlobalOptions   * _go, QRecursiveMutex * _mutex)
 {
   // update variables
   gpv           = _gpv;
@@ -58,19 +60,27 @@ void GLSelection::update(const GLObjectParticlesVector * _gpv,
 //
 void GLSelection::getMouse(QMouseEvent * e)
 {
+  #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  int pos_x=e->position().x();
+  int pos_y=e->position().y();
+  #else
+  int pos_x=e->x();
+  int pos_y=e->y();
+  #endif
   enable=true;
   if (x0 == -1) {
-    x0 = e->x();
-    y0 = e->y();
+    x0 = pos_x;
+    y0 = pos_y;
   }
-  x1 = e->x();
-  y1 = e->y();
+  x1 = pos_x;
+  y1 = pos_y;
 }
 // ============================================================================
 //
 void GLSelection::display(const int width, const int height)
 {
   if (enable) {
+    GLWindow::m_glWidget->makeCurrent();
     glDisable( GL_DEPTH_TEST );
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -109,6 +119,7 @@ void GLSelection::display(const int width, const int height)
     glMatrixMode( GL_MODELVIEW );
     glPopMatrix();
     glEnable( GL_DEPTH_TEST );
+    //GLWindow::m_glWidget->doneCurrent();
   }
 }
 // ============================================================================

@@ -13,7 +13,7 @@
 #ifndef CSHADER_H
 #define CSHADER_H
 #include <string>
-#include <GL/glew.h>
+#include <QOpenGLFunctions>
 
 namespace glnemo {
 class CShader {

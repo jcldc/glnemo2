@@ -12,13 +12,14 @@
 // ============================================================================
 #include <iostream>
 #include <sstream>
-#include <QRegExp>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <QString>
 #include <QTime>
 #include "userselection.h"
 #include <algorithm>
 #include "assert.h"
-
+#include <QElapsedTimer>
 #ifdef _OPENMP
 #include <parallel/algorithm>
 #include <omp.h>
@@ -87,7 +88,7 @@ bool UserSelection::setSelection(std::string _sel,
 
   bool status=parse();
   if (status || 1 ) { // we force here
-    QTime tbench;
+    QElapsedTimer tbench;
     tbench.restart();
     // ascending sort according to the 'first' element
     int nobj=ParticlesObject::nobj;
@@ -147,23 +148,29 @@ int UserSelection::isRange(const std::string comp)
 {
   int status;
   // Regular expression => first:last:step
-  QRegExp rx("^(\\d{1,})((:)(\\d{1,})){,1}((:)(\\d{1,})){,1}$");
-  int match=rx.indexIn(QString(comp.c_str()));
-  if (match == -1) { // not match
+  // to test RegExp : https://regexr.com/
+  QRegularExpression rx("^(\\d{1,})((:)(\\d{1,})){0,1}((:)(\\d{1,})){0,1}$");
+  QRegularExpressionMatch match=rx.match(QString(comp.c_str()));
+  
+  if (! match.hasMatch()) { // not match
     status=1;        // misformated
   }
   else {
+    for (int i=0; i < rx.captureCount(); i++) {
+      std::istringstream iss((match.captured(i)).toStdString());
+      std::cerr << i << " " <<  iss.str() << "\n";
+    }
     int first,last,step=1;
     // get first
-    std::istringstream iss((rx.cap(1)).toStdString());
+    std::istringstream iss((match.captured(1)).toStdString());
     iss >> first;
     // get last
     if (rx.captureCount()>4) {
-      std::istringstream  iss((rx.cap(4)).toStdString());
+      std::istringstream  iss((match.captured(4)).toStdString());
       iss >> last;
       // get step
       if (rx.captureCount()>=7) {
-        std::istringstream  iss((rx.cap(7)).toStdString());
+        std::istringstream  iss((match.captured(7)).toStdString());
         iss >> step;
       }
     }
@@ -194,15 +201,15 @@ int UserSelection::isComponent(const std::string comp)
 {
   int status;
   // Regular expression => all|halo|disk ......
-  QRegExp rx("^(all|halo|disk|disc|bulge|stars|gas|gaz|bndry|other(\\d{,}))$");
-  int match=rx.indexIn(QString(comp.c_str()));
-  if (match == -1) { // not match
+  QRegularExpression rx("^(all|halo|disk|disc|bulge|stars|gas|gaz|bndry|other(\\d{,}))$");
+  QRegularExpressionMatch match=rx.match(QString(comp.c_str()));
+  if (! match.hasMatch() == -1) { // not match
     status=1;        // misformated
   }
   else {
     int first,last,step=1;
     // get component's type
-    std::string type=(rx.cap(1)).toStdString();
+    std::string type=(match.captured(1)).toStdString();
     int icrv=ComponentRange::getIndexMatchType(crv,type);
     if (icrv != -1 ) {
       assert(icrv<(int)crv->size());

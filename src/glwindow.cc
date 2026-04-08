@@ -12,14 +12,12 @@
 // ============================================================================
 #include <QtGlobal>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <GL/glew.h>
-#include <QtGui>
-#else
-#include <QtGui>
-#include <GL/glew.h>
 #endif
 #include <QtOpenGL>
+#include <QOpenGLExtraFunctions> 
+#include <QOpenGLFunctions>
 #include <QMutex>
+#include <QRecursiveMutex>
 #include <assert.h>
 #include <limits>
 #include <math.h>
@@ -32,11 +30,14 @@
 #include "tools3d.h"
 #include "fnt.h"
 #include "glcpoints.h"
+#include <QOpenGLVersionFunctionsFactory>
 
 namespace glnemo {
 #define DOF 4000000
   
   bool GLWindow::GLSL_support = false;
+  GLWindow * GLWindow::m_glWidget=NULL;
+  QOpenGLFunctions_3_3_Core * GLWindow::m_glFunctions=NULL;
   GLuint framebuffer, renderbuffer;
   GLdouble GLWindow::mIdentity[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
   //float store_options->ortho_range;
@@ -46,13 +47,15 @@ namespace glnemo {
 // BEWARE when parent constructor QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 // is called, we get antialiasing during screenshot capture but we can loose    
 // performance during rendering. You have been warned !!!!!                     
-GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
+GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mutex, Camera *_camera, CPointsetManager * _pointset_manager):QOpenGLWidget(_parent) //:QGLWidget(QGLFormat(QGL::SampleBuffers),_parent)
 {
+  //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  
   // copy parameters
   parent        = _parent;
   store_options = _go;
   camera        = _camera;
-    cpointset_manager = _pointset_manager;
+  cpointset_manager = _pointset_manager;
   //setAttribute(Qt::WA_NoSystemBackground);
   // reset coordinates
   resetEvents(true);
@@ -96,19 +99,20 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
   // leave events : reset event when we leave opengl windows
   connect(this,SIGNAL(leaveEvent()),this,SLOT(resetEvents()));
   
-  initializeGL();
-  checkGLErrors("initializeGL");
+  //qt6 initializeGL();
+  //qt6 checkGLErrors("initializeGL");
   shader = NULL;
   vel_shader = NULL;
 
-  initShader();
-  checkGLErrors("initShader");
+  //qt6 initShader();
+  //qt6 checkGLErrors("initShader");
   ////////
   
   // camera
-  camera->loadShader();
+  //qt6 camera->loadShader();
 
   // grid
+#if 0
   GLGridObject::nsquare = store_options->nb_meshs;
   GLGridObject::square_size = store_options->mesh_length;
   gridx = new GLGridObject(0,store_options->col_x_grid,store_options->xy_grid);
@@ -155,7 +159,8 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QMutex * _mutex, Camera
     glGenFramebuffersEXT(1, &framebuffer);
     glGenRenderbuffersEXT(1, &renderbuffer);
   }
-  checkGLErrors("GLWindow constructor");
+#endif
+  //qt6 checkGLErrors("GLWindow constructor");
 }
 
 // ============================================================================
@@ -170,8 +175,8 @@ GLWindow::~GLWindow()
   delete tree;
   delete axes;
   if (GLWindow::GLSL_support) {
-    glDeleteRenderbuffersEXT(1, &renderbuffer);
-    glDeleteRenderbuffersEXT(1, &framebuffer);
+    glDeleteRenderbuffers(1, &renderbuffer);
+    glDeleteRenderbuffers(1, &framebuffer);
     if (shader) delete shader;
     if (vel_shader) delete vel_shader;
   }
@@ -191,11 +196,12 @@ void GLWindow::updateGL()
     if (store_options->new_frame)
       update();
     else
-      QGLWidget::update();
+      QOpenGLWidget::update();
     mutex_data->unlock();
   }
-  else QGLWidget::update();
+  else QOpenGLWidget::update();
 }
+
 //QMutex mutex1;
 
 // ============================================================================
@@ -224,18 +230,24 @@ void GLWindow::update(ParticlesData   * _p_data,
   store_options->octree_display = true;
   store_options->octree_level = 0;
   //tree->update(p_data, _pov);
+  
   gl_colorbar->update(&gpv,p_data->getPhysData(),store_options,mutex_data);
+  
 
 
   for (unsigned int i=0; i<pov->size() ;i++) {
     if (i>=gpv.size()) {
+      //makeCurrent();
       GLObjectParticles * gp = new GLObjectParticles(p_data,&((*pov)[i]),
                                                      store_options,&gtv,shader,vel_shader);
+      //doneCurrent();
       //GLObjectParticles * gp = new GLObjectParticles(&p_data,pov[i],store_options);
       gpv.push_back(*gp);
       delete gp;
     } else {      
+      //makeCurrent();
       gpv[i].update(p_data,&((*pov)[i]),store_options, update_old_obj);
+      //doneCurrent();
       //gpv[i].update(&p_data ,pov[i],store_options);
         
     }
@@ -358,6 +370,8 @@ void GLWindow::initLight()
 long int CPT=0;
 void GLWindow::paintGL()
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
   CPT++;
   //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
   //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
@@ -372,19 +386,22 @@ void GLWindow::paintGL()
   if (fbo && GLWindow::GLSL_support) {
     //std::cerr << "FBO GLWindow::paintGL() --> "<<CPT<<"\n";
     //glGenFramebuffersEXT(1, &framebuffer);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER_EXT, framebuffer);
     //glGenRenderbuffersEXT(1, &renderbuffer);
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+    glBindRenderbuffer(GL_RENDERBUFFER_EXT, renderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                   GL_RENDERBUFFER_EXT, renderbuffer);
-    GLuint status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
     if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
     }
   } 
   //setFocus();
   
-  qglClearColor(store_options->background_color);
+  f->glClearColor(store_options->background_color.redF(),
+                  store_options->background_color.greenF(),
+                  store_options->background_color.blueF(),
+                  store_options->background_color.alphaF());
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   // set projection
@@ -493,20 +510,6 @@ void GLWindow::paintGL()
     glDisable(GL_BLEND);
   }
 
-  // sphere display
-  if (0) {
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    GLUquadricObj *quadric=gluNewQuadric();
-    gluQuadricDrawStyle(quadric,GLU_LINE);
-    gluQuadricNormals(quadric, GLU_SMOOTH);
-    GLdouble radius=GLdouble(store_options->mesh_length*store_options->nb_meshs/2.0);
-    GLint subdivisions=16;
-    gluSphere(quadric, radius, subdivisions,subdivisions);
-    gluDeleteQuadric(quadric);
-    glDisable(GL_BLEND);
-
-  }
   // camera display path and control points
   camera->display(wheight);
 
@@ -534,8 +537,9 @@ void GLWindow::paintGL()
   else                        glDisable(GL_DEPTH_TEST);
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
+  //makeCurrent();
   cpointset_manager->displayAll();
-
+  //doneCurrent();
   if (store_options->show_part && pov ) {
     //mutex_data->lock();
     bool first=true;
@@ -557,7 +561,7 @@ void GLWindow::paintGL()
       if (fbo) // offscreen rendering activated
         gl_colorbar->display(texWidth,texHeight);
       else
-        gl_colorbar->display(QGLWidget::width(),QGLWidget::height());
+        gl_colorbar->display(QOpenGLWidget::width(),QOpenGLWidget::height());
     }
 
     //mutex_data->unlock();
@@ -572,7 +576,7 @@ void GLWindow::paintGL()
   if (store_options->show_osd) osd->display();
     
   // display selected area
-  gl_select->display(QGLWidget::width(),QGLWidget::height());
+  gl_select->display(QOpenGLWidget::width(),QOpenGLWidget::height());
 
   // draw axes
   if (store_options->axes_enable)
@@ -588,7 +592,7 @@ void GLWindow::paintGL()
     imgFBO = QImage( texWidth, texHeight,QImage::Format_RGB32);
     glReadPixels( 0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits() );
     // Make the window the target
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
 
    // Delete the renderbuffer attachment
    //glDeleteRenderbuffersEXT(1, &renderbuffer);
@@ -603,71 +607,74 @@ void GLWindow::paintGL()
 // ============================================================================
 void GLWindow::initShader()
 {
-  if (store_options->init_glsl) {
-    const GLubyte* gl_version=glGetString ( GL_VERSION );
-    std::cerr << "OpenGL version : ["<< gl_version << "]\n";
-    int major = 0;
-    int minor = 0;
-    glGetIntegerv(GL_MAJOR_VERSION, &major);
-    glGetIntegerv(GL_MINOR_VERSION, &minor);
-    std::cerr << "OpenGL :"<< major << "." << minor << "\n";
-    GLSL_support = true;
-    std::cerr << "begining init shader\n";
-    int err=glewInit();
-    if (err==GLEW_OK && GLEW_ARB_multitexture && GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader && GL_VERSION_2_0)
+  //QOpenGLExtraFunctions *f = QOpenGLContext::cre
+  //QOpenGLContext::currentContext()->extraFunctions();
+
+  if (store_options->init_glsl) {       
+    qDebug() << "begining init shader\n";
+  
+    // display OpenGL extension list
+    //foreach (const QByteArray &value, gl_extensions)
+    //  qDebug() << value ;
+
+    if (gl_extensions.contains("GL_ARB_multitexture") &&
+        gl_extensions.contains("GL_ARB_vertex_shader") &&
+        gl_extensions.contains("GL_ARB_fragment_shader")) {
       qDebug() << "Ready for GLSL\n";
+      GLSL_support = true;
+    }
     else {
       qDebug() << "BE CAREFULL : No GLSL support\n";
-      GLSL_support = false;
-      //exit(1);
+      GLSL_support = false;   
     }
+
 
     if (GLSL_support ) {
       // check GLSL version supported
       const GLubyte* glsl_version=glGetString ( GL_SHADING_LANGUAGE_VERSION );
-      std::cerr << "GLSL version supported : ["<< glsl_version << "]\n";
+      qDebug() << "GLSL version supported : ["<< glsl_version << "]\n";
       //GLuint glsl_num;
       //glGetStringi(GL_SHADING_LANGUAGE_VERSION,glsl_num);
       //std::cerr << "GLSL version NUM : ["<< glsl_num << "]\n";
       // particles shader
       shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/particles.vert.cc",
-                           GlobalOptions::RESPATH.toStdString()+"/shaders/particles.frag.cc");
+                            GlobalOptions::RESPATH.toStdString()+"/shaders/particles.frag.cc");
       shader->init();
       // velocity shader
       if (1) {
 
-#if 0
-          // Geometry shader OpenGL 3.30 and above only
-          vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert330.cc",
-                                   GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag330.cc",
-                                   GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.geom330.cc");
+  #if 0
+        // Geometry shader OpenGL 3.30 and above only
+        vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert330.cc",
+                                GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag330.cc",
+                                GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.geom330.cc");
 
 #else
-          vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert.cc",
-                                   GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag.cc");
+        vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert.cc",
+                                GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag.cc");
 
 #endif
-          if (!vel_shader->init() ) {
-              delete vel_shader;
-              vel_shader=NULL;
-          }
+        if (!vel_shader->init() ) {
+            delete vel_shader;
+            vel_shader=NULL;
+        }
       }
-
     }
-
   }
   else { // Initialisation of GLSL not requested
-    std::cerr << "GLSL desactivated from user request, slow rendering ...\n";
+    qDebug() << "GLSL desactivated from user request, slow rendering ...\n";
     GLSL_support = false;
   }
-  std::cerr << "END OF INITSHADER \n";
+  qDebug() << "END OF INITSHADER \n";
 }
 // ============================================================================
 // check OpenGL error message                                                  
 void GLWindow::checkGLErrors(std::string s) 
 {
   GLenum error;
-  while ((error = glGetError()) != GL_NO_ERROR) {
+  // QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+
+  while ((error = m_glFunctions->glGetError()) != GL_NO_ERROR) {
     std::cerr << "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * \n";
     std::cerr << s << ": error - " << (char *) gluErrorString(error)<<"\n";
   }
@@ -677,23 +684,91 @@ void GLWindow::checkGLErrors(std::string s)
 void GLWindow::initializeGL()
 {
   std::cerr << "\n>>>>>>>>> initializeGL()\n\n";
-#if 0
-  qglClearColor( Qt::black );		// Let OpenGL clear to black
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_LINE_SMOOTH);
-#ifdef GL_MULTISAMPLE
-  glEnable(GL_MULTISAMPLE);
-#endif
-  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-  //store_options->zoom = -10.;
-  // Nice texture coordinate interpolation
-  glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
-  //PRINT_D std::cerr << "-- Initialize GL --\n";
 
-#endif
+  initializeOpenGLFunctions();
+   
+  // Get OpenGL versions
+  gl_version=glGetString ( GL_VERSION );
+  std::cerr << "OpenGL version : ["<< gl_version << "]\n";
+  gl_major = 0;
+  gl_minor = 0;
+  glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
+  glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
+  std::cerr << "OpenGL :"<< gl_major << "." << gl_minor << "\n";
 
-  makeCurrent();   // activate OpenGL context, can build display list by now
+  //
+  m_glWidget = this; 
+  m_glFunctions = QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_3_3_Core>(m_glWidget->context());
+  if (!m_glFunctions) {
+    qFatal("Cannot get OpenGL 3.3 Core functions !");
+  }
+  m_glFunctions->initializeOpenGLFunctions(); // ← OBLIGATOIRE en Qt 6
+
+  // get OPenGL extensions
+  QOpenGLContext *f = QOpenGLContext::currentContext();
+  gl_context = f;
+  CPointset::gl_context = gl_context;
+  std::cerr << "Initialyze current context : ["<< f << "]\n";
+  gl_extensions = f->extensions();
+  std::cerr << "GLWindow::initializeGL OpenGL context =["<<QOpenGLContext::currentContext()<<"]\n";
+  // some request for pointset_manager
+  if (gl_major >= 3 || gl_extensions.contains("GL_EXT_gpu_shader4")) {
+    cpointset_manager->initShaders(true);
+  }
+
+  // initialyze rendering shaders
+  initShader();
+
+  // camera
+  camera->loadShader();
+  camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
   
+  GLGridObject::nsquare = store_options->nb_meshs;
+  GLGridObject::square_size = store_options->mesh_length;
+  gridx = new GLGridObject(0,store_options->col_x_grid,store_options->xy_grid);
+  gridy = new GLGridObject(1,store_options->col_y_grid,store_options->yz_grid);
+  gridz = new GLGridObject(2,store_options->col_z_grid,store_options->xz_grid);
+  
+  // axes
+  axes = new GLAxesObject();
+  
+  // cube
+  cube  = new GLCubeObject(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
+  // load texture
+  GLTexture::loadTextureVector(gtv);
+  
+  // build display list in case of screenshot
+  if (store_options->show_part && pov ) {
+    //std::cerr << "GLWindow::initializeGL() => build display list\n";
+    for (int i=0; i<(int)pov->size(); i++) {
+      // !!!! DEACTIVATE gpv[i].buildDisplayList();;
+      gpv[i].buildVelDisplayList();;
+      gpv[i].setTexture();
+      //gpv[i].buildVboPos();
+    }
+  }
+  
+  // Osd
+  fntRenderer text;
+  font = new fntTexFont(store_options->osd_font_name.toStdString().c_str());
+  text.setFont(font);
+  text.setPointSize(store_options->osd_font_size );
+  osd = new GLObjectOsd(wwidth,wheight,text,store_options->osd_color);
+  // colorbar
+  gl_colorbar = new GLColorbar(store_options,true);
+  
+  ////////
+  // FBO
+  // Set the width and height appropriately for you image
+  fbo = false;
+  //Set up a FBO with one renderbuffer attachment
+  // init octree
+  tree = new GLOctree(store_options);
+  tree->setActivate(true);
+  if (GLWindow::GLSL_support) {
+    glGenFramebuffers(1, &framebuffer);
+    glGenRenderbuffers(1, &renderbuffer);
+  }
 }
 // ============================================================================
 // resize the opengl viewport according to the new window size
@@ -779,6 +854,13 @@ void GLWindow::resetEvents(bool pos)
 // manage rotation/translation according to mousePresssEvent
 void GLWindow::mousePressEvent( QMouseEvent *e )
 {
+ #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  int pos_x=e->position().x();
+  int pos_y=e->position().y();
+  #else
+  int pos_x=e->x();
+  int pos_y=e->y();
+  #endif
   setFocus();
   if ( e->button() == Qt::LeftButton ) {  // left button pressed
     if (is_shift_pressed)
@@ -786,8 +868,8 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
     is_mouse_pressed       = TRUE;
     is_pressed_left_button = TRUE;
     setMouseTracking(TRUE);
-    last_posx = e->x();
-    last_posy = e->y();
+    last_posx =pos_x;
+    last_posy =pos_y;
     if  (is_translation) {;} //!parent->statusBar()->message("Translating X/Y");
     else                 {;} //!parent->statusBar()->message("Rotating X/Y");
   }
@@ -795,18 +877,18 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
     is_mouse_pressed        = TRUE;
     is_pressed_right_button = TRUE;
     setMouseTracking(TRUE);
-    last_posz = e->x();
+    last_posz =pos_x;
     if (is_translation) {;} //!parent->statusBar()->message("Translating Z");
     else                {;} //!parent->statusBar()->message("Rotating Z");
   }
   //if ( e->button() == Qt::MiddleButton ) {
-  if ( e->button() == Qt::MidButton ) {
+  if ( e->button() == Qt::MiddleButton ) {
     //std::cerr << "Middle button pressed\n";
     is_mouse_pressed        = TRUE;
     is_pressed_middle_button= TRUE;
     setMouseTracking(TRUE);
-    last_posx = e->x();
-    last_posy = e->y();
+    last_posx =pos_x;
+    last_posy =pos_y;
   }
   emit sigKeyMouse( is_key_pressed, is_mouse_pressed);
   //!options_form->downloadOptions(store_options);
@@ -815,6 +897,13 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
 // GLObjectWindow::mouseReleaseEvent()
 // manage mouseReleaseEvent
 void GLWindow::mouseReleaseEvent(QMouseEvent *e) {
+  #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  int pos_x=e->position().x();
+  int pos_y=e->position().y();
+  #else
+  int pos_x=e->x();
+  int pos_y=e->y();
+  #endif
   if (e) { ; }  // do nothing... just to remove the warning :p
   is_pressed_left_button = FALSE;
   is_pressed_right_button = FALSE;
@@ -839,7 +928,7 @@ void GLWindow::mouseReleaseEvent(QMouseEvent *e) {
   if (is_a_key_pressed) {
     if (e->button() == Qt::LeftButton) {
       std::pair<CPointset*, GLCPoint*> cpoint_pair = cpointset_manager->getClickedCpoint(mModel2, mProj,
-                                                                                         {e->x(), e->y()}, viewport,
+                                                                                         {e->position().x(), e->position().y()}, viewport,
                                                                                          DOF);
       auto closest_cpoint_parent_set = cpoint_pair.first;
       auto closest_cpoint = cpoint_pair.second;
@@ -870,14 +959,21 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
 {
   int dx=0,dy=0,dz=0;
   setFocus();
+  #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  int pos_x=e->position().x();
+  int pos_y=e->position().y();
+  #else
+  int pos_x=e->x();
+  int pos_y=e->y();
+  #endif
   if (is_pressed_left_button && !is_a_key_pressed) {
     // offset displcacement
-    dx = e->x()-last_posx;
-    dy = e->y()-last_posy;
+    dx =pos_x-last_posx;
+    dy =pos_y-last_posy;
     //std::cerr << "dxdy="<< dx << " " << dy << "\n";
     // save last position
-    last_posx = e->x();
-    last_posy = e->y();
+    last_posx =pos_x;
+    last_posy =pos_y;
     if (is_shift_pressed && !is_mouse_zoom) { // user selection request
       gl_select->getMouse(e);
       updateGL();
@@ -902,9 +998,9 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
   if ( !gl_select->isEnable()) {
     if ( is_pressed_right_button && !is_a_key_pressed) {
       // offset displcacement
-      dz = e->x()-last_posz;
+      dz =pos_x-last_posz;
       // save last position
-      last_posz = e->x();
+      last_posz =pos_x;
       if (is_translation) {
         tz_mouse-=dz; // total rotation
       }
@@ -926,11 +1022,11 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
   }
   //!options_form->downloadOptions(store_options);
   if (is_pressed_middle_button) {
-    dx = e->x()-last_posx;
-    dy = e->y()-last_posy;
+    dx =pos_x-last_posx;
+    dy =pos_y-last_posy;
     // save last position
-    last_posx = e->x();
-    last_posy = e->y();
+    last_posx =pos_x;
+    last_posy =pos_y;
     emit sigMouseXY(dx,dy);
     //std::cerr << "dx="<<dx<< "  dy="<<dy<<"\n";
   }
@@ -939,7 +1035,7 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
 // manage zoom according to wheel event
 void GLWindow::wheelEvent(QWheelEvent * e)
 {
-  setZoom(e->delta());
+  setZoom((int) e->angleDelta().y());
   //!options_form->downloadOptions(store_options);
 }
 // ============================================================================

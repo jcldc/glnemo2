@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -15,12 +15,13 @@
  */
 #ifndef GLNEMOFORMOPTIONS_H
 #define GLNEMOFORMOPTIONS_H
-#include <QTime>
+#include <QElapsedTimer>
 #include <QTimer>
 #include <QColorDialog>
 #include <QTemporaryFile>
 #include <iostream>
 #include <QMutex>
+#include <QRecursiveMutex>
 #include "ui_formoptions.h"
 #include "globaloptions.h"
 #include "QLocale"
@@ -29,7 +30,7 @@ namespace glnemo {
 class FormOptions: public QDialog {
   Q_OBJECT
   public:
-    FormOptions(GlobalOptions * ,QMutex * _mutex, QWidget *parent = 0);
+    FormOptions(GlobalOptions * ,QRecursiveMutex * _mutex, QWidget *parent = 0);
     ~FormOptions();
   public slots:
     void update();
@@ -59,10 +60,10 @@ class FormOptions: public QDialog {
     Ui::FormOptions form;
     GlobalOptions * go;
     bool start;
-    QTime time;
+    QElapsedTimer time;
     QTimer * limited_timer;
     static int windows_size[][2];
-    QMutex * mutex_data;
+    QRecursiveMutex * mutex_data;
     bool EMIT;
     bool playing_camera;
     QTemporaryFile tmp_cam_file; // temporary camera file path
@@ -83,6 +84,8 @@ class FormOptions: public QDialog {
     void on_button_sel_all_part_pressed()    { emit select_all_part();}
     //                     
     // camera selection tab
+    void camLoadSelected(QString text);
+
     void on_cam_pts_display_clicked() { 
       emit setCamDisplay(form.cam_pts_display->isChecked(),
                          form.cam_path_display->isChecked());
@@ -117,7 +120,7 @@ class FormOptions: public QDialog {
     void on_cam_load_button_pressed();
     void on_cam_save_button_pressed();
     void on_cam_commit_button_pressed();
-    void on_cam_load_select_activated(const QString &text);
+    void on_cam_load_select_activated(int);
     //   spline
     void on_view_on_radio_clicked() {
       emit sig_updateVectorUp(0,form.xup_dspin->value(),false);

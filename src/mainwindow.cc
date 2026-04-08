@@ -12,6 +12,7 @@
 // ============================================================================
 #include <QtGlobal>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+//#include <GL/glew.h>
 #include "glwindow.h"
 #include <QtGui>
 #include <QtWidgets>
@@ -49,7 +50,7 @@ MainWindow::MainWindow(std::string _ver)
   setAcceptDrops(true); // grant drag n drop files
   user_select = NULL;
   version = _ver;
-  mutex_data = new QMutex(QMutex::Recursive); // Recursive: a thread can lock a mutex more than
+  mutex_data = new QRecursiveMutex(); // Recursive: a thread can lock a mutex more than
                                               // once time, but mustunlock it as much as it
   is_cpoints_enabled = false;
   glsl_130 = false;
@@ -76,6 +77,7 @@ MainWindow::MainWindow(std::string _ver)
   pointset_manager = new CPointsetManager();
   gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager);
 
+#if 0
   if(glewIsSupported("GL_VERSION_3_0")){
     is_cpoints_enabled = true;
     glsl_130 = true;
@@ -91,13 +93,16 @@ MainWindow::MainWindow(std::string _ver)
 
   if(is_cpoints_enabled)
     pointset_manager->initShaders(glsl_130);
-
-  camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
+#endif
+  //JCL camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
   // colormap object
   colormap  = new Colormap(store_options);
 
   // ----- build GUI ------------
   createForms();
+  // !!!
+  is_cpoints_enabled=true;
+  // !!!
   if(!is_cpoints_enabled)
     form_o_c->disableCpointsTab();
   createDockWindows();
@@ -182,7 +187,7 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_options,SIGNAL(update_osd_font()),gl_window,SLOT(changeOsdFont()));
   connect(form_options,SIGNAL(update_gl()),gl_window,SLOT(updateGL()));
   // options GL colorbar tab
-  connect(form_options,SIGNAL(update_gcb_font()),gl_window->gl_colorbar,SLOT(updateFont()));
+  connect(form_options,SIGNAL(update_gcb_font()),gl_window,SLOT(updateColorbarFont()));
   // open cpoint help page
   connect(form_o_c, SIGNAL(cpointHelpClicked()), form_help, SLOT(showCpointHelp()));
   connect(gl_window, SIGNAL(selectTreeWidgetItem(int)), form_o_c, SLOT(selectTreeWidgetItem(int)));
@@ -394,7 +399,7 @@ void MainWindow::createToolBars()
   icons_tool_bar->addAction(print_file_action);
   icons_tool_bar->addAction(movie_form_action);
   //icons_tool_bar->addAction(com_action);
-  icons_tool_bar->addAction(toggle_rotation_screen_action);
+  //icons_tool_bar->addAction(toggle_rotation_screen_action);
 
   QSize icons;
   icons.scale(ICONSIZE,ICONSIZE,Qt::KeepAspectRatio);
@@ -668,10 +673,10 @@ void MainWindow::createActions()
   addAction(zsorting_action);
 #endif
   // Toggle rotation screen
-  toggle_rotation_screen_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/3daxis.png"),tr("Toggle rotation mode around axes screen/world"),this);
-  toggle_rotation_screen_action->setShortcut(tr("Ctrl+L"));
-  connect( toggle_rotation_screen_action, SIGNAL( triggered() ), this, SLOT( toggleRotateScreen()) );
-  addAction(toggle_rotation_screen_action);
+  // toggle_rotation_screen_action = new QAction(QIcon(GlobalOptions::RESPATH+"/images/3daxis.png"),tr("Toggle rotation mode around axes screen/world"),this);
+  // toggle_rotation_screen_action->setShortcut(tr("Ctrl+L"));
+  // connect( toggle_rotation_screen_action, SIGNAL( triggered() ), this, SLOT( toggleRotateScreen()) );
+  // addAction(toggle_rotation_screen_action);
 
   // Auto rotate around X
   rotatex_action = new QAction(this);
@@ -905,11 +910,11 @@ void MainWindow::loadNewData(const std::string select,
 
     // load from disk
     mutex_data->lock();
-    QTime tbench;
+    QElapsedTimer tbench;
     tbench.restart();
 
     if (current_data->nextFrame(user_select->getIndexesTab(),user_select->getNSel())) {
-      qDebug("Time elapsed to load snapshot: %d s", tbench.elapsed()/1000);
+      qDebug("Time elapsed to load snapshot: %lld s", tbench.elapsed()/1000);
       store_options->new_frame=true;
       mutex_data->unlock();
       listObjects(pov);
@@ -975,7 +980,7 @@ void MainWindow::loadNewData(const std::string select,
         actionCenterToCom(false);
       }
       gl_window->update( current_data->part_data, &pov2,store_options);
-      qDebug("Time elapsed to update GL with new data: %d s", tbench.elapsed()/1000);
+      qDebug("Time elapsed to update GL with new data: %lld s", tbench.elapsed()/1000);
       if (!reload && bestzoom) gl_window->bestZoomFit();
       statusBar()->showMessage(tr("Snapshot loaded."));
     }
@@ -1502,7 +1507,8 @@ void MainWindow::actionPrint()
   QPrintDialog *dlg = new QPrintDialog(&printer, this);
   if (dlg->exec() != QDialog::Accepted) return;
   gl_window->updateGL();
-  QImage img=gl_window->grabFrameBuffer();
+  QImage img=gl_window->grabFramebuffer();
+
   QPainter painter( &printer );
   painter.drawImage(0,0,img);
 }
@@ -1877,7 +1883,7 @@ void MainWindow::actionPlay()
 {
   if ( ! current_data ) {
     QString message=tr("No Data loaded");
-    QMessageBox::information( this,tr("Warning"),message,"Ok");
+    QMessageBox::information( this->window(),tr("Warning"),tr("No Data loaded"));
   }
   else {
     play_animation = !play_animation;
@@ -1886,7 +1892,7 @@ void MainWindow::actionPlay()
         if (store_options->enable_gui) {
             std::cerr << "store_options->enable_gui.......\n";
             QMessageBox::information( this,tr("Warning"),
-                                      current_data->endOfDataMessage(),"Ok");
+                                      current_data->endOfDataMessage());
             emit endOfSnapshot(1);
         }
         else {
@@ -2000,7 +2006,7 @@ void MainWindow::uploadNewFrame()
       play_timer->stop();
       emit endOfSnapshot(1);
       if (store_options->enable_gui)
-          QMessageBox::information( this,tr("Warning"),current_data->endOfDataMessage(),"Ok");
+          QMessageBox::information( this,tr("Warning"),current_data->endOfDataMessage());
       else {
           mutex_loading.unlock();
           //killPlayingEvent();

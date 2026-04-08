@@ -3,8 +3,8 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
-//           Pôle de l'Etoile, site de Château-Gombert                         
-//           38, rue Frédéric Joliot-Curie                                     
+//           Pï¿½le de l'Etoile, site de Chï¿½teau-Gombert                         
+//           38, rue Frï¿½dï¿½ric Joliot-Curie                                     
 //           13388 Marseille cedex 13 France                                   
 //           CNRS U.M.R 7326                                                   
 // ============================================================================
@@ -26,7 +26,7 @@ namespace glnemo {
   };
 // ============================================================================
 // Constructor                                                                 
-FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):QDialog(parent)
+FormOptions::FormOptions(GlobalOptions * _go, QRecursiveMutex * _mutex, QWidget *parent):QDialog(parent)
 {
   if (parent) {;}  // remove compiler warning
   form.setupUi(this);
@@ -74,7 +74,7 @@ FormOptions::FormOptions(GlobalOptions * _go, QMutex * _mutex, QWidget *parent):
     } while (!line.isNull());
 
     // load camera file in text area
-    on_cam_load_select_activated(form.cam_load_select->itemText(0));
+    camLoadSelected(form.cam_load_select->itemText(0));
   }
   // frame spin box
   form.frame_spin->setKeyboardTracking(false);
@@ -257,7 +257,7 @@ void FormOptions::update()
 // updateFrame                                                                 
 void FormOptions::updateFrame(const int frame, const int tot)
 {
-  form.fps_lcd->display(1000*frame/time.elapsed());
+  form.fps_lcd->display((int) (1000*frame/time.elapsed()));
   form.total_lcd->display(tot);
   time.restart();
 }
@@ -383,7 +383,7 @@ void FormOptions::on_cam_save_button_pressed()
   }
 }
 // ============================================================================
-void FormOptions::on_cam_load_select_activated(const QString &text)
+void FormOptions::camLoadSelected(QString text)
 {
   QString select=text;
   if (select[0]!=QChar('/')) { // path from ressource file only
@@ -393,6 +393,11 @@ void FormOptions::on_cam_load_select_activated(const QString &text)
   if (displayCameraFile(select)) {
     emit loadCameraPath(select.toStdString(),form.spline_points->value(),(float) form.spline_scale->value());
   }
+}
+// ============================================================================
+void FormOptions::on_cam_load_select_activated(int i_text)
+{
+  camLoadSelected(form.cam_load_select->itemText(i_text));
 }
 // ============================================================================
 bool FormOptions::displayCameraFile(const QString &infile)

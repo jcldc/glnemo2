@@ -204,7 +204,7 @@ int CAmr::loadData(ramses::CHilbert3D &h3d,float * pos, float * vel, float * rho
   std::string infile;
   QString str_status;
   if (load_vel || nsel || vel) {;} // remove compiler warning
-  qsrand(0);
+  //qsrand(0);
   nbody = 0;
   int cpt=0;
   bool count_only=false;

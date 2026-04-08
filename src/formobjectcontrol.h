@@ -25,7 +25,7 @@
 #include "densitycolorbar.h"
 #include <QComboBox>
 #include <QCloseEvent>
-#include <QMutex>
+#include <QRecursiveMutex>
 #include <QResizeEvent>
 #include <QStyledItemDelegate>
 
@@ -124,7 +124,7 @@ namespace glnemo {
                 ParticlesObjectVector * ,
                 GlobalOptions         * ,
 	        bool reset_table=true  );
-    void init(QMutex * _m) { mutex_data = _m;}
+    void init(QRecursiveMutex * _m) { mutex_data = _m;}
     void disableCpointsTab();
   signals:
   void objectSettingsChanged();
@@ -155,6 +155,7 @@ namespace glnemo {
     void selectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetAll();
+ 
   private slots:
     void reject() {} // allow to de activate escape key to close the box
     // global slots
@@ -306,8 +307,8 @@ namespace glnemo {
     int current_object;  // current object selected
     void updateObjectSettings(const int);
     bool first;
-    QMutex * mutex_data,my_mutex;
-    QMutex * my_mutex2;
+    QRecursiveMutex * mutex_data,my_mutex;
+    QRecursiveMutex * my_mutex2;
     bool lock;
     DensityHisto * dens_histo;
     DensityColorBar * dens_color_bar;

@@ -28,9 +28,11 @@ endif()
 
 # set optimizer flag
 if ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
-  typed_cache_set (STRING "Optimizer" OPT "-g -ggdb")
+   message(STATUS "Debug build type selected")
+   typed_cache_set (STRING "Optimizer" OPT "-std=c++17 -g -ggdb")
 else ()
-  typed_cache_set (STRING "Optimizer" OPT "-O3")
+   message(STATUS "Optimal build type selected")
+   typed_cache_set (STRING "Optimizer" OPT "-std=c++17  -O3")
 endif ()
 
 # detect MacOS

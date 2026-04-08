@@ -17,9 +17,11 @@
 #define GLNEMOGLWINDOW_H
 
 #include  "cshader.h"
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #include <QImage>
 #include <QMutex>
+#include <QSurface>
+#include <QRecursiveMutex>
 #include "particlesobject.h"
 #include "globjectparticles.h"
 #include "glcubeobject.h"
@@ -31,6 +33,7 @@
 #include "glaxesobject.h"
 #include "camera.h"
 #include "glcpoints.h"
+#include <QOpenGLFunctions_3_3_Core>
 
 
 class fntTexFont;
@@ -39,10 +42,10 @@ namespace glnemo {
 class GLGridObject;
 class GlobalOptions;
 
-class GLWindow : public QGLWidget {
+class GLWindow : public QOpenGLWidget, protected QOpenGLFunctions {
   Q_OBJECT
 public:
-    GLWindow(QWidget *, GlobalOptions *, QMutex * , Camera *, CPointsetManager *);
+    GLWindow(QWidget *, GlobalOptions *, QRecursiveMutex * , Camera *, CPointsetManager *);
     ~GLWindow();
 
     void bestZoomFit();
@@ -60,6 +63,8 @@ public:
     }
     void gpvClear() { gpv.clear(); }
     static bool GLSL_support;
+    static GLWindow * m_glWidget;
+    static QOpenGLFunctions_3_3_Core *m_glFunctions;
     void setFBO(bool _b) { fbo = _b; }
     void setFBOSize(GLuint w, GLuint h) { texWidth=w; texHeight=h;}
     QImage grabFrameBufferObject() { return imgFBO;}
@@ -84,6 +89,7 @@ public:
     void selectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetItem(int cpoint_id);
     void unselectTreeWidgetAll();
+    void sendGLWindow(GLWindow *);
 public slots:
    void  update(ParticlesData   * ,
                 ParticlesObjectVector * ,
@@ -131,11 +137,14 @@ public slots:
 
    void resetFrame() { nframe=0; }
    int getFrame() { return nframe;}
+   void updateColorbarFont() {
+    gl_colorbar->updateFont();
+   }
 protected:
-  void	initializeGL();
+  void	initializeGL() override;
   void	paintGL();
   void	resizeGL( int w, int h );
-
+  QOpenGLContext * gl_context;
 private slots:
   void updateVel(const  int); // update velocity vector
   void updateIpvs(const int ipvs=-1) {
@@ -178,6 +187,11 @@ private slots:
   }
 
 private:
+  // OpenGL
+  QSet<QByteArray> gl_extensions;
+  const GLubyte * gl_version;
+  int gl_minor, gl_major;
+
   // my parent
   QWidget * parent;
   // global options
@@ -280,7 +294,7 @@ private:
   // Texture vector
   GLTextureVector gtv;
   // Thread
-  QMutex * mutex_data;
+  QRecursiveMutex * mutex_data;
   
   bool is_shift_pressed;
   // bench

@@ -22,6 +22,7 @@
 #include <vector>
 #include "cfortio.h"
 #include <QObject>
+#include <QRandomGenerator>
 #include <cmath>
 #include <map>
 #include <climits>
@@ -75,6 +76,7 @@ signals:
 private:
     // some variables
     // return randomizely a negative or positive sign
+#if 0
     inline float getSign() {
       if (qrand() < RAND_MAX/2) return -1.;
       else return +1;
@@ -94,6 +96,7 @@ private:
       double r=(exp(-(distance)*(distance)*ig*ig*0.5)*isqrtpi*ig);
       return (r);
     }
+#endif
     bool verbose,valid;
     std::string infile,testhydrofile,indir;
     int select,nselect;
