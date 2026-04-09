@@ -1,14 +1,14 @@
 // ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2026                                  
-// e-mail:   Jean-Charles.Lambert@lam.fr                                      
-// address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
-//           Laboratoire d'Astrophysique de Marseille                          
-//           Pole de l'Etoile, site de Ch�teau-Gombert                         
-//           38, rue Fr�d�ric Joliot-Curie                                     
-//           13388 Marseille cedex 13 France                                   
-//           CNRS U.M.R 7326                                                   
+// Copyright Jean-Charles LAMBERT - 2007-2026
+// e-mail:   Jean-Charles.Lambert@lam.fr
+// address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
+//           Laboratoire d'Astrophysique de Marseille
+//           Pole de l'Etoile, site de Ch�teau-Gombert
+//           38, rue Fr�d�ric Joliot-Curie
+//           13388 Marseille cedex 13 France
+//           CNRS U.M.R 7326
 // ============================================================================
-// See the complete license in LICENSE and/or "http://www.cecill.info".        
+// See the complete license in LICENSE and/or "http://www.cecill.info".
 // ============================================================================
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -17,23 +17,24 @@
 #include <QtGlobal>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #endif
-#include <QSurfaceFormat>
 #include <QApplication>
 #include <QOpenGLContext>
+#include <QSurfaceFormat>
 
 #include <QtPlugin>
-//#include <QtOpenGL>
-//#include <QGLFormat>
+// #include <QtOpenGL>
+// #include <QGLFormat>
 #include <QScreen>
-#include <iostream>
 #include <QSplashScreen>
+#include <iostream>
 // Nemo stuffs
-#define _vectmath_h // put this statement to avoid conflict with C++ vector class
+#define _vectmath_h // put this statement to avoid conflict with C++ vector
+                    // class
+#include "mainwindow.h"
+#include "version.h"
+#include <QProcessEnvironment>
 #include <nemo.h>
 #include <string>
-#include "mainwindow.h"
-#include <QProcessEnvironment>
-#include "version.h"
 
 using namespace std;
 
@@ -46,7 +47,8 @@ Q_IMPORT_PLUGIN(SnapshotGadgetH5)
 Q_IMPORT_PLUGIN(SnapshotPhiGrape)
 Q_IMPORT_PLUGIN(SnapshotRamses)
 #ifndef _WIN32
-Q_IMPORT_PLUGIN(SnapshotTipsy) // WIN32 has no native XDR support requested by TIPSY
+Q_IMPORT_PLUGIN(
+    SnapshotTipsy) // WIN32 has no native XDR support requested by TIPSY
 #endif
 Q_IMPORT_PLUGIN(SnapshotFits)
 Q_IMPORT_PLUGIN(SnapshotList)
@@ -58,28 +60,35 @@ Q_IMPORT_PLUGIN(gadgetplugin);
 Q_IMPORT_PLUGIN(phigrapeplugin);
 Q_IMPORT_PLUGIN(ramsesplugin);
 #ifndef _WIN32
-Q_IMPORT_PLUGIN(tipsyplugin); // WIN32 has no native XDR support requested by TIPSY
+Q_IMPORT_PLUGIN(
+    tipsyplugin); // WIN32 has no native XDR support requested by TIPSY
 #endif
 Q_IMPORT_PLUGIN(fitsplugin);
 Q_IMPORT_PLUGIN(listplugin);
 Q_IMPORT_PLUGIN(networkplugin);
 #endif
 
-std::string release=std::string(GLNEMO2_MAJOR)+"."+
-                    std::string(GLNEMO2_MINOR)+"."+
-                    std::string(GLNEMO2_PATCH)+
-                    std::string(GLNEMO2_EXTRA);
+std::string release = std::string(GLNEMO2_MAJOR) + "." +
+                      std::string(GLNEMO2_MINOR) + "." +
+                      std::string(GLNEMO2_PATCH) + std::string(GLNEMO2_EXTRA);
 
-std::string VERSION = "VERSION="+release+"\n    "+__DATE__+"  - JCL  compiled at <"+ __TIME__ +">      ";
+std::string VERSION = "VERSION=" + release + "\n    " + __DATE__ +
+                      "  - JCL  compiled at <" + __TIME__ + ">      ";
 // ============================================================================
-// NEMO parameters                                                             
-  const char * defv[] = {  
-    "in=\n             Input snapshot (Nemo,Gadget 2 & 1, Ramses, phiGrape, ftm, list of files)",
-    "select=\n         Select particles using:                                         \n"
-    "                   1) component name ex: gas,halo,disk,stars,bulge,bndry           \n"
-    "                   2) range operator ex: 0:999,1000:1999 would select two sets     \n"
-    "                   of 1000 particles                                              ",
-    "server=\n         Running simulation server hostname                              ",
+// NEMO parameters
+const char *defv[] = {
+    "in=\n             Input snapshot (Nemo,Gadget 2 & 1, Ramses, phiGrape, "
+    "ftm, list of files)",
+    "select=\n         Select particles using:                                 "
+    "        \n"
+    "                   1) component name ex: gas,halo,disk,stars,bulge,bndry  "
+    "         \n"
+    "                   2) range operator ex: 0:999,1000:1999 would select two "
+    "sets     \n"
+    "                   of 1000 particles                                      "
+    "        ",
+    "server=\n         Running simulation server hostname                      "
+    "        ",
     "keep_all=f\n      keep all the particles despite the selection     ",
     "times=all\n       Select time                                      ",
     "xmin=0.0\n        xmin box (for ramses input)                      ",
@@ -146,7 +155,7 @@ std::string VERSION = "VERSION="+release+"\n    "+__DATE__+"  - JCL  compiled at
     "cbpw=0.03\n       CB size in percentage of the OpenGL windows width",
     "cbph=0.65\n       CB size in percentage of the OpenGL windows height",
     "cbfs=13\n   size of the fonts used to display CB             ",
-    "com=t\n           centering according Center Of Mass               ", 
+    "com=t\n           centering according Center Of Mass               ",
     "cod=f\n           centering according Center Of Density            ",
     "point=f\n         show particles as points                         ",
     "selphys=1\n        select physical quantity to display\n           "
@@ -168,34 +177,33 @@ std::string VERSION = "VERSION="+release+"\n    "+__DATE__+"  - JCL  compiled at
     "cpoint_file=\n    path to a json cpoint description file           ",
     "                   the GUI, but it **double** the memory usage. \n",
     VERSION.c_str(),
-    NULL
-  };
-  const char * usage="Interactive 3D OpenGL NBody simulation Snapshots rendering program";
+    NULL};
+const char *usage =
+    "Interactive 3D OpenGL NBody simulation Snapshots rendering program";
 
 // ============================================================================
-//  The main program is here                                                   
-int main(int argc, char *argv[])
-{
+//  The main program is here
+int main(int argc, char *argv[]) {
   QApplication::setDesktopSettingsAware(true);
- // glnemo::QMyApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+  // glnemo::QMyApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   glnemo::QMyApplication app(argc, argv);
- // glnemo::QMyApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+  // glnemo::QMyApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
   QSurfaceFormat format;
   format.setDepthBufferSize(24);
-  
-  format.setVersion(3, 3);
+
+  //  format.setVersion(3, 3);
   format.setProfile(QSurfaceFormat::CoreProfile);
   format.setRenderableType(QSurfaceFormat::OpenGL);
   // Optionnel mais recommandé pour les écrans Retina sur Mac
   format.setSamples(4);
-  
+
   QSurfaceFormat::setDefaultFormat(format);
-  setlocale(LC_NUMERIC,"C"); // force numerics functions to use decimal point
+  setlocale(LC_NUMERIC, "C"); // force numerics functions to use decimal point
   if (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGL) {
-        qDebug("Requesting 3.3 core context");
-        // fmt.setVersion(3, 3);
-        // fmt.setProfile(QSurfaceFormat::CoreProfile);        
+    qDebug("Requesting 3.3 core context");
+    // fmt.setVersion(3, 3);
+    // fmt.setProfile(QSurfaceFormat::CoreProfile);
   }
 #if 0
   if ( !QGLFormat::hasOpenGL() ) {
@@ -212,47 +220,47 @@ int main(int argc, char *argv[])
   QWidget  * desktop = desktop1->screen(desktop1->primaryScreen());
 #endif
   // initialyze NEMO engine
-  initparam(argv,const_cast<char**>(defv));
-  // CAUTION !!! do not call getparam function after **MainWindow** object    
-  // instantiation bc nemo engine get corrupted by io_nemo afterwhile the     
-  // snapshot has been loaded.                                                
-  const int wsize=getiparam((char *)"wsize");
-  const int hsize=getiparam((char* )"hsize");
+  initparam(argv, const_cast<char **>(defv));
+  // CAUTION !!! do not call getparam function after **MainWindow** object
+  // instantiation bc nemo engine get corrupted by io_nemo afterwhile the
+  // snapshot has been loaded.
+  const int wsize = getiparam((char *)"wsize");
+  const int hsize = getiparam((char *)"hsize");
   std::string shot;
-  bool interact=true;
-  bool play=getbparam((char* )"play");
-  if ( hasvalue((char *) "screenshot") )  {
-    shot           = getparam((char *) "screenshot");
-    interact       = false;
-  }  else
-    shot="";
+  bool interact = true;
+  bool play = getbparam((char *)"play");
+  if (hasvalue((char *)"screenshot")) {
+    shot = getparam((char *)"screenshot");
+    interact = false;
+  } else
+    shot = "";
   Q_INIT_RESOURCE(glnemo); // load resources
-//  QPixmap pixmap(glnemo::GlobalOptions::RESPATH+"/images/glnemo2.png");
-//  QSplashScreen splash(pixmap);
-//  if (interact) {    
-//    splash.show();
-//    app.processEvents();
-//  }
+  //  QPixmap pixmap(glnemo::GlobalOptions::RESPATH+"/images/glnemo2.png");
+  //  QSplashScreen splash(pixmap);
+  //  if (interact) {
+  //    splash.show();
+  //    app.processEvents();
+  //  }
   glnemo::MainWindow main_win(release); // main window object
 
   // compute window size
-  const int x=1024;//((desktop->width()  - wsize)/2);
-  const int y=1024;//((desktop->height() - hsize)/2);
-  main_win.setGeometry(x,y,wsize,hsize);
+  const int x = 1024; //((desktop->width()  - wsize)/2);
+  const int y = 1024; //((desktop->height() - hsize)/2);
+  main_win.setGeometry(x, y, wsize, hsize);
   // move to the center of the screen
-  main_win.move(x,y);
+  main_win.move(x, y);
 
-  QObject::connect(&app, SIGNAL(loadFile(const QString )), &main_win, SLOT(actionMenuFileOpen(QString )));
-  
+  QObject::connect(&app, SIGNAL(loadFile(const QString)), &main_win,
+                   SLOT(actionMenuFileOpen(QString)));
+
   if (interact) {
     main_win.show();
-    
   }
   main_win.start(shot);
-//  splash.finish(&main_win);
-  finiparam();  // garbage collecting for nemo
+  //  splash.finish(&main_win);
+  finiparam(); // garbage collecting for nemo
 
-  //if (interact) return app.exec();
-  if (interact || play) 
+  // if (interact) return app.exec();
+  if (interact || play)
     return app.exec();
 }
