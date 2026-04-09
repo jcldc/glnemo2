@@ -183,8 +183,14 @@ int main(int argc, char *argv[])
 
   QSurfaceFormat format;
   format.setDepthBufferSize(24);
-  QSurfaceFormat::setDefaultFormat(format);
   
+  format.setVersion(3, 3);
+  format.setProfile(QSurfaceFormat::CoreProfile);
+  format.setRenderableType(QSurfaceFormat::OpenGL);
+  // Optionnel mais recommandé pour les écrans Retina sur Mac
+  format.setSamples(4);
+  
+  QSurfaceFormat::setDefaultFormat(format);
   setlocale(LC_NUMERIC,"C"); // force numerics functions to use decimal point
   if (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGL) {
         qDebug("Requesting 3.3 core context");
