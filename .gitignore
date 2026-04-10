@@ -89,3 +89,4 @@ Makefile
 ._ui/
 .moc/
 .res/
+.vscode/tasks.json

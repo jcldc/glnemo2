@@ -437,28 +437,24 @@ void FormObjectControl::checkComboLine(const int row, const int col)
   assert(item);
   if (item) {
     //construct regexp
-    QRegularExpression rx("^(\\d{1,})((:)(\\d{1,})){,1}((:)(\\d{1,})){,1}$");
-    QRegularExpressionMatch match=rx.match(combobox->currentText());
-    if (! match.hasMatch()) { // not match
+    QRegularExpression rx("^(?<start>\\d+):(?<end>\\d+)(?::(?<step>\\d+))?$");
+    QRegularExpressionMatch match = rx.match(combobox->currentText());
+
+    if (!match.hasMatch()) {
+      std::cerr << "Format invalid. Expected: start:end[:step]" << std::endl;
     }
     else {
-      int first,last,step=1;
-      // get first
-      std::istringstream iss(match.captured(1).toStdString());
-      iss >> first;
-      // get last
-      if (match.lastCapturedIndex()>4) {
-        std::istringstream  iss(match.captured(4).toStdString());
-        iss >> last;
-        // get step
-        if (match.lastCapturedIndex()>=7) {
-          std::istringstream  iss(match.captured(7).toStdString());
-          iss >> step;
-        }
+      // convert values to int
+      int first = match.captured("start").toInt();
+      int last = match.captured("end").toInt();
+      int step = 1; // default value
+
+      if (!match.captured("step").isEmpty()) {
+        step = match.captured("step").toInt();
       }
-      else {
-      last=first;
-      }
+
+      // Debug
+      qDebug() << "First:" << first << "Last:" << last << "Step:" << step;
 #if 0
       std::cerr << "whole string =["<<(rx.cap(0)).toStdString()<<"\n";
       for (int i=0;i<=rx.captureCount();i++) {
@@ -467,7 +463,8 @@ void FormObjectControl::checkComboLine(const int row, const int col)
       std::cerr << "ncap="<<rx.captureCount()<<" first="<<first<<" last="<<last<<" step="<<step<<"\n";
 #endif
       // check if the syntax is correct
-      int npart=last-first+1; // #part
+      int npart=round(float(last-first+1)/float(step)); // #part
+      
 //      if (current_data && npart <= *(current_data->nbody) && npart>0) {    // valid object
       if (pov && npart <= nbody && npart>0) {    // valid object
         item->setText(combobox->currentText()); // fill cell
