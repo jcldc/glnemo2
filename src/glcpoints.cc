@@ -871,13 +871,8 @@ CPointsetManager::~CPointsetManager() {
   delete CPointset::text_renderer;
 }
 
-void CPointsetManager::initShaders(bool glsl_130) {
-  std::string glsl_version;
-  if(glsl_130)
-    glsl_version = "130";
-  else
-    glsl_version = "120";
-
+void CPointsetManager::initShaders(std::string glsl_version) {
+  
   std::string shader_dir = "/shaders/cpoints_" + glsl_version;
 #if 1 //JCL
   CPointset::text_renderer = new CPointTextRenderer();

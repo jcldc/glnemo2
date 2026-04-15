@@ -351,176 +351,121 @@ void GLObjectParticles::displayVboVelShader130()
 void GLObjectParticles::displayVboShader(const int win_height, const bool use_point)
 {
   static bool zsort=false;
-  int err;
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
-#if 0
-  //  detect if rho exist for the component
-  int index;
-  bool is_rho=false;
-  if (phys_select && phys_select->isValid()) {
-    index = phys_itv[0].index;
-    if (phys_select->data[index] != -1) is_rho = true;
+  // Mandatory for Core Profile: VAO
+  static GLuint vao = 0;
+  if (vao == 0) {
+      f->glGenVertexArrays(1, &vao);
   }
-#endif
+  f->glBindVertexArray(vao);
+
   if (go->zsort) { // Z sort particles
       zsort = true;
       sortByDepth();
   } else {
       if (zsort) {
         zsort = false;
-        //!!!sortByDensity(); // we have to resort by density
       }
   }
-  checkGlError("GLObjectParticles::displayVboShader -> Beginning");
 
   // setup point sprites
-  glEnable(GL_POINT_SPRITE_ARB);
-  glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
-#ifdef Q_OS_MAC
-  glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-#else
-  glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
-#endif
-  if (hasPhysic && go->render_mode==1) {                 // if physic
-    GLObject::setColor(Qt::black); // send black color to the shader
-  } else {                              // else
-    GLObject::setColor(po->getColor()); // send user selected color
-  }
-  if (use_point)
-    glColor4ub(mycolor.red(), mycolor.green(), mycolor.blue(),po->getPartAlpha());
-  else
-    glColor4ub(mycolor.red(), mycolor.green(), mycolor.blue(),po->getGazAlpha());
+  glEnable(GL_PROGRAM_POINT_SIZE);
 
-  //if ((go->render_mode == 0 || go->render_mode == 1) && !hasPhysic) { // Alpha blending accumulation
+  // Setup color for uniform (glColor4ub does not work in Core Profile for generic attributes)
+  QColor c = po->getColor();
+  float col[4];
+  col[0] = c.redF();
+  col[1] = c.greenF();
+  col[2] = c.blueF();
+  if (use_point) col[3] = po->getPartAlpha()/255.0f;
+  else           col[3] = po->getGazAlpha()/255.0f;
+
   if ((go->render_mode == 0 ) ) { // Alpha blending accumulation
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glEnable(GL_BLEND);
     glDepthMask(GL_FALSE);
-    checkGlError("GLObjectParticles::displayVboShader -> Alpha blending accumulation");
   }
-  else
-    if (go->render_mode == 1) {  // No Alpha bending accumulation
+  else if (go->render_mode == 1) {  // No Alpha bending accumulation
       glDepthMask(GL_FALSE);
       glDisable(GL_DEPTH_TEST);
-      //glEnable(GL_DEPTH_TEST);
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      //glBlendFunc (GL_ONE, GL_ONE);
-      //glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE);
-      glEnable(GL_ALPHA_TEST);
-      glAlphaFunc(GL_GREATER, 0.00f);
-
-      if ((err = glGetError())) {
-        fprintf(stderr,">> 2 c error %x\n", (unsigned int)err);
-      }
   }
-
-  glTexEnvi(GL_POINT_SPRITE,GL_COORD_REPLACE,GL_TRUE);
 
   // start shader program
   shader->start();
+  
+  // Send color uniform
+  shader->sendUniformXfv("color", 4, 1, col);
 
   // process shader color variables
   sendShaderData(win_height,use_point);
 
-  glActiveTexture(GL_TEXTURE0_ARB);
+  f->glActiveTexture(GL_TEXTURE0);
   texture->glBindTexture();  // bind texture
 
   // get attribute location for sprite size
   int a_sprite_size = f->glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
-  f->glVertexAttrib1f(a_sprite_size,1.0);
-  if ( a_sprite_size == -1) {
-    std::cerr << "Error occured when getting \"a_sprite_size\" attribute\n";
-    exit(1);
+  if ( a_sprite_size != -1) {
+    if (hasPhysic && go->render_mode==1 && phys_select && phys_select->isValid()) {
+      f->glEnableVertexAttribArray(a_sprite_size);
+      f->glBindBuffer(GL_ARRAY_BUFFER, vbo_size);
+      int start_size = min_index*sizeof(float);
+      f->glVertexAttribPointer(a_sprite_size, 1, GL_FLOAT, GL_FALSE, 0, (void *) (intptr_t)(start_size));
+    } else {
+      f->glVertexAttrib1f(a_sprite_size, 1.0f);
+    }
   }
 
   // get attribute location for phys data
   int a_phys_data = f->glGetAttribLocation(shader->getProgramId(), "a_phys_data");
-  f->glVertexAttrib1f(a_phys_data,1.0);
-  if ( a_phys_data == -1) {
-    std::cerr << "Error occured when getting \"a_phys_data\" attribute\n";
-    exit(1);
-  }
-  if ((go->render_mode == 1 )) { // individual size and color
-    // Send vertex object neighbours size
-    if (hasPhysic && phys_select && phys_select->isValid()) {
-      // set back texture_size to one for gas
-      //po->setGazSize(1.0);
-      //po->setGazSizeMax(1.0);
-      f->glEnableVertexAttribArray(a_sprite_size);
-      f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_size);
-      int start = min_index*sizeof(float);
-      f->glVertexAttribPointer(a_sprite_size,1,GL_FLOAT, 0, 0, (void *) (intptr_t)(start));
-    }
-    // Send physical data
-    if (hasPhysic && phys_select && phys_select->isValid()) {
+  if ( a_phys_data != -1) {
+    if (hasPhysic && go->render_mode==1 && phys_select && phys_select->isValid()) {
       f->glEnableVertexAttribArray(a_phys_data);
-      f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_data);
-      int start = min_index*sizeof(float);
-      f->glVertexAttribPointer(a_phys_data,1,GL_FLOAT, 0, 0, (void *) (intptr_t)(start));
-    }
-  } else {
-    if (hasPhysic) { // gas only
-      //glVertexAttrib1f(a_sprite_size,go->texture_size);
+      f->glBindBuffer(GL_ARRAY_BUFFER, vbo_data);
+      int start_data = min_index*sizeof(float);
+      f->glVertexAttribPointer(a_phys_data, 1, GL_FLOAT, GL_FALSE, 0, (void *) (intptr_t)(start_data));
+    } else {
+      f->glVertexAttrib1f(a_phys_data, 1.0f);
     }
   }
 
-  // Draw points
-  int start,maxvert;
-  GLsizei  stride;
-  maxvert=max_index-min_index+1;
-
-  // send vertex positions only
-  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_pos);
-#if 0 // deactivate positions
-  int vpositions=glGetAttribLocation(shader->getProgramId(), "position");
-  if (vpositions == -1) {
-    std::cerr << "glGetAttribLocation(shader->getProgramId(), \"positions\") fails......\n";
-    std::exit(1);
-  }
-  glEnableVertexAttribArrayARB(vpositions);
-#endif
-  if (part_data->vel) {
-    start=2*3*min_index*sizeof(float); // pos + vel
-  } else {
-    start=3*min_index*sizeof(float); // pos only
-  }
-  //maxvert=max_index-min_index+1;
-  //std::cerr << "min_index="<<min_index<<" max_index="<<max_index<<" maxvert="<<maxvert<<"\n";
-  stride=0;
-  if (part_data->vel) {
-      stride=2*3*sizeof(GLfloat);
-  }
-  //glVertexAttribPointerARB(vpositions,3,GL_FLOAT, 0, stride, (void *) (start));
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) stride, (void *) (intptr_t)(start));
-  if (maxvert > 0 && maxvert<=nvert_pos) {
-    glDrawArrays(GL_POINTS, 0, maxvert);
+  // get attribute location for position
+  int vpositions = f->glGetAttribLocation(shader->getProgramId(), "position");
+  if (vpositions != -1) {
+      f->glEnableVertexAttribArray(vpositions);
+      f->glBindBuffer(GL_ARRAY_BUFFER, vbo_pos);
+      int start_pos;
+      GLsizei stride = 0;
+      if (part_data->vel) {
+          start_pos = 2*3*min_index*sizeof(float);
+          stride = 2*3*sizeof(GLfloat);
+      } else {
+          start_pos = 3*min_index*sizeof(float);
+      }
+      f->glVertexAttribPointer(vpositions, 3, GL_FLOAT, GL_FALSE, stride, (void *) (intptr_t)(start_pos));
   }
 
-  //glDrawArrays(GL_POINTS, 0, nvert_pos);
-  f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+  int maxvert = max_index - min_index + 1;
+  if (maxvert > 0 && maxvert <= nvert_pos) {
+    f->glDrawArrays(GL_POINTS, 0, maxvert);
+  }
+
+  // Cleanup
+  if (vpositions != -1) f->glDisableVertexAttribArray(vpositions);
+  if (a_sprite_size != -1) f->glDisableVertexAttribArray(a_sprite_size);
+  if (a_phys_data != -1) f->glDisableVertexAttribArray(a_phys_data);
+  
+  f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+  f->glBindVertexArray(0);
 
   // deactivate shaders programs
   shader->stop();
 
-  if (hasPhysic && ( go->render_mode == 1)) {
-    //glDisableClientState(GL_NORMAL_ARRAY);
-    if (phys_select && phys_select->isValid()) {
-      f->glDisableVertexAttribArray(a_sprite_size);
-      f->glDisableVertexAttribArray(a_phys_data);
-    }
-    //glDisableClientState(GL_COLOR_ARRAY);
-
-  }
-  glDisableClientState(GL_VERTEX_ARRAY);
-  //glDisableVertexAttribArray(vpositions);
-  glDisable(GL_POINT_SPRITE_ARB);
   glDisable(GL_BLEND);
   glDepthMask(GL_TRUE);
   glEnable(GL_DEPTH_TEST);
-
 }
 // ============================================================================
 // update

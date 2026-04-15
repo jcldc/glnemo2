@@ -59,10 +59,7 @@ MainWindow::MainWindow(std::string _ver)
   // application name + release
   QGuiApplication::setApplicationDisplayName(QString(version.c_str()));
 #endif
-  // set Windows color
-//  QPalette mp;
-//  mp.setColor(QPalette::Window,QColor(224,212,247));
-//  setPalette(mp);
+
   status_bar = statusBar();
 
   // Plugins
@@ -77,23 +74,6 @@ MainWindow::MainWindow(std::string _ver)
   pointset_manager = new CPointsetManager();
   gl_window = new glnemo::GLWindow(this,store_options,mutex_data, camera, pointset_manager);
 
-#if 0
-  if(glewIsSupported("GL_VERSION_3_0")){
-    is_cpoints_enabled = true;
-    glsl_130 = true;
-  }
-  else if(glewIsSupported("GL_VERSION_2_1  GL_EXT_gpu_shader4")){
-    is_cpoints_enabled = true;
-    glsl_130 = false;
-  }
-  else{
-    is_cpoints_enabled = false;
-    glsl_130 = false;
-  }
-
-  if(is_cpoints_enabled)
-    pointset_manager->initShaders(glsl_130);
-#endif
   //JCL camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
   // colormap object
   colormap  = new Colormap(store_options);

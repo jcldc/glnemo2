@@ -99,68 +99,8 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mute
   // leave events : reset event when we leave opengl windows
   connect(this,SIGNAL(leaveEvent()),this,SLOT(resetEvents()));
   
-  //qt6 initializeGL();
-  //qt6 checkGLErrors("initializeGL");
   shader = NULL;
   vel_shader = NULL;
-
-  //qt6 initShader();
-  //qt6 checkGLErrors("initShader");
-  ////////
-  
-  // camera
-  //qt6 camera->loadShader();
-
-  // grid
-#if 0
-  GLGridObject::nsquare = store_options->nb_meshs;
-  GLGridObject::square_size = store_options->mesh_length;
-  gridx = new GLGridObject(0,store_options->col_x_grid,store_options->xy_grid);
-  gridy = new GLGridObject(1,store_options->col_y_grid,store_options->yz_grid);
-  gridz = new GLGridObject(2,store_options->col_z_grid,store_options->xz_grid);
-
-  // axes
-  axes = new GLAxesObject();
-  
-  // cube
-  cube  = new GLCubeObject(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
-  // load texture
-  GLTexture::loadTextureVector(gtv);
-  
-  // build display list in case of screenshot
-  if (store_options->show_part && pov ) {
-    //std::cerr << "GLWindow::initializeGL() => build display list\n";
-    for (int i=0; i<(int)pov->size(); i++) {
-      // !!!! DEACTIVATE gpv[i].buildDisplayList();;
-      gpv[i].buildVelDisplayList();;
-      gpv[i].setTexture();
-      //gpv[i].buildVboPos();
-    }
-  }
-  
-  // Osd
-  fntRenderer text;
-  font = new fntTexFont(store_options->osd_font_name.toStdString().c_str());
-  text.setFont(font);
-  text.setPointSize(store_options->osd_font_size );
-  osd = new GLObjectOsd(wwidth,wheight,text,store_options->osd_color);
-  // colorbar
-  gl_colorbar = new GLColorbar(store_options,true);
-  
-  ////////
-  // FBO
-  // Set the width and height appropriately for you image
-  fbo = false;
-  //Set up a FBO with one renderbuffer attachment
-  // init octree
-  tree = new GLOctree(store_options);
-  tree->setActivate(true);
-  if (GLWindow::GLSL_support) {
-    glGenFramebuffersEXT(1, &framebuffer);
-    glGenRenderbuffersEXT(1, &renderbuffer);
-  }
-#endif
-  //qt6 checkGLErrors("GLWindow constructor");
 }
 
 // ============================================================================
@@ -182,8 +122,6 @@ GLWindow::~GLWindow()
   }
   delete gl_colorbar;
   delete osd;
-//  if (p_data)
-//    delete p_data;
   std::cerr << "Destructor GLWindow::~GLWindow()\n";
 }
 #define COPY 0
@@ -230,34 +168,22 @@ void GLWindow::update(ParticlesData   * _p_data,
   store_options->octree_display = true;
   store_options->octree_level = 0;
   //tree->update(p_data, _pov);
-  
   gl_colorbar->update(&gpv,p_data->getPhysData(),store_options,mutex_data);
   
-
-
   for (unsigned int i=0; i<pov->size() ;i++) {
     if (i>=gpv.size()) {
-      //makeCurrent();
       GLObjectParticles * gp = new GLObjectParticles(p_data,&((*pov)[i]),
                                                      store_options,&gtv,shader,vel_shader);
-      //doneCurrent();
-      //GLObjectParticles * gp = new GLObjectParticles(&p_data,pov[i],store_options);
       gpv.push_back(*gp);
       delete gp;
     } else {      
-      //makeCurrent();
-      gpv[i].update(p_data,&((*pov)[i]),store_options, update_old_obj);
-      //doneCurrent();
-      //gpv[i].update(&p_data ,pov[i],store_options);
-        
+      gpv[i].update(p_data,&((*pov)[i]),store_options, update_old_obj);        
     }
   }
-
   store_options->new_frame=false;
   gl_select->update(&gpv,store_options,mutex_data);
   mutex_data->unlock();
-  updateGL();
-  
+  updateGL(); 
 }
 // ============================================================================
 // update
@@ -268,7 +194,6 @@ void GLWindow::update(ParticlesObjectVector * _pov)
     *pov    = *_pov;
   }
   else pov    = _pov;
-
 }
 // ============================================================================
 // updateBondaryPhys
@@ -322,10 +247,6 @@ void GLWindow::changeColorMap()
 // reverseColorMap                                                             
 void GLWindow::reverseColorMap()
 {
-  //store_options->reverse_cmap = !store_options->reverse_cmap;
-//  for (unsigned int i=0; i<pov->size() ;i++) {
-//    gpv[i].buildVboColor();
-//  }
   updateGL();
 }
 // ============================================================================
@@ -566,7 +487,6 @@ void GLWindow::paintGL()
 
     //mutex_data->unlock();
   }
-  
   // octree
   if (store_options->octree_display || 1) {
     tree->display();
@@ -607,16 +527,9 @@ void GLWindow::paintGL()
 // ============================================================================
 void GLWindow::initShader()
 {
-  //QOpenGLExtraFunctions *f = QOpenGLContext::cre
-  //QOpenGLContext::currentContext()->extraFunctions();
-
   if (store_options->init_glsl) {       
     qDebug() << "begining init shader\n";
   
-    // display OpenGL extension list
-    //foreach (const QByteArray &value, gl_extensions)
-    //  qDebug() << value ;
-
     if (gl_extensions.contains("GL_ARB_multitexture") &&
         gl_extensions.contains("GL_ARB_vertex_shader") &&
         gl_extensions.contains("GL_ARB_fragment_shader")) {
@@ -633,25 +546,22 @@ void GLWindow::initShader()
       // check GLSL version supported
       const GLubyte* glsl_version=glGetString ( GL_SHADING_LANGUAGE_VERSION );
       qDebug() << "GLSL version supported : ["<< glsl_version << "]\n";
-      //GLuint glsl_num;
-      //glGetStringi(GL_SHADING_LANGUAGE_VERSION,glsl_num);
-      //std::cerr << "GLSL version NUM : ["<< glsl_num << "]\n";
       // particles shader
-      shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/particles.vert.cc",
-                            GlobalOptions::RESPATH.toStdString()+"/shaders/particles.frag.cc");
+      shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/particles.vert.cc",
+                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/particles.frag.cc");
       shader->init();
       // velocity shader
       if (1) {
 
-  #if 0
+#if 0
         // Geometry shader OpenGL 3.30 and above only
         vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert330.cc",
                                 GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag330.cc",
                                 GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.geom330.cc");
 
 #else
-        vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert.cc",
-                                GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag.cc");
+        vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/velocity.vert.cc",
+                                GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/velocity.frag.cc");
 
 #endif
         if (!vel_shader->init() ) {
@@ -713,7 +623,7 @@ void GLWindow::initializeGL()
   std::cerr << "GLWindow::initializeGL OpenGL context =["<<QOpenGLContext::currentContext()<<"]\n";
   // some request for pointset_manager
   if (gl_major >= 3 || gl_extensions.contains("GL_EXT_gpu_shader4")) {
-    cpointset_manager->initShaders(true);
+    cpointset_manager->initShaders("330");
   }
 
   // initialyze rendering shaders

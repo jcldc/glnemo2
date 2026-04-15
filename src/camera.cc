@@ -61,8 +61,8 @@ namespace glnemo {
       f->glGenBuffers(1,&vbo_path);
       f->glGenBuffers(1,&vbo_ctrl);
       // particles shader
-      shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/camera.vert.cc",
-                           GlobalOptions::RESPATH.toStdString()+"/shaders/camera.frag.cc");
+      shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/camera.vert.cc",
+                           GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/camera.frag.cc");
       shader->init();
     }
     if (! texture) texture = new GLTexture();
@@ -302,11 +302,23 @@ namespace glnemo {
   void Camera::displayVbo()
   {
     QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+    
+    // Mandatory for Core Profile: VAO
+    static GLuint vao = 0;
+    if (vao == 0) {
+        f->glGenVertexArrays(1, &vao);
+    }
+    f->glBindVertexArray(vao);
+
     // color
     mycolor = Qt::yellow;
-    glColor4ub(mycolor.red(), mycolor.green(), mycolor.blue(),mycolor.alpha());
+    float col[4];
+    col[0] = mycolor.redF();
+    col[1] = mycolor.greenF();
+    col[2] = mycolor.blueF();
+    col[3] = mycolor.alphaF();
 
-    glTexEnvi(GL_POINT_SPRITE,GL_COORD_REPLACE,GL_TRUE);
+    glEnable(GL_PROGRAM_POINT_SIZE);
 
     // ------------------------------
     // start shader
@@ -314,8 +326,11 @@ namespace glnemo {
 
     shader->start();
 
+    // Send color uniform
+    shader->sendUniformXfv("color", 4, 1, col);
+
     // texture
-    f->glActiveTexture(GL_TEXTURE0_ARB);
+    f->glActiveTexture(GL_TEXTURE0);
     texture->glBindTexture();  // bind texture
 
     // send matrix
@@ -327,55 +342,55 @@ namespace glnemo {
     shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
 
     // Send data to Pixel Shader
-    shader->sendUniformi("splatTexture",0);
+    shader->sendUniformi("splatTexture", 0);
 
     // get attribute location for sprite size
     int a_sprite_size = f->glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
-    f->glVertexAttrib1f(a_sprite_size,5.0);
-    if ( a_sprite_size == -1) {
-      std::cerr << "Error occured when getting \"a_sprite_size\" attribute\n";
-      exit(1);
+    if ( a_sprite_size != -1) {
+        f->glVertexAttrib1f(a_sprite_size, 5.0f);
     }
 
+    int vpositions = f->glGetAttribLocation(shader->getProgramId(), "position");
 
     // send vertex positions only
-    if (display_path) {
+    if (display_path && vpositions != -1) {
+      // Don't use texture for path (lines)
+      shader->sendUniformi("use_texture", 0);
+      
       // setup lines
       glDisable(GL_DEPTH_TEST);
       glEnable (GL_LINE_SMOOTH);
       glEnable (GL_BLEND);
       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-      glLineWidth (4.5);
+      glLineWidth (4.5f);
 
-      f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_path);
-      glEnableClientState(GL_VERTEX_ARRAY);
-      glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) 0, (void *) 0);
-      glDrawArrays(GL_LINE_STRIP, 0, npoints);
-      f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+      f->glBindBuffer(GL_ARRAY_BUFFER, vbo_path);
+      f->glEnableVertexAttribArray(vpositions);
+      f->glVertexAttribPointer(vpositions, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+      f->glDrawArrays(GL_LINE_STRIP, 0, npoints);
+      f->glDisableVertexAttribArray(vpositions);
+      f->glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    if (display_ctrl) {
-      // setup point sprites
-      glEnable(GL_POINT_SPRITE_ARB);
-#ifdef Q_OS_MAC
-      glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-#else
-      glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
-#endif
-      glEnable(GL_POINT_SMOOTH);
-
-      f->glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo_ctrl);
-      glEnableClientState(GL_VERTEX_ARRAY);
-      glVertexPointer((GLint) 3, GL_FLOAT, (GLsizei) 0, (void *) 0);
-      glDrawArrays(GL_POINTS, 0, spline->GetNumPoints());
-      f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+    if (display_ctrl && vpositions != -1) {
+      // Use texture for control points
+      shader->sendUniformi("use_texture", 1);
+      
+      glEnable(GL_BLEND);
+      glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      
+      f->glBindBuffer(GL_ARRAY_BUFFER, vbo_ctrl);
+      f->glEnableVertexAttribArray(vpositions);
+      f->glVertexAttribPointer(vpositions, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+      f->glDrawArrays(GL_POINTS, 0, spline->GetNumPoints());
+      f->glDisableVertexAttribArray(vpositions);
+      f->glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     shader->stop();
 
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisable(GL_POINT_SPRITE_ARB);
+    f->glBindVertexArray(0);
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
     glEnable(GL_DEPTH_TEST);

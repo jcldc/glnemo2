@@ -3,22 +3,26 @@
 // e-mail:   Jean-Charles.Lambert@lam.fr
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)
 //           Laboratoire d'Astrophysique de Marseille
-//           Pole de l'Etoile, site de Ch�teau-Gombert
-//           38, rue Frederic Joliot-Curie
+//           Pôle de l'Etoile, site de Château-Gombert
+//           38, rue Frédéric Joliot-Curie
 //           13388 Marseille cedex 13 France
 //           CNRS U.M.R 7326
 // ============================================================================
-// See the complete license in LICENSE and/or "http://www.cecill.info".
+#version 330 core
+
+uniform sampler2D splatTexture;
+uniform int use_texture;
+
+in vec4 v_color;
+
+out vec4 fragColor;
+
+void main()
+{
+    if (use_texture == 1) {
+        fragColor = v_color * texture(splatTexture, gl_PointCoord);
+    } else {
+        fragColor = v_color;
+    }
+}
 // ============================================================================
-/**
-        @author Jean-Charles Lambert <Jean-Charles.Lambert@lam.fr>
- */
-#ifndef VERSION_H
-#define VERSION_H
-
-#define GLNEMO2_MAJOR "2"
-#define GLNEMO2_MINOR "0"
-#define GLNEMO2_PATCH "0"
-#define GLNEMO2_EXTRA "-dev2"
-
-#endif // VERSION_H

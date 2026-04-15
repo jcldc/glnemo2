@@ -10,7 +10,7 @@
             "request": "launch",
             "cwd" : ".",
             "program": "${workspaceFolder}/build/bin/glnemo2",
-            "args": ["~/p.1k.dens", "all"],
+            "args": ["~/p.1k.dens", "all", "vel=t"],
             "MIMode": "gdb",
             "setupCommands": [
                 {

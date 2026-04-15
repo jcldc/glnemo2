@@ -67,33 +67,40 @@
         <file>../res/images/window_nofullscreen.png</file>
         <file>../res/images/zoom-best-fit.png</file>
         <file>../res/camera/path_01</file>
-        <file>../res/shaders/particles.vert.cc</file>
-        <file>../res/shaders/particles.frag.cc</file>
+        <file>../res/shaders/glsl_330/particles.vert.cc</file>
+        <file>../res/shaders/glsl_330/particles.frag.cc</file>
+        <file>../res/shaders/glsl_330/velocity.vert.cc</file>
+        <file>../res/shaders/glsl_330/velocity.frag.cc</file>
+        <file>../res/shaders/glsl_330/camera.vert.cc</file>
+        <file>../res/shaders/glsl_330/camera.frag.cc</file>
+        <file>../res/shaders/velocity.vert130.cc</file>
+        <file>../res/shaders/velocity.frag130.cc</file>
         <file>../res/shaders/velocity.vert330.cc</file>
         <file>../res/shaders/velocity.geom330.cc</file>
         <file>../res/shaders/velocity.frag330.cc</file>
-        <file>../res/shaders/velocity.vert.cc</file>
-        <file>../res/shaders/velocity.frag.cc</file>
-        <file>../res/shaders/velocity.vert130.cc</file>
-        <file>../res/shaders/velocity.frag130.cc</file>
         <file>../res/shaders/cpoints_120/characteristic.frag</file>
         <file>../res/shaders/cpoints_120/regular_polygon.vert</file>
         <file>../res/shaders/cpoints_120/tag_shape.vert</file>
         <file>../res/shaders/cpoints_120/text.vert</file>
         <file>../res/shaders/cpoints_120/text.frag</file>
         <file>../res/shaders/cpoints_120/sphere.vert</file>
+        <file>../res/shaders/cpoints_120/tag_shape.frag</file>
         <file>../res/shaders/cpoints_130/characteristic.frag</file>
         <file>../res/shaders/cpoints_130/regular_polygon.vert</file>
         <file>../res/shaders/cpoints_130/tag_shape.vert</file>
         <file>../res/shaders/cpoints_130/tag_shape.frag</file>
-        <file>../res/shaders/cpoints_120/tag_shape.frag</file>
         <file>../res/shaders/cpoints_130/text.vert</file>
         <file>../res/shaders/cpoints_130/text.frag</file>
         <file>../res/shaders/cpoints_130/sphere.vert</file>
+        <file>../res/shaders/cpoints_330/characteristic.frag</file>
+        <file>../res/shaders/cpoints_330/regular_polygon.vert</file>
+        <file>../res/shaders/cpoints_330/tag_shape.vert</file>
+        <file>../res/shaders/cpoints_330/tag_shape.frag</file>
+        <file>../res/shaders/cpoints_330/text.vert</file>
+        <file>../res/shaders/cpoints_330/text.frag</file>
+        <file>../res/shaders/cpoints_330/sphere.vert</file>        
         <file>../res/camera/path_02</file>
         <file>../res/camera/path_03</file>
-        <file>../res/shaders/camera.vert.cc</file>
-        <file>../res/shaders/camera.frag.cc</file>
         <file>../res/camera/zoom+loop+rotate</file>
         <file>../res/camera/spiral</file>
         <file>../res/camera/snail</file>
