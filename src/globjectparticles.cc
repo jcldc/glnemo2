@@ -354,10 +354,8 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   // Mandatory for Core Profile: VAO
-  static GLuint vao = 0;
-  if (vao == 0) {
-      f->glGenVertexArrays(1, &vao);
-  }
+  GLuint vao;
+  f->glGenVertexArrays(1, &vao);
   f->glBindVertexArray(vao);
 
   if (go->zsort) { // Z sort particles
@@ -370,7 +368,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   }
 
   // setup point sprites
-  glEnable(GL_PROGRAM_POINT_SIZE);
+  glEnable(GL_PROGRAM_POINT_SIZE); glEnable(0x8861);
 
   // Setup color for uniform (glColor4ub does not work in Core Profile for generic attributes)
   QColor c = po->getColor();
@@ -458,7 +456,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   if (a_phys_data != -1) f->glDisableVertexAttribArray(a_phys_data);
   
   f->glBindBuffer(GL_ARRAY_BUFFER, 0);
-  f->glBindVertexArray(0);
+  f->glBindVertexArray(0); f->glDeleteVertexArrays(1, &vao);
 
   // deactivate shaders programs
   shader->stop();

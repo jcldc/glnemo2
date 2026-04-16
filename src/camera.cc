@@ -304,10 +304,8 @@ namespace glnemo {
     QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
     
     // Mandatory for Core Profile: VAO
-    static GLuint vao = 0;
-    if (vao == 0) {
-        f->glGenVertexArrays(1, &vao);
-    }
+    GLuint vao;
+    f->glGenVertexArrays(1, &vao);
     f->glBindVertexArray(vao);
 
     // color
@@ -318,7 +316,7 @@ namespace glnemo {
     col[2] = mycolor.blueF();
     col[3] = mycolor.alphaF();
 
-    glEnable(GL_PROGRAM_POINT_SIZE);
+    glEnable(GL_PROGRAM_POINT_SIZE); glEnable(0x8861);
 
     // ------------------------------
     // start shader
@@ -390,7 +388,7 @@ namespace glnemo {
 
     shader->stop();
 
-    f->glBindVertexArray(0);
+    f->glBindVertexArray(0); f->glDeleteVertexArrays(1, &vao);
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
     glEnable(GL_DEPTH_TEST);

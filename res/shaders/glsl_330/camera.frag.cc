@@ -19,8 +19,9 @@ out vec4 fragColor;
 
 void main()
 {
+    vec4 tex = texture(splatTexture, gl_PointCoord);
     if (use_texture == 1) {
-        fragColor = v_color * texture(splatTexture, gl_PointCoord);
+        fragColor = v_color * tex;
     } else {
         fragColor = v_color;
     }

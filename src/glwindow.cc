@@ -38,7 +38,7 @@ namespace glnemo {
   bool GLWindow::GLSL_support = false;
   GLWindow * GLWindow::m_glWidget=NULL;
   QOpenGLFunctions_3_3_Core * GLWindow::m_glFunctions=NULL;
-  GLuint framebuffer, renderbuffer;
+  GLuint framebuffer=0, renderbuffer=0, depthrenderbuffer=0; GLuint fbo_w=0, fbo_h=0;
   GLdouble GLWindow::mIdentity[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
   //float store_options->ortho_range;
   
@@ -294,239 +294,147 @@ void GLWindow::paintGL()
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   CPT++;
-  //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
-  //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
   if (store_options->auto_gl_screenshot) {
     store_options->auto_gl_screenshot = false;
     emit sigScreenshot();
-    //std::cerr << "GLWindow::paintGL() after EMIT"<<CPT<<"\n";
     store_options->auto_gl_screenshot = true;
   }
-  if ( !store_options->duplicate_mem)
-    mutex_data->lock();
-  if (fbo && GLWindow::GLSL_support) {
-    //std::cerr << "FBO GLWindow::paintGL() --> "<<CPT<<"\n";
-    //glGenFramebuffersEXT(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER_EXT, framebuffer);
-    //glGenRenderbuffersEXT(1, &renderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER_EXT, renderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-                  GL_RENDERBUFFER_EXT, renderbuffer);
-    GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
-    if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
+  if ( !store_options->duplicate_mem) mutex_data->lock();
+
+  // Dimensions
+  int cur_w = fbo ? texWidth  : wwidth;
+  int cur_h = fbo ? texHeight : wheight;
+
+  if (fbo && GLWindow::GLSL_support && texWidth > 0 && texHeight > 0) {
+    if (framebuffer == 0) {
+        f->glGenFramebuffers(1, &framebuffer); 
+        f->glGenRenderbuffers(1, &renderbuffer); 
+        f->glGenRenderbuffers(1, &depthrenderbuffer);
     }
-  } 
-  //setFocus();
+    f->glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    // AJOUT : vérifier la complétude
+    GLenum status = f->glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
+        qDebug() << "FBO incomplet ! status =" << status;
+    }
+    if (fbo_w != texWidth || fbo_h != texHeight) {
+        fbo_w = texWidth; fbo_h = texHeight;
+        f->glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+        f->glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, texWidth, texHeight);
+        f->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderbuffer);
+        
+        f->glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
+        f->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, texWidth, texHeight);
+        f->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+    }
+    f->glViewport(0, 0, texWidth, texHeight);
+  } else {
+    f->glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
+    f->glViewport(0, 0, wwidth, wheight);
+  }
   
   f->glClearColor(store_options->background_color.redF(),
                   store_options->background_color.greenF(),
                   store_options->background_color.blueF(),
                   store_options->background_color.alphaF());
+  
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-  // set projection
-  setProjection(0, 0,  wwidth, wheight);
-  glMatrixMode( GL_MODELVIEW );
-  glLoadIdentity();
-  //glEnable(GL_DEPTH_TEST);
+  setProjection(0, 0, cur_w, cur_h);
   
-  // rotation around scene/object axes
-  float ru=store_options->urot-last_urot;
-  float rv=store_options->vrot-last_vrot;
-  float rw=store_options->wrot-last_wrot;
+  glMatrixMode( GL_MODELVIEW ); glLoadIdentity();
   
-  // the following code compute OpenGL rotation 
-  // around UVW scene/object axes
-  if (ru!=0 ||
-      rv!=0 ||
-      rw!=0) {
+  float ru=store_options->urot-last_urot, rv=store_options->vrot-last_vrot, rw=store_options->wrot-last_wrot;
+  if (ru!=0 || rv!=0 || rw!=0) {
     glLoadIdentity();
-    if (ru!=0)
-      glRotatef(ru, mScene[0],mScene[1], mScene[2] );
-    if (rv!=0)
-      glRotatef(rv, mScene[4],mScene[5], mScene[6] );
-    if (rw!=0)
-      glRotatef(rw, mScene[8],mScene[9], mScene[10]);
-    
-    last_urot = store_options->urot;
-    last_vrot = store_options->vrot;
-    last_wrot = store_options->wrot;
-    glMultMatrixd (mScene);
-    glGetDoublev (GL_MODELVIEW_MATRIX, mScene);
+    if (ru!=0) glRotatef(ru, mScene[0],mScene[1], mScene[2] );
+    if (rv!=0) glRotatef(rv, mScene[4],mScene[5], mScene[6] );
+    if (rw!=0) glRotatef(rw, mScene[8],mScene[9], mScene[10]);
+    last_urot = store_options->urot; last_vrot = store_options->vrot; last_wrot = store_options->wrot;
+    glMultMatrixd (mScene); glGetDoublev (GL_MODELVIEW_MATRIX, mScene);
   }
  
-  // rotation around screen axes
-  float rx=store_options->xrot-last_xrot;
-  float ry=store_options->yrot-last_yrot;
-  float rz=store_options->zrot-last_zrot;
+  float rx=store_options->xrot-last_xrot, ry=store_options->yrot-last_yrot, rz=store_options->zrot-last_zrot;
+  if (rx!=0 || ry!=0 || rz!=0) {
+    glLoadIdentity(); glRotatef( rx, 1.0, 0.0, 0.0 ); glRotatef( ry, 0.0, 1.0, 0.0 ); glRotatef( rz, 0.0, 0.0, 1.0 );
+    last_xrot = store_options->xrot; last_yrot = store_options->yrot; last_zrot = store_options->zrot;
+    glMultMatrixd (mScreen); glGetDoublev (GL_MODELVIEW_MATRIX, mScreen);
+  }
+  if (reset_screen_rotation) { glLoadIdentity (); glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); reset_screen_rotation=false; }
+  if (reset_scene_rotation) { glLoadIdentity (); glGetDoublev (GL_MODELVIEW_MATRIX, mScene); reset_scene_rotation=false; last_urot = last_vrot = last_wrot = 0.0; }
 
-  // the following code compute OpenGL rotation 
-  // around XYZ screen axes
-  if (rx!=0 ||
-      ry!=0 ||
-      rz!=0) {
-    glLoadIdentity();
-    // rotate only around the screen axes about the delta angle from the previous
-    // rotation, otherwise it mess up the rotation
-    glRotatef( rx, 1.0, 0.0, 0.0 );
-    glRotatef( ry, 0.0, 1.0, 0.0 );
-    glRotatef( rz, 0.0, 0.0, 1.0 );
-    last_xrot = store_options->xrot;
-    last_yrot = store_options->yrot;
-    last_zrot = store_options->zrot;
-    
-    glMultMatrixd (mScreen); // apply previous rotations on the current one
-    glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // save screen rotation matrix
-  }
-  if (reset_screen_rotation) { 
-    glLoadIdentity ();
-    glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // set to Identity
-    reset_screen_rotation=false;
-  }
-  if (reset_scene_rotation) { 
-    glLoadIdentity ();
-    glGetDoublev (GL_MODELVIEW_MATRIX, mScene); // set to Identity
-    reset_scene_rotation=false;
-    last_urot = last_vrot = last_wrot = 0.0;
-  }  
-
-  glLoadIdentity (); // reset OGL rotations
-  // set camera
-  if ( store_options->perspective) {
-    camera->setEye(0.0,  0.0,  -store_options->zoom);
-    camera->moveTo();
-  }
+  glLoadIdentity (); 
+  if ( store_options->perspective) { camera->setEye(0.0, 0.0, -store_options->zoom); camera->moveTo(); }
   glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mRot);
-  
-  // apply screen rotation on the whole system
   glMultMatrixd (mScreen);   
-  // apply scene/world rotation on the whole system
   glMultMatrixd (mScene);   
   
-  // Grid Anti aliasing
-#ifdef GL_MULTISAMPLE
-  glEnable(GL_MULTISAMPLE);
-#endif
-  if (1) { //line_aliased) {
-    glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_POLYGON_SMOOTH);    
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-    //glLineWidth (0.61);
-    glLineWidth (1.0);
-  } else {
-    glDisable(GL_LINE_SMOOTH);
-  }
-
-  // grid display
   if (store_options->show_grid) {
-    //glEnable( GL_DEPTH_TEST );
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    gridx->display();
-    gridy->display();
-    gridz->display();
-    cube->display();
+    glDisable(GL_DEPTH_TEST); glEnable(GL_BLEND);
+    gridx->display(); gridy->display(); gridz->display(); cube->display();
     glDisable(GL_BLEND);
   }
 
-  // camera display path and control points
-  camera->display(wheight);
-
-  setModelMatrix(); // save ModelView  Matrix
-  setProjMatrix();  // save Projection Matrix
-  // move the scene
+  camera->display(cur_h);
+  setModelMatrix(); setProjMatrix();  
   glTranslatef( store_options->xtrans, store_options->ytrans, store_options->ztrans);
   glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel2);  
-  //printMatrix(mModel2,"GL_MODELVIEW_MATRIX 100");
 
-  // nice points display
   glEnable(GL_POINT_SMOOTH);
+  if (store_options->blending) { glEnable(GL_BLEND); glBlendFunc( GL_SRC_ALPHA, GL_ONE ); }
+  else                         glDisable(GL_BLEND);
   
-  // control blending on particles
-  if (store_options->blending) {
-    glEnable(GL_BLEND);
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE ); // original
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glDepthFunc(GL_LESS);
-  }
-  else
-    glDisable(GL_BLEND);
-  // control depht buffer on particles
   if (store_options->dbuffer) glEnable (GL_DEPTH_TEST);
   else                        glDisable(GL_DEPTH_TEST);
-  //glDepthFunc(GL_LESS);
-  // Display objects (particles and velocity vectors)
-  //makeCurrent();
-  cpointset_manager->displayAll();
-  //doneCurrent();
-  if (store_options->show_part && pov ) {
-    //mutex_data->lock();
-    bool first=true;
-    bool obj_has_physic=false;
-    for (int i=0; i<(int)pov->size(); i++) {
-      gpv[i].display(mModel2,wheight);
 
+  cpointset_manager->displayAll();
+  
+  if (store_options->show_part && pov ) {
+    bool first=true, obj_has_physic=false;
+    for (int i=0; i<(int)pov->size(); i++) {
+      gpv[i].display(mModel2, cur_h);
       if (first) {
-        const ParticlesObject * po = gpv[i].getPartObj();
-        if (po->hasPhysic()) { //store_options->phys_min_glob!=-1 && store_options->phys_max_glob!=-1) {
-          obj_has_physic=true;
-          first=false;
-        }
+        if (gpv[i].getPartObj()->hasPhysic()) { obj_has_physic=true; first=false; }
       }
     }
-
-
-    if (obj_has_physic) {
-      if (fbo) // offscreen rendering activated
-        gl_colorbar->display(texWidth,texHeight);
-      else
-        gl_colorbar->display(QOpenGLWidget::width(),QOpenGLWidget::height());
-    }
-
-    //mutex_data->unlock();
-  }
-  // octree
-  if (store_options->octree_display || 1) {
-    tree->display();
+    if (obj_has_physic) gl_colorbar->display(cur_w, cur_h);
   }
 
-  // On Screen Display
+  if (store_options->octree_display) tree->display();
   if (store_options->show_osd) osd->display();
-    
-  // display selected area
-  gl_select->display(QOpenGLWidget::width(),QOpenGLWidget::height());
+  gl_select->display(cur_w, cur_h);
 
-  // draw axes
   if (store_options->axes_enable)
-    axes->display(mScreen, mScene, wwidth,wheight,
-                  store_options->axes_loc,store_options->axes_psize, store_options->perspective);
-
-  // reset viewport to the windows size because axes object modidy it
-  glViewport(0, 0,  wwidth, wheight);
+    axes->display(mScreen, mScene, cur_w, cur_h,
+                  store_options->axes_loc, store_options->axes_psize, store_options->perspective);
 
   if (fbo && GLWindow::GLSL_support) {
     fbo = false;
-    //imgFBO = grabFrameBuffer();
-    imgFBO = QImage( texWidth, texHeight,QImage::Format_RGB32);
-    glReadPixels( 0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits() );
-    // Make the window the target
-    glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-
-   // Delete the renderbuffer attachment
-   //glDeleteRenderbuffersEXT(1, &renderbuffer);
-   //glDeleteRenderbuffersEXT(1, &framebuffer);
+    f->glFinish();
+    imgFBO = QImage(texWidth, texHeight, QImage::Format_RGBA8888);
+    f->glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    f->glReadBuffer(GL_COLOR_ATTACHMENT0);
+    f->glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits());
+    imgFBO = imgFBO.mirrored(false, true);
+    f->glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
+    fbo_w = 0; fbo_h = 0; 
   } 
+
   if ( !store_options->duplicate_mem) mutex_data->unlock();
 
-  nframe++; // count frames
-  //glDrawPixels(gldata.width(), gldata.height(), GL_RGBA, GL_UNSIGNED_BYTE, gldata.bits());
+  nframe++; 
   emit doneRendering();
 }
+
+
+
+
+
 // ============================================================================
 void GLWindow::initShader()
 {
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  if (framebuffer == 0) { f->glGenFramebuffers(1, &framebuffer); f->glGenRenderbuffers(1, &renderbuffer); f->glGenRenderbuffers(1, &depthrenderbuffer); }
   if (store_options->init_glsl) {       
     qDebug() << "begining init shader\n";
   

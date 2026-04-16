@@ -10,51 +10,35 @@
 // ============================================================================
 #version 330 core
 
-// Matrix
 uniform mat4 modelviewMatrix;
 uniform mat4 projMatrix;
-
-// texture
 uniform float alpha;                   
 uniform float factor_size;              
 uniform int   use_point;       
 uniform int   perspective;     
-
-// colormap
 uniform vec3 colormap[100]; 
 uniform int ncmap;          
 uniform float powalpha;     
 uniform int reverse_cmap;   
-
-// physical values
 uniform int data_phys_valid;
 uniform float data_phys_min; 
 uniform float data_phys_max; 
 uniform float zoom;
-
-// special flag for spherical data
 uniform int show_zneg;
 uniform int coronograph;
 uniform float viewport[4];
 uniform float radius;
-
-// stretching
 uniform float z_stretch_value;
 uniform int   z_stretch_jit;
 
-// attributes (matching C++ glGetAttribLocation)
-in vec3 position;
+layout (location = 0) in vec3 position;
 in float a_sprite_size;
 in float a_phys_data;
-// Note: color and texCoord are handled by fixed pipeline or uniforms in your C++
-// but for 330 core we use uniforms or specific attributes.
 uniform vec4 color; 
 
-// outputs
 out float v_to_discard;
 out vec4 v_color;
 
-// functions declaration
 vec4 computeColor();
 bool isVisible();
 vec4 mod289(vec4 x);
@@ -64,9 +48,8 @@ float noise(vec3 p);
 void main()                                                            
 {           
   v_to_discard = 0.0;
-  vec4 local_col;
+  vec4 local_col = vec4(0.0);
 
-  // compute color
   if (data_phys_valid == 1) {
     local_col = computeColor();
   } else {
@@ -78,13 +61,11 @@ void main()
     }
   }
 
-  // compute vertex position
   vec4 vert = vec4(position.x, position.y, position.z * z_stretch_value, 1.0);
   if (z_stretch_jit == 1) {
     vert.z = vert.z + z_stretch_value * noise(position);
   }
 
-  // compute Point Size
   float pSize = factor_size;
   if (use_point == 0) {
     pSize = a_sprite_size * factor_size;
@@ -93,8 +74,8 @@ void main()
       pSize = pSize / max(0.01, (1.0 - pos_eye.z));
     }
   }
-  gl_PointSize = max(1.0, pSize);
-
+  
+  gl_PointSize = clamp(pSize, 1.0, 512.0);
   gl_Position = projMatrix * modelviewMatrix * vert;
   v_color = vec4(local_col.rgb, local_col.a * alpha);
 }
@@ -116,7 +97,6 @@ vec4 computeColor() {
     if (show_zneg == 1) {
       res.a = (log_rho > 0.0) ? pow(log_rho, powalpha) : 0.0;
     } else {
-      vec3 pos_eye = vec3(modelviewMatrix * vec4(position, 1.0));
       if (log_rho > 0.0 && isVisible()) {
         res.a = pow(log_rho, powalpha);
       } else {
@@ -124,6 +104,8 @@ vec4 computeColor() {
         v_to_discard = 1.0;
       }
     }
+  } else {
+     res = vec4(color.rgb, 1.0);
   }
   return res;
 }
@@ -133,9 +115,11 @@ bool isVisible() {
    if (z_stretch_jit == 1) vert.z = vert.z + z_stretch_value * noise(position);
    
    vec3 pos_eye = vec3(modelviewMatrix * vert);
+   
    if ((pos_eye.z - zoom) > 0.0) {
        return (coronograph == 1) ? false : true;
    }
+   
    if (radius > 0.0) {
        mat4 matbboard = modelviewMatrix;
        matbboard[0] = vec4(1.0, 0.0, 0.0, 0.0); 
@@ -146,11 +130,13 @@ bool isVisible() {
        vec4 pvori = (projMatrix * modelviewMatrix) * vec4(0.0, 0.0, 0.0, 1.0);
        vec4 pdisc = projMatrix * matbboard * vec4(radius, 0.0, 0.0, 1.0);
 
-       vec2 s_pvert = (pvert.xy / pvert.w + 1.0) * vec2(viewport[2], viewport[3]) * 0.5 + vec2(viewport[0], viewport[1]);
-       vec2 s_pvori = (pvori.xy / pvori.w + 1.0) * vec2(viewport[2], viewport[3]) * 0.5 + vec2(viewport[0], viewport[1]);
-       vec2 s_pdisc = (pdisc.xy / pdisc.w + 1.0) * vec2(viewport[2], viewport[3]) * 0.5 + vec2(viewport[0], viewport[1]);
+       if (abs(pvert.w) > 0.001 && abs(pvori.w) > 0.001 && abs(pdisc.w) > 0.001) {
+           vec2 s_pvert = (pvert.xy / pvert.w + 1.0) * vec2(viewport[2], viewport[3]) * 0.5 + vec2(viewport[0], viewport[1]);
+           vec2 s_pvori = (pvori.xy / pvori.w + 1.0) * vec2(viewport[2], viewport[3]) * 0.5 + vec2(viewport[0], viewport[1]);
+           vec2 s_pdisc = (pdisc.xy / pdisc.w + 1.0) * vec2(viewport[2], viewport[3]) * 0.5 + vec2(viewport[0], viewport[1]);
 
-       return distance(s_pvert, s_pvori) > distance(s_pdisc, s_pvori);
+           return distance(s_pvert, s_pvori) > distance(s_pdisc, s_pvori);
+       }
    }
    return true;
 }

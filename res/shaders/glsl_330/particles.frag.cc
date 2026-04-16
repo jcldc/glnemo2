@@ -24,11 +24,14 @@ void main()
     discard;
   }
   
+  // On récupère la texture systématiquement pour éviter que l'uniforme soit optimisé
+  vec4 tex = texture(splatTexture, gl_PointCoord);
+
   if (use_point == 1) {
     fragColor = v_color;
   } else {
-    // gl_PointCoord remplace gl_TexCoord[0] pour les points sprites en 330 core
-    fragColor = v_color * texture(splatTexture, gl_PointCoord);
+    // Si NVIDIA renvoie (0,0) pour gl_PointCoord, tex sera la couleur du pixel (0,0) de la texture
+    fragColor = v_color * tex;
   }
 }
 // ============================================================================

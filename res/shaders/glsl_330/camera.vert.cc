@@ -15,7 +15,7 @@ uniform mat4 modelviewMatrix;
 uniform mat4 projMatrix;
 
 // attribute
-in vec3 position;
+layout (location = 0) in vec3 position;
 in float a_sprite_size;
 
 // uniform color
@@ -25,9 +25,10 @@ out vec4 v_color;
 
 void main()
 {
-  // size
-  gl_PointSize = max(1.0, a_sprite_size);
+  // NVIDIA compatibility: ensure gl_PointSize has a healthy positive float.
+  float size = (a_sprite_size > 0.01) ? a_sprite_size : 5.0;
+  gl_PointSize = size;
 
-  gl_Position = projMatrix * modelviewMatrix * vec4(position, 1.0);
+  gl_Position = projMatrix * modelviewMatrix * vec4(position.xyz, 1.0);
   v_color = color;
 }
