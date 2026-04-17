@@ -184,21 +184,38 @@ const char *usage =
 // ============================================================================
 //  The main program is here
 int main(int argc, char *argv[]) {
+  // ── Set the default OpenGL format BEFORE creating QApplication ────────────
+  // This ensures all QOpenGLWidget instances use Core Profile 3.3
+  QSurfaceFormat defaultFormat;
+  defaultFormat.setVersion(3, 3);
+  defaultFormat.setProfile(QSurfaceFormat::CoreProfile);
+  defaultFormat.setDepthBufferSize(24);
+  defaultFormat.setSamples(4);
+  defaultFormat.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+
+#ifdef Q_OS_MACOS
+  // macOS requires forward-compatible flag for Core Profile > 2.1
+  defaultFormat.setOption(QSurfaceFormat::DeprecatedFunctions, false);
+#endif
+
+  QSurfaceFormat::setDefaultFormat(defaultFormat);
+
   QApplication::setDesktopSettingsAware(true);
   // glnemo::QMyApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   glnemo::QMyApplication app(argc, argv);
   // glnemo::QMyApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
+#if 0
   QSurfaceFormat format;
-  format.setDepthBufferSize(24);
 
-  //  format.setVersion(3, 3);
+  //format.setVersion(3, 3);
   format.setProfile(QSurfaceFormat::CoreProfile);
-  format.setRenderableType(QSurfaceFormat::OpenGL);
-  // Optionnel mais recommandé pour les écrans Retina sur Mac
+  format.setDepthBufferSize(24);
+  //format.setRenderableType(QSurfaceFormat::OpenGL);
   format.setSamples(4);
-
+  format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
   QSurfaceFormat::setDefaultFormat(format);
+#endif
   setlocale(LC_NUMERIC, "C"); // force numerics functions to use decimal point
   if (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGL) {
     qDebug("Requesting 3.3 core context");

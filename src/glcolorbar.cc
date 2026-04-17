@@ -67,7 +67,7 @@ void GLColorbar::display(const int _width, const int _height)
   height = _height;
   width  = _width;
 
-  GLWindow::m_glWidget->makeCurrent();
+  //GLWindow::m_glWidget->makeCurrent(); // 17-apr-2026
   if (go && go->gcb_enable && phys_select && phys_select->isValid()) {
     glDisable( GL_DEPTH_TEST );
     glMatrixMode(GL_PROJECTION);

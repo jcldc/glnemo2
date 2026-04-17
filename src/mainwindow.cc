@@ -1597,8 +1597,9 @@ void MainWindow::takeScreenshot(const int width, const int height,  std::string 
         //!!!gl_window->updateGL();                                // draw in FBO
         gl_window->forcePaintGL();  // draw in FBO
                                     // use force for screenshot from CLI
-
+#if 0 // offwcreennew
         QImage img=(((gl_window->grabFrameBufferObject()).mirrored()).rgbSwapped()); // convert FBO to img
+#endif
 
         gl_window->resize(sizegl.width(),sizegl.height());    // revert to the previous Ogl windows's size
         //!!gl_window->updateGL();
@@ -1617,7 +1618,10 @@ void MainWindow::takeScreenshot(const int width, const int height,  std::string 
             QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"",
                                                             tr("Images (*.png *.jpg)"));
             if (!fileName.isEmpty()) {
+#if 0              
                 img.save(fileName);
+#endif
+              gl_window->saveOffsreen(fileName);
                 //resize(width(),height());
             }
         } else {          // screenshot from the command line
@@ -1628,7 +1632,10 @@ void MainWindow::takeScreenshot(const int width, const int height,  std::string 
             //std::cerr << "takescreenshot name ="<<name<<"\n";
             //std::cerr << "base_frame_ext="<<store_options->base_frame_ext.toStdString()<<"\n";
             //img.save(QString(name.c_str()),(store_options->base_frame_ext.toStdString()).c_str(),quality);
+#if 0
             img.save(QString(name.c_str()),0,quality);
+#endif
+            gl_window->saveOffsreen(name.c_str());
         }
     }
 }

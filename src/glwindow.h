@@ -33,6 +33,7 @@
 #include "glaxesobject.h"
 #include "camera.h"
 #include "glcpoints.h"
+#include "offscreenrenderer.h"
 #include <QOpenGLFunctions_3_3_Core>
 
 
@@ -42,7 +43,7 @@ namespace glnemo {
 class GLGridObject;
 class GlobalOptions;
 
-class GLWindow : public QOpenGLWidget, protected QOpenGLFunctions {
+class GLWindow : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
   Q_OBJECT
 public:
     GLWindow(QWidget *, GlobalOptions *, QRecursiveMutex * , Camera *, CPointsetManager *);
@@ -109,7 +110,11 @@ public slots:
    void forcePaintGL() {
        makeCurrent();
        paintGL();
+       //doneCurrent();
    }
+   void saveOffsreen(const QString& filePath) {
+      m_fbo.saveToFile(this,filePath);
+   };
    void select_all_particles_on_screen() { // from gui, interactive select, press button select all particles
        gl_select->selectOnArea(pov->size(),mProj,mModel,viewport,true);
    }
@@ -312,6 +317,9 @@ private:
   GLOctree * tree;
   // Camera
   Camera * camera;
+  // OffscreeRendering
+  OffscreenRenderer                 m_fbo;
+
 };
 } // namespace glnemo
 

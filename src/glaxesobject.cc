@@ -50,7 +50,7 @@ void GLAxesObject::display(const double * mScreen,const double * mScene, const i
     pheight= height/2-size/2;
     break;
   }
-  GLWindow::m_glWidget->makeCurrent();
+  //GLWindow::m_glWidget->makeCurrent(); // 17-apr-2026
   glPushMatrix ();
   
   // set projection  
