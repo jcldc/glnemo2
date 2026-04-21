@@ -28,9 +28,9 @@ GlobalOptions::GlobalOptions()
 {
   list_type = false;
   // OpenGL matrix
-  mat4_model = glm::mat4();
-  mat4_view  = glm::mat4();
-  mat4_proj  = glm::mat4();
+  mat4_model = glm::mat4(1.0);
+  mat4_view  = glm::mat4(1.0);
+  mat4_proj  = glm::mat4(1.0);
   // Network stuff
   network_host = "127.0.0.1";
   network_port = 4000;

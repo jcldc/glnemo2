@@ -21,6 +21,8 @@
 #include <QTextStream>
 #include <QMessageBox>
 #include <QElapsedTimer>
+#include <glm/fwd.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <vector>
 #include <sstream>
 #include <algorithm>
@@ -368,7 +370,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   }
 
   // setup point sprites
-  glEnable(GL_PROGRAM_POINT_SIZE); glEnable(0x8861);
+  f->glEnable(GL_PROGRAM_POINT_SIZE); glEnable(0x8861);
 
   // Setup color for uniform (glColor4ub does not work in Core Profile for generic attributes)
   QColor c = po->getColor();
@@ -380,15 +382,15 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   else           col[3] = po->getGazAlpha()/255.0f;
 
   if ((go->render_mode == 0 ) ) { // Alpha blending accumulation
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    glEnable(GL_BLEND);
-    glDepthMask(GL_FALSE);
+    f->glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    f->glEnable(GL_BLEND);
+    f->glDepthMask(GL_FALSE);
   }
   else if (go->render_mode == 1) {  // No Alpha bending accumulation
-      glDepthMask(GL_FALSE);
-      glDisable(GL_DEPTH_TEST);
-      glEnable(GL_BLEND);
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      f->glDepthMask(GL_FALSE);
+      f->glDisable(GL_DEPTH_TEST);
+      f->glEnable(GL_BLEND);
+      f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
 
   // start shader program
@@ -461,9 +463,9 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   // deactivate shaders programs
   shader->stop();
 
-  glDisable(GL_BLEND);
-  glDepthMask(GL_TRUE);
-  glEnable(GL_DEPTH_TEST);
+  f->glDisable(GL_BLEND);
+  f->glDepthMask(GL_TRUE);
+  f->glEnable(GL_DEPTH_TEST);
 }
 // ============================================================================
 // update
@@ -949,11 +951,26 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
   // send matrix
   GLfloat proj[16];
   glGetFloatv( GL_PROJECTION_MATRIX,proj);
-  shader->sendUniformXfv("projMatrix",16,1,&proj[0]);
-  GLfloat mview[16];
-  glGetFloatv( GL_MODELVIEW_MATRIX,mview);
-  shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
+  //GLWindow::printMatrix(proj," proj");
+  if(0) { // opengl legacy
 
+    shader->sendUniformXfv("projMatrix",16,1,&proj[0]);
+  } else { // opengl legacy
+    shader->sendUniformXfv("projMatrix",16,1,glm::value_ptr(go->mat4_proj));
+  }
+  if (0) { // opengl legacy
+    GLfloat mview[16];
+    glGetFloatv( GL_MODELVIEW_MATRIX,mview);
+    GLWindow::printMatrix(mview," mview");
+    glm::mat4 mv=go->mat4_view * go->mat4_model;
+    GLWindow::printMatrix(glm::value_ptr(mv)," mv");
+    shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
+    GLWindow::printMatrix(mview," mview");
+    
+   } else { // opengl coreprofile
+    glm::mat4 mv=go->mat4_view * go->mat4_model;
+    shader->sendUniformXfv("modelviewMatrix",16,1,glm::value_ptr(mv));
+  }
   // send z_stretch_value
   shader->sendUniformf("z_stretch_value",(float) go->z_stretch_value);
 

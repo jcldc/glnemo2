@@ -11,6 +11,8 @@
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
 #include <QtGlobal>
+#include <glm/fwd.hpp>
+#include <glm/trigonometric.hpp>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #endif
 #include <QtOpenGL>
@@ -299,7 +301,7 @@ long int CPT=0;
 void GLWindow::paintGL()
 {
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
-
+  
   CPT++;
   //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
   //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
@@ -329,7 +331,7 @@ void GLWindow::paintGL()
     // Render into the FBO
     m_fbo.bind(this);
     //glViewport(0, 0, FBO_W, FBO_H);
-    glViewport(0, 0, m_fbo.width(), m_fbo.height());
+    f->glViewport(0, 0, m_fbo.width(), m_fbo.height());
     //glClearColor(0.06f, 0.06f, 0.10f, 1.0f);
   } 
   //setFocus();
@@ -344,12 +346,16 @@ void GLWindow::paintGL()
   setProjection(0, 0,  wwidth, wheight);
   glMatrixMode( GL_MODELVIEW );
   glLoadIdentity();
+  store_options->mat4_view = glm::mat4(1.0f);
+  store_options->mat4_model = glm::mat4(1.0f);
   //glEnable(GL_DEPTH_TEST);
   
   // rotation around scene/object axes
   float ru=store_options->urot-last_urot;
   float rv=store_options->vrot-last_vrot;
   float rw=store_options->wrot-last_wrot;
+
+  std::cerr << "ru= " << ru << " rv =" << rv << " rw= " << rw <<"\n";
   
   // the following code compute OpenGL rotation 
   // around UVW scene/object axes
@@ -357,16 +363,31 @@ void GLWindow::paintGL()
       rv!=0 ||
       rw!=0) {
     glLoadIdentity();
-    if (ru!=0)
+    store_options->mat4_view = glm::mat4(1.0f);
+    if (ru!=0) {
+      store_options->mat4_view = glm::rotate(store_options->mat4_view,
+                                             glm::radians(ru),
+                                             glm::vec3(mScene[0],mScene[1], mScene[2]));
       glRotatef(ru, mScene[0],mScene[1], mScene[2] );
-    if (rv!=0)
+    }      
+    if (rv!=0) {
+      store_options->mat4_view = glm::rotate(store_options->mat4_view,
+                                             glm::radians(rv),
+                                             glm::vec3(mScene[4],mScene[5], mScene[6]));
       glRotatef(rv, mScene[4],mScene[5], mScene[6] );
-    if (rw!=0)
+    }
+    if (rw!=0) {
+      store_options->mat4_view = glm::rotate(store_options->mat4_view,
+                                             glm::radians(rw),
+                                             glm::vec3(mScene[8],mScene[9], mScene[10]));
       glRotatef(rw, mScene[8],mScene[9], mScene[10]);
+    }
     
     last_urot = store_options->urot;
     last_vrot = store_options->vrot;
     last_wrot = store_options->wrot;
+    store_options->mat4_view = store_options->mat4_view * m_scene;
+    m_scene = store_options->mat4_view;
     glMultMatrixd (mScene);
     glGetDoublev (GL_MODELVIEW_MATRIX, mScene);
   }
@@ -376,6 +397,7 @@ void GLWindow::paintGL()
   float ry=store_options->yrot-last_yrot;
   float rz=store_options->zrot-last_zrot;
 
+  std::cerr << "rx= " << rx << " ry =" << ry << " rz= " << rz <<"\n";
   // the following code compute OpenGL rotation 
   // around XYZ screen axes
   if (rx!=0 ||
@@ -384,13 +406,25 @@ void GLWindow::paintGL()
     glLoadIdentity();
     // rotate only around the screen axes about the delta angle from the previous
     // rotation, otherwise it mess up the rotation
+    store_options->mat4_view = glm::rotate(store_options->mat4_view,
+                                             glm::radians(rx),
+                                             glm::vec3(1.0, 0.0, 0.0));
     glRotatef( rx, 1.0, 0.0, 0.0 );
+    store_options->mat4_view = glm::rotate(store_options->mat4_view,
+                                             glm::radians(ry),
+                                             glm::vec3(0.0, 1.0, 0.0));
     glRotatef( ry, 0.0, 1.0, 0.0 );
+    store_options->mat4_view = glm::rotate(store_options->mat4_view,
+                                             glm::radians(rz),
+                                             glm::vec3(0.0, 0.0, 1.0));
     glRotatef( rz, 0.0, 0.0, 1.0 );
     last_xrot = store_options->xrot;
     last_yrot = store_options->yrot;
     last_zrot = store_options->zrot;
     
+    store_options->mat4_view = store_options->mat4_view * m_screen; 
+    m_screen = store_options->mat4_view;
+
     glMultMatrixd (mScreen); // apply previous rotations on the current one
     glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // save screen rotation matrix
   }
@@ -398,6 +432,7 @@ void GLWindow::paintGL()
     glLoadIdentity ();
     glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // set to Identity
     reset_screen_rotation=false;
+    store_options->mat4_view = glm::mat4(1.0f);
   }
   if (reset_scene_rotation) { 
     glLoadIdentity ();
@@ -415,10 +450,11 @@ void GLWindow::paintGL()
   glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mRot);
   
   // apply screen rotation on the whole system
-  glMultMatrixd (mScreen);   
+  glMultMatrixd (mScreen);
+  store_options->mat4_view = store_options->mat4_view * m_screen; 
   // apply scene/world rotation on the whole system
   glMultMatrixd (mScene);   
-  
+  store_options->mat4_view = store_options->mat4_view * m_scene; 
   // Grid Anti aliasing
 #ifdef GL_MULTISAMPLE
   glEnable(GL_MULTISAMPLE);
@@ -435,6 +471,7 @@ void GLWindow::paintGL()
   }
 
   // grid display
+#if 0
   if (store_options->show_grid) {
     //glEnable( GL_DEPTH_TEST );
     glDisable(GL_DEPTH_TEST);
@@ -445,15 +482,16 @@ void GLWindow::paintGL()
     cube->display();
     glDisable(GL_BLEND);
   }
-
+#endif
   // camera display path and control points
-  camera->display(wheight);
+  //JCL camera->display(wheight);
 
   setModelMatrix(); // save ModelView  Matrix
   setProjMatrix();  // save Projection Matrix
   // move the scene
   glTranslatef( store_options->xtrans, store_options->ytrans, store_options->ztrans);
   glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel2);  
+  store_options->mat4_model = glm::translate(store_options->mat4_model, glm::vec3(store_options->xtrans, store_options->ytrans, store_options->ztrans));
   //printMatrix(mModel2,"GL_MODELVIEW_MATRIX 100");
 
   // nice points display
@@ -474,9 +512,17 @@ void GLWindow::paintGL()
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
   //makeCurrent();
-  cpointset_manager->displayAll();
+  // JCL   cpointset_manager->displayAll();
   //doneCurrent();
-  if (store_options->show_part && pov ) {
+   GLfloat mview[16];
+   glGetFloatv( GL_MODELVIEW_MATRIX,mview);
+   GLWindow::printMatrix(mview," mview 1");
+   glm::mat4 mv=store_options->mat4_view * store_options->mat4_model;
+   GLWindow::printMatrix(glm::value_ptr(mv)," mv 1");
+   GLWindow::printMatrix(glm::value_ptr(store_options->mat4_view)," mat4_view 1");
+   GLWindow::printMatrix(glm::value_ptr(store_options->mat4_model)," mat4_model 1");
+
+   if (store_options->show_part && pov ) {
     //mutex_data->lock();
     bool first=true;
     bool obj_has_physic=false;
@@ -492,32 +538,33 @@ void GLWindow::paintGL()
       }
     }
 
-
+#if 0
     if (obj_has_physic) {
       if (fbo) // offscreen rendering activated
         gl_colorbar->display(texWidth,texHeight);
       else
-        gl_colorbar->display(QOpenGLWidget::width(),QOpenGLWidget::height());
+      gl_colorbar->display(QOpenGLWidget::width(),QOpenGLWidget::height());
     }
-
+#endif
     //mutex_data->unlock();
   }
   // octree
   if (store_options->octree_display || 1) {
-    tree->display();
+    //JCL tree->display();
   }
 
   // On Screen Display
-  if (store_options->show_osd) osd->display();
+  //JCL if (store_options->show_osd) osd->display();
     
   // display selected area
-  gl_select->display(QOpenGLWidget::width(),QOpenGLWidget::height());
+  //JCL gl_select->display(QOpenGLWidget::width(),QOpenGLWidget::height());
 
   // draw axes
+#if 0
   if (store_options->axes_enable)
     axes->display(mScreen, mScene, wwidth,wheight,
                   store_options->axes_loc,store_options->axes_psize, store_options->perspective);
-
+#endif
   // reset viewport to the windows size because axes object modidy it
   glViewport(0, 0,  wwidth, wheight);
 
@@ -643,7 +690,30 @@ void GLWindow::initializeGL()
   if (gl_major >= 3 || gl_extensions.contains("GL_EXT_gpu_shader4")) {
     cpointset_manager->initShaders("330");
   }
+/////////////////
+QOpenGLContext *ctx = QOpenGLContext::currentContext();
+// Version OpenGL
+int major = ctx->format().majorVersion();
+int minor = ctx->format().minorVersion();
+qDebug() << "OpenGL version:" << major << "." << minor;
 
+// Profile
+QSurfaceFormat::OpenGLContextProfile profile = ctx->format().profile();
+if (profile == QSurfaceFormat::CoreProfile)
+    qDebug() << ">>>>>>>>>>>>> Profile: Core";
+else if (profile == QSurfaceFormat::CompatibilityProfile)
+    qDebug() << ">>>>>>>>>>>>> Profile: Compatibility";
+else
+    qDebug() << ">>>>>>>>>>>>> Profile: None/Default";
+
+// Infos supplémentaires via OpenGL directement
+qDebug() << "Vendor  :" << (const char*)glGetString(GL_VENDOR);
+qDebug() << "Renderer:" << (const char*)glGetString(GL_RENDERER);
+qDebug() << "Version :" << (const char*)glGetString(GL_VERSION);
+qDebug() << "GLSL    :" << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+
+///////////////////
   // initialyze rendering shaders
   initShader();
 
@@ -723,6 +793,7 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
   ratio =  ((double )width) / ((double )height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
+  store_options->mat4_proj = glm::mat4(1.0f); 
 
   if (store_options->perspective) {
     gluPerspective(45.,ratio,0.0005,(float) DOF);
@@ -1168,7 +1239,7 @@ void GLWindow::setTranslation( const int x, const int y, const int z )
   store_options->xtrans=xTrans;
   store_options->ytrans=yTrans;
   store_options->ztrans=zTrans;
-  store_options->mat4_model = glm::mat4();
+  store_options->mat4_model = glm::mat4(1.0f);
   store_options->mat4_model = glm::translate(store_options->mat4_model,glm::vec3(xTrans,yTrans,zTrans));
   updateGL();
 }
@@ -1301,8 +1372,10 @@ void GLWindow::setPerspectiveMatrix()
   camera->moveTo();
   // apply screen rotation on the whole system
   glMultMatrixd (mScreen);   
+  store_options->mat4_view = store_options->mat4_view*m_screen;
   // apply scene/world rotation on the whole system
   glMultMatrixd (mScene);   
+  store_options->mat4_view = store_options->mat4_view*m_scene;
   setModelMatrix(); // save ModelView  Matrix
 #endif
   setProjMatrix();  // save Projection Matrix
