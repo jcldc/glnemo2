@@ -951,7 +951,6 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
   // send matrix
   GLfloat proj[16];
   glGetFloatv( GL_PROJECTION_MATRIX,proj);
-  //GLWindow::printMatrix(proj," proj");
   if(0) { // opengl legacy
 
     shader->sendUniformXfv("projMatrix",16,1,&proj[0]);
@@ -963,9 +962,9 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
     glGetFloatv( GL_MODELVIEW_MATRIX,mview);
     GLWindow::printMatrix(mview," mview");
     glm::mat4 mv=go->mat4_view * go->mat4_model;
-    GLWindow::printMatrix(glm::value_ptr(mv)," mv");
+    //GLWindow::printMatrix(glm::value_ptr(mv)," mv");
     shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
-    GLWindow::printMatrix(mview," mview");
+    //GLWindow::printMatrix(mview," mview");
     
    } else { // opengl coreprofile
     glm::mat4 mv=go->mat4_view * go->mat4_model;

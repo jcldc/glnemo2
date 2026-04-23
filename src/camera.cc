@@ -138,7 +138,7 @@ namespace glnemo {
       gluLookAt(ex, ey, ez,
                 cx, cy, cz,
                 ux, uy, uz);
-       
+
       store_options->mat4_view = glm::lookAt(glm::vec3(ex, ey, ez),
                 glm::vec3(cx, cy, cz),
                 glm::vec3(ux, uy, uz));

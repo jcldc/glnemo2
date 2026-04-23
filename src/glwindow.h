@@ -37,6 +37,7 @@
 #include <QRecursiveMutex>
 #include <QSurface>
 #include <glm/fwd.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class fntTexFont;
 
@@ -86,22 +87,35 @@ public:
   // color bar
   GLColorbar *gl_colorbar;
 
-  static void printMatrix(GLfloat *matrix, std::string text = "") {
+  static void printMatrix(GLdouble *matrix, std::string text = "") {
     std::cerr << text << "\n";
     for (int i = 0; i < 4; i++) {
       for (int j = 0; j < 4; j++) {
         std::cerr << matrix[i * 4 + j] << " ";
-        // 0 4 8  12
-        // 1 5 9  13
-        // 2 6 10 14
-        // 3 7 11 15       3: xtrans 7: ytrans  11: zoom & ztrans
       }
       std::cerr << "\n";
     }
     std::cerr << "\n----------\n";
   }
 
+  static void printMatrix(GLfloat *matrix, std::string text = "") {
+    std::cerr << text << "\n";
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        std::cerr << matrix[i * 4 + j] << " ";
+      }
+      std::cerr << "\n";
+    }
+    std::cerr << "\n----------\n";
+  }
 
+  static void copyGlmtoMatrix(glm::mat4 src, double dest[16]) {
+    for(int i = 0; i < 4; ++i) {
+      for(int j = 0; j < 4; ++j) {
+          dest[i * 4 + j] = static_cast<double>(src[i][j]);
+      }
+    }
+  }
 signals:
   void sigKeyMouse(const bool, const bool);
   void sigScreenshot();
@@ -292,10 +306,22 @@ private:
   bool reset_screen_rotation, reset_scene_rotation;
   void setProjMatrix() {
     glGetDoublev(GL_PROJECTION_MATRIX, (GLdouble *)mProj);
+   // GLWindow::printMatrix(mProj, ">> mProj");
+    //GLWindow::printMatrix(glm::value_ptr(store_options->mat4_proj), ">> mat4_proj");
+    GLWindow::copyGlmtoMatrix(store_options->mat4_proj, mProj);
+    //GLWindow::printMatrix(mProj, ">> new mProj");
+    // GLWindow::printMatrix(mm3, ">> mm3 diff");
   }
   void setModelMatrix() {
     glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *)mModel);
-  }
+    //GLWindow::printMatrix(mModel, "setModelMatrix => mModel");
+    glm::mat4 mv=store_options->mat4_model*store_options->mat4_view;
+    //GLWindow::printMatrix(glm::value_ptr(mv), "setModelMatrix => mv");
+    GLWindow::copyGlmtoMatrix( mv, mModel);
+    //GLWindow::printMatrix(mModel, "setModelMatrix => mModel transformed");
+    // GLWindow::printMatrix(mm, "mm to mModel");
+    // GLWindow::printMatrix(glm::value_ptr(mv), ">> mat4_modeliview");
+   }
   void setViewPort() { glGetIntegerv(GL_VIEWPORT, viewport); }
 
   void setPerspectiveMatrix();

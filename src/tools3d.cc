@@ -11,6 +11,10 @@
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
 #include "tools3d.h"
+#include "glwindow.h"
+#include <cstring>
+#include <glm/fwd.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace glnemo {
 
@@ -41,6 +45,11 @@ void Tools3D::bestZoomFromObject(double * mProj,double * mModel,
                                   const int * viewport, const ParticlesObjectVector * pov,
                                   const ParticlesData * part_data, GlobalOptions * store_options)
 {
+  // copy legacy matrix to mProj and mModel
+  glm::mat4 mv=store_options->mat4_model*store_options->mat4_view;
+  GLWindow::copyGlmtoMatrix(store_options->mat4_proj,mProj);
+  GLWindow::copyGlmtoMatrix(mv,mModel);
+ //
   //glGetIntegerv(GL_VIEWPORT,viewport);
   if (pov && pov->size() ) {
     // force ZOOM to fit all particles
@@ -195,7 +204,11 @@ void Tools3D::bestZoomFromList(double * mProj,double * mModel,
                               const int * viewport, const std::vector <int> * list,
                               const ParticlesData * part_data, GlobalOptions * store_options)
 {
-
+  // copy legacy matrix to mProj and mModel
+  glm::mat4 mv=store_options->mat4_model*store_options->mat4_view;
+  GLWindow::copyGlmtoMatrix(store_options->mat4_proj,mProj);
+  GLWindow::copyGlmtoMatrix(mv,mModel);
+  
   if (list->size() ) {
     // force ZOOM to fit all particles
     // Zoom is located in ModelView matrix at coordinates MM(2,3)

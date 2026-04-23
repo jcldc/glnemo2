@@ -355,8 +355,6 @@ void GLWindow::paintGL()
   float rv=store_options->vrot-last_vrot;
   float rw=store_options->wrot-last_wrot;
 
-  std::cerr << "ru= " << ru << " rv =" << rv << " rw= " << rw <<"\n";
-  
   // the following code compute OpenGL rotation 
   // around UVW scene/object axes
   if (ru!=0 ||
@@ -397,7 +395,6 @@ void GLWindow::paintGL()
   float ry=store_options->yrot-last_yrot;
   float rz=store_options->zrot-last_zrot;
 
-  std::cerr << "rx= " << rx << " ry =" << ry << " rz= " << rz <<"\n";
   // the following code compute OpenGL rotation 
   // around XYZ screen axes
   if (rx!=0 ||
@@ -516,11 +513,11 @@ void GLWindow::paintGL()
   //doneCurrent();
    GLfloat mview[16];
    glGetFloatv( GL_MODELVIEW_MATRIX,mview);
-   GLWindow::printMatrix(mview," mview 1");
+   // GLWindow::printMatrix(mview," mview 1");
    glm::mat4 mv=store_options->mat4_view * store_options->mat4_model;
-   GLWindow::printMatrix(glm::value_ptr(mv)," mv 1");
-   GLWindow::printMatrix(glm::value_ptr(store_options->mat4_view)," mat4_view 1");
-   GLWindow::printMatrix(glm::value_ptr(store_options->mat4_model)," mat4_model 1");
+   // GLWindow::printMatrix(glm::value_ptr(mv)," mv 1");
+   // GLWindow::printMatrix(glm::value_ptr(store_options->mat4_view)," mat4_view 1");
+   // GLWindow::printMatrix(glm::value_ptr(store_options->mat4_model)," mat4_model 1");
 
    if (store_options->show_part && pov ) {
     //mutex_data->lock();
@@ -1365,6 +1362,7 @@ void GLWindow::setPerspectiveMatrix()
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(45.,ratio,0.0005,(float) DOF);
+  store_options->mat4_proj = glm::perspective(glm::radians(45.f), (GLfloat)ratio, 0.0005f, (float) DOF);
 #if 1
   glMatrixMode( GL_MODELVIEW );
   glLoadIdentity();
