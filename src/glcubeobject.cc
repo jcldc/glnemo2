@@ -43,7 +43,7 @@ void GLCubeObject::buildDisplayList()
   // display list
   glNewList( dplist_index, GL_COMPILE );
   
-  // bottom square
+  // bottom square0v
   glBegin(GL_LINE_STRIP);  
   glVertex3f(-hs , -hs  , -hs );
   glVertex3f( hs , -hs  , -hs );

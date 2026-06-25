@@ -73,6 +73,8 @@
         <file>../res/shaders/glsl_330/velocity.frag.cc</file>
         <file>../res/shaders/glsl_330/camera.vert.cc</file>
         <file>../res/shaders/glsl_330/camera.frag.cc</file>
+        <file>../res/shaders/glsl_330/grid.vert.cc</file>
+        <file>../res/shaders/glsl_330/grid.frag.cc</file>
         <file>../res/shaders/velocity.vert130.cc</file>
         <file>../res/shaders/velocity.frag130.cc</file>
         <file>../res/shaders/velocity.vert330.cc</file>

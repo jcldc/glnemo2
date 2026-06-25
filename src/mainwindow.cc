@@ -160,7 +160,9 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_options,SIGNAL(leaveEvent()),gl_window,SLOT(setFocus()));
   // options grid tab
   connect(form_options,SIGNAL(update_grid()),gl_window,SLOT(updateGrid()));
+  connect(form_options,SIGNAL(update_grid()),gl_window,SLOT(updateGrid2()));
   connect(form_options,SIGNAL(rebuild_grid()),gl_window,SLOT(rebuildGrid()));
+  connect(form_options,SIGNAL(rebuild_grid()),gl_window,SLOT(rebuildGrid2()));
   // options osd tab
   connect(form_options,SIGNAL(osd_reset_matrix(bool)),gl_window,SLOT(resetMatrix(bool)));
   connect(form_options,SIGNAL(update_osd(bool)),this,SLOT(updateOsd(bool)));

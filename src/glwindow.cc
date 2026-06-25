@@ -25,7 +25,9 @@
 #include <math.h>
 #include "glwindow.h"
 #include "glgridobject.h"
+#include "glgridobject2.h"
 #include "glcubeobject.h"
+#include "glcubeobject2.h"
 #include "globaloptions.h"
 #include "particlesdata.h"
 #include "particlesobject.h"
@@ -271,6 +273,22 @@ void GLWindow::rebuildGrid(bool ugl)
   if (ugl) updateGL();
 }
 // ============================================================================
+// rebuildGrid2                                                             
+void GLWindow::rebuildGrid2(bool ugl)
+{
+  updateGrid2(ugl);
+  GLGridObject::nsquare = store_options->nb_meshs;
+  GLGridObject::square_size = store_options->mesh_length;
+ 
+  makeCurrent();
+  gridx2->rebuild(store_options->nb_meshs, store_options->mesh_length);
+  gridy2->rebuild(store_options->nb_meshs, store_options->mesh_length);
+  gridz2->rebuild(store_options->nb_meshs, store_options->mesh_length);
+  cube2->rebuild(store_options->nb_meshs*store_options->mesh_length);
+  doneCurrent();
+  if (ugl) updateGL();
+}
+// ============================================================================
 // updatedGrid                                                             
 void GLWindow::updateGrid(bool ugl)
 {
@@ -285,6 +303,24 @@ void GLWindow::updateGrid(bool ugl)
   
   cube->setActivate(store_options->show_cube);
   cube->setColor(store_options->col_cube);
+  
+  if (ugl) updateGL();
+}
+// ============================================================================
+// updatedGrid2                                                             
+void GLWindow::updateGrid2(bool ugl)
+{
+  gridx2->setActivate(store_options->xy_grid);
+  gridx2->setColor(store_options->col_x_grid);
+  
+  gridy2->setActivate(store_options->yz_grid);
+  gridy2->setColor(store_options->col_y_grid);
+  
+  gridz2->setActivate(store_options->xz_grid);
+  gridz2->setColor(store_options->col_z_grid);
+  
+  cube2->setActivate(store_options->show_cube);
+  cube2->setColor(store_options->col_cube);
   
   if (ugl) updateGL();
 }
@@ -468,7 +504,7 @@ void GLWindow::paintGL()
   }
 
   // grid display
-#if 0
+#if 0 // test core330
   if (store_options->show_grid) {
     //glEnable( GL_DEPTH_TEST );
     glDisable(GL_DEPTH_TEST);
@@ -478,10 +514,20 @@ void GLWindow::paintGL()
     gridz->display();
     cube->display();
     glDisable(GL_BLEND);
+ }
+#else
+  if (store_options->show_grid) {
+    //glEnable( GL_DEPTH_TEST );
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    renderGrids(store_options->mat4_model, store_options->mat4_view, store_options->mat4_proj);
+    //cube->display();
+    glDisable(GL_BLEND);
   }
+
 #endif
   // camera display path and control points
-  //JCL camera->display(wheight);
+  camera->display(wheight);
 
   setModelMatrix(); // save ModelView  Matrix
   setProjMatrix();  // save Projection Matrix
@@ -509,8 +555,11 @@ void GLWindow::paintGL()
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
   //makeCurrent();
-  // JCL   cpointset_manager->displayAll();
+  #if 1 // TEST core330
+  cpointset_manager->displayAll();
+  #endif
   //doneCurrent();
+  //
    GLfloat mview[16];
    glGetFloatv( GL_MODELVIEW_MATRIX,mview);
    // GLWindow::printMatrix(mview," mview 1");
@@ -612,6 +661,11 @@ void GLWindow::initShader()
       shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/particles.vert.cc",
                             GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/particles.frag.cc");
       shader->init();
+      // grid shader
+      grid_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/grid.vert.cc",
+                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/grid.frag.cc");
+      grid_shader->init();
+
       // velocity shader
       if (1) {
 
@@ -723,12 +777,25 @@ qDebug() << "GLSL    :" << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)
   gridx = new GLGridObject(0,store_options->col_x_grid,store_options->xy_grid);
   gridy = new GLGridObject(1,store_options->col_y_grid,store_options->yz_grid);
   gridz = new GLGridObject(2,store_options->col_z_grid,store_options->xz_grid);
-  
+  // new grid2 with shaders
+  gridx2 = new GLGridObject2(20, 1.0f, 0, store_options->col_x_grid);   // rouge  – plan XY
+  gridy2 = new GLGridObject2(20, 1.0f, 1, store_options->col_y_grid);   // vert   – plan YZ
+  gridz2 = new GLGridObject2(20, 1.0f, 2, store_options->col_z_grid);   // bleu   – plan XZ
+
+  gridx2->setActivate(store_options->xy_grid);
+  gridy2->setActivate(store_options->yz_grid);
+  gridz2->setActivate(store_options->xz_grid);
+
+  gridx2->build();
+  gridy2->build();
+  gridz2->build();
+
   // axes
   axes = new GLAxesObject();
   
   // cube
   cube  = new GLCubeObject(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
+  cube2 = new GLCubeObject2(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
   // load texture
   GLTexture::loadTextureVector(gtv);
   
@@ -1404,4 +1471,16 @@ void GLWindow::bestZoomFit()
   osdZoom();
   if ( !store_options->duplicate_mem) mutex_data->unlock();
 }
-} // namespace glnemo
+// ============================================================================
+// Best Zoom fit
+// fit all the particles on the screen from perspective view
+void GLWindow::renderGrids(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection)
+{
+    // Display grids
+    gridx2->draw(grid_shader->getProgramId(), model, view, projection);
+    gridy2->draw(grid_shader->getProgramId(), model, view, projection);
+    gridz2->draw(grid_shader->getProgramId(), model, view, projection);
+    // Display cube
+    cube2->draw(grid_shader->getProgramId(), model, view, projection);
+}
+ } // namespace glnemo

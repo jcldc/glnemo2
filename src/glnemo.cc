@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
   // ── Set the default OpenGL format BEFORE creating QApplication ────────────
   // This ensures all QOpenGLWidget instances use Core Profile 3.3
   QSurfaceFormat defaultFormat;
-  defaultFormat.setVersion(3, 3);
+  //defaultFormat.setVersion(3, 3); // when activated -> pb with cpoints
   defaultFormat.setProfile(QSurfaceFormat::CoreProfile);
   defaultFormat.setDepthBufferSize(24);
   defaultFormat.setSamples(4);
