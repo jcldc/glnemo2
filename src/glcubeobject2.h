@@ -37,9 +37,9 @@ public:
         , m_vbo(0)
         , m_vertexCount(0)
     {
-      
-        // Set color
-        setColor(c);
+      setActivate(activated); 
+      // Set color
+      setColor(c);
    }
 
   ~GLCubeObject2();

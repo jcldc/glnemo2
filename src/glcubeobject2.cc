@@ -34,70 +34,109 @@ void GLCubeObject2::build()
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   std::vector<float> vertices;
   
-  //vertices.reserve(6 * (m_nsquare + 1) * 2); // 2 points × 3 floats × 2 boucles
-  //vertices.reserve((m_nsquare + 1) * 2 * 2 * 3);
-
   float hs = m_squareSize/2.; // half square
+  
   // bottom square
+  // A
   vertices.push_back(-hs);
   vertices.push_back(-hs);
   vertices.push_back(-hs);
+  // B
   vertices.push_back(hs);
   vertices.push_back(-hs);
   vertices.push_back(-hs);
-  vertices.push_back(hs);
-  vertices.push_back(hs);
-  vertices.push_back(-hs);
-  vertices.push_back(-hs);
+  // B
   vertices.push_back(hs);
   vertices.push_back(-hs);
   vertices.push_back(-hs);
+  // C
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  // C
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  // D
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  // D
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  // A
   vertices.push_back(-hs);
   vertices.push_back(-hs);
-  
+  vertices.push_back(-hs);
   // top square
+  // E
   vertices.push_back(-hs);
   vertices.push_back(-hs);
   vertices.push_back(hs);
+  // F
   vertices.push_back(hs);
   vertices.push_back(-hs);
   vertices.push_back(hs);
-  vertices.push_back(hs);
-  vertices.push_back(hs);
-  vertices.push_back(hs);
-  vertices.push_back(-hs);
-  vertices.push_back(hs);
-  vertices.push_back(hs);
-  vertices.push_back(-hs);
-  vertices.push_back(-hs);
-  vertices.push_back(hs);
-  
-  // segment between two squares
-  vertices.push_back(-hs);
-  vertices.push_back(-hs);
-  vertices.push_back(-hs);
-  vertices.push_back(-hs);
-  vertices.push_back(-hs);
-  vertices.push_back(hs);
-  vertices.push_back(hs);
-  vertices.push_back(-hs);
-  vertices.push_back(-hs);
+  // F
   vertices.push_back(hs);
   vertices.push_back(-hs);
   vertices.push_back(hs);
+  // G
   vertices.push_back(hs);
   vertices.push_back(hs);
+  vertices.push_back(hs);
+  // G
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  // H
   vertices.push_back(-hs);
   vertices.push_back(hs);
   vertices.push_back(hs);
-  vertices.push_back(hs);
-  vertices.push_back(-hs);
-  vertices.push_back(hs);
-  vertices.push_back(-hs);
+  // H
   vertices.push_back(-hs);
   vertices.push_back(hs);
   vertices.push_back(hs);
- 
+  // E
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+
+  // We connect plans
+  // A
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  // E
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  // B
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  // F
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  // D
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  // H
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  // C
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  // G
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+
   m_vertexCount = static_cast<GLsizei>(vertices.size() / 3);
   // ── Upload GPU ────────────────────────────────────────────────────────
   f->glGenVertexArrays(1, &m_vao);

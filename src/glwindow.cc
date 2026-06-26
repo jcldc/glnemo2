@@ -10,6 +10,7 @@
 // ============================================================================
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
+#include <GL/gl.h>
 #include <QtGlobal>
 #include <glm/fwd.hpp>
 #include <glm/trigonometric.hpp>
@@ -796,6 +797,7 @@ qDebug() << "GLSL    :" << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)
   // cube
   cube  = new GLCubeObject(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
   cube2 = new GLCubeObject2(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
+  cube2->build();
   // load texture
   GLTexture::loadTextureVector(gtv);
   
