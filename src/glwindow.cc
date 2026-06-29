@@ -10,6 +10,7 @@
 // ============================================================================
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
+#include "gltextobject2.h"
 #include <GL/gl.h>
 #include <QtGlobal>
 #include <glm/fwd.hpp>
@@ -602,7 +603,11 @@ void GLWindow::paintGL()
 
   // On Screen Display
   //JCL if (store_options->show_osd) osd->display();
-    
+  gto2->setScreenSize(wwidth,wheight);
+  gto2->draw("Hello World",
+                    10.f, static_cast<float>(wheight) - 30.f,
+                    1.0f,
+                    glm::vec4(1.f, 1.f, 0.f, 1.f)); 
   // display selected area
   //JCL gl_select->display(QOpenGLWidget::width(),QOpenGLWidget::height());
 
@@ -667,7 +672,16 @@ void GLWindow::initShader()
                             GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/grid.frag.cc");
       grid_shader->init();
 
-      // velocity shader
+      // text shader
+      text_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/text.vert.cc",
+                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/text.frag.cc");
+      text_shader->init();
+
+      gto2 = new GLTextObject2(text_shader->getProgramId());
+      if (! gto2->init("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)) {
+            qWarning("GLTextRenderer: font init failed");
+      }
+// velocity shader
       if (1) {
 
 #if 0
