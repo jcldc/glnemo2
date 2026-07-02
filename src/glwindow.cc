@@ -38,6 +38,7 @@
 #include "glcpoints.h"
 #include <QOpenGLVersionFunctionsFactory>
 
+#define ON_LEGACY 0
 namespace glnemo {
 #define DOF 4000000
   
@@ -557,7 +558,7 @@ void GLWindow::paintGL()
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
   //makeCurrent();
-  #if 1 // TEST core330
+  #if 0 // TEST core330
   cpointset_manager->displayAll();
   #endif
   //doneCurrent();
@@ -602,13 +603,15 @@ void GLWindow::paintGL()
   }
 
   // On Screen Display
-  //JCL if (store_options->show_osd) osd->display();
   gto2->setScreenSize(wwidth,wheight);
-  gto2->draw("Hello World",
-                    10.f, static_cast<float>(wheight) - 30.f,
-                    1.0f,
-                    glm::vec4(1.f, 1.f, 0.f, 1.f)); 
-  // display selected area
+  if (store_options->show_osd) osd->display(wwidth,wheight);
+  glnemo::TextBoundingBox box = gto2->getTextBoundingBox("Hello World", 100.f, 500.f, 1.0f);
+
+  // Si tu veux centrer ton texte sur l'axe X autour de la coordonnée 400 :
+  float xCentre = wwidth/2.0 - (box.width / 2.f);
+  float yCentre = wheight/2.0 - (box.height / 2.f);
+  gto2->draw("Hello World", xCentre, yCentre, 1.0f, glm::vec4(1.f));
+    /// display selected area
   //JCL gl_select->display(QOpenGLWidget::width(),QOpenGLWidget::height());
 
   // draw axes
@@ -678,7 +681,7 @@ void GLWindow::initShader()
       text_shader->init();
 
       gto2 = new GLTextObject2(text_shader->getProgramId());
-      if (! gto2->init("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)) {
+      if (! gto2->init("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 13)) {
             qWarning("GLTextRenderer: font init failed");
       }
 // velocity shader
@@ -756,27 +759,27 @@ void GLWindow::initializeGL()
   if (gl_major >= 3 || gl_extensions.contains("GL_EXT_gpu_shader4")) {
     cpointset_manager->initShaders("330");
   }
-/////////////////
-QOpenGLContext *ctx = QOpenGLContext::currentContext();
-// Version OpenGL
-int major = ctx->format().majorVersion();
-int minor = ctx->format().minorVersion();
-qDebug() << "OpenGL version:" << major << "." << minor;
+  /////////////////
+  QOpenGLContext *ctx = QOpenGLContext::currentContext();
+  // Version OpenGL
+  int major = ctx->format().majorVersion();
+  int minor = ctx->format().minorVersion();
+  qDebug() << "OpenGL version:" << major << "." << minor;
 
-// Profile
-QSurfaceFormat::OpenGLContextProfile profile = ctx->format().profile();
-if (profile == QSurfaceFormat::CoreProfile)
-    qDebug() << ">>>>>>>>>>>>> Profile: Core";
-else if (profile == QSurfaceFormat::CompatibilityProfile)
-    qDebug() << ">>>>>>>>>>>>> Profile: Compatibility";
-else
-    qDebug() << ">>>>>>>>>>>>> Profile: None/Default";
+  // Profile
+  QSurfaceFormat::OpenGLContextProfile profile = ctx->format().profile();
+  if (profile == QSurfaceFormat::CoreProfile)
+      qDebug() << ">>>>>>>>>>>>> Profile: Core";
+  else if (profile == QSurfaceFormat::CompatibilityProfile)
+      qDebug() << ">>>>>>>>>>>>> Profile: Compatibility";
+  else
+      qDebug() << ">>>>>>>>>>>>> Profile: None/Default";
 
-// Infos supplémentaires via OpenGL directement
-qDebug() << "Vendor  :" << (const char*)glGetString(GL_VENDOR);
-qDebug() << "Renderer:" << (const char*)glGetString(GL_RENDERER);
-qDebug() << "Version :" << (const char*)glGetString(GL_VERSION);
-qDebug() << "GLSL    :" << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+  // Infos supplémentaires via OpenGL directement
+  qDebug() << "Vendor  :" << (const char*)glGetString(GL_VENDOR);
+  qDebug() << "Renderer:" << (const char*)glGetString(GL_RENDERER);
+  qDebug() << "Version :" << (const char*)glGetString(GL_VERSION);
+  qDebug() << "GLSL    :" << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
 
 ///////////////////
@@ -827,11 +830,13 @@ qDebug() << "GLSL    :" << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)
   }
   
   // Osd
+#if ON_LEGACY
   fntRenderer text;
   font = new fntTexFont(store_options->osd_font_name.toStdString().c_str());
   text.setFont(font);
   text.setPointSize(store_options->osd_font_size );
-  osd = new GLObjectOsd(wwidth,wheight,text,store_options->osd_color);
+#endif
+  osd = new GLObjectOsd(wwidth,wheight,gto2,store_options->osd_color);
   // colorbar
   gl_colorbar = new GLColorbar(store_options,true);
   
@@ -1407,6 +1412,7 @@ void GLWindow::setOsd(const GLObjectOsd::OsdKeys k, const int value, bool show, 
 // Change OSD font
 void GLWindow::changeOsdFont()
 {
+#if ON_LEGACY
   fntRenderer text;
   if (font) delete font;
   font = new fntTexFont(store_options->osd_font_name.toStdString().c_str());
@@ -1415,6 +1421,7 @@ void GLWindow::changeOsdFont()
   osd->setFont(text);
   osd->setColor(store_options->osd_color);
   updateGL();
+#endif
 }
 // ============================================================================
 // set texture on the object

@@ -16,6 +16,8 @@ cmake_minimum_required(VERSION 3.10)
 
 # project name
 project (glnemo2)
+# Active le parallélisme par défaut pour la phase de build
+set(CMAKE_BUILD_PARALLEL_LEVEL 5)
 
 # extra path for .cmake .files
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)

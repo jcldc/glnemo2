@@ -11,17 +11,31 @@
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
 #include "gltextobject2.h"
+#include <cstdio>
+#include <glm/fwd.hpp>
 #include <qcolor.h>
 
 namespace glnemo {
 
 using namespace std;
 
-// ── Initialise FreeType, rasterise ASCII 32-127, build VAO ───────────────
+
+GLTextObject2::GLTextObject2(bool activated):GLObject()
+    {
+      //dplist_index = glGenLists( 1 ); // create a new display List
+      is_activated = activated;
+      x = y = x_text = 0;
+    }
+
+// - Initialise FreeType, rasterise ASCII 32-127, build VAO --------
 //  fontPath  : absolute path to a .ttf font file
 //  pixelSize : glyph height in pixels at scale=1.0
 bool GLTextObject2::init(const std::string& fontPath, unsigned int pixelSize) {
-// ── FreeType ──────────────────────────────────────────────────────────
+   
+  m_fontpath = fontPath;
+  m_pixelsize = pixelSize;
+
+  // - FreeType -----------------------------
   FT_Library ft;
   if (FT_Init_FreeType(&ft)) {
       fprintf(stderr, "[GLTextObject2] Failed to init FreeType\n");
@@ -40,7 +54,7 @@ bool GLTextObject2::init(const std::string& fontPath, unsigned int pixelSize) {
   
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
-  // ── Rasterise printable ASCII into individual GL textures ─────────────
+  // - Rasterise printable ASCII into individual GL textures -------
   // Disable default 4-byte row alignment; FreeType bitmaps are tightly packed.
   f->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -81,7 +95,7 @@ bool GLTextObject2::init(const std::string& fontPath, unsigned int pixelSize) {
   FT_Done_Face(face);
   FT_Done_FreeType(ft);
 
-  // ── VAO / VBO ─────────────────────────────────────────────────────────
+  // - VAO / VBO -----------------------------
   // The VBO is updated every frame (GL_DYNAMIC_DRAW): one 6-vertex quad
   // per character, each vertex = vec4(x, y, u, v).
   f->glGenVertexArrays(1, &m_vao);
@@ -103,7 +117,7 @@ bool GLTextObject2::init(const std::string& fontPath, unsigned int pixelSize) {
   return true;
 
 }
-// ── Render a string ───────────────────────────────────────────────────────
+// - Render a string ----------------------------
 //  text  : UTF-8 string (ASCII subset only in this implementation)
 //  x, y  : position in pixels, origin = bottom-left of the window
 //  scale : multiplier applied to the glyph size (1.0 = original pixel size)
@@ -113,6 +127,8 @@ void GLTextObject2::draw(const std::string& text,
           float scale,
           const glm::vec4& color) {
   // Build an orthographic projection: pixel (0,0) → NDC bottom-left.
+  // printf("draw : text [%s], x [%f] y [%f] scale [%f] m_screenW [%d] m_screenH [%d] m_vao[%d] m_vbo[%d] m_shader[%d]\n",
+  //       text.c_str(),x,y,scale,m_screenW, m_screenH,m_vao,m_vbo,m_shader);
   glm::mat4 proj = glm::ortho(
       0.f, static_cast<float>(m_screenW),
       0.f, static_cast<float>(m_screenH)
@@ -151,9 +167,9 @@ void GLTextObject2::draw(const std::string& text,
       float h = g.size.y * scale;
 
       // Two triangles forming a quad (CCW winding):
-      //   (xpos,ypos+h) ──── (xpos+w,ypos+h)
+      //   (xpos,ypos+h) -- (xpos+w,ypos+h)
       //        │                    │
-      //   (xpos,ypos  ) ──── (xpos+w,ypos  )
+      //   (xpos,ypos  ) -- (xpos+w,ypos  )
       //
       // Each row: x, y, texU, texV
       float quad[6][4] = {
@@ -183,7 +199,127 @@ void GLTextObject2::draw(const std::string& text,
   f->glBindTexture(GL_TEXTURE_2D, 0);
 
 }
+// - Calculer la bounding box d'une chaîne de caractères ----------
+//  text  : la chaîne de caractères
+//  x, y  : la même position de départ que celle passée à draw()
+//  scale : le même multiplicateur de taille que celui passé à draw()
+glnemo::TextBoundingBox GLTextObject2::getTextBoundingBox(const std::string& text, 
+                                                          float x, float y, 
+                                                          float scale) {
+    // Si le texte est vide, on retourne une box nulle à la position du curseur
+    if (text.empty()) {
+        return TextBoundingBox{x, x, y, y, 0.f, 0.f};
+    }
 
+    float minX = std::numeric_limits<float>::max();
+    float maxX = std::numeric_limits<float>::lowest();
+    float minY = std::numeric_limits<float>::max();
+    float maxY = std::numeric_limits<float>::lowest();
+
+    float cursorX = x;
+    bool hasValidGlyphs = false;
+
+    for (char c : text) {
+        auto it = m_glyphs.find(static_cast<unsigned char>(c));
+        if (it == m_glyphs.end()) continue;
+        const Glyph& g = it->second;
+
+        // Reprise exacte de tes calculs de positionnement de la méthode draw()
+        float xpos = cursorX + g.bearing.x * scale;
+        float ypos = y       - (g.size.y - g.bearing.y) * scale;
+
+        float w = g.size.x * scale;
+        float h = g.size.y * scale;
+
+        // Les coordonnées du quad pour ce glyphe :
+        // Gauche : xpos, Droite : xpos + w
+        // Bas : ypos, Haut : ypos + h
+        if (w > 0 && h > 0) { // On ignore les espaces purs pour les extrêmes verticaux
+            if (xpos < minX)     minX = xpos;
+            if (xpos + w > maxX) maxX = xpos + w;
+            if (ypos < minY)     minY = ypos;
+            if (ypos + h > maxY) maxY = ypos + h;
+            hasValidGlyphs = true;
+        }
+
+        // Avancer le curseur de la même manière
+        cursorX += (g.advance >> 6) * scale;
+    }
+
+    // Gestion du cas particulier (ex: une chaîne uniquement remplie d'espaces ' ')
+    if (!hasValidGlyphs) {
+        return TextBoundingBox{x, cursorX, y, y, cursorX - x, 0.f};
+    }
+
+    return TextBoundingBox{
+        minX,
+        maxX,
+        maxY, // top
+        minY, // bottom
+        maxX - minX, // width
+        maxY - minY  // height
+    };
+  }
+  // ============================================================================
+  // GLTextObject2::setText()                                                     
+  // set label and text                                                          
+  void GLTextObject2::setText(const QString &p_label,const QString& p_text)
+  {
+    label = p_label;
+    text  = p_text;
+  }
+  // ============================================================================
+  // GLTextObject2::getLabelWidth()                                               
+  // return label width in pixels                                                
+  int GLTextObject2::getLabelWidth()
+  {
+    float l,r,b,t;
+    glnemo::TextBoundingBox box = getTextBoundingBox(label.toStdString().c_str(),x,y,1);
+    return (box.width);
+  }
+  // ============================================================================
+  // GLTextObject2::getTextWidth()                                                
+  // return text width in pixels                                                 
+  int GLTextObject2::getTextWidth()
+  {
+    float l,r,b,t;
+    glnemo::TextBoundingBox box = getTextBoundingBox(text.toStdString().c_str(),x,y,1);
+    return (box.width);
+  }
+  // ============================================================================
+  // GLTextObject2::getHeight()                                                   
+  // return font height in pixels                                                
+  int GLTextObject2::getHeight()
+  {
+    float l,r,b,t;
+    glnemo::TextBoundingBox box = getTextBoundingBox(text.toStdString().c_str(),x,y,1);
+    return (box.height+3); // Add +3 pixels in height to seprate letters
+  }
+  // ============================================================================
+  // GLTextObject2::setPos()                                                      
+  // specify new positions x and y (in pixels) for the given text                
+  void GLTextObject2::setPos(const int new_x, const int new_y, 
+                            const int new_x_text)
+  {
+    x = new_x;
+    y = new_y;
+    x_text = new_x_text;
+  }
+  // ============================================================================
+  // GLTextObject::display()                                                     
+  // display text object if activated                                            
+  void GLTextObject2::display()
+  {
+    if (width) {;} // remove compiler warning
+    if (is_activated) {   
+      float r, g, b, a;
+      mycolor.getRgbF(&r, &g, &b, &a);
+      glm::vec4 gcolor(r,g,b,a);
+      draw(label.toStdString(),x,m_screenH-y,1,gcolor);
+      // text
+      draw(text.toStdString(),x_text,m_screenH-y,1,gcolor);
+    }
+  }
 }
 
 
