@@ -1,0 +1,120 @@
+// ============================================================================
+// Copyright Jean-Charles LAMBERT - 2007-2026                                  
+// e-mail:   Jean-Charles.Lambert@lam.fr                                      
+// address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
+//           Laboratoire d'Astrophysique de Marseille                          
+//           Pole de l'Etoile, site de Ch�teau-Gombert                         
+//           38, rue Fr�d�ric Joliot-Curie                                     
+//           13388 Marseille cedex 13 France                                   
+//           CNRS U.M.R 7326                                                   
+// ============================================================================
+// See the complete license in LICENSE and/or "http://www.cecill.info".        
+// ============================================================================
+//                                                                             
+// GLTextObject class definition                                               
+//                                                                             
+// Manage OpenGL Text Object used on the On Screen Display Display             
+// ============================================================================
+#ifndef GL_TEXT_RENDER_H
+#define GL_TEXT_RENDER_H
+
+//#include <qgl.h>
+#include "globject.h"
+#include "ul.h"
+#include <GL/gl.h>
+#include <QOpenGLExtraFunctions> 
+#include <QOpenGLFunctions>
+#include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <ft2build.h>
+#include <string>
+#include FT_FREETYPE_H
+
+// -- Glyph metrics cached after FreeType rasterisation ------------------------
+struct Glyph {
+    GLuint  textureID;   // GL texture holding the 8-bit bitmap
+    glm::ivec2 size;     // bitmap width × height  (pixels)
+    glm::ivec2 bearing;  // offset from baseline to top-left of bitmap
+    GLuint  advance;     // horizontal advance (in 1/64 px → divide by 64)
+};
+
+namespace glnemo { 
+class GLWindow;
+
+using namespace std;
+
+struct TextBoundingBox {
+    float left;
+    float right;
+    float top;
+    float bottom;
+    float width;   // (right - left)
+    float height;  // (top - bottom)
+};
+
+class GLTextRender : public GLObject {
+public:
+    GLTextRender(GLuint _m_shader)
+        : GLObject(), m_vao(0), m_vbo(0)
+        , m_screenW(800), m_screenH(600)
+    {
+      m_shader = _m_shader;
+    }
+    GLTextRender(bool activated=TRUE);
+    
+    ~GLTextRender() { destroy(); }
+
+    // -- Initialise FreeType, rasterise ASCII 32-127, build VAO ---------------
+    //  fontPath  : absolute path to a .ttf font file
+    //  pixelSize : glyph height in pixels at scale=1.0
+    bool init(const std::string& fontPath, unsigned int pixelSize = 24);
+  //
+    // -- Call this whenever the window is resized ------------------------------
+    void setScreenSize(int width, int height)
+    {
+        m_screenW = width;
+        m_screenH = height;
+    }
+
+    // return bounding box of a text
+    TextBoundingBox getTextBoundingBox(const std::string& text, float x, float y, float scale);
+
+    // -- Render a string -------------------------------------------------------
+    //  text  : UTF-8 string (ASCII subset only in this implementation)
+    //  x, y  : position in pixels, origin = bottom-left of the window
+    //  scale : multiplier applied to the glyph size (1.0 = original pixel size)
+    //  color : RGBA, components in [0, 1]
+    void draw(const std::string& text,
+              float x, float y,
+              float scale,
+              const glm::vec4& color);
+    // -- Release all GPU resources ---------------------------------------------
+    void destroy()
+    {
+        QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+        for (auto& pair : m_glyphs)
+            f->glDeleteTextures(1, &pair.second.textureID);
+        m_glyphs.clear();
+
+        if (m_vao)    { f->glDeleteVertexArrays(1, &m_vao); m_vao = 0; }
+        if (m_vbo)    { f->glDeleteBuffers(1, &m_vbo);       m_vbo = 0; }
+        //if (m_shader) { f->glDeleteProgram(m_shader);         m_shader = 0; }
+    }
+    std::string getFontPath() { return m_fontpath; }
+    // No copy
+    // GLTextRender(const GLTextRender&)            = delete;
+    // GLTextRender& operator=(const GLTextRender&) = delete;
+    //
+    private:
+    std::map<unsigned char, Glyph> m_glyphs;
+    GLuint  m_vao, m_vbo, m_shader;
+    int     m_screenW, m_screenH;
+    unsigned int m_pixelsize;
+    std::string m_fontpath;
+  };
+} // namespace
+#endif
+// ============================================================================
