@@ -11,6 +11,7 @@
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
 #include "gltextobject2.h"
+#include "gltextrender.h"
 #include <GL/gl.h>
 #include <QtGlobal>
 #include <glm/fwd.hpp>
@@ -558,7 +559,7 @@ void GLWindow::paintGL()
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
   //makeCurrent();
-  #if 0 // TEST core330
+  #if 1 // TEST core330
   cpointset_manager->displayAll();
   #endif
   //doneCurrent();
@@ -603,14 +604,14 @@ void GLWindow::paintGL()
   }
 
   // On Screen Display
-  gto2->setScreenSize(wwidth,wheight);
+  gtr->setScreenSize(wwidth,wheight);
   if (store_options->show_osd) osd->display(wwidth,wheight);
-  glnemo::TextBoundingBox box = gto2->getTextBoundingBox("Hello World", 100.f, 500.f, 1.0f);
+  glnemo::TextBoundingBox box = gtr->getTextBoundingBox("Hello World", 100.f, 500.f, 1.0f);
 
   // Si tu veux centrer ton texte sur l'axe X autour de la coordonnée 400 :
   float xCentre = wwidth/2.0 - (box.width / 2.f);
   float yCentre = wheight/2.0 - (box.height / 2.f);
-  gto2->draw("Hello World", xCentre, yCentre, 1.0f, glm::vec4(1.f));
+  gtr->draw("Hello World", xCentre, yCentre, 1.0f, glm::vec4(1.f));
     /// display selected area
   //JCL gl_select->display(QOpenGLWidget::width(),QOpenGLWidget::height());
 
@@ -680,8 +681,8 @@ void GLWindow::initShader()
                             GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/text.frag.cc");
       text_shader->init();
 
-      gto2 = new GLTextObject2(text_shader->getProgramId());
-      if (! gto2->init("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 13)) {
+      gtr = new GLTextRender(text_shader->getProgramId());
+      if (! gtr->init("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 13)) {
             qWarning("GLTextRenderer: font init failed");
       }
 // velocity shader
@@ -836,7 +837,7 @@ void GLWindow::initializeGL()
   text.setFont(font);
   text.setPointSize(store_options->osd_font_size );
 #endif
-  osd = new GLObjectOsd(wwidth,wheight,gto2,store_options->osd_color);
+  osd = new GLObjectOsd(wwidth,wheight,gtr,store_options->osd_color);
   // colorbar
   gl_colorbar = new GLColorbar(store_options,true);
   
@@ -1419,9 +1420,12 @@ void GLWindow::changeOsdFont()
   text.setFont(font);
   text.setPointSize(store_options->osd_font_size );
   osd->setFont(text);
-  osd->setColor(store_options->osd_color);
-  updateGL();
 #endif
+  osd->setColor(store_options->osd_color);
+  makeCurrent();
+  osd->rebuildFont(store_options->osd_font_name.toStdString(),store_options->osd_font_size);
+  doneCurrent();
+  updateGL();
 }
 // ============================================================================
 // set texture on the object

@@ -12,6 +12,7 @@
 // ============================================================================
 #include "globjectosd.h"
 #include "gltextobject2.h"
+#include "gltextrender.h"
 #include "glwindow.h"
 #include <GL/glu.h>
 #include <string>
@@ -37,17 +38,17 @@ char * GLObjectOsd::OsdText[n_OsdKeys] = {
 // ============================================================================
 // constructor                                                                 
 GLObjectOsd::GLObjectOsd(const int w, const int h,
-			 GLTextObject2 *_got2,const QColor &c,
+			 GLTextRender * _gtr,const QColor &c,
 			 bool activated):GLObject()
 {
   mycolor = c;
   is_activated = activated;
-  got2 = _got2;
+  gtr = _gtr;
   width = w;
   height = h;
 
   //Osd_text = new GLTextObject[n_OsdKeys](font,c);
-  Osd_text = new std::vector<GLTextObject2>(n_OsdKeys,*got2);
+  Osd_text = new std::vector<GLTextObject2>(n_OsdKeys,gtr);
   for (int i=0; i<n_OsdKeys; i++) {
     //(*Osd_text)[i].setFont(font);
     (*Osd_text)[i].setWH(width,height);
@@ -149,10 +150,10 @@ void GLObjectOsd::keysActivate(const OsdKeys k, const bool status)
 // set global font                                                             
 void GLObjectOsd::setFont(const std::string f)
 {
-  // first we update the fonts
-  for (int i=0; i<n_OsdKeys; i++) {
-    (*Osd_text)[i].setFont(f);
-  }
+  // // first we update the fonts
+  // for (int i=0; i<n_OsdKeys; i++) {
+  //   (*Osd_text)[i].setFont(f);
+  // }
   // 2nd we update text positions
   // first step must be complete otherwise
   // it crashs the application
@@ -165,7 +166,7 @@ void GLObjectOsd::setFont(const std::string f)
 // set font to the selected HubObject                                          
 void GLObjectOsd::setFont(const OsdKeys k, const std::string f)
 {
-  (*Osd_text)[k].setFont(f);
+  //(*Osd_text)[k].setFont(f);
 }
 // ============================================================================
 // GLObjectOsd::updateDisplay()
@@ -175,6 +176,7 @@ void GLObjectOsd::updateDisplay()
   if (is_activated) {
     for (int i=0; i<n_OsdKeys; i++) {
       if ((*Osd_text)[i].getActivate()) {
+        (*Osd_text)[i].setWH(width,height);
         updateDisplay((const OsdKeys) i);
       }
     }
@@ -198,13 +200,17 @@ void GLObjectOsd::updateDisplay(const OsdKeys k)
       y=(*Osd_text)[k].getHeight();
       break;
     case Nbody:
-      max=MAX((*Osd_text)[Nbody].getLabelWidth(),
+      printf("Nbody [%s]\n",(*Osd_text)[Time].getLabel().toStdString().c_str());
+      printf("Nbody [%s]\n",(*Osd_text)[Time].getText().toStdString().c_str());
+       max=MAX((*Osd_text)[Nbody].getLabelWidth(),
 	      (*Osd_text)[Time].getLabelWidth());
       x = 0;
       y = (*Osd_text)[Time].getHeight()+2+(*Osd_text)[Nbody].getHeight();
       x_text = max;
       break;
     case Time:
+      printf("Time [%s]\n",(*Osd_text)[Time].getLabel().toStdString().c_str());
+      printf("Time [%s]\n",(*Osd_text)[Time].getText().toStdString().c_str());
       max=MAX((*Osd_text)[Nbody].getLabelWidth(),
 	      (*Osd_text)[Time].getLabelWidth());
       x = 0;
@@ -274,7 +280,7 @@ void GLObjectOsd::display(const int width, const int height)
     //
     for (int i=0; i<n_OsdKeys; i++) {
       if ((*Osd_text)[i].getActivate()) {
-      (*Osd_text)[(const OsdKeys) i].setScreenSize(width,height);
+      (*Osd_text)[(const OsdKeys) i].setWH(width,height);
       (*Osd_text)[(const OsdKeys) i].display();
       }
     }
@@ -300,6 +306,14 @@ void GLObjectOsd::updateColor(const QColor col)
       (*Osd_text)[(const OsdKeys) i].setColor(col);
     }
   }
+}
+// ============================================================================
+// GLObjectOsd::rebuildFont
+// render Osd text object
+void GLObjectOsd::rebuildFont(const std::string font_name, const int font_size)
+{
+  gtr->init(gtr->getFontPath(), font_size);
+  updateDisplay();
 }
 // ============================================================================
 

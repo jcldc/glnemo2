@@ -28,7 +28,7 @@
 #include "gloctree.h"
 #include "glselection.h"
 #include "gltexture.h"
-#include "gltextobject2.h"
+#include "gltextrender.h"
 #include "offscreenrenderer.h"
 #include "particlesobject.h"
 #include <GL/gl.h>
@@ -344,8 +344,7 @@ private:
   GLTextureVector gtv;
   // Thread
   QRecursiveMutex *mutex_data;
-  // gltextobject2
-  GLTextObject2 * gto2;
+  GLTextRender * gtr;
   bool is_shift_pressed;
   // bench
   int nframe;

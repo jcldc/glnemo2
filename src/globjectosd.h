@@ -16,16 +16,18 @@
 #ifndef GLNEMOGLOBJECTOSD_H
 #define GLNEMOGLOBJECTOSD_H
 #include <QObject>
+#include <string>
 #include <vector>
-#include "gltextobject.h"
 #include "gltextobject2.h"
+#include "gltextrender.h"
+
 
 namespace glnemo {
 class GLTextObject;
 class GLObjectOsd : public GLObject {
   Q_OBJECT
   public:
-    GLObjectOsd(const int w, const int h,GLTextObject2 * _got2,
+    GLObjectOsd(const int w, const int h,GLTextRender * _gtr,
 		const QColor &c=Qt::green, bool activated=TRUE);
    ~GLObjectOsd();
 
@@ -43,7 +45,7 @@ class GLObjectOsd : public GLObject {
      n_OsdKeys
    };
   std::vector<GLTextObject2> * Osd_text;
-  GLTextObject2 * got2;
+  GLTextRender * gtr;
   public slots:
     void setWH(int width, int height);
     void setFont(const std::string font);
@@ -60,7 +62,7 @@ class GLObjectOsd : public GLObject {
     void updateDisplay(const OsdKeys k);
     void display(const int width, const int height);
     void updateColor(const QColor);
-    
+    void rebuildFont(const std::string font_name, const int font_size ); 
   private:
     static char * OsdText[n_OsdKeys];
     //fntRenderer font;
