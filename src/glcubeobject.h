@@ -13,25 +13,61 @@
 /**
 	@author Jean-Charles Lambert <Jean-Charles.Lambert@lam.fr>
 */
-#ifndef GLCUBEOBJECT_H
-#define GLCUBEOBJECT_H
+#ifndef GLNEMOGLCUBEOBJECT_H
+#define GLNEMOGLCUBEOBJECT_H
 #include <QOpenGLWidget>
+#include <QtOpenGL>
+#include <QOpenGLExtraFunctions> 
+#include <QOpenGLFunctions>
+#include <glm/fwd.hpp>
+#include <glm/glm.hpp>
+#include <qcolor.h>
 
 #include "globject.h"
+
 namespace glnemo {
-  
-class GLCubeObject : public GLObject {
+
+
+class GLCubeObject: public GLObject {
 public:
-  GLCubeObject(float,const QColor &c=Qt::yellow, bool activated=true);
-    ~GLCubeObject();
-    void setSquareSize(float);
-    void rebuild() { 
-         buildDisplayList(); 
-    }
+
+  GLCubeObject( float square_size=1.0, const QColor &c=Qt::yellow, bool activated=true)
+          : m_squareSize(square_size)
+        , m_vao(0)
+        , m_vbo(0)
+        , m_vertexCount(0)
+    {
+      setActivate(activated); 
+      // Set color
+      setColor(c);
+   }
+
+  ~GLCubeObject();
+  void build();
+  void rebuild(float square_size);
+  void setColor(const QColor& color);
+
+  void draw(GLuint shaderProgram,
+              const glm::mat4& model,
+              const glm::mat4& view,
+              const glm::mat4& projection) const;
+
+  void setVec4FromQColor(glm::vec4& vec, const QColor& color) {
+      vec.r = color.redF();
+      vec.g = color.greenF();
+      vec.b = color.blueF();
+      vec.a = color.alphaF();
+  }
+  void setSquareSize(float _square_size) { m_squareSize = _square_size;}
+  void destroy();
+
 private:
-    float square_size;  // size of square
-    // method
-    void  buildDisplayList(); 
+    float     m_squareSize;
+    glm::vec4    m_color;
+    GLuint    m_vao;
+    GLuint    m_vbo;
+    GLsizei   m_vertexCount;
 };
 }
-#endif // GLCUBEOBJECT_H
+
+#endif

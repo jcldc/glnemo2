@@ -22,7 +22,6 @@
 #include "glcolorbar.h"
 #include "glcpoints.h"
 #include "glcubeobject.h"
-#include "glcubeobject2.h"
 #include "globjectosd.h"
 #include "globjectparticles.h"
 #include "gloctree.h"
@@ -45,7 +44,7 @@ class fntTexFont;
 
 namespace glnemo {
 class GLGridObject;
-class GLGridObject2;
+class GLGridObject;
 class GlobalOptions;
 
 class GLWindow : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
@@ -141,9 +140,7 @@ public slots:
   void reverseColorMap();
   void rebuildGrid(bool ugl = true);
   void renderGrids(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
-  void rebuildGrid2(bool ugl = true);
   void updateGrid(bool ugl = true);
-  void updateGrid2(bool ugl = true);
   void updateGL();
   void updateOsdZrt(bool ugl = true);
   void forcePaintGL() {
@@ -248,10 +245,8 @@ private:
   // global options
   GlobalOptions *store_options;
   // grid variables
-  GLGridObject *gridx, *gridy, *gridz;
-  GLGridObject2 *gridx2, *gridy2, *gridz2;
-  GLCubeObject *cube;
-  GLCubeObject2 *cube2;
+  GLGridObject *gridx2, *gridy2, *gridz2;
+  GLCubeObject *cube2;
   // axes
   GLAxesObject *axes;
   // Vectors

@@ -10,120 +10,84 @@
 // ============================================================================
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
-//                                                                             
-// GLTextObject class implementation                                           
-//                                                                             
-// Manage OpenGL Text Object                                                   
-// ============================================================================
-
-#include "glwindow.h"
 #include "gltextobject.h"
+#include <glm/fwd.hpp>
+#include <qcolor.h>
+
 namespace glnemo {
-// ============================================================================
-// constructor                                                                 
-GLTextObject::GLTextObject(const QString text,const fntRenderer &f,
-                           const QColor &c, 
-                           bool activated):GLObject()
-{
-  if (text=="") {;};
-  setColor(c);
-  font = f;
-  is_activated = activated;
-  x = y = x_text = 0; 
-}
-// ============================================================================
-// constructor                                                                 
-GLTextObject::GLTextObject(const fntRenderer &f,const QColor &c, 
-                           bool activated):GLObject()
-{
-  setColor(c);
-  is_activated = activated;
-  font = f;  
-  x = y = x_text = 0;
-}
-// ============================================================================
-// constructor                                                                 
+
+using namespace std;
+
+
 GLTextObject::GLTextObject(bool activated):GLObject()
-{
-  //dplist_index = glGenLists( 1 ); // create a new display List
-  is_activated = activated;
-  x = y = x_text = 0;
-}
-// ============================================================================
-// destructor                                                                  
-GLTextObject::~GLTextObject()
-{
-}    
-// ============================================================================
-// GLTextObject::setText()                                                     
-// set label and text                                                          
-void GLTextObject::setText(const QString &p_label,const QString& p_text)
-{
-  label = p_label;
-  text  = p_text;
-}
-// ============================================================================
-// GLTextObject::setFont()                                                     
-// set Font                                                                    
-void GLTextObject::setFont(fntRenderer &f)
-{
-  font = f;
-}
-// ============================================================================
-// GLTextObject::getLabelWidth()                                               
-// return label width in pixels                                                
-int GLTextObject::getLabelWidth()
-{
-  float l,r,b,t;
-  font.getFont()->getBBox(label.toStdString().c_str(),font.getPointSize(),0,&l,&r,&b,&t);
-  return (r-l);
-}
-// ============================================================================
-// GLTextObject::getTextWidth()                                                
-// return text width in pixels                                                 
-int GLTextObject::getTextWidth()
-{
-  float l,r,b,t;
-  font.getFont()->getBBox(text.toStdString().c_str(),font.getPointSize(),0,&l,&r,&b,&t);
-  return (r-l);
-}
-// ============================================================================
-// GLTextObject::getHeight()                                                   
-// return font height in pixels                                                
-int GLTextObject::getHeight()
-{
-  float l,r,b,t;
-  //font.getFont()->getBBox("this is a test",font.getPointSize(),0,&l,&r,&b,&t);
-  font.getFont()->getBBox(text.toStdString().c_str(),font.getPointSize(),0,&l,&r,&b,&t);
-  return (t-b);
-}
-// ============================================================================
-// GLTextObject::setPos()                                                      
-// specify new positions x and y (in pixels) for the given text                
-void GLTextObject::setPos(const int new_x, const int new_y, 
-                          const int new_x_text)
-{
-  x = new_x;
-  y = new_y;
-  x_text = new_x_text;
-}
-// ============================================================================
-// GLTextObject::display()                                                     
-// display text object if activated                                            
-void GLTextObject::display(const int width, const int height)
-{
-  if (width) {;} // remove compiler warning
-  if (is_activated) {   
-    glColor4ub(mycolor.red(), mycolor.green(), mycolor.blue(),255);
-    //std::cerr << "text and label" << label.toStdString()<< "/" << text.toStdString()<<"\n";
-    // label    
-    font.start2f(x,height-y);
-    font.puts(label.toStdString().c_str());
-    // text
-    font.start2f(x_text,height-y);
-    font.puts(text.toStdString().c_str());
+    {
+      //dplist_index = glGenLists( 1 ); // create a new display List
+      is_activated = activated;
+      x = y = x_text = 0;
+    }
+
+  // ============================================================================
+  // GLTextObject::setText()                                                     
+  // set label and text                                                          
+  void GLTextObject::setText(const QString &p_label,const QString& p_text)
+  {
+    label = p_label;
+    text  = p_text;
+  }
+  // ============================================================================
+  // GLTextObject::getLabelWidth()                                               
+  // return label width in pixels                                                
+  int GLTextObject::getLabelWidth()
+  {
+    float l,r,b,t;
+    glnemo::TextBoundingBox box = m_gtr->getTextBoundingBox(label.toStdString().c_str(),x,y,1);
+    return (box.width);
+  }
+  // ============================================================================
+  // GLTextObject::getTextWidth()                                                
+  // return text width in pixels                                                 
+  int GLTextObject::getTextWidth()
+  {
+    float l,r,b,t;
+    glnemo::TextBoundingBox box = m_gtr->getTextBoundingBox(text.toStdString().c_str(),x,y,1);
+    return (box.width);
+  }
+  // ============================================================================
+  // GLTextObject::getHeight()                                                   
+  // return font height in pixels                                                
+  int GLTextObject::getHeight()
+  {
+    float l,r,b,t;
+    glnemo::TextBoundingBox box = m_gtr->getTextBoundingBox(text.toStdString().c_str(),x,y,1);
+    return (box.height+3); // Add +3 pixels in height to seprate letters
+  }
+  // ============================================================================
+  // GLTextObject::setPos()                                                      
+  // specify new positions x and y (in pixels) for the given text                
+  void GLTextObject::setPos(const int new_x, const int new_y, 
+                            const int new_x_text)
+  {
+    x = new_x;
+    y = new_y;
+    x_text = new_x_text;
+  }
+  // ============================================================================
+  // GLTextObject::display()                                                     
+  // display text object if activated                                            
+  void GLTextObject::display()
+  {
+    if (width) {;} // remove compiler warning
+    if (is_activated) {   
+      float r, g, b, a;
+      mycolor.getRgbF(&r, &g, &b, &a);
+      glm::vec4 gcolor(r,g,b,a);
+      if (! text.toStdString().empty()) {
+        m_gtr->draw(label.toStdString(),x,height-y,1,gcolor);
+        // text
+        m_gtr->draw(text.toStdString(),x_text,height-y,1,gcolor);
+      }
+    }
   }
 }
-} // namespace
-// ============================================================================
+
 

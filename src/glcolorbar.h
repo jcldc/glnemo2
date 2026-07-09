@@ -56,8 +56,8 @@ private:
     void drawLegend();
     void drawText(float value, int fac);
     // font stuffs
-    GLTextObject * legend;    
-    fntTexFont * font;
+    // GLTextObject * legend;    
+    // fntTexFont * font;
     int x[4][2];
         
     PhysicalData * phys_select;

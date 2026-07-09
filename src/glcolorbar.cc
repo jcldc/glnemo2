@@ -22,23 +22,26 @@ GLColorbar::GLColorbar(const GlobalOptions  * _go,bool _enable ):GLObject()
 {
   go     = _go;
   is_activated = _enable;
-  font = NULL;
+  #if 0 // diable core330
   legend = new GLTextObject(); // new object for text display
   updateFont();
+  #endif
 }
 
 // ============================================================================
 // destructor                                                                  
 GLColorbar::~GLColorbar()
 {
-  if (font) delete font;
+  #if 0 // diable core330
   delete  legend;
+  #endif
 }
 
 // ============================================================================
 // void updateFont
 void GLColorbar::updateFont()
 {
+#if 0 // disable core330
   fntRenderer text;
   if (font) delete font;
   font = new fntTexFont(go->gcb_font_name.toStdString().c_str());  
@@ -46,6 +49,7 @@ void GLColorbar::updateFont()
   text.setPointSize(go->gcb_font_size);  
   legend->setFont(text);
   legend->setColor(go->gcb_color);
+#endif
 }
 
 // ============================================================================
@@ -302,6 +306,7 @@ void GLColorbar::drawLegend()
 // void GLColorbar::drawText
 void GLColorbar::drawText(float value, int fac)
 {
+  #if 0  // disblae core330
   QString text1,text0="";
   int xx=0,yy=0,tw=0,th=0;
   // max
@@ -339,5 +344,6 @@ void GLColorbar::drawText(float value, int fac)
   font->begin(); // mandatory !!
   legend->display(width,height);
   font->end();   // mandatory !!
+#endif
 }
 } // namespace glnemo

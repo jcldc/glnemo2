@@ -18,7 +18,6 @@
 #include <QObject>
 #include <string>
 #include <vector>
-#include "gltextobject2.h"
 #include "gltextrender.h"
 
 
@@ -44,7 +43,7 @@ class GLObjectOsd : public GLObject {
      Projection,
      n_OsdKeys
    };
-  std::vector<GLTextObject2> * Osd_text;
+  std::vector<GLTextObject> * Osd_text;
   GLTextRender * gtr;
   public slots:
     void setWH(int width, int height);

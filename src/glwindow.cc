@@ -10,7 +10,7 @@
 // ============================================================================
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
-#include "gltextobject2.h"
+#include "gltextobject.h"
 #include "gltextrender.h"
 #include <GL/gl.h>
 #include <QtGlobal>
@@ -28,9 +28,9 @@
 #include <math.h>
 #include "glwindow.h"
 #include "glgridobject.h"
-#include "glgridobject2.h"
+#include "glgridobject.h"
 #include "glcubeobject.h"
-#include "glcubeobject2.h"
+#include "glcubeobject.h"
 #include "globaloptions.h"
 #include "particlesdata.h"
 #include "particlesobject.h"
@@ -122,11 +122,11 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mute
 // Destructor
 GLWindow::~GLWindow()
 {
-  delete gridx;
-  delete gridy;
-  delete gridz;
+  delete gridx2;
+  delete gridy2;
+  delete gridz2;
   delete gl_select;
-  delete cube;
+  delete cube2;
   delete tree;
   delete axes;
   if (GLWindow::GLSL_support) {
@@ -265,24 +265,12 @@ void GLWindow::reverseColorMap()
   updateGL();
 }
 // ============================================================================
-// rebuildGrid                                                             
+// rebuildGrid2                                                             
 void GLWindow::rebuildGrid(bool ugl)
 {
-  GLGridObject::nsquare = store_options->nb_meshs;
-  GLGridObject::square_size = store_options->mesh_length;
-  gridx->rebuild();
-  gridy->rebuild();
-  gridz->rebuild();
-  cube->setSquareSize(store_options->nb_meshs*store_options->mesh_length);
-  if (ugl) updateGL();
-}
-// ============================================================================
-// rebuildGrid2                                                             
-void GLWindow::rebuildGrid2(bool ugl)
-{
-  updateGrid2(ugl);
-  GLGridObject::nsquare = store_options->nb_meshs;
-  GLGridObject::square_size = store_options->mesh_length;
+  updateGrid(ugl);
+  // GLGridObject::nsquare = store_options->nb_meshs;
+  // GLGridObject::square_size = store_options->mesh_length;
  
   makeCurrent();
   gridx2->rebuild(store_options->nb_meshs, store_options->mesh_length);
@@ -295,24 +283,6 @@ void GLWindow::rebuildGrid2(bool ugl)
 // ============================================================================
 // updatedGrid                                                             
 void GLWindow::updateGrid(bool ugl)
-{
-  gridx->setActivate(store_options->xy_grid);
-  gridx->setColor(store_options->col_x_grid);
-  
-  gridy->setActivate(store_options->yz_grid);
-  gridy->setColor(store_options->col_y_grid);
-  
-  gridz->setActivate(store_options->xz_grid);
-  gridz->setColor(store_options->col_z_grid);
-  
-  cube->setActivate(store_options->show_cube);
-  cube->setColor(store_options->col_cube);
-  
-  if (ugl) updateGL();
-}
-// ============================================================================
-// updatedGrid2                                                             
-void GLWindow::updateGrid2(bool ugl)
 {
   gridx2->setActivate(store_options->xy_grid);
   gridx2->setColor(store_options->col_x_grid);
@@ -508,18 +478,6 @@ void GLWindow::paintGL()
   }
 
   // grid display
-#if 0 // test core330
-  if (store_options->show_grid) {
-    //glEnable( GL_DEPTH_TEST );
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    gridx->display();
-    gridy->display();
-    gridz->display();
-    cube->display();
-    glDisable(GL_BLEND);
- }
-#else
   if (store_options->show_grid) {
     //glEnable( GL_DEPTH_TEST );
     glDisable(GL_DEPTH_TEST);
@@ -529,7 +487,6 @@ void GLWindow::paintGL()
     glDisable(GL_BLEND);
   }
 
-#endif
   // camera display path and control points
   camera->display(wheight);
 
@@ -559,9 +516,7 @@ void GLWindow::paintGL()
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
   //makeCurrent();
-  #if 1 // TEST core330
   cpointset_manager->displayAll();
-  #endif
   //doneCurrent();
   //
    GLfloat mview[16];
@@ -606,7 +561,7 @@ void GLWindow::paintGL()
   // On Screen Display
   gtr->setScreenSize(wwidth,wheight);
   if (store_options->show_osd) osd->display(wwidth,wheight);
-  glnemo::TextBoundingBox box = gtr->getTextBoundingBox("Hello World", 100.f, 500.f, 1.0f);
+  glnemo::TextBoundingBox box = gtr->getTextBoundingBox("Glnemo 2.0 core330", 100.f, 500.f, 2.0f);
 
   // Si tu veux centrer ton texte sur l'axe X autour de la coordonnée 400 :
   float xCentre = wwidth/2.0 - (box.width / 2.f);
@@ -792,15 +747,12 @@ void GLWindow::initializeGL()
   camera->loadShader();
   camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
   
-  GLGridObject::nsquare = store_options->nb_meshs;
-  GLGridObject::square_size = store_options->mesh_length;
-  gridx = new GLGridObject(0,store_options->col_x_grid,store_options->xy_grid);
-  gridy = new GLGridObject(1,store_options->col_y_grid,store_options->yz_grid);
-  gridz = new GLGridObject(2,store_options->col_z_grid,store_options->xz_grid);
+  // GLGridObject::nsquare = store_options->nb_meshs;
+  // GLGridObject::square_size = store_options->mesh_length;
   // new grid2 with shaders
-  gridx2 = new GLGridObject2(20, 1.0f, 0, store_options->col_x_grid);   // rouge  – plan XY
-  gridy2 = new GLGridObject2(20, 1.0f, 1, store_options->col_y_grid);   // vert   – plan YZ
-  gridz2 = new GLGridObject2(20, 1.0f, 2, store_options->col_z_grid);   // bleu   – plan XZ
+  gridx2 = new GLGridObject(20, 1.0f, 0, store_options->col_x_grid);   // rouge  – plan XY
+  gridy2 = new GLGridObject(20, 1.0f, 1, store_options->col_y_grid);   // vert   – plan YZ
+  gridz2 = new GLGridObject(20, 1.0f, 2, store_options->col_z_grid);   // bleu   – plan XZ
 
   gridx2->setActivate(store_options->xy_grid);
   gridy2->setActivate(store_options->yz_grid);
@@ -817,8 +769,7 @@ void GLWindow::initializeGL()
   gl_select->init();
 
   // cube
-  cube  = new GLCubeObject(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
-  cube2 = new GLCubeObject2(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
+  cube2 = new GLCubeObject(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
   cube2->build();
   // load texture
   GLTexture::loadTextureVector(gtv);

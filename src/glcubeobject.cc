@@ -10,79 +10,206 @@
 // ============================================================================
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
-/**
-	@author Jean-Charles Lambert <jean-charles.lambert@lam.fr>
- */
-
 #include "glcubeobject.h"
+#include <qcolor.h>
 
 namespace glnemo {
-// ============================================================================
-// Constructor    
-GLCubeObject::GLCubeObject(float  _square_size,const QColor &c, bool activated)
-{
-  square_size = _square_size;
-  dplist_index = glGenLists( 1 );
-  buildDisplayList();
-  setColor(c);
-  is_activated=activated;
-}
-// ============================================================================
-// Destructor    
-GLCubeObject::~GLCubeObject()
-{
-  glDeleteLists( dplist_index, 1 );
-}
-// ============================================================================
-// GLCubeObject::buildDisplayList()                                            
-// Build Display List                                                          
-void GLCubeObject::buildDisplayList()
-{
 
-  float hs = square_size/2.; // half square
-  // display list
-  glNewList( dplist_index, GL_COMPILE );
-  
-  // bottom square0v
-  glBegin(GL_LINE_STRIP);  
-  glVertex3f(-hs , -hs  , -hs );
-  glVertex3f( hs , -hs  , -hs );
-  glVertex3f( hs ,  hs  , -hs );
-  glVertex3f(-hs ,  hs  , -hs );
-  glVertex3f(-hs , -hs  , -hs );  
-  glEnd();
-  
-  // top square
-  glBegin(GL_LINE_STRIP);  
-  glVertex3f(-hs , -hs  , hs );
-  glVertex3f( hs , -hs  , hs );
-  glVertex3f( hs ,  hs  , hs );
-  glVertex3f(-hs ,  hs  , hs );
-  glVertex3f(-hs , -hs  , hs );  
-  glEnd();
-  
-  // segment between two squares
-  glBegin(GL_LINES);
-  glVertex3f(-hs , -hs  , -hs );
-  glVertex3f(-hs , -hs  ,  hs );
-  
-  glVertex3f( hs , -hs  , -hs );
-  glVertex3f( hs , -hs  ,  hs );
-  
-  glVertex3f( hs ,  hs  , -hs );
-  glVertex3f( hs ,  hs  ,  hs );
-  
-  glVertex3f(-hs ,  hs  , -hs );
-  glVertex3f(-hs ,  hs  ,  hs );
-  glEnd();
-  glEndList();
-}
+using namespace std;
 // ============================================================================
-// GLCubeObject::setSquareSize()                                                     
-void GLCubeObject::setSquareSize(float _ss)
+void GLCubeObject::setColor(const QColor& color) { 
+  setVec4FromQColor(m_color, color);
+}
+// -- rebuild
+
+void GLCubeObject::rebuild(float square_size)
 {
-  square_size = _ss;
-  buildDisplayList();
+  m_squareSize = square_size;
+  destroy();   // libère VAO + VBO existants
+  build();     // en recrée de nouveaux
 }
-} // end of namespace
-// ============================================================================
+// ── Construction du VAO/VBO ───────────────────────────────────────────────
+void GLCubeObject::build()
+{
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  std::vector<float> vertices;
+  
+  float hs = m_squareSize/2.; // half square
+  
+  // bottom square
+  // A
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  // B
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  // B
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  // C
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  // C
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  // D
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  // D
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  // A
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  // top square
+  // E
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  // F
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  // F
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  // G
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  // G
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  // H
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  // H
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  // E
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+
+  // We connect plans
+  // A
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  // E
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  // B
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  vertices.push_back(-hs);
+  // F
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  // D
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  // H
+  vertices.push_back(-hs);
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  // C
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  vertices.push_back(-hs);
+  // G
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+  vertices.push_back(hs);
+
+  m_vertexCount = static_cast<GLsizei>(vertices.size() / 3);
+  // ── Upload GPU ────────────────────────────────────────────────────────
+  f->glGenVertexArrays(1, &m_vao);
+  f->glGenBuffers(1, &m_vbo);
+
+  f->glBindVertexArray(m_vao);
+
+  f->glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+  f->glBufferData(GL_ARRAY_BUFFER,
+                static_cast<GLsizeiptr>(vertices.size() * sizeof(float)),
+                vertices.data(),
+                GL_STATIC_DRAW);
+
+  // location 0 : vec3 aPos
+  f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+  f->glEnableVertexAttribArray(0);
+
+  f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+  f->glBindVertexArray(0);
+}
+
+// ── Rendu ─────────────────────────────────────────────────────────────────
+//  shaderProgram : ID du programme (vertex + fragment shaders compilés)
+//  model / view / projection : matrices GLM issues de votre propre gestion
+void GLCubeObject::draw(GLuint shaderProgram,
+          const glm::mat4& model,
+          const glm::mat4& view,
+          const glm::mat4& projection) const
+{
+  if (is_activated) {
+    QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+    f->glUseProgram(shaderProgram);
+
+    // Matrices
+    f->glUniformMatrix4fv(f->glGetUniformLocation(shaderProgram, "uModel"),
+                        1, GL_FALSE, &model[0][0]);
+    f->glUniformMatrix4fv(f->glGetUniformLocation(shaderProgram, "uView"),
+                        1, GL_FALSE, &view[0][0]);
+    f->glUniformMatrix4fv(f->glGetUniformLocation(shaderProgram, "uProjection"),
+                        1, GL_FALSE, &projection[0][0]);
+
+    // Couleur
+    f->glUniform4fv(f->glGetUniformLocation(shaderProgram, "uColor"),
+                  1, &m_color[0]);
+
+    // Dessin
+    f->glBindVertexArray(m_vao);
+    f->glDrawArrays(GL_LINES, 0, m_vertexCount);
+    f->glBindVertexArray(0);
+  }
+}
+
+  // ── Libération des ressources GPU ─────────────────────────────────────────
+  void GLCubeObject::destroy()
+  {
+    QOpenGLContext* ctx = QOpenGLContext::currentContext();
+    if (!ctx) {
+        // contexte absent : fuite mémoire GPU mais au moins pas de crash
+        // et on remet à 0 pour forcer une réallocation dans build()
+        qWarning("GLCubeObject::destroy() appelé sans contexte OpenGL actif !");
+        m_vao = 0;
+        m_vbo = 0;
+        m_vertexCount = 0;
+        return;
+    }
+    QOpenGLExtraFunctions *f = ctx->extraFunctions();
+      
+    if (m_vao) { f->glDeleteVertexArrays(1, &m_vao); m_vao = 0; }
+    if (m_vbo) { f->glDeleteBuffers(1, &m_vbo);       m_vbo = 0; }
+    m_vertexCount = 0;
+  }
+
+  GLCubeObject::~GLCubeObject() { destroy(); }
+
+
+}

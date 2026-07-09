@@ -16,9 +16,14 @@
 #ifndef GLNEMOGLGRIDOBJECT_H
 #define GLNEMOGLGRIDOBJECT_H
 #include <QOpenGLWidget>
+#include <QtOpenGL>
+#include <QOpenGLExtraFunctions> 
+#include <QOpenGLFunctions>
+#include <glm/fwd.hpp>
+#include <glm/glm.hpp>
+#include <qcolor.h>
 
 #include "globject.h"
-#include "glgridobject.h"
 
 namespace glnemo {
 
@@ -26,23 +31,48 @@ namespace glnemo {
 class GLGridObject: public GLObject {
 public:
 
-  GLGridObject(int axe_parm=0,const QColor &c=Qt::yellow, bool activated=true);
-  
+  GLGridObject(int nsquare=50, float square_size=1.0, int axe=0,const QColor &c=Qt::yellow, bool activated=true)
+          : m_nsquare(nsquare)
+        , m_squareSize(square_size)
+        , m_axe(axe)
+        , m_vao(0)
+        , m_vbo(0)
+        , m_vertexCount(0)
+    {
+      
+        // Set color
+        setColor(c);
+   }
+
   ~GLGridObject();
+  void build();
+  void rebuild(int nsquare, float square_size);
+  void setColor(const QColor& color);
 
-  // method
-  void setNbSquare(int _nsquare) { nsquare = _nsquare;}
-  void setSquareSize(float _square_size) { square_size = _square_size;}
-  void rebuild() { buildDisplayList(); }
-  static int nsquare;        // #square       
-  static float square_size;  // size of square
-  
- private:
-  int axe;
-  // method
-  void  buildDisplayList( );
+  void draw(GLuint shaderProgram,
+              const glm::mat4& model,
+              const glm::mat4& view,
+              const glm::mat4& projection) const;
+
+  void setVec4FromQColor(glm::vec4& vec, const QColor& color) {
+      vec.r = color.redF();
+      vec.g = color.greenF();
+      vec.b = color.blueF();
+      vec.a = color.alphaF();
+  }
+  void setNbSquare(int _nsquare) { m_nsquare = _nsquare;}
+  void setSquareSize(float _square_size) { m_squareSize = _square_size;}
+  void destroy();
+
+private:
+    int       m_nsquare;
+    float     m_squareSize;
+    int       m_axe;
+    glm::vec4    m_color;
+    GLuint    m_vao;
+    GLuint    m_vbo;
+    GLsizei   m_vertexCount;
 };
-
 }
 
 #endif

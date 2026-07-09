@@ -11,7 +11,7 @@
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
 #include "globjectosd.h"
-#include "gltextobject2.h"
+#include "gltextobject.h"
 #include "gltextrender.h"
 #include "glwindow.h"
 #include <GL/glu.h>
@@ -48,7 +48,7 @@ GLObjectOsd::GLObjectOsd(const int w, const int h,
   height = h;
 
   //Osd_text = new GLTextObject[n_OsdKeys](font,c);
-  Osd_text = new std::vector<GLTextObject2>(n_OsdKeys,gtr);
+  Osd_text = new std::vector<GLTextObject>(n_OsdKeys,gtr);
   for (int i=0; i<n_OsdKeys; i++) {
     //(*Osd_text)[i].setFont(font);
     (*Osd_text)[i].setWH(width,height);
