@@ -25,6 +25,11 @@
 #include "globjectparticles.h"
 #include "vec3d.h"
 #include <QOpenGLWidget>
+#include <QOpenGLExtraFunctions>
+#include <QOpenGLContext>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace glnemo {
 
@@ -51,6 +56,23 @@ public:
     float Y0() { return y0;}
     float Y1() { return y1;}
     std::vector <int> * getList() { return &list; }
+    // init
+    void init();    
+    // draw
+    void draw(GLuint _shader_program);    // -- Release GPU resources -------------------------------------------------
+    // -- Call on every window resize -------------------------------------------
+    void setScreenSize(int w, int h) { m_screenW = w; m_screenH = h; }
+
+    void destroy()
+    {
+      QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+      if (m_vaoLines) { f->glDeleteVertexArrays(1, &m_vaoLines); m_vaoLines = 0; }
+      if (m_vboLines) { f->glDeleteBuffers(1, &m_vboLines);       m_vboLines = 0; }
+      if (m_vaoQuad)  { f->glDeleteVertexArrays(1, &m_vaoQuad);  m_vaoQuad  = 0; }
+      if (m_vboQuad)  { f->glDeleteBuffers(1, &m_vboQuad);        m_vboQuad  = 0; }
+    }
+
+
 public slots:
  void setZoom(bool _b)     { zoom      = _b; }
  void setAnimZoom(bool _b) { anim_zoom = _b; }
@@ -78,8 +100,15 @@ private:
   int in_area;
   double com[3];
   const ParticlesData * part_data;
-  // METHOD
-   
+  // Shader managing 
+  GLuint m_vaoLines, m_vboLines;
+  GLuint m_vaoQuad,  m_vboQuad;
+  GLuint m_shader;
+  int    m_screenW,  m_screenH;
+  glm::vec4 fillColor;
+  glm::vec4 lineColor;
+
+ 
 };
 
 }

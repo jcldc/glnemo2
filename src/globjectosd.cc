@@ -200,8 +200,6 @@ void GLObjectOsd::updateDisplay(const OsdKeys k)
       y=(*Osd_text)[k].getHeight();
       break;
     case Nbody:
-      printf("Nbody [%s]\n",(*Osd_text)[Time].getLabel().toStdString().c_str());
-      printf("Nbody [%s]\n",(*Osd_text)[Time].getText().toStdString().c_str());
        max=MAX((*Osd_text)[Nbody].getLabelWidth(),
 	      (*Osd_text)[Time].getLabelWidth());
       x = 0;
@@ -209,8 +207,6 @@ void GLObjectOsd::updateDisplay(const OsdKeys k)
       x_text = max;
       break;
     case Time:
-      printf("Time [%s]\n",(*Osd_text)[Time].getLabel().toStdString().c_str());
-      printf("Time [%s]\n",(*Osd_text)[Time].getText().toStdString().c_str());
       max=MAX((*Osd_text)[Nbody].getLabelWidth(),
 	      (*Osd_text)[Time].getLabelWidth());
       x = 0;

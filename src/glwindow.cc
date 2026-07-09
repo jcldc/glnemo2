@@ -611,10 +611,11 @@ void GLWindow::paintGL()
   // Si tu veux centrer ton texte sur l'axe X autour de la coordonnée 400 :
   float xCentre = wwidth/2.0 - (box.width / 2.f);
   float yCentre = wheight/2.0 - (box.height / 2.f);
-  gtr->draw("Hello World", xCentre, yCentre, 1.0f, glm::vec4(1.f));
+  gtr->draw("Glnemo 2.0 core330", xCentre, yCentre, 2.0f, glm::vec4(1.f));
     /// display selected area
   //JCL gl_select->display(QOpenGLWidget::width(),QOpenGLWidget::height());
-
+  gl_select->setScreenSize(QOpenGLWidget::width(),QOpenGLWidget::height());
+  gl_select->draw(grid_shader->getProgramId());
   // draw axes
 #if 0
   if (store_options->axes_enable)
@@ -811,7 +812,10 @@ void GLWindow::initializeGL()
 
   // axes
   axes = new GLAxesObject();
-  
+ 
+  // Init gl_select
+  gl_select->init();
+
   // cube
   cube  = new GLCubeObject(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);
   cube2 = new GLCubeObject2(store_options->mesh_length*store_options->nb_meshs,store_options->col_cube,store_options->show_cube);

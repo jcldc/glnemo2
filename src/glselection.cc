@@ -16,6 +16,7 @@
 #include "tools3d.h"
 #include "vec3d.h"
 #include "glwindow.h"
+#include <GL/gl.h>
 #include <GL/glu.h>
 
 namespace glnemo {
@@ -32,13 +33,129 @@ GLSelection::GLSelection()
   total_frame = 25;
   anim_timer  = new QTimer(this);
   connect(anim_timer, SIGNAL(timeout()), this, SLOT(playZoomAnim()));
+  //
+  m_vaoLines=0;
+  m_vboLines=0;
+  m_vaoQuad=0;
+  m_vboQuad=0;
+  fillColor = glm::vec4(1.f, 1.f, 0.f, 0.2f);
+  lineColor = glm::vec4(1.f, 1.f, 0.f, 1.0f);
 }
-
 // ============================================================================
 // destructor                                                                  
 GLSelection::~GLSelection()
 {
 }
+// -- Create VAOs and VBOs --------------------------------------------------
+// No shader compilation here: the grid shader (vec3 aPos) is reused.
+// Call once from initializeGL() or after makeCurrent().
+void GLSelection::init()
+{
+
+  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+  f->initializeOpenGLFunctions();
+
+  // -- Lines VAO/VBO ------------------------------------------------------
+  // 4 lines × 2 vertices × 3 floats (x,y,z=0) = 24 floats.
+  f->glGenVertexArrays(1, &m_vaoLines);
+  f->glGenBuffers(1, &m_vboLines);
+
+  f->glBindVertexArray(m_vaoLines);
+  f->glBindBuffer(GL_ARRAY_BUFFER, m_vboLines);
+  f->glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+  // location 0 : vec3 aPos  (matches grid.vert)
+  f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+  f->glEnableVertexAttribArray(0);
+  f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+  f->glBindVertexArray(0);
+
+  // -- Quad VAO/VBO -------------------------------------------------------
+  // 2 triangles × 3 vertices × 3 floats (x,y,z=0) = 18 floats.
+  f->glGenVertexArrays(1, &m_vaoQuad);
+  f->glGenBuffers(1, &m_vboQuad);
+
+  f->glBindVertexArray(m_vaoQuad);
+  f->glBindBuffer(GL_ARRAY_BUFFER, m_vboQuad);
+  f->glBufferData(GL_ARRAY_BUFFER, 18 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+  f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+  f->glEnableVertexAttribArray(0);
+  f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+  f->glBindVertexArray(0);
+}
+// -- Draw the selection rectangle ------------------------------------------
+//  fillColor     : RGBA color of the blended quad  (alpha < 1 → transparent)
+//  lineColor     : RGBA color of the 4 border lines
+void GLSelection::draw(GLuint shader_program)
+{
+  if (enable) {
+    // GLWindow::m_glWidget->makeCurrent();
+    const float W = static_cast<float>(m_screenW);
+    const float H = static_cast<float>(m_screenH);
+    //
+    // Orthographic projection: pixel (0,0) → NDC bottom-left, z range [-1,1].
+    // Replaces the usual perspective projection for this 2D overlay.
+    glm::mat4 proj  = glm::ortho(0.f, W, 0.f, H, -1.f, 1.f);
+    glm::mat4 view  = glm::mat4(1.f);   // no camera for screen-space geometry
+    glm::mat4 model = glm::mat4(1.f);   // geometry already in pixel coords
+
+    QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+    f->glUseProgram(shader_program);
+    f->glUniformMatrix4fv(f->glGetUniformLocation(shader_program, "uProjection"),
+                        1, GL_FALSE, glm::value_ptr(proj));
+    f->glUniformMatrix4fv(f->glGetUniformLocation(shader_program, "uView"),
+                        1, GL_FALSE, glm::value_ptr(view));
+    f->glUniformMatrix4fv(f->glGetUniformLocation(shader_program, "uModel"),
+                        1, GL_FALSE, glm::value_ptr(model));
+
+    f->glEnable(GL_BLEND);
+    f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    f->glDisable(GL_DEPTH_TEST);   // 2D overlay must not be clipped by 3D depth
+    // -- 1. Filled quad (drawn first so border lines appear on top) ---------
+    //
+    //   (x0,y1,0) ---- (x1,y1,0)
+    //       │                │
+    //   (x0,y0,0) ---- (x1,y0,0)
+    //
+    float quad[18] = {
+        x0, H-y0, 0.f,   x1, H-y0, 0.f,   x1, H-y1, 0.f,   // triangle 1
+        x0, H-y0, 0.f,   x1, H-y1, 0.f,   x0, H-y1, 0.f    // triangle 2
+    };
+    f->glUniform4fv(f->glGetUniformLocation(shader_program, "uColor"),
+                  1, glm::value_ptr(fillColor));
+
+    f->glBindVertexArray(m_vaoQuad);
+    f->glBindBuffer(GL_ARRAY_BUFFER, m_vboQuad);
+    f->glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(quad), quad);
+    f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+    f->glDrawArrays(GL_TRIANGLES, 0, 6);
+    f->glBindVertexArray(0);
+    // -- 2. Full-screen border lines ---------------------------------------
+    //
+    //  Vertical   x0 : (x0, 0, 0) → (x0, H, 0)
+    //  Vertical   x1 : (x1, 0, 0) → (x1, H, 0)
+    //  Horizontal y0 : (0, y0, 0) → (W, y0, 0)
+    //  Horizontal y1 : (0, y1, 0) → (W, y1, 0)
+    //
+    float lines[24] = {
+        x0, 0.f, 0.f,   x0, H,   0.f,   // vertical   at x0
+        x1, 0.f, 0.f,   x1, H,   0.f,   // vertical   at x1
+        0.f, H-y0, 0.f,   W,  H-y0,  0.f,   // horizontal at y0
+        0.f, H-y1, 0.f,   W,  H-y1,  0.f    // horizontal at y1
+    };
+    f->glUniform4fv(f->glGetUniformLocation(shader_program, "uColor"),
+                  1, glm::value_ptr(lineColor));
+
+    f->glBindVertexArray(m_vaoLines);
+    f->glBindBuffer(GL_ARRAY_BUFFER, m_vboLines);
+    f->glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(lines), lines);
+    f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+    f->glDrawArrays(GL_LINES, 0, 8);   // 4 lines × 2 vertices
+    f->glBindVertexArray(0);
+
+    f->glEnable(GL_DEPTH_TEST);   // restore depth test for the next 3D frame
+  }
+}
+
 // ============================================================================
 // void update
 void GLSelection::reset()

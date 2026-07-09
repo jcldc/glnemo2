@@ -102,7 +102,6 @@ void GLGridObject2::draw(GLuint shaderProgram,
   if (is_activated) {
     QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
     f->glUseProgram(shaderProgram);
-
     // Matrices
     f->glUniformMatrix4fv(f->glGetUniformLocation(shaderProgram, "uModel"),
                         1, GL_FALSE, &model[0][0]);
