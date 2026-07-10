@@ -77,6 +77,8 @@
         <file>../res/shaders/glsl_330/grid.frag.cc</file>
         <file>../res/shaders/glsl_330/text.vert.cc</file>
         <file>../res/shaders/glsl_330/text.frag.cc</file>
+        <file>../res/shaders/glsl_330/colormap.frag.cc</file>
+        <file>../res/shaders/glsl_330/colormap.vert.cc</file>
         <file>../res/shaders/velocity.vert130.cc</file>
         <file>../res/shaders/velocity.frag130.cc</file>
         <file>../res/shaders/velocity.vert330.cc</file>

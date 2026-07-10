@@ -345,6 +345,7 @@ private:
   int nframe;
   //   Shaders
   CShader *shader, *vel_shader, * grid_shader, * cube_shader, * text_shader;
+  CShader * colorbar_shader;
   void initShader();
   unsigned int m_vertexShader, m_pixelShader;
 

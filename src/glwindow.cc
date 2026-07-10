@@ -631,6 +631,10 @@ void GLWindow::initShader()
       grid_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/grid.vert.cc",
                             GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/grid.frag.cc");
       grid_shader->init();
+      // colorbar shader
+      colorbar_shader= new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/colormap.vert.cc",
+                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/colormap.frag.cc");
+      colorbar_shader->init();
 
       // text shader
       text_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/text.vert.cc",

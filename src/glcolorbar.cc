@@ -1,5 +1,3 @@
-// ============================================================================
-// Copyright Jean-Charles LAMBERT - 2007-2026                                  
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
 //           Laboratoire d'Astrophysique de Marseille                          
@@ -12,6 +10,7 @@
 // ============================================================================
 #include "glcolorbar.h"
 #include "glwindow.h"
+#include <GL/gl.h>
 #include <GL/glu.h>
 
 namespace glnemo {
@@ -19,9 +18,16 @@ namespace glnemo {
 // ============================================================================
 // constructor    
 GLColorbar::GLColorbar(const GlobalOptions  * _go,bool _enable ):GLObject()
+        , m_vao(0), m_vbo(0)
+        , m_texColormap(0)
+        , m_shader(0)
+        , m_screenW(800), m_screenH(600)
+        , m_alpha(1.f)
+        , m_direction(Direction::Horizontal)
 {
   go     = _go;
   is_activated = _enable;
+
   #if 0 // diable core330
   legend = new GLTextObject(); // new object for text display
   updateFont();
@@ -36,6 +42,167 @@ GLColorbar::~GLColorbar()
   delete  legend;
   #endif
 }
+// ============================================================================
+// void init 
+bool GLColorbar::init(GLuint shader_program)
+{
+  initializeOpenGLFunctions();
+
+  // -- VAO / VBO ----------------------------------------------------------
+  // The square is 2 triangles = 6 vertices.
+  // Each vertex: x(1) + y(1) + texU(1) = 3 floats.
+  // Total: 6 × 3 = 18 floats. Updated every draw() via glBufferSubData.
+  glGenVertexArrays(1, &m_vao);
+  glGenBuffers(1, &m_vbo);
+
+  glBindVertexArray(m_vao);
+  glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+  glBufferData(GL_ARRAY_BUFFER, 18 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+
+  // location 0 : vec2 aPos  (x, y)
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+  glEnableVertexAttribArray(0);
+
+  // location 1 : float aTexU  (colormap coordinate)
+  glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
+                        (void*)(2 * sizeof(float)));
+  glEnableVertexAttribArray(1);
+
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+
+  // -- Colormap texture (placeholder: greyscale ramp until setColormap()) -
+  std::vector<float> grey(256);
+  std::iota(grey.begin(), grey.end(), 0.f);
+  for (auto& v : grey) v /= 255.f;
+  setColormap(grey, grey, grey);   // initialise with a greyscale ramp
+
+  // -- Shaders -----------------------------------------------------------
+  m_shader = shader_program;
+  return (m_shader != 0);
+}
+// -- Update the colormap texture from three equal-length vectors -----------
+//  R, G, B : float values in [0, 1].  Vectors must have the same length.
+//  Can be called at any time (even before init(), but the texture upload
+//  requires an active GL context).
+void GLColorbar::setColormap(const std::vector<float>& R,
+                const std::vector<float>& G,
+                const std::vector<float>& B)
+{
+  if (R.empty() || R.size() != G.size() || R.size() != B.size()) {
+      fprintf(stderr, "[GLColormapSquare] R/G/B vectors must be non-empty "
+                      "and have the same length.\n");
+      return;
+  }
+
+  // Interleave into a packed RGB array
+  const int n = static_cast<int>(R.size());
+  std::vector<float> rgb;
+  rgb.reserve(n * 3);
+  for (int i = 0; i < n; ++i) {
+      rgb.push_back(std::clamp(R[i], 0.f, 1.f));
+      rgb.push_back(std::clamp(G[i], 0.f, 1.f));
+      rgb.push_back(std::clamp(B[i], 0.f, 1.f));
+  }
+
+  // Delete previous texture if any
+  if (m_texColormap) { 
+    glDeleteTextures(1, &m_texColormap); m_texColormap = 0; 
+  }
+
+  glGenTextures(1, &m_texColormap);
+  glBindTexture(GL_TEXTURE_1D, m_texColormap);
+
+  // GL_LINEAR interpolation gives smooth colour transitions between entries.
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+
+  glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F,
+                n, 0, GL_RGB, GL_FLOAT, rgb.data());
+
+  glBindTexture(GL_TEXTURE_1D, 0);
+}
+
+// -- Draw the coloured square ----------------------------------------------
+//  x0, x1 : left  / right  edge in pixels (from the left  of the window)
+//  y0, y1 : bottom/ top    edge in pixels (from the bottom of the window)
+void GLColorbar::draw(float x0, float x1, float y0, float y1)
+{
+  if (!m_shader || !m_texColormap) return;
+
+  const float W = static_cast<float>(m_screenW);
+  const float H = static_cast<float>(m_screenH);
+
+  glm::mat4 proj = glm::ortho(0.f, W, 0.f, H, -1.f, 1.f);
+
+  glUseProgram(m_shader);
+  glUniformMatrix4fv(glGetUniformLocation(m_shader, "uProjection"),
+                      1, GL_FALSE, glm::value_ptr(proj));
+  glUniform1i(glGetUniformLocation(m_shader, "uColormap"), 0);
+  glUniform1f(glGetUniformLocation(m_shader, "uAlpha"), m_alpha);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_1D, m_texColormap);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glDisable(GL_DEPTH_TEST);
+
+  // -- Build the quad vertices with UV coordinates ------------------------
+  //
+  //  Each vertex: { x, y, u }
+  //  u = colormap coordinate in [0, 1].
+  //
+  //  Horizontal mapping (default):
+  //    left  column (x0) → u = 0.0
+  //    right column (x1) → u = 1.0
+  //
+  //  Vertical mapping:
+  //    bottom row (y0) → u = 0.0
+  //    top    row (y1) → u = 1.0
+  //
+  float u_x0y0, u_x1y0, u_x1y1, u_x0y1;
+
+  if (m_direction == Direction::Horizontal) {
+      u_x0y0 = 0.f;  u_x1y0 = 1.f;
+      u_x1y1 = 1.f;  u_x0y1 = 0.f;
+  } else {                              // Vertical
+      u_x0y0 = 0.f;  u_x1y0 = 0.f;
+      u_x1y1 = 1.f;  u_x0y1 = 1.f;
+  }
+
+  //  Layout (CCW winding):
+  //
+  //   (x0,y1) u_x0y1 ---- (x1,y1) u_x1y1
+  //       │      tri 2         │
+  //       │           tri 1   │
+  //   (x0,y0) u_x0y0 ---- (x1,y0) u_x1y0
+  //
+  float verts[18] = {
+      // triangle 1
+      x0, y0, u_x0y0,
+      x1, y0, u_x1y0,
+      x1, y1, u_x1y1,
+      // triangle 2
+      x0, y0, u_x0y0,
+      x1, y1, u_x1y1,
+      x0, y1, u_x0y1
+  };
+
+  glBindVertexArray(m_vao);
+  glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+  glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verts), verts);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  glDrawArrays(GL_TRIANGLES, 0, 6);
+  glBindVertexArray(0);
+
+  glBindTexture(GL_TEXTURE_1D, 0);
+  glEnable(GL_DEPTH_TEST);
+}
+
+
 
 // ============================================================================
 // void updateFont
@@ -220,65 +387,67 @@ void GLColorbar::drawBox()
 }
 // ============================================================================
 // void GLColorbar::drawColor
-void GLColorbar::drawColor()
-{
+void GLColorbar::drawColor() {
   if (go && phys_select && phys_select->isValid()) {
-    //int large_box,long_box;
+    // int large_box,long_box;
     int long_box;
-    if (go->gcb_orientation==1 || go->gcb_orientation==3) {  // Est or West
-      long_box=x[3][1]-x[0][1];// -2 pixels
-      //large_box=x[2][0]-x[3][0];
-    } else {                     // South or North
-      long_box=x[3][0]-x[0][0];// -2 pixels
-      //large_box=x[0][1]-x[1][1];
-
+    if (go->gcb_orientation == 1 || go->gcb_orientation == 3) { // Est or West
+      long_box = x[3][1] - x[0][1];                             // -2 pixels
+      // large_box=x[2][0]-x[3][0];
+    } else {                        // South or North
+      long_box = x[3][0] - x[0][0]; // -2 pixels
+      // large_box=x[0][1]-x[1][1];
     }
-    int ncolors=go->R->size();
-    //ncolors = (go->gcb_max-percmin)*ncolors;
-        
-    int R,G,B;
-    int cpt=0;
-    //for (int i=0; i<=vbox;i++) {
-    for (int i=0; i<long_box-2;i++) {
-      int index;
-      if (go->dynamic_cmap) { // dynamic cmap
-        if (!go->reverse_cmap)//    normal cmap 
-          index=i*ncolors/(long_box-2);
-        else                  //    reverse cmap
-          index=(long_box-i-2)*ncolors/(long_box-2);
-      } else {                // constant cmap
-        int ncolors2 = (go->gcb_max-go->gcb_min)/100.*ncolors;
-        if (!go->reverse_cmap)//    normal cmap 
-          index=(go->gcb_min*ncolors)/100.+i*ncolors2/(long_box-2);
-        else                  //    reverse cmap
-	  index = ncolors - (go->gcb_min*ncolors)/100.-i*ncolors2/(long_box-2);
+    int ncolors = go->R->size();
+    // ncolors = (go->gcb_max-percmin)*ncolors;
 
-        //std::cerr << index << " " << percmin << " " << go->gcb_max << " " << ncolors2 << " "<< ncolors<< "\n";
+    int R, G, B;
+    int cpt = 0;
+    // for (int i=0; i<=vbox;i++) {
+    for (int i = 0; i < long_box - 2; i++) {
+      int index;
+      if (go->dynamic_cmap) {  // dynamic cmap
+        if (!go->reverse_cmap) //    normal cmap
+          index = i * ncolors / (long_box - 2);
+        else //    reverse cmap
+          index = (long_box - i - 2) * ncolors / (long_box - 2);
+      } else { // constant cmap
+        int ncolors2 = (go->gcb_max - go->gcb_min) / 100. * ncolors;
+        if (!go->reverse_cmap) //    normal cmap
+          index =
+              (go->gcb_min * ncolors) / 100. + i * ncolors2 / (long_box - 2);
+        else //    reverse cmap
+          index = ncolors - (go->gcb_min * ncolors) / 100. -
+                  i * ncolors2 / (long_box - 2);
+
+        // std::cerr << index << " " << percmin << " " << go->gcb_max << " " <<
+        // ncolors2 << " "<< ncolors<< "\n";
       }
-      
-      if (index>=0 && index<ncolors) {
+
+      if (index >= 0 && index < ncolors) {
         cpt++;
-        R=pow((*go->R)[index],go->powercolor)*255;
-        G=pow((*go->G)[index],go->powercolor)*255;
-        B=pow((*go->B)[index],go->powercolor)*255;
+        R = pow((*go->R)[index], go->powercolor) * 255;
+        G = pow((*go->G)[index], go->powercolor) * 255;
+        B = pow((*go->B)[index], go->powercolor) * 255;
         // draw color line
-        glColor3ub(R,G,B);        
-        glBegin(GL_LINES);     
-	if (go->gcb_orientation==1 || go->gcb_orientation==3) {   // Est or West
-	  glVertex2i(x[0][0]+1,x[0][1]+i+1);
-	  glVertex2i(x[1][0]-1,x[1][1]+i+1);
-	} else {                      // South or North
-	  float fac=-1;
-	  //if (place==0) fac=1;
-	  glVertex2i(x[0][0]+i+1,x[0][1]-fac);
-	  glVertex2i(x[1][0]+i+1,x[1][1]+fac);
-	}
+        glColor3ub(R, G, B);
+        glBegin(GL_LINES);
+        if (go->gcb_orientation == 1 ||
+            go->gcb_orientation == 3) { // Est or West
+          glVertex2i(x[0][0] + 1, x[0][1] + i + 1);
+          glVertex2i(x[1][0] - 1, x[1][1] + i + 1);
+        } else { // South or North
+          float fac = -1;
+          // if (place==0) fac=1;
+          glVertex2i(x[0][0] + i + 1, x[0][1] - fac);
+          glVertex2i(x[1][0] + i + 1, x[1][1] + fac);
+        }
         glEnd();
       } else {
-      }      
-      
+      }
     }
-    //std::cerr << "cpt =  " << cpt << " " << long_box << " +++ " <<  x[3][0] -  x[0][0] << "\n";
+    // std::cerr << "cpt =  " << cpt << " " << long_box << " +++ " <<  x[3][0] -
+    // x[0][0] << "\n";
   }
 }
 // ============================================================================
