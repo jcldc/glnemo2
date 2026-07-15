@@ -72,10 +72,11 @@ bool GLColorbar::init(GLuint shader_program)
   glBindVertexArray(0);
 
   // -- Colormap texture (placeholder: greyscale ramp until setColormap()) -
-  std::vector<float> grey(256);
-  std::iota(grey.begin(), grey.end(), 0.f);
-  for (auto& v : grey) v /= 255.f;
-  setColormap(grey, grey, grey);   // initialise with a greyscale ramp
+  // std::vector<float> grey(256);
+  // std::iota(grey.begin(), grey.end(), 0.f);
+  // for (auto& v : grey) v /= 255.f;
+  //setColormap(grey, grey, grey);   // initialise with a greyscale ramp
+  setColormap((*go->R),(*go->G),(*go->B));   // initialise with a greyscale ramp
 
   // -- Shaders -----------------------------------------------------------
   m_shader = shader_program;
@@ -130,7 +131,6 @@ void GLColorbar::setColormap(const std::vector<float>& R,
 void GLColorbar::draw(float x0, float x1, float y0, float y1)
 {
   if (!m_shader || !m_texColormap) return;
-
   const float W = static_cast<float>(m_screenW);
   const float H = static_cast<float>(m_screenH);
 
@@ -237,9 +237,10 @@ void GLColorbar::display(const int _width, const int _height)
 {
   height = _height;
   width  = _width;
-
+  setScreenSize(width, height);
   //GLWindow::m_glWidget->makeCurrent(); // 17-apr-2026
   if (go && go->gcb_enable && phys_select && phys_select->isValid()) {
+    #if 0
     glDisable( GL_DEPTH_TEST );
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -253,20 +254,24 @@ void GLColorbar::display(const int _width, const int _height)
     glEnable(GL_BLEND);
     glLineWidth (1.01); // long time bug on ATI/Intel hardware !!!!
                         // On Intel witdh must be > 1 after shaders....crazy bug
+    #endif 
     // draw box
     drawBox();
+    #if 0
     // draw text
     drawLegend();
     glDisable(GL_BLEND);
     // draw color
     drawColor();
-
+    #endif
+    #if 0
     // go back to normal mode
     glMatrixMode( GL_PROJECTION );
     glPopMatrix();
     glMatrixMode( GL_MODELVIEW );
     glPopMatrix();
     glEnable( GL_DEPTH_TEST );
+    #endif
   }
   //GLWindow::m_glWidget->doneCurrent();
 }
@@ -331,6 +336,7 @@ void GLColorbar::drawBox()
     
     x[3][0] = x[2][0];
     x[3][1] = x[0][1];
+    m_direction = Direction::Horizontal;
     break;
 
   case 1:// EST
@@ -345,6 +351,7 @@ void GLColorbar::drawBox()
     
     x[3][0] = x[0][0];
     x[3][1] = x[2][1];
+    m_direction = Direction::Vertical;
     break;
   case 2:// SOUTH
     x[0][0] = width/2-go->gcb_pheight*width/2;
@@ -358,6 +365,7 @@ void GLColorbar::drawBox()
     
     x[3][0] = x[2][0];
     x[3][1] = x[0][1];
+    m_direction = Direction::Horizontal;
     break;
 
   case 3:// WEST
@@ -372,9 +380,12 @@ void GLColorbar::drawBox()
     
     x[3][0] = x[0][0];
     x[3][1] = x[2][1];
+    m_direction = Direction::Vertical;
     break;
   default: break;  
   }
+  draw(x[0][0], x[2][0], x[0][1], x[2][1]);
+  #if 0
   // draw box
   glColor4f( 1.0f, 0.f, 0.f,1.f );
   glBegin(GL_LINE_STRIP);
@@ -384,6 +395,7 @@ void GLColorbar::drawBox()
   glVertex2i(x[3][0],x[3][1]);
   glVertex2i(x[0][0],x[0][1]);
   glEnd();
+  #endif
 }
 // ============================================================================
 // void GLColorbar::drawColor

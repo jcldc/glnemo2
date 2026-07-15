@@ -10,6 +10,7 @@
 // ============================================================================
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
+#include "glcolorbar.h"
 #include "gltextobject.h"
 #include "gltextrender.h"
 #include <GL/gl.h>
@@ -543,12 +544,17 @@ void GLWindow::paintGL()
       }
     }
 
-#if 0
+#if 1 
     if (obj_has_physic) {
       if (fbo) // offscreen rendering activated
         gl_colorbar->display(texWidth,texHeight);
       else
       gl_colorbar->display(QOpenGLWidget::width(),QOpenGLWidget::height());
+    }
+#else    
+  
+    if (obj_has_physic) {
+      gl_colorbar->draw(10,200,40,160);
     }
 #endif
     //mutex_data->unlock();
@@ -635,8 +641,7 @@ void GLWindow::initShader()
       colorbar_shader= new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/colormap.vert.cc",
                             GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/colormap.frag.cc");
       colorbar_shader->init();
-
-      // text shader
+            // text shader
       text_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/text.vert.cc",
                             GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/text.frag.cc");
       text_shader->init();
@@ -645,6 +650,7 @@ void GLWindow::initShader()
       if (! gtr->init("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 13)) {
             qWarning("GLTextRenderer: font init failed");
       }
+
 // velocity shader
       if (1) {
 
@@ -799,7 +805,10 @@ void GLWindow::initializeGL()
   osd = new GLObjectOsd(wwidth,wheight,gtr,store_options->osd_color);
   // colorbar
   gl_colorbar = new GLColorbar(store_options,true);
-  
+  // link colorbar shader to gl_colorbar
+  gl_colorbar->init(colorbar_shader->getProgramId());
+      
+
   ////////
   // FBO
   // Set the width and height appropriately for you image
