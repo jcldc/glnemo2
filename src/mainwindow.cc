@@ -148,6 +148,7 @@ MainWindow::MainWindow(std::string _ver)
   connect(form_o_c,SIGNAL(prevColorMap()),colormap,SLOT(prev()));
   connect(form_o_c,SIGNAL(constantColorMap(bool)),colormap,SLOT(constant(bool)));
   connect(form_o_c,SIGNAL(reverseColorMap(bool)),colormap,SLOT(reverse(bool)));
+  connect(form_o_c,SIGNAL(reverseColorMap(bool)),gl_window,SLOT(reverseColorMap(bool)));
   // options play tab
   connect(form_options,SIGNAL(playPressed()),this,SLOT(actionPlay()));
   connect(this,SIGNAL(endOfSnapshot(const int)),form_options,SLOT(play_pressed2(const int)));
@@ -161,6 +162,7 @@ MainWindow::MainWindow(std::string _ver)
   // options grid tab
   connect(form_options,SIGNAL(update_grid()),gl_window,SLOT(updateGrid()));
   connect(form_options,SIGNAL(rebuild_grid()),gl_window,SLOT(rebuildGrid()));
+  connect(form_options,SIGNAL(rebuild_grid()),gl_window,SLOT(rebuildGrid2()));
   // options osd tab
   connect(form_options,SIGNAL(osd_reset_matrix(bool)),gl_window,SLOT(resetMatrix(bool)));
   connect(form_options,SIGNAL(update_osd(bool)),this,SLOT(updateOsd(bool)));

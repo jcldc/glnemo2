@@ -137,7 +137,7 @@ public slots:
   void updateBoundaryPhys(const int, const bool);
   void updateColorVbo(const int);
   void changeColorMap();
-  void reverseColorMap();
+  void reverseColorMap(bool reverse);
   void rebuildGrid(bool ugl = true);
   void renderGrids(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
   void updateGrid(bool ugl = true);
@@ -182,7 +182,11 @@ public slots:
 
   void resetFrame() { nframe = 0; }
   int getFrame() { return nframe; }
-  void updateColorbarFont() { gl_colorbar->updateFont(); }
+  void updateColorbarFont() {
+    makeCurrent();
+    gl_colorbar->rebuildFont(store_options->osd_font_name.toStdString(),store_options->gcb_font_size);
+    doneCurrent();
+  }
 
 protected:
   void initializeGL() override;
@@ -339,7 +343,7 @@ private:
   GLTextureVector gtv;
   // Thread
   QRecursiveMutex *mutex_data;
-  GLTextRender * gtr;
+  GLTextRender * gtr, * gtr_cb;
   bool is_shift_pressed;
   // bench
   int nframe;

@@ -11,7 +11,6 @@
 // See the complete license in LICENSE and/or "http://www.cecill.info".        
 // ============================================================================
 #include "globjectosd.h"
-#include "gltextobject.h"
 #include "gltextrender.h"
 #include "glwindow.h"
 #include <GL/glu.h>

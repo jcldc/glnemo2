@@ -257,12 +257,14 @@ void GLWindow::changeColorMap()
      //gpv[i].buildVboColor();
     gpv[i].updateColormap();
    }
+  gl_colorbar->updateRGB(store_options->reverse_cmap); 
   updateGL();
 }
 // ============================================================================
 // reverseColorMap                                                             
-void GLWindow::reverseColorMap()
+void GLWindow::reverseColorMap(bool reverse)
 {
+  gl_colorbar->updateRGB(reverse); 
   updateGL();
 }
 // ============================================================================
@@ -544,19 +546,14 @@ void GLWindow::paintGL()
       }
     }
 
-#if 1 
     if (obj_has_physic) {
-      if (fbo) // offscreen rendering activated
+      if (fbo) { // offscreen rendering activated
         gl_colorbar->display(texWidth,texHeight);
-      else
-      gl_colorbar->display(QOpenGLWidget::width(),QOpenGLWidget::height());
+      }
+      else {
+        gl_colorbar->display(QOpenGLWidget::width(),QOpenGLWidget::height());
+      }
     }
-#else    
-  
-    if (obj_has_physic) {
-      gl_colorbar->draw(10,200,40,160);
-    }
-#endif
     //mutex_data->unlock();
   }
   // octree
@@ -650,7 +647,10 @@ void GLWindow::initShader()
       if (! gtr->init("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 13)) {
             qWarning("GLTextRenderer: font init failed");
       }
-
+      gtr_cb = new GLTextRender(text_shader->getProgramId());
+      if (! gtr_cb->init("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 8)) {
+            qWarning("GLTextRenderer: font init failed");
+      }
 // velocity shader
       if (1) {
 
@@ -804,7 +804,7 @@ void GLWindow::initializeGL()
 #endif
   osd = new GLObjectOsd(wwidth,wheight,gtr,store_options->osd_color);
   // colorbar
-  gl_colorbar = new GLColorbar(store_options,true);
+  gl_colorbar = new GLColorbar(store_options,gtr_cb,true);
   // link colorbar shader to gl_colorbar
   gl_colorbar->init(colorbar_shader->getProgramId());
       

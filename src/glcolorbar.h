@@ -26,7 +26,7 @@
 #include "globjectparticles.h"
 #include "vec3d.h"
 #include "gltextobject.h"
-
+#include "gltextrender.h"
 #include <QOpenGLWidget>
 #include <QOpenGLExtraFunctions>
 #include <QOpenGLContext>
@@ -49,13 +49,14 @@ public:
     // Colormap orientation: which axis of the square the colormap runs along.
     enum class Direction { Horizontal, Vertical };
 
-    GLColorbar(const GlobalOptions *, 
+    GLColorbar(const GlobalOptions *, GLTextRender * _gtr,
                bool activated=true);
     ~GLColorbar();
     bool isEnable()   { return is_activated;}
     void setEnable(bool _b) { is_activated=_b;    }
     void update( GLObjectParticlesVector *,PhysicalData * phys_select,
                 GlobalOptions   *, QRecursiveMutex * );      
+    void updateRGB(bool reverse=false);
     void display(const int, const int);  
     // shader managing
     bool init(GLuint shader_program);
@@ -83,7 +84,7 @@ public:
     }
 
 public slots:
-    void updateFont();
+    void rebuildFont(const std::string font_name, const int font_size );
 private:
     const GLObjectParticlesVector * gpv;
     const GlobalOptions * go;
@@ -91,15 +92,16 @@ private:
     bool is_activated;
     int width,height;
     void drawBox  ();
-    void drawColor();
     void drawLegend();
     void drawText(float value, int fac);
     // font stuffs
-    // GLTextObject * legend;    
+    GLTextObject * legend;    
+    GLTextRender * gtr;
     // fntTexFont * font;
     int x[4][2];
         
     PhysicalData * phys_select;
+    
     // shader managing
     GLuint m_vao, m_vbo;
     GLuint m_texColormap;

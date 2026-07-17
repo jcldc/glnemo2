@@ -12,12 +12,15 @@
 #include "glwindow.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <algorithm>
+#include <cstdio>
+#include <vector>
 
 namespace glnemo {
 
 // ============================================================================
 // constructor    
-GLColorbar::GLColorbar(const GlobalOptions  * _go,bool _enable ):GLObject()
+GLColorbar::GLColorbar(const GlobalOptions  * _go,GLTextRender * _gtr,bool _enable ):GLObject()
         , m_vao(0), m_vbo(0)
         , m_texColormap(0)
         , m_shader(0)
@@ -28,17 +31,16 @@ GLColorbar::GLColorbar(const GlobalOptions  * _go,bool _enable ):GLObject()
   go     = _go;
   is_activated = _enable;
 
-  #if 0 // diable core330
-  legend = new GLTextObject(); // new object for text display
-  updateFont();
-  #endif
+  gtr = _gtr;
+  legend = new GLTextObject(gtr); // new object for text display
+  //updateFont();
 }
 
 // ============================================================================
 // destructor                                                                  
 GLColorbar::~GLColorbar()
 {
-  #if 0 // diable core330
+  #if 1 // diable core330
   delete  legend;
   #endif
 }
@@ -76,7 +78,7 @@ bool GLColorbar::init(GLuint shader_program)
   // std::iota(grey.begin(), grey.end(), 0.f);
   // for (auto& v : grey) v /= 255.f;
   //setColormap(grey, grey, grey);   // initialise with a greyscale ramp
-  setColormap((*go->R),(*go->G),(*go->B));   // initialise with a greyscale ramp
+  updateRGB();
 
   // -- Shaders -----------------------------------------------------------
   m_shader = shader_program;
@@ -206,17 +208,10 @@ void GLColorbar::draw(float x0, float x1, float y0, float y1)
 
 // ============================================================================
 // void updateFont
-void GLColorbar::updateFont()
+void GLColorbar::rebuildFont(const std::string font_name, const int font_size)
 {
-#if 0 // disable core330
-  fntRenderer text;
-  if (font) delete font;
-  font = new fntTexFont(go->gcb_font_name.toStdString().c_str());  
-  text.setFont(font);
-  text.setPointSize(go->gcb_font_size);  
-  legend->setFont(text);
-  legend->setColor(go->gcb_color);
-#endif
+  gtr->init(gtr->getFontPath(), font_size);
+  display(width,height); 
 }
 
 // ============================================================================
@@ -232,46 +227,40 @@ void GLColorbar::update(GLObjectParticlesVector * _gpv, PhysicalData * _phys_sel
   
 }
 // ============================================================================
+// void update
+void GLColorbar::updateRGB(bool reverse)
+{
+  if (reverse) {
+    // reverse colormap
+    std::vector<float> R,G,B;
+    R = (*go->R);
+    std::reverse(R.begin(), R.end());
+    G = (*go->G);
+    std::reverse(G.begin(), G.end());
+    B = (*go->B);
+    std::reverse(B.begin(), B.end());
+    // update R G B vectors
+    setColormap(R,G,B);} 
+  else {
+    // update R G B vectors
+    setColormap((*go->R),(*go->G),(*go->B));   // initialise with a greyscale ramp
+  }
+}
+ // ============================================================================
 // void GLSelection::display
 void GLColorbar::display(const int _width, const int _height)
 {
   height = _height;
   width  = _width;
   setScreenSize(width, height);
+  gtr->setScreenSize(width,height);
   //GLWindow::m_glWidget->makeCurrent(); // 17-apr-2026
   if (go && go->gcb_enable && phys_select && phys_select->isValid()) {
-    #if 0
-    glDisable( GL_DEPTH_TEST );
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    gluOrtho2D(0.,width,0.,height);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-        
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);// No Alpha bending accumulation
-    glEnable(GL_BLEND);
-    glLineWidth (1.01); // long time bug on ATI/Intel hardware !!!!
-                        // On Intel witdh must be > 1 after shaders....crazy bug
-    #endif 
     // draw box
     drawBox();
-    #if 0
     // draw text
+    legend->setWH(width,height);
     drawLegend();
-    glDisable(GL_BLEND);
-    // draw color
-    drawColor();
-    #endif
-    #if 0
-    // go back to normal mode
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
-    glEnable( GL_DEPTH_TEST );
-    #endif
   }
   //GLWindow::m_glWidget->doneCurrent();
 }
@@ -385,82 +374,6 @@ void GLColorbar::drawBox()
   default: break;  
   }
   draw(x[0][0], x[2][0], x[0][1], x[2][1]);
-  #if 0
-  // draw box
-  glColor4f( 1.0f, 0.f, 0.f,1.f );
-  glBegin(GL_LINE_STRIP);
-  glVertex2i(x[0][0],x[0][1]);
-  glVertex2i(x[1][0],x[1][1]);
-  glVertex2i(x[2][0],x[2][1]);
-  glVertex2i(x[3][0],x[3][1]);
-  glVertex2i(x[0][0],x[0][1]);
-  glEnd();
-  #endif
-}
-// ============================================================================
-// void GLColorbar::drawColor
-void GLColorbar::drawColor() {
-  if (go && phys_select && phys_select->isValid()) {
-    // int large_box,long_box;
-    int long_box;
-    if (go->gcb_orientation == 1 || go->gcb_orientation == 3) { // Est or West
-      long_box = x[3][1] - x[0][1];                             // -2 pixels
-      // large_box=x[2][0]-x[3][0];
-    } else {                        // South or North
-      long_box = x[3][0] - x[0][0]; // -2 pixels
-      // large_box=x[0][1]-x[1][1];
-    }
-    int ncolors = go->R->size();
-    // ncolors = (go->gcb_max-percmin)*ncolors;
-
-    int R, G, B;
-    int cpt = 0;
-    // for (int i=0; i<=vbox;i++) {
-    for (int i = 0; i < long_box - 2; i++) {
-      int index;
-      if (go->dynamic_cmap) {  // dynamic cmap
-        if (!go->reverse_cmap) //    normal cmap
-          index = i * ncolors / (long_box - 2);
-        else //    reverse cmap
-          index = (long_box - i - 2) * ncolors / (long_box - 2);
-      } else { // constant cmap
-        int ncolors2 = (go->gcb_max - go->gcb_min) / 100. * ncolors;
-        if (!go->reverse_cmap) //    normal cmap
-          index =
-              (go->gcb_min * ncolors) / 100. + i * ncolors2 / (long_box - 2);
-        else //    reverse cmap
-          index = ncolors - (go->gcb_min * ncolors) / 100. -
-                  i * ncolors2 / (long_box - 2);
-
-        // std::cerr << index << " " << percmin << " " << go->gcb_max << " " <<
-        // ncolors2 << " "<< ncolors<< "\n";
-      }
-
-      if (index >= 0 && index < ncolors) {
-        cpt++;
-        R = pow((*go->R)[index], go->powercolor) * 255;
-        G = pow((*go->G)[index], go->powercolor) * 255;
-        B = pow((*go->B)[index], go->powercolor) * 255;
-        // draw color line
-        glColor3ub(R, G, B);
-        glBegin(GL_LINES);
-        if (go->gcb_orientation == 1 ||
-            go->gcb_orientation == 3) { // Est or West
-          glVertex2i(x[0][0] + 1, x[0][1] + i + 1);
-          glVertex2i(x[1][0] - 1, x[1][1] + i + 1);
-        } else { // South or North
-          float fac = -1;
-          // if (place==0) fac=1;
-          glVertex2i(x[0][0] + i + 1, x[0][1] - fac);
-          glVertex2i(x[1][0] + i + 1, x[1][1] + fac);
-        }
-        glEnd();
-      } else {
-      }
-    }
-    // std::cerr << "cpt =  " << cpt << " " << long_box << " +++ " <<  x[3][0] -
-    // x[0][0] << "\n";
-  }
 }
 // ============================================================================
 // void GLColorbar::drawLegend
@@ -487,7 +400,6 @@ void GLColorbar::drawLegend()
 // void GLColorbar::drawText
 void GLColorbar::drawText(float value, int fac)
 {
-  #if 0  // disblae core330
   QString text1,text0="";
   int xx=0,yy=0,tw=0,th=0;
   // max
@@ -522,9 +434,6 @@ void GLColorbar::drawText(float value, int fac)
     break;
   }
   legend->setPos(xx,yy,xx);
-  font->begin(); // mandatory !!
-  legend->display(width,height);
-  font->end();   // mandatory !!
-#endif
+  legend->display();
 }
 } // namespace glnemo
