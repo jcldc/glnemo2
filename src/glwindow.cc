@@ -61,7 +61,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mute
   // QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   // Request a Core Profile 3.3 context (works on Intel, Nvidia, Apple M-series)
   QSurfaceFormat fmt;
-  //fmt.setVersion(3, 3);
+  fmt.setVersion(3, 3);
   fmt.setProfile(QSurfaceFormat::CoreProfile);
   fmt.setDepthBufferSize(24);
   fmt.setSamples(4);   // 4× MSAA
@@ -519,7 +519,9 @@ void GLWindow::paintGL()
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
   //makeCurrent();
+#if 0
   cpointset_manager->displayAll( store_options->mat4_proj, store_options->mat4_model, store_options->mat4_view);
+#endif
   //doneCurrent();
   //
    GLfloat mview[16];
