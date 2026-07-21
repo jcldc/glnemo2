@@ -97,10 +97,10 @@ public:
   explicit CPointset(CShader *shader, const std::string &name);
   CPointset(CShader *shader, const CPointset &);
   virtual ~CPointset();
-  virtual void display() = 0;
+  virtual void display(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view) = 0;
   virtual void setAttributes();
   virtual void sendUniforms();
-  void displayText();
+  void displayText(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view);
   void copyCPoints(const CPointset&);
   bool ready();
 
@@ -180,7 +180,7 @@ protected:
   int m_nb_visible;
   int m_nb_sphere_sections = 12;
   CPointsetShapes m_shape;
-
+  glm::mat4 m_mat4_proj, m_mat4_model, m_mat4_view;
   static const std::array<float, 3> selected_color;
 };
 
@@ -188,7 +188,7 @@ class CPointsetRegularPolygon : public CPointset {
 public:
   explicit CPointsetRegularPolygon(const std::string &name);
   explicit CPointsetRegularPolygon(const CPointset &other);
-  void display() override;
+  void display(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view) override;
   void sendUniforms() override;
 
   static CShader *shader;
@@ -214,7 +214,7 @@ class CPointsetTag : public CPointset {
 public:
   explicit CPointsetTag(const std::string &name);
   explicit CPointsetTag(const CPointset &other);
-  void display() override;
+  void display(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view) override;
   void sendUniforms() override;
 
   static CShader *shader;
@@ -224,7 +224,7 @@ class CPointsetSphere : public CPointset {
 public:
   explicit CPointsetSphere(const std::string &name);
   explicit CPointsetSphere(const CPointset &other);
-  void display() override;
+  void display(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view) override;
   void sendUniforms() override;
   std::pair<GLCPoint*, float> getClickedCPoint(double *model, double *proj, glm::vec2 click_coords,
                                           int *viewport, int dof) override;
@@ -239,7 +239,7 @@ public:
   ~CPointsetManager();
   void loadFile(const std::string &filepath);
   static void initShaders(std::string glsl_version);
-  void displayAll();
+  void displayAll(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view);
   CPointset *createNewCPointset();
   void deleteCPointset(const std::string &pointset_name);
   void deleteCPoint(const std::string &pointset_name, int cpoint_id);
@@ -282,7 +282,7 @@ public:
   ~CPointTextRenderer();
 
   void init(const std::string &shader_dir);
-  void renderText(CPointset *pointset);
+  void renderText(CPointset *pointset, glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view);
 
 private:
   CShader *m_text_shader;

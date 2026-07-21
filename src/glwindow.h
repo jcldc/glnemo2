@@ -60,6 +60,8 @@ public:
   void resetView() { // reset view to initial
     resetMatScreen();
     resetMatScene();
+    last_xrot = last_yrot = last_zrot = 0;
+    last_urot = last_vrot = last_wrot = 0;
     reset_screen_rotation = true;
     reset_scene_rotation = true;
     setRotationScreen(0, 0, 0);

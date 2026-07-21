@@ -24,6 +24,7 @@
 #include "glnemoexception.h"
 #include "glwindow.h"
 #include <GL/glu.h>
+#include <glm/gtc/type_ptr.hpp>
 
 // #if defined(__APPLE__)
 // #define glGenVertexArrays glGenVertexArraysAPPLE
@@ -106,13 +107,11 @@ CPointTextRenderer *CPointset::text_renderer = nullptr;
 QOpenGLContext * CPointset::gl_context = nullptr;
 
 void CPointset::sendUniforms() {
-  GLfloat proj[16];
-  glGetFloatv(GL_PROJECTION_MATRIX, proj);
-  GLfloat mview[16];
-  glGetFloatv(GL_MODELVIEW_MATRIX, mview);
+  // compute model view matrix
+  glm::mat4 mv=m_mat4_view * m_mat4_model;
 
-  m_shader->sendUniformXfv("proj_matrix", 16, 1, &proj[0]);
-  m_shader->sendUniformXfv("model_view_matrix", 16, 1, &mview[0]);
+  m_shader->sendUniformXfv("proj_matrix", 16, 1, glm::value_ptr(m_mat4_proj));
+  m_shader->sendUniformXfv("model_view_matrix", 16, 1, glm::value_ptr(mv));
   m_shader->sendUniformXfv("color", 3, 1, m_color.data());
   m_shader->sendUniformXfv("selected_color", 3, 1, selected_color.data());
 }
@@ -368,8 +367,11 @@ void CPointset::setCpointText(int id, const std::string &text) {
   GLCPoint *cpoint = m_cpoints.at(id);
   cpoint->setName(text);
 }
-void CPointset::displayText() {
-  text_renderer->renderText(this);
+void CPointset::displayText(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view) {
+  m_mat4_proj  = mat4_proj;
+  m_mat4_model = mat4_model;
+  m_mat4_view  = mat4_view;
+  text_renderer->renderText(this, mat4_proj, mat4_model, mat4_view);
 }
 void CPointset::setNameVisible(bool visible) {
   m_is_name_visible = visible;
@@ -566,8 +568,11 @@ void CPointsetRegularPolygon::sendUniforms() {
   m_shader->sendUniformXiv("screen_dims", 2, 1, std::array<int, 2>({wwidth, wheight}).data());
 
 }
-void CPointsetRegularPolygon::display() {
+void CPointsetRegularPolygon::display(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view) {
 
+  m_mat4_proj  = mat4_proj;
+  m_mat4_model = mat4_model;
+  m_mat4_view  = mat4_view;
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display");
   GLWindow::m_glWidget->makeCurrent();
@@ -672,10 +677,13 @@ CPointsetTag::CPointsetTag(const CPointset &other) : CPointset(shader, other) {
   m_shape = CPointsetShapes::tag;
 }
 
-void CPointsetTag::display() {
+void CPointsetTag::display(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view) {
   
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
-  
+  m_mat4_proj  = mat4_proj;
+  m_mat4_model = mat4_model;
+  m_mat4_view  = mat4_view;
+
   GLWindow::checkGLErrors("start CPointsetTag::display");
   glLineWidth(1);
   GLWindow::m_glWidget->makeCurrent();
@@ -755,10 +763,14 @@ std::pair<GLCPoint *, float> CPointsetSphere::getClickedCPoint(double *model, do
   return {closest_cpoint, closest_cpoint_dist};
 }
 
-void CPointsetSphere::display() {
+void CPointsetSphere::display(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view) {
 
   int nb_vertex_per_sphere = m_nb_sphere_sections * m_nb_sphere_sections + m_nb_sphere_sections;
-  
+  m_mat4_proj  = mat4_proj;
+  m_mat4_model = mat4_model;
+  m_mat4_view  = mat4_view;
+
+
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   GLWindow::checkGLErrors("start CPointsetSphere::display");
 
@@ -906,21 +918,21 @@ void CPointsetManager::initShaders(std::string glsl_version) {
   }
 }
 
-void CPointsetManager::displayAll() {
+void CPointsetManager::displayAll(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view) {
   GLWindow::checkGLErrors("start Display all");
   for (const auto& cpointset_pair: m_pointsets) {
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     CPointset *cpointset = cpointset_pair.second;
     if (cpointset->ready() && cpointset->isVisible()) {
-      cpointset->display();
+      cpointset->display(mat4_proj, mat4_model, mat4_view);
     }
   }
   for (const auto& cpointset_pair: m_pointsets) {
     glDisable(GL_DEPTH_TEST);
     CPointset *cpointset = cpointset_pair.second;
     if (cpointset->isNameVisible() && cpointset->isVisible()) {
-      cpointset->displayText();
+      cpointset->displayText(mat4_proj, mat4_model, mat4_view);
     }
   }
   GLWindow::checkGLErrors("stop Display all");
@@ -1130,7 +1142,7 @@ void CPointTextRenderer::init(const std::string &shader_dir) {
   //GLWindow::m_glWidget->doneCurrent();
 }
 
-void CPointTextRenderer::renderText(CPointset *pointset) {
+void CPointTextRenderer::renderText(CPointset *pointset, glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 mat4_view) {
   
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
@@ -1150,13 +1162,11 @@ void CPointTextRenderer::renderText(CPointset *pointset) {
 
     m_text_shader->start();
 
-    GLfloat proj[16];
-    glGetFloatv(GL_PROJECTION_MATRIX, proj);
-    GLfloat mview[16];
-    glGetFloatv(GL_MODELVIEW_MATRIX, mview);
+    // compute model view matrix
+    glm::mat4 mv=mat4_view * mat4_model;
 
-    m_text_shader->sendUniformXfv("proj_matrix", 16, 1, &proj[0]);
-    m_text_shader->sendUniformXfv("model_view_matrix", 16, 1, &mview[0]);
+    m_text_shader->sendUniformXfv("proj_matrix", 16, 1, glm::value_ptr(mat4_proj));
+    m_text_shader->sendUniformXfv("model_view_matrix", 16, 1, glm::value_ptr(mv));
 
     m_text_shader->sendUniformXfv("color", 3, 1, pointset->getColor().data());
     m_text_shader->sendUniformXfv("point_center", 3, 1, cpoint->getCoords().data());

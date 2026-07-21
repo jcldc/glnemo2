@@ -357,8 +357,8 @@ void GLWindow::paintGL()
 
   // set projection
   setProjection(0, 0,  wwidth, wheight);
-  glMatrixMode( GL_MODELVIEW );
-  glLoadIdentity();
+  // glMatrixMode( GL_MODELVIEW );
+  // glLoadIdentity();
   store_options->mat4_view = glm::mat4(1.0f);
   store_options->mat4_model = glm::mat4(1.0f);
   //glEnable(GL_DEPTH_TEST);
@@ -373,25 +373,25 @@ void GLWindow::paintGL()
   if (ru!=0 ||
       rv!=0 ||
       rw!=0) {
-    glLoadIdentity();
+    // glLoadIdentity();
     store_options->mat4_view = glm::mat4(1.0f);
     if (ru!=0) {
       store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(ru),
                                              glm::vec3(mScene[0],mScene[1], mScene[2]));
-      glRotatef(ru, mScene[0],mScene[1], mScene[2] );
+      //glRotatef(ru, mScene[0],mScene[1], mScene[2] );
     }      
     if (rv!=0) {
       store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(rv),
                                              glm::vec3(mScene[4],mScene[5], mScene[6]));
-      glRotatef(rv, mScene[4],mScene[5], mScene[6] );
+      //glRotatef(rv, mScene[4],mScene[5], mScene[6] );
     }
     if (rw!=0) {
       store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(rw),
                                              glm::vec3(mScene[8],mScene[9], mScene[10]));
-      glRotatef(rw, mScene[8],mScene[9], mScene[10]);
+      //glRotatef(rw, mScene[8],mScene[9], mScene[10]);
     }
     
     last_urot = store_options->urot;
@@ -399,8 +399,8 @@ void GLWindow::paintGL()
     last_wrot = store_options->wrot;
     store_options->mat4_view = store_options->mat4_view * m_scene;
     m_scene = store_options->mat4_view;
-    glMultMatrixd (mScene);
-    glGetDoublev (GL_MODELVIEW_MATRIX, mScene);
+    // glMultMatrixd (mScene);
+    // glGetDoublev (GL_MODELVIEW_MATRIX, mScene);
   }
  
   // rotation around screen axes
@@ -413,21 +413,21 @@ void GLWindow::paintGL()
   if (rx!=0 ||
       ry!=0 ||
       rz!=0) {
-    glLoadIdentity();
+    // glLoadIdentity();
     // rotate only around the screen axes about the delta angle from the previous
     // rotation, otherwise it mess up the rotation
     store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(rx),
                                              glm::vec3(1.0, 0.0, 0.0));
-    glRotatef( rx, 1.0, 0.0, 0.0 );
+    //glRotatef( rx, 1.0, 0.0, 0.0 );
     store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(ry),
                                              glm::vec3(0.0, 1.0, 0.0));
-    glRotatef( ry, 0.0, 1.0, 0.0 );
+    //glRotatef( ry, 0.0, 1.0, 0.0 );
     store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(rz),
                                              glm::vec3(0.0, 0.0, 1.0));
-    glRotatef( rz, 0.0, 0.0, 1.0 );
+    //glRotatef( rz, 0.0, 0.0, 1.0 );
     last_xrot = store_options->xrot;
     last_yrot = store_options->yrot;
     last_zrot = store_options->zrot;
@@ -435,35 +435,35 @@ void GLWindow::paintGL()
     store_options->mat4_view = store_options->mat4_view * m_screen; 
     m_screen = store_options->mat4_view;
 
-    glMultMatrixd (mScreen); // apply previous rotations on the current one
-    glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // save screen rotation matrix
+    // glMultMatrixd (mScreen); // apply previous rotations on the current one
+    // glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // save screen rotation matrix
   }
   if (reset_screen_rotation) { 
-    glLoadIdentity ();
-    glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // set to Identity
+    // glLoadIdentity ();
+    // glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // set to Identity
     reset_screen_rotation=false;
     store_options->mat4_view = glm::mat4(1.0f);
   }
   if (reset_scene_rotation) { 
-    glLoadIdentity ();
-    glGetDoublev (GL_MODELVIEW_MATRIX, mScene); // set to Identity
+   // glLoadIdentity ();
+    // glGetDoublev (GL_MODELVIEW_MATRIX, mScene); // set to Identity
     reset_scene_rotation=false;
     last_urot = last_vrot = last_wrot = 0.0;
   }  
 
-  glLoadIdentity (); // reset OGL rotations
+  // glLoadIdentity (); // reset OGL rotations
   // set camera
   if ( store_options->perspective) {
     camera->setEye(0.0,  0.0,  -store_options->zoom);
     camera->moveTo();
   }
-  glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mRot);
+  // glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mRot);
   
   // apply screen rotation on the whole system
-  glMultMatrixd (mScreen);
+  // glMultMatrixd (mScreen);
   store_options->mat4_view = store_options->mat4_view * m_screen; 
   // apply scene/world rotation on the whole system
-  glMultMatrixd (mScene);   
+  // glMultMatrixd (mScene);   
   store_options->mat4_view = store_options->mat4_view * m_scene; 
   // Grid Anti aliasing
 #ifdef GL_MULTISAMPLE
@@ -496,8 +496,8 @@ void GLWindow::paintGL()
   setModelMatrix(); // save ModelView  Matrix
   setProjMatrix();  // save Projection Matrix
   // move the scene
-  glTranslatef( store_options->xtrans, store_options->ytrans, store_options->ztrans);
-  glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel2);  
+  //glTranslatef( store_options->xtrans, store_options->ytrans, store_options->ztrans);
+  //glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel2);  
   store_options->mat4_model = glm::translate(store_options->mat4_model, glm::vec3(store_options->xtrans, store_options->ytrans, store_options->ztrans));
   //printMatrix(mModel2,"GL_MODELVIEW_MATRIX 100");
 
@@ -519,7 +519,7 @@ void GLWindow::paintGL()
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
   //makeCurrent();
-  cpointset_manager->displayAll();
+  cpointset_manager->displayAll( store_options->mat4_proj, store_options->mat4_model, store_options->mat4_view);
   //doneCurrent();
   //
    GLfloat mview[16];
