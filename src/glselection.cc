@@ -193,53 +193,6 @@ void GLSelection::getMouse(QMouseEvent * e)
   y1 = pos_y;
 }
 // ============================================================================
-//
-void GLSelection::display(const int width, const int height)
-{
-  if (enable) {
-    GLWindow::m_glWidget->makeCurrent();
-    glDisable( GL_DEPTH_TEST );
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    //glOrtho(0.,width,0.,height,-1,1);
-    gluOrtho2D(0.,width,0.,height);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    //glBlendFunc( GL_SRC_ALPHA, GL_ONE ); // original
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);// No Alpha bending accumulation
-    glEnable(GL_BLEND);
-    // draw blended box
-    glColor4f( 1.0f, 1.0f, 1.f,0.4f );
-    glBegin(GL_QUADS);
-      glVertex2f(x0,height-y0);
-      glVertex2f(x1,height-y0);
-      glVertex2f(x1,height-y1);
-      glVertex2f(x0,height-y1);
-    glEnd();
-    // draw surounded lines
-    glColor4f( 1.0f, 0.f, 0.f,1.f );
-    glBegin(GL_LINES);
-      glVertex2f(x0,0);
-      glVertex2f(x0,height);
-      glVertex2f(x1,0);
-      glVertex2f(x1,height);
-      glVertex2f(0,height-y0);
-      glVertex2f(width,height-y0);
-      glVertex2f(0,height-y1);
-      glVertex2f(width,height-y1);
-    glEnd();
-    glDisable(GL_BLEND);
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
-    glEnable( GL_DEPTH_TEST );
-    //GLWindow::m_glWidget->doneCurrent();
-  }
-}
-// ============================================================================
 // selectOnArea
 // according to the user selection, the selected area will be centered and     
 // zoomed in                                                                   

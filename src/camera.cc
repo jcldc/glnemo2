@@ -16,6 +16,8 @@
 #include <QFile>
 #include <QString>
 
+#include <glm/fwd.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <sstream>
 #include "camera.h"
 #include "glwindow.h"
@@ -336,12 +338,10 @@ namespace glnemo {
     texture->glBindTexture();  // bind texture
 
     // send matrix
-    GLfloat proj[16];
-    f->glGetFloatv( GL_PROJECTION_MATRIX,proj);
-    shader->sendUniformXfv("projMatrix",16,1,&proj[0]);
-    GLfloat mview[16];
-    f->glGetFloatv( GL_MODELVIEW_MATRIX,mview);
-    shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
+    shader->sendUniformXfv("projMatrix",16,1,
+                           glm::value_ptr(store_options->mat4_proj));
+    glm::mat4 mv=store_options->mat4_view*store_options->mat4_model;
+    shader->sendUniformXfv("modelviewMatrix",16,1,glm::value_ptr(mv));
 
     // Send data to Pixel Shader
     shader->sendUniformi("splatTexture", 0);

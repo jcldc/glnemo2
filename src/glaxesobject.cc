@@ -58,15 +58,16 @@ void GLAxesObject::display(const double * mScreen,const double * mScene, const i
   //setProjection( width/2-size/2, width/2, size, size);
   // !! BE carefull the following call will change the viewport !!!
   setProjection( pwidth, pheight, size, size,perspective);
-  
+  #if 0 // disable core 330  
   glMatrixMode( GL_MODELVIEW );
   glLoadIdentity (); // reset OGL rotations
   glTranslatef (0, 0 , -3);
+  #endif
   
   // apply screen rotation on the whole system
-  glMultMatrixd (mScreen);  
-  glMultMatrixd (mScene);  
-  
+  // glMultMatrixd (mScreen);  
+  // glMultMatrixd (mScene);  
+  //
   
   //glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);

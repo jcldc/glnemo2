@@ -61,7 +61,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mute
   // QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   // Request a Core Profile 3.3 context (works on Intel, Nvidia, Apple M-series)
   QSurfaceFormat fmt;
-  fmt.setVersion(3, 3);
+  // fmt.setVersion(3, 3);
   fmt.setProfile(QSurfaceFormat::CoreProfile);
   fmt.setDepthBufferSize(24);
   fmt.setSamples(4);   // 4× MSAA
@@ -315,6 +315,7 @@ void GLWindow::paintGL()
 {
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   
+  GLWindow::checkGLErrors("Begining paintGL");
   CPT++;
   //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
   //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
@@ -357,8 +358,6 @@ void GLWindow::paintGL()
 
   // set projection
   setProjection(0, 0,  wwidth, wheight);
-  // glMatrixMode( GL_MODELVIEW );
-  // glLoadIdentity();
   store_options->mat4_view = glm::mat4(1.0f);
   store_options->mat4_model = glm::mat4(1.0f);
   //glEnable(GL_DEPTH_TEST);
@@ -373,7 +372,6 @@ void GLWindow::paintGL()
   if (ru!=0 ||
       rv!=0 ||
       rw!=0) {
-    // glLoadIdentity();
     store_options->mat4_view = glm::mat4(1.0f);
     if (ru!=0) {
       store_options->mat4_view = glm::rotate(store_options->mat4_view,
@@ -399,8 +397,6 @@ void GLWindow::paintGL()
     last_wrot = store_options->wrot;
     store_options->mat4_view = store_options->mat4_view * m_scene;
     m_scene = store_options->mat4_view;
-    // glMultMatrixd (mScene);
-    // glGetDoublev (GL_MODELVIEW_MATRIX, mScene);
   }
  
   // rotation around screen axes
@@ -413,7 +409,6 @@ void GLWindow::paintGL()
   if (rx!=0 ||
       ry!=0 ||
       rz!=0) {
-    // glLoadIdentity();
     // rotate only around the screen axes about the delta angle from the previous
     // rotation, otherwise it mess up the rotation
     store_options->mat4_view = glm::rotate(store_options->mat4_view,
@@ -435,23 +430,18 @@ void GLWindow::paintGL()
     store_options->mat4_view = store_options->mat4_view * m_screen; 
     m_screen = store_options->mat4_view;
 
-    // glMultMatrixd (mScreen); // apply previous rotations on the current one
-    // glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // save screen rotation matrix
   }
   if (reset_screen_rotation) { 
-    // glLoadIdentity ();
     // glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // set to Identity
     reset_screen_rotation=false;
     store_options->mat4_view = glm::mat4(1.0f);
   }
   if (reset_scene_rotation) { 
-   // glLoadIdentity ();
     // glGetDoublev (GL_MODELVIEW_MATRIX, mScene); // set to Identity
     reset_scene_rotation=false;
     last_urot = last_vrot = last_wrot = 0.0;
   }  
 
-  // glLoadIdentity (); // reset OGL rotations
   // set camera
   if ( store_options->perspective) {
     camera->setEye(0.0,  0.0,  -store_options->zoom);
@@ -460,10 +450,8 @@ void GLWindow::paintGL()
   // glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mRot);
   
   // apply screen rotation on the whole system
-  // glMultMatrixd (mScreen);
   store_options->mat4_view = store_options->mat4_view * m_screen; 
   // apply scene/world rotation on the whole system
-  // glMultMatrixd (mScene);   
   store_options->mat4_view = store_options->mat4_view * m_scene; 
   // Grid Anti aliasing
 #ifdef GL_MULTISAMPLE
@@ -485,6 +473,7 @@ void GLWindow::paintGL()
     //glEnable( GL_DEPTH_TEST );
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
+    GLWindow::checkGLErrors("Before rendergrids");
     renderGrids(store_options->mat4_model, store_options->mat4_view, store_options->mat4_proj);
     //cube->display();
     glDisable(GL_BLEND);
@@ -519,14 +508,12 @@ void GLWindow::paintGL()
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
   //makeCurrent();
-#if 0
+#if 1
+  GLWindow::checkGLErrors("Before cpoints_manager start Display all");
   cpointset_manager->displayAll( store_options->mat4_proj, store_options->mat4_model, store_options->mat4_view);
 #endif
   //doneCurrent();
   //
-   GLfloat mview[16];
-   glGetFloatv( GL_MODELVIEW_MATRIX,mview);
-   // GLWindow::printMatrix(mview," mview 1");
    glm::mat4 mv=store_options->mat4_view * store_options->mat4_model;
    // GLWindow::printMatrix(glm::value_ptr(mv)," mv 1");
    // GLWindow::printMatrix(glm::value_ptr(store_options->mat4_view)," mat4_view 1");
@@ -549,6 +536,7 @@ void GLWindow::paintGL()
     }
 
     if (obj_has_physic) {
+      GLWindow::checkGLErrors("Before gl_colorbar");
       if (fbo) { // offscreen rendering activated
         gl_colorbar->display(texWidth,texHeight);
       }
@@ -699,7 +687,23 @@ void GLWindow::initializeGL()
   std::cerr << "\n>>>>>>>>> initializeGL()\n\n";
 
   initializeOpenGLFunctions();
-   
+  QOpenGLDebugLogger *logger = new QOpenGLDebugLogger(this);
+    if (logger->initialize()) {
+        connect(logger, &QOpenGLDebugLogger::messageLogged, [](const QOpenGLDebugMessage &msg) {
+            qDebug() << "OpenGL Debug:" << msg.message();
+        });
+        logger->startLogging(QOpenGLDebugLogger::SynchronousLogging);
+    } 
+  connect(logger, &QOpenGLDebugLogger::messageLogged, [](const QOpenGLDebugMessage &msg) {
+    qDebug() << "OpenGL Debug:" << msg.message();
+    
+    // Si c'est une erreur d'opération invalide ou de fonction dépréciée :
+    if (msg.severity() >= QOpenGLDebugMessage::MediumSeverity) {
+        // En mode Debug sous Linux, ceci va faire crasher proprement le soft 
+        // exactement sur la ligne coupable si vous êtes sous un IDE (Qt Creator / VS Code)
+        // Q_ASSERT(false); 
+    }
+  });
   // Get OpenGL versions
   gl_version=glGetString ( GL_VERSION );
   std::cerr << "OpenGL version : ["<< gl_version << "]\n";
@@ -776,7 +780,7 @@ void GLWindow::initializeGL()
 
   // axes
   axes = new GLAxesObject();
- 
+  //
   // Init gl_select
   gl_select->init();
 
@@ -831,13 +835,8 @@ void GLWindow::resizeGL(int w, int h)
   wwidth = w;
   wheight= h;
   glViewport( 0, 0, (GLint)w, (GLint)h );
-  //float ratio =  ((double )w) / ((double )h);
-  glMatrixMode( GL_PROJECTION );
-  glLoadIdentity();
   glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, (float) DOF);
   //gluPerspective(45.,ratio,0.0005,(float) DOF);
-  glMatrixMode( GL_MODELVIEW );
-  glLoadIdentity();
   osd->setWH(w,h);
   cpointset_manager->setScreenDim(w, h);
 }
@@ -847,8 +846,6 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
 {
   glViewport( x, y, width, height);
   ratio =  ((double )width) / ((double )height);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
   store_options->mat4_proj = glm::mat4(1.0f); 
 
   if (store_options->perspective) {
@@ -1423,20 +1420,16 @@ void GLWindow::setZoom(const float z)
 //    the good projection and modelview matrix
 void GLWindow::setPerspectiveMatrix()
 {
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
   gluPerspective(45.,ratio,0.0005,(float) DOF);
   store_options->mat4_proj = glm::perspective(glm::radians(45.f), (GLfloat)ratio, 0.0005f, (float) DOF);
 #if 1
-  glMatrixMode( GL_MODELVIEW );
-  glLoadIdentity();
   camera->setEye(0.0,  0.0,  -store_options->zoom);
   camera->moveTo();
   // apply screen rotation on the whole system
-  glMultMatrixd (mScreen);   
+  // glMultMatrixd (mScreen);   
   store_options->mat4_view = store_options->mat4_view*m_screen;
   // apply scene/world rotation on the whole system
-  glMultMatrixd (mScene);   
+  // glMultMatrixd (mScene);   
   store_options->mat4_view = store_options->mat4_view*m_scene;
   setModelMatrix(); // save ModelView  Matrix
 #endif

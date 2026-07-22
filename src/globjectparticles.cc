@@ -949,27 +949,9 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
   }
 
   // send matrix
-  GLfloat proj[16];
-  glGetFloatv( GL_PROJECTION_MATRIX,proj);
-  if(0) { // opengl legacy
-
-    shader->sendUniformXfv("projMatrix",16,1,&proj[0]);
-  } else { // opengl legacy
-    shader->sendUniformXfv("projMatrix",16,1,glm::value_ptr(go->mat4_proj));
-  }
-  if (0) { // opengl legacy
-    GLfloat mview[16];
-    glGetFloatv( GL_MODELVIEW_MATRIX,mview);
-    GLWindow::printMatrix(mview," mview");
-    glm::mat4 mv=go->mat4_view * go->mat4_model;
-    //GLWindow::printMatrix(glm::value_ptr(mv)," mv");
-    shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
-    //GLWindow::printMatrix(mview," mview");
-    
-   } else { // opengl coreprofile
-    glm::mat4 mv=go->mat4_view * go->mat4_model;
-    shader->sendUniformXfv("modelviewMatrix",16,1,glm::value_ptr(mv));
-  }
+  shader->sendUniformXfv("projMatrix",16,1,glm::value_ptr(go->mat4_proj));
+  glm::mat4 mv=go->mat4_view * go->mat4_model;
+  shader->sendUniformXfv("modelviewMatrix",16,1,glm::value_ptr(mv));
   // send z_stretch_value
   shader->sendUniformf("z_stretch_value",(float) go->z_stretch_value);
 
@@ -1431,6 +1413,7 @@ void GLObjectParticles::sortByDepth()
 // - draw quad (2 triangles) around new coordinates and facing camera
 void GLObjectParticles::displaySprites(const double * mModel)
 {
+#if 0 // disable core 330
 #define MM(row,col)  mModel[col*4+row]
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   glPushMatrix();
@@ -1507,6 +1490,7 @@ void GLObjectParticles::displaySprites(const double * mModel)
   glDisable(GL_BLEND);
   glDisable( GL_TEXTURE_2D );
   glPopMatrix();
+  #endif
 }
 
 

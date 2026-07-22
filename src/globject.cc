@@ -79,8 +79,6 @@ void GLObject::setProjection(const int x, const int y, const int width, const in
 {
   glViewport( x, y, width, height);
   ratio =  ((double )width) / ((double )height);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
 
   if (perspective) {
     gluPerspective(45.,ratio,0.0005,(float) DOF);
