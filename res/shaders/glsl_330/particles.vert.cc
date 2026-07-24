@@ -32,8 +32,8 @@ uniform float z_stretch_value;
 uniform int   z_stretch_jit;
 
 layout (location = 0) in vec3 position;
-in float a_sprite_size;
-in float a_phys_data;
+layout (location = 1) in float a_sprite_size;
+layout (location = 2) in float a_phys_data;
 uniform vec4 color; 
 
 out float v_to_discard;

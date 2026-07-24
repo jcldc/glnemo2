@@ -20,23 +20,28 @@ using namespace std;
 // Constructor 
 GLAxesObject::GLAxesObject()
 {
+  #if 0 // 330
   dplist_index = glGenLists( 1 );
   quadric = gluNewQuadric();
   buildDisplayList();
+  #endif
 }
 // ============================================================================
 // Destructor                                                                  
 // Delete display list 
 GLAxesObject::~GLAxesObject()
 {
+  #if 0 // 330
   gluDeleteQuadric(quadric);
   glDeleteLists( dplist_index, 1 );
+  #endif
 }
 // ============================================================================
 // display
 void GLAxesObject::display(const double * mScreen,const double * mScene, const int width, const int height, 
                            const int loc, const float psize, const bool perspective)
 {
+  #if 0
   int size=psize*width;
   
   int pwidth,pheight;
@@ -83,7 +88,7 @@ void GLAxesObject::display(const double * mScreen,const double * mScene, const i
   
   glPopMatrix ();
   //GLWindow::m_glWidget->doneCurrent();
-  
+  #endif 
 }
 
 // ============================================================================
@@ -91,6 +96,7 @@ void GLAxesObject::display(const double * mScreen,const double * mScene, const i
 // Build Display List                                                          
 void GLAxesObject::buildDisplayList2()
 {
+  #if 0  //330
   float ORG[3] = {0,0,0};
   
   float XP[3] = {1,0,0},  YP[3] = {0,1,0},
@@ -126,6 +132,7 @@ void GLAxesObject::buildDisplayList2()
   //gluDeleteQuadric(quadratic);
 #endif
   glEndList();
+  #endif
 }
 
 // ============================================================================
@@ -133,6 +140,7 @@ void GLAxesObject::buildDisplayList2()
 // Build Display List                                                          
 void GLAxesObject::buildDisplayList()
 {
+  #if 0 // 330
   float length=1.0;
   float radius=length*0.05;
   //GLfloat color[4];
@@ -184,6 +192,7 @@ void GLAxesObject::buildDisplayList()
 #endif
   glDisable(GL_LIGHTING);
   glEndList();
+  #endif
 }
 
 // ============================================================================
@@ -191,6 +200,7 @@ void GLAxesObject::buildDisplayList()
 // Build axes arrow
 void GLAxesObject::buildArrow(const float length, const float radius, const int nbSubdivisions)
 {
+  #if 0 //330
   const float head =  2.5*(radius / length) + 0.1;
   const float coneRadiusCoef = 4.0 - 5.0 * head;
 
@@ -198,5 +208,6 @@ void GLAxesObject::buildArrow(const float length, const float radius, const int 
   glTranslatef(0.0, 0.0, length * (1.0 - head));
   gluCylinder(quadric, coneRadiusCoef * radius, 0.0, head * length, nbSubdivisions, 1);
   glTranslatef(0.0, 0.0, -length * (1.0 - head));
+  #endif
 }
 }

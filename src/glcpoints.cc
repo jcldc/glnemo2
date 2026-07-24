@@ -886,25 +886,25 @@ CPointsetManager::~CPointsetManager() {
 void CPointsetManager::initShaders(std::string glsl_version) {
   
   std::string shader_dir = "/shaders/cpoints_" + glsl_version;
-#if 1 //JCL
+  #if 1
   CPointset::text_renderer = new CPointTextRenderer();
   CPointset::text_renderer->init(shader_dir);
-#endif
-  CPointsetRegularPolygon::shader = new CShader(
-          GlobalOptions::RESPATH.toStdString() + shader_dir + "/regular_polygon.vert",
-          GlobalOptions::RESPATH.toStdString() + shader_dir + "/characteristic.frag");
-  if (!CPointsetRegularPolygon::shader->init()) {
-    delete CPointsetRegularPolygon::shader;
-    std::cerr << "Failed to initialize regular_polygon shader\n";
-    exit(1);
-  }
-
+  #endif
   CPointsetTag::shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + shader_dir + "/tag_shape.vert",
           GlobalOptions::RESPATH.toStdString() + shader_dir + "/tag_shape.frag");
   if (!CPointsetTag::shader->init()) {
     delete CPointsetTag::shader;
     std::cerr << "Failed to initialize tag shape shader\n";
+    exit(1);
+  }
+
+  CPointsetRegularPolygon::shader = new CShader(
+          GlobalOptions::RESPATH.toStdString() + shader_dir + "/regular_polygon.vert",
+          GlobalOptions::RESPATH.toStdString() + shader_dir + "/characteristic.frag");
+  if (!CPointsetRegularPolygon::shader->init()) {
+    delete CPointsetRegularPolygon::shader;
+    std::cerr << "Failed to initialize regular_polygon shader\n";
     exit(1);
   }
 
@@ -1096,7 +1096,7 @@ void CPointTextRenderer::init(const std::string &shader_dir) {
   // Load texture
   QImage texture_img(GlobalOptions::RESPATH + "/fonts/dejavu_sans_mono_typeface.png");
 
-  glEnable(GL_TEXTURE_2D);
+  // glEnable(GL_TEXTURE_2D);
   glGenTextures(1, &m_texture);
   glBindTexture(GL_TEXTURE_2D, m_texture);
   glTexImage2D(

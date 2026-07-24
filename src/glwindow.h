@@ -57,6 +57,8 @@ public:
   void bestZoomFit();
   void resize(const int w, const int h) { resizeGL(w, h); }
   void resizeOsd(const int w, const int h) { osd->setWH(w, h); }
+  void paintGLbackup();
+
   void resetView() { // reset view to initial
     resetMatScreen();
     resetMatScene();
@@ -68,6 +70,9 @@ public:
     setRotationScene(0, 0, 0);
     setTranslation(0, 0, 0);
     resetEvents(true);
+  }
+  static void glGetProj() {
+
   }
   void gpvClear() { gpv.clear(); }
   static bool GLSL_support;

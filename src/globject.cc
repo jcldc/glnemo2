@@ -77,11 +77,12 @@ void GLObject::buildDisplayList()
 void GLObject::setProjection(const int x, const int y, const int width, const int height,
                              const bool perspective)
 {
+  #if 0 // 330
   glViewport( x, y, width, height);
   ratio =  ((double )width) / ((double )height);
 
   if (perspective) {
-    gluPerspective(45.,ratio,0.0005,(float) DOF);
+    gluPerspective(145.,ratio,0.0005,(float) DOF);
   }
   else {
     computeOrthoFactor();
@@ -99,6 +100,7 @@ void GLObject::setProjection(const int x, const int y, const int width, const in
             -1000,1000);
             //(float) -DOF/2.,(float) -DOF/2.);
   }
+  #endif
 }
 
 // ============================================================================

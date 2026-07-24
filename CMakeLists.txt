@@ -121,7 +121,6 @@ FILE(GLOB lib_files
   "plugins/network/*.cpp"
   "plugins/ramses/*.cc"
   "utils/*.cc"
-  "3rdparty/pfntlib/*.cxx"
   )
 
 # Find plugins qt headers

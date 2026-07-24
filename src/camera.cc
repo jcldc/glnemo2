@@ -46,7 +46,9 @@ namespace glnemo {
   Camera::~Camera()
   {
     if (spline) delete spline;
+  #if 0 // 330
     glDeleteLists( dplist_index, 1 );
+  #endif
     if (shader ) {
       delete shader;
     }
@@ -101,7 +103,9 @@ namespace glnemo {
   {
     npoints = _p; // #interpolated points
     scale   = _s; // scale factor applied on top of ctrl points
+  #if 0 // 330
     dplist_index = glGenLists( 1 );    // get a new display list index
+  #endif
     if (filename != "") {
       loadSplinePoints(filename);
     }
@@ -137,10 +141,6 @@ namespace glnemo {
     //glm::vec3 up(ux,0.0,1.0);
 
     if (!play && ! spline_mode) {
-      gluLookAt(ex, ey, ez,
-                cx, cy, cz,
-                ux, uy, uz);
-
       store_options->mat4_view = glm::lookAt(glm::vec3(ex, ey, ez),
                 glm::vec3(cx, cy, cz),
                 glm::vec3(ux, uy, uz));
@@ -278,6 +278,7 @@ namespace glnemo {
   //  buildDisplayList                                                           
   void Camera::buildDisplayList()
   {
+  #if 0 // 330
     glNewList( dplist_index, GL_COMPILE );
     glBegin(GL_LINE_STRIP);
     for (int i=0; i<npoints; i++) {
@@ -287,6 +288,7 @@ namespace glnemo {
     }
     glEnd();
     glEndList();
+  #endif
   }
   // ============================================================================
   // displayCameraPath                                                           
@@ -322,7 +324,7 @@ namespace glnemo {
     col[2] = mycolor.blueF();
     col[3] = mycolor.alphaF();
 
-    glEnable(GL_PROGRAM_POINT_SIZE); glEnable(0x8861);
+    glEnable(GL_PROGRAM_POINT_SIZE); //glEnable(0x8861);
 
     // ------------------------------
     // start shader

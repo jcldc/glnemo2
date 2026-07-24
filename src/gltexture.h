@@ -23,7 +23,7 @@ class GLTexture;
 
 typedef std::vector <GLTexture> GLTextureVector;
 
-class GLTexture{
+class GLTexture {
 public:
     GLTexture();
     ~GLTexture();

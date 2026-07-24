@@ -18,6 +18,7 @@
 #include "cshader.h"
 #include "globject.h"
 #include "gltexture.h"
+#include <GL/gl.h>
 #include <QObject>
 #include <iostream>
 #include <vector>
@@ -170,13 +171,14 @@ class GLObjectParticles : public GLObject {
 
     // vbo
     GLuint vbo_pos, vbo_color , vbo_size, vbo_index, vbo_index2, vbo_data, vbo_vel, vbo_vel_X2;
+    // m_vao
+    GLuint m_vao;
     int nvert_pos;
     // Rho
     GLObjectIndexTabVector vindex_sel,phys_itv,rho_itv;
     GLuint * indexes_sorted, nind_sorted;
     //
     bool hasPhysic; // Does object has physic value
-    void initShader();
     static int compareZ(const void * a, const void * b);
     void checkGlError(std::string s) {
       int err = glGetError();

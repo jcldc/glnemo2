@@ -57,7 +57,9 @@ GLOctree::GLOctree(GlobalOptions * _options):GLObject()
   store_options = _options;
   root=NULL;
   pov=NULL;
+  #if 0 //330
   dplist_index = glGenLists( 1 );    // get a new display list index
+  #endif
   setColor(Qt::green);
   setActivate(store_options->octree_display);
   init();

@@ -12,6 +12,8 @@
 // ============================================================================
 #include "gltexture.h"
 #include "globaloptions.h"
+#include <QOpenGLContext>
+#include <QOpenGLExtraFunctions>
 #include <QImage>
 #include <math.h>
 #include <iostream>
@@ -85,23 +87,21 @@ bool GLTexture::load(QString _texture_name, QString _path,bool embeded)
 	//QT6 QImage glImg = QOpenGLWidget::convertToGLFormat(img);  // flipped 32bit RGBA
   QImage glImg = img;
   //QT6
-	glEnable(GL_TEXTURE_2D);
+	// glEnable(GL_TEXTURE_2D);
 	glGenTextures(1,&texture);             // Create The Texture
 	//std::cerr << "TEXTURE Id =" << texture << "\n";
 	// Typical Texture Generation Using Data From The Bitmap
 	::glBindTexture(GL_TEXTURE_2D, texture);
 	// Bind the img texture...
-	
-        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);	
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, 4, glImg.width(), glImg.height(), 0,
-        GL_RGBA, GL_UNSIGNED_BYTE, glImg.bits());
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, glImg.width(), glImg.height(), 0,
+              GL_RGBA, GL_UNSIGNED_BYTE, glImg.bits());
 
+  QOpenGLContext::currentContext()->extraFunctions()->glGenerateMipmap(GL_TEXTURE_2D);
 	//glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	//glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glDisable(GL_TEXTURE_2D);
 	status = true;
       }
     }
@@ -115,13 +115,15 @@ void GLTexture::createGaussian(int resolution)
   unsigned char* data = createGaussianMap(resolution);
   glGenTextures(1, &texture);
   ::glBindTexture(GL_TEXTURE_2D, texture);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
- glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
- glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, resolution, resolution, 0, 
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, resolution, resolution, 0, 
 	       GL_RGBA, GL_UNSIGNED_BYTE, data);
+  QOpenGLContext::currentContext()->extraFunctions()->glGenerateMipmap(GL_TEXTURE_2D);
+
   delete[] data;
 }
 // ============================================================================
