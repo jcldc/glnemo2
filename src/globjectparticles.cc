@@ -446,17 +446,19 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   #endif
   int maxvert = max_index - min_index + 1;
   if (maxvert > 0 && maxvert <= nvert_pos) {
+    GLint a_sprite_size = f->glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
+    if (go->render_mode == 0) { 
+        // Same particles size 
+        f->glDisableVertexAttribArray(a_sprite_size);   // <-- indispensable
+        f->glVertexAttrib1f(a_sprite_size, 1.0f);
+    } else {
+        // Each particles has its own size stored in vbo_size 
+        f->glBindBuffer(GL_ARRAY_BUFFER, vbo_size);
+        f->glVertexAttribPointer(a_sprite_size, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
+        f->glEnableVertexAttribArray(a_sprite_size);    // <-- réactive l'array
+    }
     f->glDrawArrays(GL_POINTS, 0, maxvert);
   }
-  #if 0
-  // Cleanup
-  if (vpositions != -1) f->glDisableVertexAttribArray(vpositions);
-  if (a_sprite_size != -1) f->glDisableVertexAttribArray(a_sprite_size);
-  if (a_phys_data != -1) f->glDisableVertexAttribArray(a_phys_data);
-  
-  f->glBindBuffer(GL_ARRAY_BUFFER, 0);
-  f->glBindVertexArray(0); f->glDeleteVertexArrays(1, &vao);
-  #endif
   f->glBindVertexArray(0);
 
   // deactivate shaders programs
