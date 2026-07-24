@@ -376,8 +376,8 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   else           col[3] = po->getGazAlpha()/255.0f;
 
   if ((go->render_mode == 0 ) ) { // Alpha blending accumulation
-    f->glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     f->glEnable(GL_BLEND);
+    f->glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     f->glDepthMask(GL_FALSE);
   }
   else if (go->render_mode == 1) {  // No Alpha bending accumulation
@@ -466,7 +466,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
 
   f->glDisable(GL_BLEND);
   f->glDepthMask(GL_TRUE);
-  f->glEnable(GL_DEPTH_TEST);
+  // f->glEnable(GL_DEPTH_TEST);
 }
 // ============================================================================
 // update

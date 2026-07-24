@@ -28,7 +28,18 @@ void main()
   vec4 tex = texture(splatTexture, gl_PointCoord);
 
   if (use_point == 1) {
-    fragColor = v_color;
+    // Rounding points with no textures, with smooth edge
+    vec2 coord = gl_PointCoord - vec2(0.5);
+    float dist = length(coord) * 2.0; // normalisé : 0 au centre, 1 au bord
+    
+    if (dist > 1.0) {
+      discard; // transparent outside of the circle
+    }
+    
+    // gaussien profile : alpha strong at the center, decrease gently 
+    float density = exp(-4.0 * dist * dist); // ajuste le "4.0" pour la largeur du profil
+    fragColor = vec4(v_color.rgb, v_color.a * density);
+
   } else {
     // Si NVIDIA renvoie (0,0) pour gl_PointCoord, tex sera la couleur du pixel (0,0) de la texture
     fragColor = v_color * tex;

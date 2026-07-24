@@ -315,280 +315,6 @@ void GLWindow::initLight()
 // move, translate and re-draw the whole scene according to the objects and
 // features selected
 long int CPT=0;
-void GLWindow::paintGLbackup()
-{
-  #if 1 
-  QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
-  #if 0 
-  GLWindow::checkGLErrors("Begining paintGL");
-  CPT++;
-  //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
-  //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
-  if (store_options->auto_gl_screenshot) {
-    store_options->auto_gl_screenshot = false;
-    emit sigScreenshot();
-    //std::cerr << "GLWindow::paintGL() after EMIT"<<CPT<<"\n";
-    store_options->auto_gl_screenshot = true;
-  }
-  if ( !store_options->duplicate_mem)
-    mutex_data->lock();
-  if (fbo && GLWindow::GLSL_support) {
-    m_fbo.create(this, texWidth, texHeight);
-    // Render into the FBO
-    m_fbo.bind(this);
-    //glViewport(0, 0, FBO_W, FBO_H);
-    f->glViewport(0, 0, m_fbo.width(), m_fbo.height());
-    //glClearColor(0.06f, 0.06f, 0.10f, 1.0f);
-  } 
-  //setFocus();
-  
-  f->glClearColor(store_options->background_color.redF(),
-                  store_options->background_color.greenF(),
-                  store_options->background_color.blueF(),
-                  store_options->background_color.alphaF());
-  f->glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-#endif
-  // set projection
-  setProjection(0, 0,  wwidth, wheight);
-  store_options->mat4_view = glm::mat4(1.0f);
-  store_options->mat4_model = glm::mat4(1.0f);
-  //glEnable(GL_DEPTH_TEST);
-  
-  // rotation around scene/object axes
-  float ru=store_options->urot-last_urot;
-  float rv=store_options->vrot-last_vrot;
-  float rw=store_options->wrot-last_wrot;
-
-  // the following code compute OpenGL rotation 
-  // around UVW scene/object axes
-  if (ru!=0 ||
-      rv!=0 ||
-      rw!=0) {
-    store_options->mat4_view = glm::mat4(1.0f);
-    if (ru!=0) {
-      store_options->mat4_view = glm::rotate(store_options->mat4_view,
-                                             glm::radians(ru),
-                                             glm::vec3(mScene[0],mScene[1], mScene[2]));
-      //glRotatef(ru, mScene[0],mScene[1], mScene[2] );
-    }      
-    if (rv!=0) {
-      store_options->mat4_view = glm::rotate(store_options->mat4_view,
-                                             glm::radians(rv),
-                                             glm::vec3(mScene[4],mScene[5], mScene[6]));
-      //glRotatef(rv, mScene[4],mScene[5], mScene[6] );
-    }
-    if (rw!=0) {
-      store_options->mat4_view = glm::rotate(store_options->mat4_view,
-                                             glm::radians(rw),
-                                             glm::vec3(mScene[8],mScene[9], mScene[10]));
-      //glRotatef(rw, mScene[8],mScene[9], mScene[10]);
-    }
-    
-    last_urot = store_options->urot;
-    last_vrot = store_options->vrot;
-    last_wrot = store_options->wrot;
-    store_options->mat4_view = store_options->mat4_view * m_scene;
-    m_scene = store_options->mat4_view;
-  }
- 
-  // rotation around screen axes
-  float rx=store_options->xrot-last_xrot;
-  float ry=store_options->yrot-last_yrot;
-  float rz=store_options->zrot-last_zrot;
-
-  // the following code compute OpenGL rotation 
-  // around XYZ screen axes
-  if (rx!=0 ||
-      ry!=0 ||
-      rz!=0) {
-    // rotate only around the screen axes about the delta angle from the previous
-    // rotation, otherwise it mess up the rotation
-    store_options->mat4_view = glm::rotate(store_options->mat4_view,
-                                             glm::radians(rx),
-                                             glm::vec3(1.0, 0.0, 0.0));
-    //glRotatef( rx, 1.0, 0.0, 0.0 );
-    store_options->mat4_view = glm::rotate(store_options->mat4_view,
-                                             glm::radians(ry),
-                                             glm::vec3(0.0, 1.0, 0.0));
-    //glRotatef( ry, 0.0, 1.0, 0.0 );
-    store_options->mat4_view = glm::rotate(store_options->mat4_view,
-                                             glm::radians(rz),
-                                             glm::vec3(0.0, 0.0, 1.0));
-    //glRotatef( rz, 0.0, 0.0, 1.0 );
-    last_xrot = store_options->xrot;
-    last_yrot = store_options->yrot;
-    last_zrot = store_options->zrot;
-    
-    store_options->mat4_view = store_options->mat4_view * m_screen; 
-    m_screen = store_options->mat4_view;
-
-  }
-  if (reset_screen_rotation) { 
-    // glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // set to Identity
-    reset_screen_rotation=false;
-    store_options->mat4_view = glm::mat4(1.0f);
-  }
-  if (reset_scene_rotation) { 
-    // glGetDoublev (GL_MODELVIEW_MATRIX, mScene); // set to Identity
-    reset_scene_rotation=false;
-    last_urot = last_vrot = last_wrot = 0.0;
-  }  
-
-  // set camera
-  if ( store_options->perspective) {
-    camera->setEye(0.0,  0.0,  -store_options->zoom);
-    camera->moveTo();
-  }
-  // glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mRot);
-  
-  // apply screen rotation on the whole system
-  store_options->mat4_view = store_options->mat4_view * m_screen; 
-  // apply scene/world rotation on the whole system
-  store_options->mat4_view = store_options->mat4_view * m_scene; 
-  // Grid Anti aliasing
-  #if 0
-#ifdef GL_MULTISAMPLE
-  glEnable(GL_MULTISAMPLE);
-#endif
-  if (1) { //line_aliased) {
-    glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_POLYGON_SMOOTH);    
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-    //glLineWidth (0.61);
-    glLineWidth (1.0);
-  } else {
-    glDisable(GL_LINE_SMOOTH);
-  }
-  #endif
-  #if 0
-  // grid display
-  if (store_options->show_grid) {
-    //glEnable( GL_DEPTH_TEST );
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    GLWindow::checkGLErrors("Before rendergrids");
-    renderGrids(store_options->mat4_model, store_options->mat4_view, store_options->mat4_proj);
-    //cube->display();
-    glDisable(GL_BLEND);
-  }
-
-  // camera display path and control points
-  camera->display(wheight);
-
-  setModelMatrix(); // save ModelView  Matrix
-  setProjMatrix();  // save Projection Matrix
-  // move the scene
-  //glTranslatef( store_options->xtrans, store_options->ytrans, store_options->ztrans);
-  //glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel2);  
-  store_options->mat4_model = glm::translate(store_options->mat4_model, glm::vec3(store_options->xtrans, store_options->ytrans, store_options->ztrans));
-  //printMatrix(mModel2,"GL_MODELVIEW_MATRIX 100");
-
-  // nice points display
-  glEnable(GL_POINT_SMOOTH);
-  
-  // control blending on particles
-  if (store_options->blending) {
-    glEnable(GL_BLEND);
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE ); // original
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glDepthFunc(GL_LESS);
-  }
-  else
-    glDisable(GL_BLEND);
-  // control depht buffer on particles
-  if (store_options->dbuffer) glEnable (GL_DEPTH_TEST);
-  else                        glDisable(GL_DEPTH_TEST);
-  //glDepthFunc(GL_LESS);
-  // Display objects (particles and velocity vectors)
-  //makeCurrent();
-#if 1
-  GLWindow::checkGLErrors("Before cpoints_manager start Display all");
-  cpointset_manager->displayAll( store_options->mat4_proj, store_options->mat4_model, store_options->mat4_view);
-#endif
-  //doneCurrent();
-  //
-   glm::mat4 mv=store_options->mat4_view * store_options->mat4_model;
-   // GLWindow::printMatrix(glm::value_ptr(mv)," mv 1");
-   // GLWindow::printMatrix(glm::value_ptr(store_options->mat4_view)," mat4_view 1");
-   // GLWindow::printMatrix(glm::value_ptr(store_options->mat4_model)," mat4_model 1");
-
-   if (store_options->show_part && pov ) {
-    //mutex_data->lock();
-    bool first=true;
-    bool obj_has_physic=false;
-    for (int i=0; i<(int)pov->size(); i++) {
-      gpv[i].display(mModel2,wheight);
-
-      if (first) {
-        const ParticlesObject * po = gpv[i].getPartObj();
-        if (po->hasPhysic()) { //store_options->phys_min_glob!=-1 && store_options->phys_max_glob!=-1) {
-          obj_has_physic=true;
-          first=false;
-        }
-      }
-    }
-
-    if (obj_has_physic) {
-      GLWindow::checkGLErrors("Before gl_colorbar");
-      if (fbo) { // offscreen rendering activated
-        gl_colorbar->display(texWidth,texHeight);
-      }
-      else {
-        gl_colorbar->display(QOpenGLWidget::width(),QOpenGLWidget::height());
-      }
-    }
-    //mutex_data->unlock();
-  }
-  // octree
-  if (store_options->octree_display || 1) {
-    //JCL tree->display();
-  }
-
-  // On Screen Display
-  gtr->setScreenSize(wwidth,wheight);
-  if (store_options->show_osd) osd->display(wwidth,wheight);
-  glnemo::TextBoundingBox box = gtr->getTextBoundingBox("Glnemo 2.0 core330", 100.f, 500.f, 2.0f);
-
-  // Si tu veux centrer ton texte sur l'axe X autour de la coordonnée 400 :
-  float xCentre = wwidth/2.0 - (box.width / 2.f);
-  float yCentre = wheight/2.0 - (box.height / 2.f);
-  gtr->draw("Glnemo 2.0 core330", xCentre, yCentre, 2.0f, glm::vec4(1.f));
-    /// display selected area
-  //JCL gl_select->display(QOpenGLWidget::width(),QOpenGLWidget::height());
-  gl_select->setScreenSize(QOpenGLWidget::width(),QOpenGLWidget::height());
-  gl_select->draw(grid_shader->getProgramId());
-  // draw axes
-#if 0
-  if (store_options->axes_enable)
-    axes->display(mScreen, mScene, wwidth,wheight,
-                  store_options->axes_loc,store_options->axes_psize, store_options->perspective);
-#endif
-  // reset viewport to the windows size because axes object modidy it
-  glViewport(0, 0,  wwidth, wheight);
-  #endif
-  if (fbo && GLWindow::GLSL_support) {
-    fbo = false;
-    m_fbo.unbind(this);
-#if 0
-    //imgFBO = grabFrameBuffer();
-    imgFBO = QImage( texWidth, texHeight,QImage::Format_RGB32);
-    f->glReadPixels( 0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits() );
-    // Make the window the target
-    f->glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-
-   // Delete the renderbuffer attachment
-   //glDeleteRenderbuffersEXT(1, &renderbuffer);
-   //glDeleteRenderbuffersEXT(1, &framebuffer);
-#endif
-  } 
-  if ( !store_options->duplicate_mem) mutex_data->unlock();
-
-  nframe++; // count frames
-  //glDrawPixels(gldata.width(), gldata.height(), GL_RGBA, GL_UNSIGNED_BYTE, gldata.bits());
-  emit doneRendering();
-  #endif
-}
 void GLWindow::paintGL()
 {
   #if 1 
@@ -711,12 +437,10 @@ void GLWindow::paintGL()
 
   }
   if (reset_screen_rotation) { 
-    // glGetDoublev (GL_MODELVIEW_MATRIX, mScreen); // set to Identity
     reset_screen_rotation=false;
     store_options->mat4_view = glm::mat4(1.0f);
   }
   if (reset_scene_rotation) { 
-    // glGetDoublev (GL_MODELVIEW_MATRIX, mScene); // set to Identity
     reset_scene_rotation=false;
     last_urot = last_vrot = last_wrot = 0.0;
   }  
@@ -726,7 +450,6 @@ void GLWindow::paintGL()
     camera->setEye(0.0,  0.0,  -store_options->zoom);
     camera->moveTo();
   }
-  // glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mRot);
   
   // apply screen rotation on the whole system
   store_options->mat4_view = store_options->mat4_view * m_screen; 
@@ -754,7 +477,6 @@ void GLWindow::paintGL()
     glEnable(GL_BLEND);
     GLWindow::checkGLErrors("Before rendergrids");
     renderGrids(store_options->mat4_model, store_options->mat4_view, store_options->mat4_proj);
-    //cube->display();
     glDisable(GL_BLEND);
   }
 
@@ -764,13 +486,10 @@ void GLWindow::paintGL()
   setModelMatrix(); // save ModelView  Matrix
   setProjMatrix();  // save Projection Matrix
   // move the scene
-  //glTranslatef( store_options->xtrans, store_options->ytrans, store_options->ztrans);
-  //glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble *) mModel2);  
   store_options->mat4_model = glm::translate(store_options->mat4_model, glm::vec3(store_options->xtrans, store_options->ytrans, store_options->ztrans));
-  //printMatrix(mModel2,"GL_MODELVIEW_MATRIX 100");
 
   // nice points display
-  glEnable(GL_POINT_SMOOTH);
+  // glEnable(GL_POINT_SMOOTH);
   
   // control blending on particles
   if (store_options->blending) {
@@ -839,8 +558,7 @@ void GLWindow::paintGL()
   float xCentre = wwidth/2.0 - (box.width / 2.f);
   float yCentre = wheight/2.0 - (box.height / 2.f);
   gtr->draw("Glnemo 2.0 core330", xCentre, yCentre, 2.0f, glm::vec4(1.f));
-    /// display selected area
-  //JCL gl_select->display(QOpenGLWidget::width(),QOpenGLWidget::height());
+  // display selected area
   gl_select->setScreenSize(QOpenGLWidget::width(),QOpenGLWidget::height());
   gl_select->draw(grid_shader->getProgramId());
   // draw axes
