@@ -41,6 +41,7 @@
 #include "fnt.h"
 #include "glcpoints.h"
 #include <QOpenGLVersionFunctionsFactory>
+#include <QMessageBox>
 
 #define ON_LEGACY 0
 namespace glnemo {
@@ -598,17 +599,7 @@ void GLWindow::initShader()
   if (store_options->init_glsl) {       
     qDebug() << "begining init shader\n";
   
-    if (gl_extensions.contains("GL_ARB_multitexture") &&
-        gl_extensions.contains("GL_ARB_vertex_shader") &&
-        gl_extensions.contains("GL_ARB_fragment_shader")) {
-      qDebug() << "Ready for GLSL\n";
-      GLSL_support = true;
-    }
-    else {
-      qDebug() << "BE CAREFULL : No GLSL support\n";
-      GLSL_support = false;   
-    }
-
+    GLSL_support = true; 
 
     if (GLSL_support ) {
       // check GLSL version supported
@@ -710,7 +701,12 @@ void GLWindow::initializeGL()
   glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
   glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
   std::cerr << "OpenGL :"<< gl_major << "." << gl_minor << "\n";
-
+  if (gl_major< 3 || (gl_major == 3 && gl_minor < 3)) {
+    // Version insuffisante pour GLSL 330
+    QMessageBox::critical(nullptr, "OpenGLi error", "GLSL 330 not supported");
+    QCoreApplication::exit(1);
+    return;
+  }
   //
   m_glWidget = this; 
   m_glFunctions = QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_3_3_Core>(m_glWidget->context());
