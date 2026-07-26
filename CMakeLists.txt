@@ -61,7 +61,8 @@ if    (APPLE)
   MESSAGE(STATUS "/opt/local/bin/cmake .. -DCMAKE_PREFIX_PATH=/Users/grunner/Qt/5.15.2/clang_64/lib/cmake\n\n\n")
   MESSAGE(STATUS "Mac ARM M[1-4] compilation :")
   MESSAGE(STATUS "cmake -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qt@5/lib/cmake -DCMAKE_OSX_ARCHITECTURES=arm64\n\n\n")
-  set(CMAKE_SKIP_RPATH TRUE)
+  set(CMAKE_MACOSX_RPATH TRUE)
+  set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
 endif ()
 # check QTDIR5
 FILE(GLOB GLOB_TEMP_VAR1 $ENV{QTDIR5})
@@ -416,39 +417,18 @@ if(APPLE)
   set(EXECUTABLE "${PROJECT_NAME}.app")
 endif()
 
-if(APPLE) # OR WIN32)
-  include(DeployQt6)
+if(APPLE)
+  # Définir l'emplacement d'installation du bundle dans le package CPack
+  install(TARGETS glnemo2
+    BUNDLE DESTINATION .
+    RUNTIME DESTINATION bin
+  )
 
-  #set(LIST_PLUGIN "Qt5::AccessibleFactory;Qt5::QJpegPlugin;Qt5::QICNSPlugin;Qt5::QCocoaPrinterSupportPlugin")
-  # The following part give me a big headeach, seriously....
-  # it's intended to add plugin in DMG package in order to have all dependencies resolved.
-  # So far, I am not abble to add PrintingSupport though... :( ...which should come from
-  # Qt5::QCocoaPrinterSupportPlugin.... but fails when I run cmake command...
-  #
-
-  set(LIST_PLUGIN "QJpegPlugin" "QICNSPlugin")
-  set(QT_ADD_PLUGIN "")
-
-  foreach(plugin ${LIST_PLUGIN})
-      if(TARGET Qt6::${plugin})
-          get_target_property(QT_GET_PLUGIN Qt6::${plugin} LOCATION)
-          message(STATUS "${plugin} : ${QT_GET_PLUGIN}")
-          get_filename_component(plugin_dir ${QT_GET_PLUGIN} DIRECTORY)
-          list(APPEND QT_ADD_PLUGIN ${QT_GET_PLUGIN})
-      else()
-          message(WARNING "Plugin ${plugin} not found")
-      endif()
-  endforeach()
-
-  # See macdeployqt source code to find a hack :
-  # https://qt.gitorious.org/qt/qttools/source/4b711fec48c395ab4e486dd1a789309d4d488e9d:src/macdeployqt/shared/shared.cpp
-  # Ugly hack to add printerplugin support
-
-  get_filename_component(xx ${QT_GET_PLUGIN} DIRECTORY)
-  get_filename_component(xx ${xx} DIRECTORY)
-  set (PrinterPlugin "${xx}/printsupport/libcocoaprintersupport.dylib")
-  message ("PrinterPlugin = " ${PrinterPlugin})
-  list (APPEND QT_ADD_PLUGIN ${PrinterPlugin})
-
-  install_qt6_executable("${EXECUTABLE}" "${QT_ADD_PLUGIN}")
+  # Générer le script de déploiement automatique Qt6
+  qt_generate_deploy_app_script(
+    TARGET glnemo2
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+  )
+  install(SCRIPT ${deploy_script})
 endif()
