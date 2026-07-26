@@ -553,12 +553,14 @@ void GLWindow::paintGL()
   // On Screen Display
   gtr->setScreenSize(wwidth,wheight);
   if (store_options->show_osd) osd->display(wwidth,wheight);
+  #if 0 // display TEXT in the middle of the screen
   glnemo::TextBoundingBox box = gtr->getTextBoundingBox("Glnemo 2.0 core330", 100.f, 500.f, 2.0f);
 
   // Si tu veux centrer ton texte sur l'axe X autour de la coordonnée 400 :
   float xCentre = wwidth/2.0 - (box.width / 2.f);
   float yCentre = wheight/2.0 - (box.height / 2.f);
   gtr->draw("Glnemo 2.0 core330", xCentre, yCentre, 2.0f, glm::vec4(1.f));
+  #endif
   // display selected area
   gl_select->setScreenSize(QOpenGLWidget::width(),QOpenGLWidget::height());
   gl_select->draw(grid_shader->getProgramId());
