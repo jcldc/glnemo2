@@ -1,4 +1,4 @@
-// ============================================================================
+// d===========================================================================
 // Copyright Jean-Charles LAMBERT - 2007-2026                                  
 // e-mail:   Jean-Charles.Lambert@lam.fr                                      
 // address:  Centre de donneeS Astrophysique de Marseille (CeSAM)              
@@ -762,9 +762,9 @@ void GLWindow::initializeGL()
   // GLGridObject::nsquare = store_options->nb_meshs;
   // GLGridObject::square_size = store_options->mesh_length;
   // new grid2 with shaders
-  gridx2 = new GLGridObject(20, 1.0f, 0, store_options->col_x_grid);   // rouge  – plan XY
-  gridy2 = new GLGridObject(20, 1.0f, 1, store_options->col_y_grid);   // vert   – plan YZ
-  gridz2 = new GLGridObject(20, 1.0f, 2, store_options->col_z_grid);   // bleu   – plan XZ
+  gridx2 = new GLGridObject(store_options->nb_meshs, store_options->mesh_length, 0, store_options->col_x_grid);   // rouge  – plan XY
+  gridy2 = new GLGridObject(store_options->nb_meshs, store_options->mesh_length, 1, store_options->col_y_grid);   // vert   – plan YZ
+  gridz2 = new GLGridObject(store_options->nb_meshs, store_options->mesh_length, 2, store_options->col_z_grid);   // bleu   – plan XZ
 
   gridx2->setActivate(store_options->xy_grid);
   gridy2->setActivate(store_options->yz_grid);
