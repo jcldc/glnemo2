@@ -13,12 +13,13 @@
 /**
         @author Jean-Charles Lambert <Jean-Charles.Lambert@lam.fr>
  */
+
 #ifndef VERSION_H
 #define VERSION_H
 
 #define GLNEMO2_MAJOR "2"
 #define GLNEMO2_MINOR "0"
 #define GLNEMO2_PATCH "0"
-#define GLNEMO2_EXTRA "-dev2"
+#define GLNEMO2_EXTRA "-dev-@GIT_COMMIT_HASH@"
 
 #endif // VERSION_H

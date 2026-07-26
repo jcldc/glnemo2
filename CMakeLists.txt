@@ -27,6 +27,10 @@ include(SetupFlags)
 
 # Ckeck Compilers Flags
 include(CheckCompilersFlags)
+
+# Create version number
+include(Version)
+
 # contains the full path to the top level directory of your build tree
 MESSAGE( STATUS "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
 
@@ -281,9 +285,9 @@ ENDIF ()
 MESSAGE(STATUS "CMAKE_INSTALL_PREFIX :" ${CMAKE_INSTALL_PREFIX} )
 
 # VERSION
-if (EXISTS "${PROJECT_SOURCE_DIR}/src/version.h") # detect version from "version.h" file
+if (EXISTS "${PROJECT_BINARY_DIR}/version.h") # detect version from "version.h" file
   set(CURRENT_VERSION "")
-  file(READ "${PROJECT_SOURCE_DIR}/src/version.h" CURRENT_VERSION_H)
+  file(READ "${PROJECT_BINARY_DIR}/version.h" CURRENT_VERSION_H)
 
   # GLNEMO2_MAJOR
   string(REGEX MATCH "GLNEMO2_MAJOR \"([a-zA-Z0-9.-]+)\"" XXXX "${CURRENT_VERSION_H}")

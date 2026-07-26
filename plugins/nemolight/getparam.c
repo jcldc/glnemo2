@@ -223,7 +223,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <ctype.h>
-
+#include "inc/version.h"
 
 #if defined(TCL7)
 # include <tcl.h>
