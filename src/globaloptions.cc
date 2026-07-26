@@ -123,7 +123,7 @@ GlobalOptions::GlobalOptions()
   gcb_pheight=65.0/100.;
   gcb_font_size=13.;
   gcb_font_name= RESPATH+"/fonts/AvantGarde-Demi.txf";
-  gcb_color=QColor(Qt::gray);
+  gcb_color=QColor(85,255,255);
   gcb_factor=1.0;
   gcb_legend_name="";
   // vel 

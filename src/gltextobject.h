@@ -30,6 +30,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <qcolor.h>
 #include <string>
 #include FT_FREETYPE_H
 

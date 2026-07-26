@@ -623,13 +623,15 @@ void GLWindow::initShader()
       text_shader->init();
 
       gtr = new GLTextRender(text_shader->getProgramId());
-      if (! gtr->init("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 13)) {
+      if (! gtr->init(GlobalOptions::RESPATH.toStdString()+"/fonts/DejaVuSans.ttf", 13)) {
             qWarning("GLTextRenderer: font init failed");
       }
       gtr_cb = new GLTextRender(text_shader->getProgramId());
-      if (! gtr_cb->init("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 8)) {
+      if (! gtr_cb->init(GlobalOptions::RESPATH.toStdString()+"/fonts/DejaVuSans.ttf", store_options->gcb_font_size)) {
             qWarning("GLTextRenderer: font init failed");
       }
+      printf(">RGB %d %d %d\n",store_options->gcb_color.red(),store_options->gcb_color.green(),store_options->gcb_color.green());
+      gtr_cb->setColor(store_options->gcb_color);
 // velocity shader
       if (1) {
 

@@ -10,10 +10,12 @@
 // ============================================================================
 #include "glcolorbar.h"
 #include "glwindow.h"
+#include <QColor>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <algorithm>
 #include <cstdio>
+#include <qcolor.h>
 #include <vector>
 
 namespace glnemo {
@@ -434,6 +436,7 @@ void GLColorbar::drawText(float value, int fac)
     break;
   }
   legend->setPos(xx,yy,xx);
+  legend->setColor(go->gcb_color);
   legend->display();
 }
 } // namespace glnemo

@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>../res/fonts/Helvetica.txf</file>
+        <file>../res/fonts/DejaVuSans.ttf</file>
         <file>../res/fonts/AvantGarde-Demi.txf</file>
         <file>../res/fonts/dejavu_sans_mono_typeface.json</file>
         <file>../res/fonts/dejavu_sans_mono_typeface.png</file>

@@ -14,6 +14,8 @@
 #include <cstdio>
 #include <glm/fwd.hpp>
 #include <qcolor.h>
+#include <QTemporaryFile>
+#include <qobject.h>
 
 namespace glnemo {
 
@@ -42,14 +44,23 @@ bool GLTextRender::init(const std::string& fontPath, unsigned int pixelSize) {
       fprintf(stderr, "[GLTextRender] Failed to init FreeType\n");
       return false;
   }
-
   FT_Face face;
-  if (FT_New_Face(ft, fontPath.c_str(), 0, &face)) {
-      fprintf(stderr, "[GLTextRender] Failed to load font: %s\n", fontPath.c_str());
-      FT_Done_FreeType(ft);
-      return false;
+  // we use a temporary file to store the ressource for non qt file loading
+  QString qs_fontpath(fontPath.c_str());
+  QScopedPointer<QTemporaryFile> tempFile(QTemporaryFile::createNativeFile(qs_fontpath));
+  
+  if (tempFile) {
+      // 2. Récupère le vrai chemin d'accès physique (ex: /tmp/qt_temp.X12345)
+      std::string nativePath = tempFile->fileName().toStdString(); //
+      if (FT_New_Face(ft, nativePath.c_str(), 0, &face)) {
+        fprintf(stderr, "[GLTextRender] Failed to load font: %s\n", fontPath.c_str());
+        FT_Done_FreeType(ft);
+        return false;
+      }
+  } else {
+      qWarning() << "Unable to load font " << fontPath.c_str() << "\n";
   }
-
+  
   // Width=0 lets FreeType derive it from height automatically.
   FT_Set_Pixel_Sizes(face, 0, pixelSize);
   

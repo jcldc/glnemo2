@@ -12,7 +12,6 @@
 // ============================================================================
 #include "gltextobject.h"
 #include <glm/fwd.hpp>
-#include <qcolor.h>
 
 namespace glnemo {
 
