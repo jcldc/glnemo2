@@ -20,6 +20,6 @@
 #define GLNEMO2_MAJOR "2"
 #define GLNEMO2_MINOR "0"
 #define GLNEMO2_PATCH "0"
-#define GLNEMO2_EXTRA "-dev-@GIT_COMMIT_HASH@"
+#define GLNEMO2_EXTRA "-@GIT_COMMIT_HASH@"
 
 #endif // VERSION_H
