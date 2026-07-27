@@ -190,7 +190,7 @@ int main(int argc, char *argv[]) {
   defaultFormat.setVersion(3, 3); // when activated -> pb with cpoints
   defaultFormat.setProfile(QSurfaceFormat::CoreProfile);
   defaultFormat.setDepthBufferSize(24);
-  defaultFormat.setSamples(4);
+  defaultFormat.setSamples(0);
   defaultFormat.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
 
 #ifdef Q_OS_MACOS

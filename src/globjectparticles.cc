@@ -256,11 +256,13 @@ void GLObjectParticles::displayVboVelShader330()
 // displayVboVelShader()
 void GLObjectParticles::displayVboVelShader130()
 {
-       QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
+    QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
     // Velocity vectors with shader
     if (po->isVelEnable() && part_data->vel && vel_shader) {
 
+        f->glBindVertexArray(m_vao);
+    
         GLint start,stride;
         // start velocity shader
         vel_shader->start();
@@ -283,12 +285,9 @@ void GLObjectParticles::displayVboVelShader130()
         vel_shader->sendUniformi("z_stretch_jit",(int) go->z_stretch_jit);
 
         // send matrix
-        GLfloat proj[16];
-        glGetFloatv( GL_PROJECTION_MATRIX,proj);
-        vel_shader->sendUniformXfv("projMatrix",16,1,&proj[0]);
-        GLfloat mview[16];
-        glGetFloatv( GL_MODELVIEW_MATRIX,mview);
-        vel_shader->sendUniformXfv("modelviewMatrix",16,1,&mview[0]);
+        vel_shader->sendUniformXfv("projMatrix",16,1,glm::value_ptr(go->mat4_proj));
+        glm::mat4 mv=go->mat4_view * go->mat4_model;
+        vel_shader->sendUniformXfv("modelviewMatrix",16,1,glm::value_ptr(mv));
 
         // send vel factor
         int vvel_factor=f->glGetAttribLocation(vel_shader->getProgramId(), "velocity");
@@ -320,22 +319,15 @@ void GLObjectParticles::displayVboVelShader130()
 
         if (maxvert > 0 && maxvert<=nvert_pos) {
           glLineWidth (1.0);
-          //std::cerr << ">> rendering...\n";
           glDrawArrays(GL_LINES, 0, maxvert*2);
-          //glDrawArrays(GL_LINES, 0, maxvert*2);
-          //glDrawArrays(GL_LINES, 0, maxvert);
-          //std::cerr << "<< rendering...\n";
         }
 
-        //glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-
+        f->glBindVertexArray(0);
         vel_shader->stop();
 
         f->glDisableVertexAttribArray(vpositions);
         f->glDisableVertexAttribArray(vvel_factor);
-        //glDisableClientState(GL_VERTEX_ARRAY);
 
-        glDisable(GL_POINT_SPRITE_ARB);
         glDisable(GL_BLEND);
         glDepthMask(GL_TRUE);
         glEnable(GL_DEPTH_TEST);
@@ -427,9 +419,9 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
     }
   }
 
+  #endif
   // get attribute location for position
   int vpositions = f->glGetAttribLocation(shader->getProgramId(), "position");
-  printf(">> vposition = %d\n",vpositions);
   if (vpositions != -1) {
       f->glEnableVertexAttribArray(vpositions);
       f->glBindBuffer(GL_ARRAY_BUFFER, vbo_pos);
@@ -443,7 +435,6 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
       }
       f->glVertexAttribPointer(vpositions, 3, GL_FLOAT, GL_FALSE, stride, (void *) (intptr_t)(start_pos));
   }
-  #endif
   int maxvert = max_index - min_index + 1;
   if (maxvert > 0 && maxvert <= nvert_pos) {
     GLint a_sprite_size = f->glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
@@ -772,9 +763,10 @@ void GLObjectParticles::buildVboPos()
   if (part_data->vel) {
       factor = 2.0;
   }
+printf(">> factor=%d\n",factor);
   // upload Positions (and Velocities) to VBO
   f->glBufferData(GL_ARRAY_BUFFER_ARB, factor * nvert_pos * 3 * sizeof(float), &vertices[0], GL_STATIC_DRAW_ARB);
-  f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+  f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (factor-1)*3 * sizeof(float), (void*)0);
   f->glEnableVertexAttribArray(0);
   //checkVboAllocation((int) (nvert_pos * 3 * sizeof(float)));
   f->glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);

@@ -67,7 +67,7 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mute
   fmt.setVersion(3, 3);
   fmt.setProfile(QSurfaceFormat::CoreProfile);
   fmt.setDepthBufferSize(24);
-  fmt.setSamples(4);   // 4× MSAA
+  fmt.setSamples(1);   // 4× MSAA
   fmt.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
   setFormat(fmt);
   // copy parameters
