@@ -175,9 +175,9 @@ namespace glnemo {
         up = last_up;
       }
 #endif
-      gluLookAt(rv.x, rv.y, rv.z,
-                cx, cy, cz,
-                up.x,up.y,up.z);
+      store_options->mat4_view = glm::lookAt(glm::vec3(rv.x, rv.y, rv.z),
+                glm::vec3(cx, cy, cz),
+                glm::vec3(up.x,up.y,up.z));
                 //ux, 0.0, 1.0);// ez); // ez, why ????!!!!!!
       if (play) {
         index_frame++;
