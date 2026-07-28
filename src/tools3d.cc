@@ -46,7 +46,8 @@ void Tools3D::bestZoomFromObject(double * mProj,double * mModel,
                                   const ParticlesData * part_data, GlobalOptions * store_options)
 {
   // copy legacy matrix to mProj and mModel
-  glm::mat4 mv=store_options->mat4_model*store_options->mat4_view;
+  // we must first translate back the model matrix -(x/y/x)trans
+  glm::mat4 mv=glm::translate(store_options->mat4_model, glm::vec3(-store_options->xtrans, -store_options->ytrans, -store_options->ztrans))*store_options->mat4_view;
   GLWindow::copyGlmtoMatrix(store_options->mat4_proj,mProj);
   GLWindow::copyGlmtoMatrix(mv,mModel);
  //

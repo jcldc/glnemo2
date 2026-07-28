@@ -379,6 +379,7 @@ void GLWindow::paintGL()
       rv!=0 ||
       rw!=0) {
     store_options->mat4_view = glm::mat4(1.0f);
+    GLWindow::copyGlmtoMatrix(m_scene,mScene);
     if (ru!=0) {
       store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(ru),
@@ -438,10 +439,12 @@ void GLWindow::paintGL()
 
   }
   if (reset_screen_rotation) { 
+    m_screen=glm::mat4(1.0f);
     reset_screen_rotation=false;
     store_options->mat4_view = glm::mat4(1.0f);
   }
   if (reset_scene_rotation) { 
+    m_scene=glm::mat4(1.0f);
     reset_scene_rotation=false;
     last_urot = last_vrot = last_wrot = 0.0;
   }  
@@ -484,8 +487,8 @@ void GLWindow::paintGL()
   // camera display path and control points
   camera->display(wheight);
 
-  setModelMatrix(); // save ModelView  Matrix
-  setProjMatrix();  // save Projection Matrix
+  // setModelMatrix(); // save ModelView  Matrix
+  // setProjMatrix();  // save Projection Matrix
   // move the scene
   store_options->mat4_model = glm::translate(store_options->mat4_model, glm::vec3(store_options->xtrans, store_options->ytrans, store_options->ztrans));
 
@@ -1419,7 +1422,6 @@ void GLWindow::setZoom(const float z)
 void GLWindow::setPerspectiveMatrix()
 {
   store_options->mat4_proj = glm::perspective(glm::radians(45.f), (GLfloat)ratio, 0.0005f, (float) DOF);
-#if 1
   camera->setEye(0.0,  0.0,  -store_options->zoom);
   camera->moveTo();
   // apply screen rotation on the whole system
@@ -1428,9 +1430,8 @@ void GLWindow::setPerspectiveMatrix()
   // apply scene/world rotation on the whole system
   // glMultMatrixd (mScene);   
   store_options->mat4_view = store_options->mat4_view*m_scene;
-  setModelMatrix(); // save ModelView  Matrix
-#endif
-  setProjMatrix();  // save Projection Matrix
+  // setModelMatrix(); // save ModelView  Matrix
+  // setProjMatrix();  // save Projection Matrix
 }
 
 // ============================================================================
