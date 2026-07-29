@@ -221,7 +221,10 @@ void GLSelection::selectOnArea(const int nobj, double mProj[16],double mModel[16
       float yy=y0;
       y0=y1;y1=yy;
     }
-    
+    glm::mat4 mv=glm::translate(store_options->mat4_model, glm::vec3(-store_options->xtrans, -store_options->ytrans, -store_options->ztrans))*store_options->mat4_view;
+    GLWindow::copyGlmtoMatrix(store_options->mat4_proj,mProj);
+    GLWindow::copyGlmtoMatrix(mv,mModel);
+ 
     FrustumCulling frustum;
     frustum.getFC(mModel,mProj); // compute frustum  
     Tools3D t3d(mModel,mProj);   // 3D stuffs            

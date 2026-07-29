@@ -206,7 +206,8 @@ void Tools3D::bestZoomFromList(double * mProj,double * mModel,
                               const ParticlesData * part_data, GlobalOptions * store_options)
 {
   // copy legacy matrix to mProj and mModel
-  glm::mat4 mv=store_options->mat4_model*store_options->mat4_view;
+  // glm::mat4 mv=store_options->mat4_model*store_options->mat4_view;
+  glm::mat4 mv=glm::translate(store_options->mat4_model, glm::vec3(-store_options->xtrans, -store_options->ytrans, -store_options->ztrans))*store_options->mat4_view;
   GLWindow::copyGlmtoMatrix(store_options->mat4_proj,mProj);
   GLWindow::copyGlmtoMatrix(mv,mModel);
   
