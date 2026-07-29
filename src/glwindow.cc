@@ -450,10 +450,8 @@ void GLWindow::paintGL()
   }  
 
   // set camera
-  if ( store_options->perspective) {
-    camera->setEye(0.0,  0.0,  -store_options->zoom);
-    camera->moveTo();
-  }
+  camera->setEye(0.0,  0.0,  -store_options->zoom);
+  camera->moveTo();
   
   // apply screen rotation on the whole system
   store_options->mat4_view = store_options->mat4_view * m_screen; 
