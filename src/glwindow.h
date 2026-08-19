@@ -157,6 +157,7 @@ public slots:
   }
   void saveOffsreen(const QString &filePath) {
     m_fbo.saveToFile(this, filePath);
+    m_fbo.destroy(this);
   };
   void select_all_particles_on_screen() { // from gui, interactive select, press
                                           // button select all particles

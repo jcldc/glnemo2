@@ -318,43 +318,24 @@ void GLWindow::initLight()
 long int CPT=0;
 void GLWindow::paintGL()
 {
-  #if 1 
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   
   GLWindow::checkGLErrors("Begining paintGL");
   CPT++;
   //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
-  //std::cerr << "GLWindow::paintGL() auto_gl_screenshot="<<store_options->auto_gl_screenshot<<"\n";
   if (store_options->auto_gl_screenshot) {
     store_options->auto_gl_screenshot = false;
     emit sigScreenshot();
-    //std::cerr << "GLWindow::paintGL() after EMIT"<<CPT<<"\n";
     store_options->auto_gl_screenshot = true;
   }
   if ( !store_options->duplicate_mem)
     mutex_data->lock();
   if (fbo && GLWindow::GLSL_support) {
-# if 0
-    //std::cerr << "FBO GLWindow::paintGL() --> "<<CPT<<"\n";
-    //glGenFramebuffersEXT(1, &framebuffer);
-    f->glBindFramebuffer(GL_FRAMEBUFFER_EXT, framebuffer);
-    //glGenRenderbuffersEXT(1, &renderbuffer);
-    f->glBindRenderbuffer(GL_RENDERBUFFER_EXT, renderbuffer);
-    f->glRenderbufferStorage(GL_RENDERBUFFER_EXT, GL_RGBA8, texWidth, texHeight);
-    f->glFramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-                  GL_RENDERBUFFER_EXT, renderbuffer);
-    GLuint status = f->glCheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
-    if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
-    }
-#endif
     m_fbo.create(this, texWidth, texHeight);
     // Render into the FBO
     m_fbo.bind(this);
-    //glViewport(0, 0, FBO_W, FBO_H);
     f->glViewport(0, 0, m_fbo.width(), m_fbo.height());
-    //glClearColor(0.06f, 0.06f, 0.10f, 1.0f);
   } 
-  //setFocus();
   
   f->glClearColor(store_options->background_color.redF(),
                   store_options->background_color.greenF(),
@@ -577,24 +558,11 @@ void GLWindow::paintGL()
   if (fbo && GLWindow::GLSL_support) {
     fbo = false;
     m_fbo.unbind(this);
-#if 0
-    //imgFBO = grabFrameBuffer();
-    imgFBO = QImage( texWidth, texHeight,QImage::Format_RGB32);
-    f->glReadPixels( 0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, imgFBO.bits() );
-    // Make the window the target
-    f->glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-
-   // Delete the renderbuffer attachment
-   //glDeleteRenderbuffersEXT(1, &renderbuffer);
-   //glDeleteRenderbuffersEXT(1, &framebuffer);
-#endif
   } 
   if ( !store_options->duplicate_mem) mutex_data->unlock();
 
   nframe++; // count frames
-  //glDrawPixels(gldata.width(), gldata.height(), GL_RGBA, GL_UNSIGNED_BYTE, gldata.bits());
   emit doneRendering();
-  #endif
 }
 // ============================================================================
 void GLWindow::initShader()
