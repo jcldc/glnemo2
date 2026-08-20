@@ -1634,8 +1634,10 @@ void FormObjectControl::delete_cpointsets(bool need_confirmation) {
                                     QMessageBox::Yes | QMessageBox::No);
     else reply = QMessageBox::Yes;
     if (reply == QMessageBox::Yes) {
+      GLWindow::m_glWidget->makeCurrent();
       pointset_manager->deleteCPointset(pointset_name);
       delete item;
+      GLWindow::m_glWidget->doneCurrent();
       emit objectSettingsChanged();
     }
   } else if (items.size() > 1) {
@@ -1645,6 +1647,7 @@ void FormObjectControl::delete_cpointsets(bool need_confirmation) {
                                     QMessageBox::Yes | QMessageBox::No);
     else reply = QMessageBox::Yes;
     if (reply == QMessageBox::Yes) {
+      GLWindow::m_glWidget->makeCurrent();
       for (auto item : items){
         if(item->parent()){ // delete only the parent set of the first cpoint selected and break
           item = item->parent();
@@ -1659,6 +1662,7 @@ void FormObjectControl::delete_cpointsets(bool need_confirmation) {
           delete item;
         }
       }
+      GLWindow::m_glWidget->doneCurrent();
       emit objectSettingsChanged();
     }
   }
