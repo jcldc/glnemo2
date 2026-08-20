@@ -1585,6 +1585,7 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
   if (pointset) {
     float size = form.add_cpoint_coords_size->value();
     if(size > 0){
+      GLWindow::m_glWidget->makeCurrent();
       std::array<float, 3> coords = {
               static_cast<float>(form.add_cpoint_coords_x->value()),
               static_cast<float>(form.add_cpoint_coords_y->value()),
@@ -1592,9 +1593,7 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
       };
       const string &point_text = form.add_cpoint_name->text().toStdString();
       // std::cerr << "FormObjectControl::on_add_cpoint_btn_clicked(bool)\n";
-      GLWindow::m_glWidget->makeCurrent();
       GLCPoint *cpoint = pointset->addPoint(coords, size, point_text);
-      GLWindow::m_glWidget->doneCurrent();
       auto new_item = new QTreeWidgetItem(QStringList() << QString::fromStdString(cpoint->getName()) << QString::number(cpoint->getId()));
       pointset_manager->unselectAll();
       pointset->selectCPoint(cpoint->getId());
@@ -1602,6 +1601,7 @@ void FormObjectControl::on_add_cpoint_btn_clicked(bool) {
       cpointset_item->setText(2, QString::number(pointset->getNbCpoints()));
 
       form.cpoints_set_treewidget->setCurrentItem(new_item);
+      GLWindow::m_glWidget->doneCurrent();
       emit objectSettingsChanged();
     }
   }
