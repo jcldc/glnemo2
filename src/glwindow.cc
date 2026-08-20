@@ -13,6 +13,7 @@
 #include "glcolorbar.h"
 #include "gltextobject.h"
 #include "gltextrender.h"
+#include "ul.h"
 #include <GL/gl.h>
 #include <QtGlobal>
 #include <glm/fwd.hpp>
@@ -649,23 +650,28 @@ void GLWindow::initializeGL()
   std::cerr << "\n>>>>>>>>> initializeGL()\n\n";
 
   initializeOpenGLFunctions();
-  QOpenGLDebugLogger *logger = new QOpenGLDebugLogger(this);
+  if (FALSE) { // Sety TRUE to debug OpenGL calls
+    QOpenGLDebugLogger *logger = new QOpenGLDebugLogger(this);
     if (logger->initialize()) {
-        connect(logger, &QOpenGLDebugLogger::messageLogged, [](const QOpenGLDebugMessage &msg) {
-            qDebug() << "OpenGL Debug:" << msg.message();
-        });
-        logger->startLogging(QOpenGLDebugLogger::SynchronousLogging);
-    } 
-  connect(logger, &QOpenGLDebugLogger::messageLogged, [](const QOpenGLDebugMessage &msg) {
-    qDebug() << "OpenGL Debug:" << msg.message();
-    
-    // Si c'est une erreur d'opération invalide ou de fonction dépréciée :
-    if (msg.severity() >= QOpenGLDebugMessage::MediumSeverity) {
-        // En mode Debug sous Linux, ceci va faire crasher proprement le soft 
-        // exactement sur la ligne coupable si vous êtes sous un IDE (Qt Creator / VS Code)
-        // Q_ASSERT(false); 
+      connect(logger, &QOpenGLDebugLogger::messageLogged,
+              [](const QOpenGLDebugMessage &msg) {
+                qDebug() << "OpenGL Debug:" << msg.message();
+              });
+      logger->startLogging(QOpenGLDebugLogger::SynchronousLogging);
     }
-  });
+    connect(logger, &QOpenGLDebugLogger::messageLogged,
+            [](const QOpenGLDebugMessage &msg) {
+              qDebug() << "OpenGL Debug:" << msg.message();
+
+              // Si c'est une erreur d'opération invalide ou de fonction
+              // dépréciée :
+              if (msg.severity() >= QOpenGLDebugMessage::MediumSeverity) {
+                // En mode Debug sous Linux, ceci va faire crasher proprement le
+                // soft exactement sur la ligne coupable si vous êtes sous un
+                // IDE (Qt Creator / VS Code) Q_ASSERT(false);
+              }
+            });
+  }
   // Get OpenGL versions
   gl_version=glGetString ( GL_VERSION );
   std::cerr << "OpenGL version : ["<< gl_version << "]\n";
