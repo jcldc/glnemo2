@@ -99,7 +99,7 @@ bool OffscreenRenderer::saveToFile(QOpenGLFunctions_3_3_Core* gl,
     gl->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // ── Build QImage (OpenGL origin is bottom-left, Qt is top-left) ──────────
-    QImage img(m_width, m_height, QImage::Format_RGBA8888);
+    QImage img(m_width, m_height, QImage::Format_RGB32);
 
     for (int row = 0; row < m_height; ++row)
     {
@@ -111,7 +111,10 @@ bool OffscreenRenderer::saveToFile(QOpenGLFunctions_3_3_Core* gl,
         std::memcpy(dst, src, static_cast<size_t>(m_width) * 4);
     }
 
-    bool ok = img.save(filePath);
+    bool ok_0 = img.save(filePath);
+    QImage swappedImg = img.rgbSwapped();
+    bool ok = swappedImg.save(filePath);
+
     if (ok)
         qDebug() << "[FBO] Saved offscreen render to:" << filePath;
     else
