@@ -151,18 +151,11 @@ public slots:
   void updateGL();
   void updateOsdZrt(bool ugl = true);
   void forcePaintGL() {
-     if (!QOpenGLContext::currentContext()) {
-      std::cerr << "Create OpenGLContext in forcePaintGL\n";
-      makeCurrent();
-    }
+    makeCurrent();
     paintGL();
     // doneCurrent();
   }
   void saveOffsreen(const QString &filePath) {
-    if (!QOpenGLContext::currentContext()) {
-      std::cerr << "Create OpenGLContext in saveOffsreen\n";
-      makeCurrent();
-    }
     m_fbo.saveToFile(this, filePath);
     m_fbo.destroy(this);
   };
