@@ -421,11 +421,13 @@ bool FormOptions::displayCameraFile(const QString &infile)
 // ============================================================================
 void FormOptions::on_frame_name_pressed()
 {
-  QString fileName = QFileDialog::getSaveFileName(this,tr("Select Frame directory"),go->base_frame_name);
-  if (!fileName.isEmpty()) {
-    go->base_frame_name = fileName;
-    form.frame_name_text->setText(QString(fileName));
-  }
+  QTimer::singleShot(0, this, [=]() {
+    QString fileName = QFileDialog::getSaveFileName(this,tr("Select Frame directory"),go->base_frame_name);
+    if (!fileName.isEmpty()) {
+      go->base_frame_name = fileName;
+      form.frame_name_text->setText(QString(fileName));
+    }
+  });
 }
 // ============================================================================
 void FormOptions::play_pressed2(const int forcestop)

@@ -1591,11 +1591,13 @@ void MainWindow::takeScreenshot(const int width, const int height,  std::string 
         gl_window->forcePaintGL();
 
         if (name == "") { // interactive screenshot
-            QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"",
-                                                            tr("Images (*.png *.jpg)"));
-            if (!fileName.isEmpty()) {
-              gl_window->saveOffsreen(fileName);
-            }
+            QTimer::singleShot(0, this, [=]() {
+              QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"",
+                                                              tr("Images (*.png *.jpg)"));
+              if (!fileName.isEmpty()) {
+                gl_window->saveOffsreen(fileName);
+              }
+            });
         } else {          // screenshot from the command line
             int quality=-1;
             if (store_options->base_frame_ext=="jpg") {
