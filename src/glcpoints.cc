@@ -133,7 +133,10 @@ CPointset::CPointset(CShader *shader, const std::string &name) :
   // std::cerr << "In  CPointset::CPointset() OpenGL context =["<<QOpenGLContext::currentContext()<<"]\n";
   
   GLWindow::checkGLErrors("In Pointset::CPointset");
-  // GLWindow::m_glWidget->makeCurrent();
+  if (!QOpenGLContext::currentContext()) {
+    std::cerr << "Create OpenGLContext\n";
+    GLWindow::m_glWidget->makeCurrent();
+  }
   GLWindow::m_glFunctions->glGenBuffers(1, &m_vbo);
   GLWindow::m_glFunctions->glGenBuffers(1, &m_selected_vbo);
   GLWindow::m_glFunctions->glGenVertexArrays(1, &m_vao);
@@ -160,7 +163,10 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   GLWindow::checkGLErrors("In Pointset::CPointset2");
   // SHADER INIT
-  // GLWindow::m_glWidget->makeCurrent();
+  if (!QOpenGLContext::currentContext()) {
+    std::cerr << "Create OpenGLContext\n";
+    GLWindow::m_glWidget->makeCurrent();
+  }
   GLWindow::m_glFunctions->glGenBuffers(1, &m_vbo);
   GLWindow::m_glFunctions->glGenBuffers(1, &m_selected_vbo);
   GLWindow::m_glFunctions->glGenVertexArrays(1, &m_vao);
@@ -174,7 +180,10 @@ CPointset::CPointset(CShader *shader, const CPointset &other) {
 CPointset::~CPointset() {
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
-  // GLWindow::m_glWidget->makeCurrent();
+  if (!QOpenGLContext::currentContext()) {
+    std::cerr << "Create OpenGLContext\n";
+    GLWindow::m_glWidget->makeCurrent();
+  }
   GLWindow::m_glFunctions->glDeleteBuffers(1, &m_vbo);
   GLWindow::m_glFunctions->glDeleteVertexArrays(1, &m_vao);
   //GLWindow::m_glWidget->doneCurrent();
@@ -225,7 +234,10 @@ void CPointset::setAttributes() {
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
   GLWindow::checkGLErrors("In Pointset::setAttributes");
-  //GLWindow::m_glWidget->makeCurrent();
+  if (!QOpenGLContext::currentContext()) {
+    std::cerr << "Create OpenGLContext\n";
+    GLWindow::m_glWidget->makeCurrent();
+  }
   GLuint point_center_disk_attrib = GLWindow::m_glFunctions->glGetAttribLocation(m_shader->getProgramId(), "point_center");
   GLuint radius_disk_attrib = GLWindow::m_glFunctions->glGetAttribLocation(m_shader->getProgramId(), "radius");
   if (point_center_disk_attrib == -1) {
@@ -285,7 +297,10 @@ void CPointset::genVboData() {
     }
   }
   if (data.size() > 0) {
-  // GLWindow::m_glWidget->makeCurrent();
+    if (!QOpenGLContext::currentContext()) {
+    std::cerr << "Create OpenGLContext\n";
+    GLWindow::m_glWidget->makeCurrent();
+  }
   GLWindow::checkGLErrors("In Pointset::sgenVboData");
   // SEND DATA
   GLWindow::m_glFunctions->glBindVertexArray(m_vao);
@@ -575,7 +590,10 @@ void CPointsetRegularPolygon::display(glm::mat4 mat4_proj, glm::mat4 mat4_model,
   m_mat4_view  = mat4_view;
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display");
-  // GLWindow::m_glWidget->makeCurrent();
+  if (!QOpenGLContext::currentContext()) {
+    std::cerr << "Create OpenGLContext\n";
+    GLWindow::m_glWidget->makeCurrent();
+  }
   m_shader->start();
   GLWindow::checkGLErrors("start CPointsetRegularPolygon::display 1");
   //GLWindow::m_glFunctions->glGenVertexArrays(1, &m_vao);
@@ -686,7 +704,10 @@ void CPointsetTag::display(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::mat4 
 
   GLWindow::checkGLErrors("start CPointsetTag::display");
   glLineWidth(1);
-  // GLWindow::m_glWidget->makeCurrent();
+  if (!QOpenGLContext::currentContext()) {
+    std::cerr << "Create OpenGLContext\n";
+    GLWindow::m_glWidget->makeCurrent();
+  }
   m_shader->start();
   GLWindow::m_glFunctions->glBindVertexArray(m_selected_vao);
   sendUniforms();
@@ -774,7 +795,10 @@ void CPointsetSphere::display(glm::mat4 mat4_proj, glm::mat4 mat4_model, glm::ma
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
   GLWindow::checkGLErrors("start CPointsetSphere::display");
 
-  // GLWindow::m_glWidget->makeCurrent();
+  if (!QOpenGLContext::currentContext()) {
+    std::cerr << "Create OpenGLContext\n";
+    GLWindow::m_glWidget->makeCurrent();
+  }
   glLineWidth(1);
   glEnable(GL_BLEND);
 
@@ -1045,7 +1069,10 @@ std::pair<CPointset *, GLCPoint*> CPointsetManager::getClickedCpoint(double *mod
 }
 
 void CPointTextRenderer::init(const std::string &shader_dir) {
-  //GLWindow::m_glWidget->makeCurrent();
+  if (!QOpenGLContext::currentContext()) {
+    std::cerr << "Create OpenGLContext\n";
+    GLWindow::m_glWidget->makeCurrent();
+  }
   // initialize shader
   m_text_shader = new CShader(
           GlobalOptions::RESPATH.toStdString() + shader_dir + "/text.vert",
@@ -1146,7 +1173,10 @@ void CPointTextRenderer::renderText(CPointset *pointset, glm::mat4 mat4_proj, gl
   
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
-  // GLWindow::m_glWidget->makeCurrent();
+  if (!QOpenGLContext::currentContext()) {
+    std::cerr << "Create OpenGLContext\n";
+    GLWindow::m_glWidget->makeCurrent();
+  }
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   // Iterate through all cpoints
@@ -1225,7 +1255,10 @@ void CPointTextRenderer::renderText(CPointset *pointset, glm::mat4 mat4_proj, gl
 }
 CPointTextRenderer::~CPointTextRenderer() {
   //QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
-  // GLWindow::m_glWidget->makeCurrent();
+  if (!QOpenGLContext::currentContext()) {
+    std::cerr << "Create OpenGLContext\n";
+    GLWindow::m_glWidget->makeCurrent();
+  }
   glDeleteTextures(1, &m_texture);
 
   GLWindow::m_glFunctions->glDeleteBuffers(1, &m_text_vbo);
