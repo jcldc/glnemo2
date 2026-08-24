@@ -858,12 +858,14 @@ CPointsetManager::CPointsetManager() {
 }
 
 void CPointsetManager::loadFile(const std::string &filepath) {
-  std::cerr << "Loading cpoint json file\n";
+  std::cerr << "Loading cpoint json file : "<< filepath << "\n";
   std::ifstream file(filepath);
   json json_data;
   try {
+    std::cerr << "Read JSON successfully\n";
     file >> json_data;
 
+    std::cerr << "Read JSON successfully 1\n";
     for (auto & it : json_data) {
       CPointset *pointset;
       CShader *shader;
@@ -890,7 +892,9 @@ void CPointsetManager::loadFile(const std::string &filepath) {
       m_next_set_id++;
     }
   } catch (json::exception& e) {
+    std::cerr << "Failed to Read JSON e="<<e.what()<<"\n";
     throw glnemoException(e.what());
+    std::cerr << "message = " << e.what() <<"\n";
   }
 }
 
