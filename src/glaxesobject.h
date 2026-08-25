@@ -15,22 +15,49 @@
 */
 #ifndef GLAXESOBJECT_H
 #define GLAXESOBJECT_H
+
+#pragma once
 #include "globject.h"
-#include <GL/glu.h>
+#include "globaloptions.h"
+#include <QOpenGLFunctions_3_3_Core>
+#include <QOpenGLShaderProgram>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <vector>
 
 namespace glnemo {
 
-class GLAxesObject: public GLObject {
+struct GizmoVertex {
+    glm::vec3 position;
+    glm::vec3 normal;
+};
+
+
+class GLAxesObject: public GLObject, protected  QOpenGLFunctions_3_3_Core {
 public:
-  GLAxesObject();
-  ~GLAxesObject();
-  void display(const double * mScreen,const double * mScene, const int width, const int height, 
-               const int loc=0, const float psize=0.1, const bool perspective=true);
+  GLAxesObject(GlobalOptions * _go):GLObject(),go(_go) {};
+  ~GLAxesObject() { cleanup() ; }
+  // Non-copyable: this class owns raw GL resource handles (VAO/VBO),
+  // copying it would duplicate the handles without duplicating the GPU resources.
+  // GLAxesObject(const GLAxesObject&) = delete;
+  GLAxesObject& operator=(const GLAxesObject&) = delete;
+
+  void init(GLuint shader_program);
+  void render(const glm::mat4 &viewRotationOnly, int viewportW, int viewportH);
+  void cleanup();
+
 private:
-  void buildDisplayList();
-  void buildDisplayList2();
-  void buildArrow(const float length, const float radius, const int nbSubdivisions);
-  GLUquadric *quadric;
+  void buildArrowGeometry(std::vector<GizmoVertex> &verts,
+                             float shaftRadius, float shaftLength,
+                             float headRadius, float headLength,
+                             int segments);
+
+  GLuint vao = 0, vbo = 0;
+  int vertexCount = 0;
+  GLuint shader = 0;
+  bool initialized = false;
+  const GlobalOptions * go;
 };
 
 } // namespace

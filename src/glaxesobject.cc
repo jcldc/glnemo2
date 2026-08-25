@@ -13,201 +13,165 @@
 
 #include "glaxesobject.h"
 #include "glwindow.h"
+#include <cmath>
+
 namespace glnemo {
 
 using namespace std;
-// ============================================================================
-// Constructor 
-GLAxesObject::GLAxesObject()
-{
-  #if 0 // 330
-  dplist_index = glGenLists( 1 );
-  quadric = gluNewQuadric();
-  buildDisplayList();
-  #endif
-}
-// ============================================================================
-// Destructor                                                                  
-// Delete display list 
-GLAxesObject::~GLAxesObject()
-{
-  #if 0 // 330
-  gluDeleteQuadric(quadric);
-  glDeleteLists( dplist_index, 1 );
-  #endif
-}
-// ============================================================================
-// display
-void GLAxesObject::display(const double * mScreen,const double * mScene, const int width, const int height, 
-                           const int loc, const float psize, const bool perspective)
-{
-  #if 0
-  int size=psize*width;
-  
-  int pwidth,pheight;
-  switch (loc) {
-  case 0: // bottom right
-    pwidth = width-size;
-    pheight= 0;
-    break;
-  case 1: // center
-    pwidth = width/2-size/2;
-    pheight= height/2-size/2;
-    break;
-  }
-  //GLWindow::m_glWidget->makeCurrent(); // 17-apr-2026
-  glPushMatrix ();
-  
-  // set projection  
-  //setProjection( width-size, 0, size, size);
-  //setProjection( width/2-size/2, width/2, size, size);
-  // !! BE carefull the following call will change the viewport !!!
-  setProjection( pwidth, pheight, size, size,perspective);
-  #if 0 // disable core 330  
-  glMatrixMode( GL_MODELVIEW );
-  glLoadIdentity (); // reset OGL rotations
-  glTranslatef (0, 0 , -3);
-  #endif
-  
-  // apply screen rotation on the whole system
-  // glMultMatrixd (mScreen);  
-  // glMultMatrixd (mScene);  
-  //
-  
-  //glEnable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  //glDepthMask(GL_FALSE);                               // Lock the Depth Mask so we cant edit it
-  //glBlendFunc(GL_SRC_ALPHA, GL_ONE);                   // Set the type of blending we want
-  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  
-  GLObject::display(); // call display list
-  
-  //glDepthMask(GL_TRUE);                                // Unlock the Depth Mask so we can edit it again
-  glDisable(GL_BLEND);
-  
-  glPopMatrix ();
-  //GLWindow::m_glWidget->doneCurrent();
-  #endif 
+void GLAxesObject::buildArrowGeometry(std::vector<GizmoVertex> &verts,
+                                    float shaftRadius, float shaftLength,
+                                    float headRadius, float headLength,
+                                    int segments)
+{
+    // Arrow is built along +Z: cylinder shaft from 0 to shaftLength,
+    // cone head from shaftLength to shaftLength + headLength.
+    const float PI = 3.14159265359f;
+
+    auto addTri = [&](glm::vec3 a, glm::vec3 b, glm::vec3 c) {
+        glm::vec3 n = glm::normalize(glm::cross(b - a, c - a));
+        verts.push_back({a, n});
+        verts.push_back({b, n});
+        verts.push_back({c, n});
+    };
+
+    // --- Cylinder (arrow shaft) ---
+    for (int i = 0; i < segments; ++i) {
+        float a0 = 2.0f * PI * i / segments;
+        float a1 = 2.0f * PI * (i + 1) / segments;
+
+        glm::vec3 p0(shaftRadius * cosf(a0), shaftRadius * sinf(a0), 0.0f);
+        glm::vec3 p1(shaftRadius * cosf(a1), shaftRadius * sinf(a1), 0.0f);
+        glm::vec3 p0top = p0 + glm::vec3(0.0f, 0.0f, shaftLength);
+        glm::vec3 p1top = p1 + glm::vec3(0.0f, 0.0f, shaftLength);
+
+        // Two triangles per segment (cylinder side quad)
+        addTri(p0, p1, p1top);
+        addTri(p0, p1top, p0top);
+    }
+
+    // --- Cone (arrow head) ---
+    glm::vec3 apex(0.0f, 0.0f, shaftLength + headLength);
+    for (int i = 0; i < segments; ++i) {
+        float a0 = 2.0f * PI * i / segments;
+        float a1 = 2.0f * PI * (i + 1) / segments;
+
+        glm::vec3 p0(headRadius * cosf(a0), headRadius * sinf(a0), shaftLength);
+        glm::vec3 p1(headRadius * cosf(a1), headRadius * sinf(a1), shaftLength);
+
+        addTri(p0, p1, apex);
+
+        // Cone base cap (closed disk)
+        glm::vec3 center(0.0f, 0.0f, shaftLength);
+        addTri(center, p1, p0); // reversed winding so the normal faces downward
+    }
 }
 
-// ============================================================================
-// buildDisplayList()                                            
-// Build Display List                                                          
-void GLAxesObject::buildDisplayList2()
+void GLAxesObject::init(GLuint shader_program)
 {
-  #if 0  //330
-  float ORG[3] = {0,0,0};
-  
-  float XP[3] = {1,0,0},  YP[3] = {0,1,0},
-  ZP[3] = {0,0,1};
-  
-  // display list
-  glNewList( dplist_index, GL_COMPILE );
-  
- 
-  glLineWidth (1.2);
-  
-  glBegin (GL_LINES);
-  glColor3f (1,0,0); // X axis is red.
-  glVertex3fv (ORG);
-  glVertex3fv (XP );
-  glColor3f (0,1,0); // Y axis is green.
-  glVertex3fv (ORG);
-  glVertex3fv (YP );
-  glColor3f (0,0,1); // z axis is blue.
-  glVertex3fv (ORG);
-  glVertex3fv (ZP );
-  glEnd();
-  
-#if 0  
-  glLineWidth (0.2);
-  glColor3f (0.5,0.5,0.5); // 
-  //quadratic = gluNewQuadric();
-  gluQuadricNormals(quadratic, GLU_SMOOTH); 
-//  gluQuadricTexture(quadratic, GL_TRUE);
-  gluQuadricDrawStyle(quadratic,GLU_LINE);
- 
-  gluSphere(quadratic,1.f,12,12); 
-  //gluDeleteQuadric(quadratic);
-#endif
-  glEndList();
-  #endif
+    initializeOpenGLFunctions();
+
+    std::vector<GizmoVertex> verts;
+    buildArrowGeometry(verts,
+                        0.03f,   // shaftRadius
+                        0.7f,    // shaftLength
+                        0.08f,   // headRadius
+                        0.3f,    // headLength
+                        16);     // segments
+
+    vertexCount = (int)verts.size();
+
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(GizmoVertex), verts.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GizmoVertex), (void*)offsetof(GizmoVertex, position));
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GizmoVertex), (void*)offsetof(GizmoVertex, normal));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+
+    shader = shader_program;
+    // Load shader program (see .vert/.frag below)
+    // shader = new QOpenGLShaderProgram();
+    // shader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/gizmo.vert");
+    // shader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/gizmo.frag");
+    // shader->link();
 }
 
-// ============================================================================
-// buildDisplayList()                                            
-// Build Display List                                                          
-void GLAxesObject::buildDisplayList()
+void GLAxesObject::render(const glm::mat4 &viewRotationOnly, int viewportW, int viewportH)
 {
-  #if 0 // 330
-  float length=1.0;
-  float radius=length*0.05;
-  //GLfloat color[4];
-  // display list
-  glNewList( dplist_index, GL_COMPILE );
-  glEnable(GL_LIGHT0);
-  glEnable(GL_LIGHTING);
-  glDisable(GL_COLOR_MATERIAL);
-  gluQuadricNormals(quadric, GLU_SMOOTH); 
-  gluQuadricDrawStyle(quadric, GLU_FILL); //this makes it solid
-  // x axis  
-  glPushMatrix();
-  glColor3f (1,0,0); // x axis is red.
-  glRotatef(90.0, 0.0, 1.0, 0.0);
-  float color[4];
-  color[0] = 0.7f;  color[1] = 0.7f;  color[2] = 1.0f;  color[3] = 1.0f;
-  color[0] = 1.f;  color[1] = 0.f;  color[2] = 0.0f;  color[3] = 1.0f;
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color);
-  buildArrow(length,radius,12);
-  glPopMatrix();
-
-  // y axis
-  glPushMatrix();
-  glColor3f (0,1,0); // y axis is red.
-  glRotatef(-90.0, 1.0, 0.0, 0.0);
-  color[0] = 1.0f;  color[1] = 0.7f;  color[2] = 0.7f;  color[3] = 1.0f;
-  color[0] = 0.0f;  color[1] = 1.f;  color[2] = 0.f;  color[3] = 1.0f;
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color);
-  buildArrow(length,radius,12);
-  glPopMatrix();
-
-  // z axis
-  glColor3f (0,0,1); // z axis is blue
-  color[0] = 0.7f;  color[1] = 1.0f;  color[2] = 0.7f;  color[3] = 1.0f;
-  color[0] = 0.0f;  color[1] = 0.0f;  color[2] = 1.f;  color[3] = 1.0f;
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color);
-  buildArrow(length,radius,12);
+    // Small viewport in the bottom-right corner of the window
+    const int margin = 20;
+    int size=go->axes_psize*viewportW;
+    
+    int pwidth,pheight;
+    switch (go->axes_loc) {
+    case 0: // bottom right
+      pwidth = viewportW-size-margin;
+      pheight= 0;
+      break;
+    case 1: // center
+      pwidth = viewportW/2-size/2;
+      pheight= viewportH/2-size/2;
+      break;
+    }
+    glViewport(pwidth,pheight, size, size);
   
-#if 0  
-  glLineWidth (0.2);
-  glColor3f (0.5,0.5,0.5); // 
-  //quadratic = gluNewQuadric();
-  gluQuadricNormals(quadric, GLU_SMOOTH); 
-//  gluQuadricTexture(quadratic, GL_TRUE);
-  gluQuadricDrawStyle(quadric,GLU_LINE);
- 
-  gluSphere(quadric,length,12,12); 
-  //gluDeleteQuadric(quadratic);
-#endif
-  glDisable(GL_LIGHTING);
-  glEndList();
-  #endif
+    // Clear depth only, so the gizmo is never occluded by the main scene
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    glm::mat4 proj = glm::perspective(glm::radians(30.0f), 1.0f, 0.1f, 10.0f);
+
+    // Push the gizmo back a bit so it's fully inside the frustum,
+    // then apply only the camera's rotation (no translation/zoom)
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -4.5f)) * viewRotationOnly;
+
+    // Rotations that align the base arrow (built along +Z) onto each axis
+    glm::mat4 modelX = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));  // Z -> X
+    glm::mat4 modelY = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1, 0, 0)); // Z -> Y
+    glm::mat4 modelZ = glm::mat4(1.0f); // identity, already aligned along Z
+
+    glm::mat4 models[3] = { modelX, modelY, modelZ };
+    glm::vec3 colors[3] = { glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1) };
+
+    glUseProgram(shader);
+    glBindVertexArray(vao);
+
+    // These two are the same for all three axes, set them once
+    glUniformMatrix4fv(glGetUniformLocation(shader, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "projMatrix"), 1, GL_FALSE, glm::value_ptr(proj));
+
+    for (int i = 0; i < 3; ++i) {
+        // Normal matrix: inverse-transpose of the upper 3x3 of the model matrix,
+        // needed because non-uniform scaling would otherwise distort normals
+        // (here we only rotate, so this is mostly a formality, but keeps it correct)
+        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(models[i])));
+
+        glUniformMatrix4fv(glGetUniformLocation(shader, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(models[i]));
+        glUniformMatrix3fv(glGetUniformLocation(shader, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
+        glUniform3fv(glGetUniformLocation(shader, "axisColor"), 1, glm::value_ptr(colors[i]));
+
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+    }
+
+    glBindVertexArray(0);
+
+    // Restore full viewport for the rest of the frame
+    glViewport(0, 0, viewportW, viewportH);
 }
 
-// ============================================================================
-// buildArrow()
-// Build axes arrow
-void GLAxesObject::buildArrow(const float length, const float radius, const int nbSubdivisions)
+void GLAxesObject::cleanup()
 {
-  #if 0 //330
-  const float head =  2.5*(radius / length) + 0.1;
-  const float coneRadiusCoef = 4.0 - 5.0 * head;
+  if (!initialized) return;
 
-  gluCylinder(quadric, radius, radius, length * (1.0 - head/coneRadiusCoef), nbSubdivisions, 1);
-  glTranslatef(0.0, 0.0, length * (1.0 - head));
-  gluCylinder(quadric, coneRadiusCoef * radius, 0.0, head * length, nbSubdivisions, 1);
-  glTranslatef(0.0, 0.0, -length * (1.0 - head));
-  #endif
+    if (vbo) { glDeleteBuffers(1, &vbo); vbo = 0; }
+    if (vao) { glDeleteVertexArrays(1, &vao); vao = 0; }
+    initialized = false;
 }
 }

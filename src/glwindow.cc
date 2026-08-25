@@ -27,6 +27,7 @@
 #include <QOpenGLFunctions>
 #include <QMutex>
 #include <QRecursiveMutex>
+#include <GL/glu.h>
 #include <assert.h>
 #include <limits>
 #include <math.h>
@@ -548,11 +549,11 @@ void GLWindow::paintGL()
   gl_select->setScreenSize(QOpenGLWidget::width(),QOpenGLWidget::height());
   gl_select->draw(grid_shader->getProgramId());
   // draw axes
-#if 0
-  if (store_options->axes_enable)
-    axes->display(mScreen, mScene, wwidth,wheight,
-                  store_options->axes_loc,store_options->axes_psize, store_options->perspective);
-#endif
+  if (store_options->axes_enable){
+    glm::mat4 viewRotationOnly = store_options->mat4_view;      // copy the camera view matrix
+    viewRotationOnly[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // strip translation, keep rotation only
+    axes->render(viewRotationOnly,wwidth, wheight);
+  }
   // reset viewport to the windows size because axes object modidy it
   glViewport(0, 0,  wwidth, wheight);
 
@@ -589,10 +590,14 @@ void GLWindow::initShader()
       colorbar_shader= new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/colormap.vert.cc",
                             GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/colormap.frag.cc");
       colorbar_shader->init();
-            // text shader
+      // text shader
       text_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/text.vert.cc",
                             GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/text.frag.cc");
       text_shader->init();
+      // axes shader
+      axes_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/glaxes.vert.cc",
+                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/glaxes.frag.cc");
+      axes_shader->init();
 
       gtr = new GLTextRender(text_shader->getProgramId());
       if (! gtr->init(GlobalOptions::RESPATH.toStdString()+"/fonts/DejaVuSans.ttf", 13)) {
@@ -604,6 +609,7 @@ void GLWindow::initShader()
       }
       printf(">RGB %d %d %d\n",store_options->gcb_color.red(),store_options->gcb_color.green(),store_options->gcb_color.green());
       gtr_cb->setColor(store_options->gcb_color);
+
 // velocity shader
       if (1) {
 
@@ -752,7 +758,9 @@ void GLWindow::initializeGL()
   gridz2->build();
 
   // axes
-  axes = new GLAxesObject();
+  axes = new GLAxesObject(store_options);
+  axes->init(axes_shader->getProgramId());
+
   //
   // Init gl_select
   gl_select->init();
