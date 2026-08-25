@@ -270,7 +270,7 @@ int main(int argc, char *argv[]) {
   QObject::connect(&app, SIGNAL(loadFile(const QString)), &main_win,
                    SLOT(actionMenuFileOpen(QString)));
 
-  if (interact) {
+  if (true || interact) {
     main_win.show();
   }
   main_win.start(shot);

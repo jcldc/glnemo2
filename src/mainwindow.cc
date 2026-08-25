@@ -245,6 +245,14 @@ void MainWindow::start(std::string shot)
         }
     }
   }
+  if(cpoint_file != "" && is_cpoints_enabled){
+    try{
+      pointset_manager->loadFile(cpoint_file);
+      form_o_c->initCPointsTreeWidget();
+    }
+    catch(glnemoException &e){
+    }
+  }
   updateOsd();
   if (shot != "" && play) {
       store_options->enable_gui=false;
@@ -270,14 +278,6 @@ void MainWindow::start(std::string shot)
   }
 
   gl_window->setFocus();
-  if(cpoint_file != "" && is_cpoints_enabled){
-    try{
-      pointset_manager->loadFile(cpoint_file);
-      form_o_c->initCPointsTreeWidget();
-    }
-    catch(glnemoException &e){
-    }
-  }
   //actionMenuFileConnect();
 }
 // -----------------------------------------------------------------------------
