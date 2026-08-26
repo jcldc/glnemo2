@@ -3,6 +3,8 @@
 
 # qt creator / cmake
 build*
+build/
+out/
 !CI/scripts/build.sh
 !CI/scripts/buildOSX.sh
 *.pro.user

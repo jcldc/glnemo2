@@ -367,7 +367,7 @@ namespace glnemo {
       glEnable (GL_BLEND);
       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-      glLineWidth (4.5f);
+      // glLineWidth (4.5f);
 
       f->glBindBuffer(GL_ARRAY_BUFFER, vbo_path);
       f->glEnableVertexAttribArray(vpositions);
@@ -376,7 +376,6 @@ namespace glnemo {
       f->glDisableVertexAttribArray(vpositions);
       f->glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
-
     if (display_ctrl && vpositions != -1) {
       // Use texture for control points
       shader->sendUniformi("use_texture", 1);
