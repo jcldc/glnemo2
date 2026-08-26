@@ -73,11 +73,11 @@ void GLAxesObject::init(GLuint shader_program)
 
     std::vector<GizmoVertex> verts;
     buildArrowGeometry(verts,
-                        0.03f,   // shaftRadius
-                        0.7f,    // shaftLength
-                        0.08f,   // headRadius
+                        0.04f,   // shaftRadius
+                        0.6f,    // shaftLength
+                        0.15f,   // headRadius
                         0.3f,    // headLength
-                        16);     // segments
+                        32);     // segments
 
     vertexCount = (int)verts.size();
 
@@ -107,7 +107,7 @@ void GLAxesObject::init(GLuint shader_program)
 void GLAxesObject::render(const glm::mat4 &viewRotationOnly, int viewportW, int viewportH)
 {
     // Small viewport in the bottom-right corner of the window
-    const int margin = 20;
+    const int margin = 2;
     int size=go->axes_psize*viewportW;
     
     int pwidth,pheight;
