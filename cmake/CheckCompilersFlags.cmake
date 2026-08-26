@@ -13,16 +13,19 @@
 
 # Liste des options de compilation à vérifier
 set(COMPILER_FLAGS_TO_CHECK
-    -std=gnu17 
-    -Wno-implicit-function-declaration 
-    -Wno-int-conversion 
-    -Wno-implicit-int 
+    -std=gnu17
+    -Wno-implicit-function-declaration
+    -Wno-int-conversion
+    -Wno-implicit-int
     -Wno-write-strings
     -std=c++17
     -Wno-conversion-null
     -Wno-deprecated-declarations
     -Wno-format-overflow
     -Wno-inconsistent-missing-override
+    -Wno-deprecated-literal-operator
+    -Wno-vla-cxx-extension
+    -Wno-empty-body
 )
 
 # Check C/C++ flags

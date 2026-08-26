@@ -203,7 +203,7 @@ int UserSelection::isComponent(const std::string comp)
   // Regular expression => all|halo|disk ......
   QRegularExpression rx("^(all|halo|disk|disc|bulge|stars|gas|gaz|bndry|other(\\d{,}))$");
   QRegularExpressionMatch match=rx.match(QString(comp.c_str()));
-  if (! match.hasMatch() == -1) { // not match
+  if (! match.hasMatch() ) { // not match
     status=1;        // misformated
   }
   else {
