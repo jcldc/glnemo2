@@ -11,16 +11,17 @@
 # ============================================================================
 # See the complete license in LICENSE and/or "http://www.cecill.info".
 # ============================================================================
-
+# cmake-lint: disable=C0301
+#
 cmake_minimum_required(VERSION 3.10)
 
 # project name
-project (glnemo2)
+project(glnemo2)
 # Active le parallélisme par défaut pour la phase de build
 set(CMAKE_BUILD_PARALLEL_LEVEL 5)
 
 # extra path for .cmake .files
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 # load setup flags
 include(SetupFlags)
@@ -32,47 +33,47 @@ include(CheckCompilersFlags)
 include(Version)
 
 # contains the full path to the top level directory of your build tree
-MESSAGE( STATUS "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
+message( STATUS "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
 
 # contains the full path to the root of your project source directory,
-# i.e. to the nearest directory where CMakeLists.txt contains the PROJECT() command
-MESSAGE( STATUS "PROJECT_SOURCE_DIR: " ${PROJECT_SOURCE_DIR} )
+# to the nearest directory where CMakeLists.txt contains the PROJECT() command
+message( STATUS "PROJECT_SOURCE_DIR: " ${PROJECT_SOURCE_DIR} )
 
-MESSAGE( STATUS "CMAKE_BUILD_TYPE =" ${CMAKE_BUILD_TYPE} )
-MESSAGE( STATUS "Optimizer =" ${OPT} )
-MESSAGE( STATUS "CMAKE_CXX_FLAGS  =" ${CMAKE_CXX_FLAGS} )
+message( STATUS "CMAKE_BUILD_TYPE =" ${CMAKE_BUILD_TYPE} )
+message( STATUS "Optimizer =" ${OPT} )
+message( STATUS "CMAKE_CXX_FLAGS  =" ${CMAKE_CXX_FLAGS} )
 
 # use ccache if any
 find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif(CCACHE_FOUND)
+endif()
 
 # Cpack Generator detection
 include(DetectCpackGenerator)
 
-if    (WIN32)
-  MESSAGE(STATUS "\n\n\n- - - WINDOWS  - - -\n\n\nWARNING : DO NOT FORGET TO RUN CMAKE LIKE THIS\n\n ")
-  MESSAGE(STATUS "cmake -G \"MinGW Makefiles\" .. -DCMAKE_PREFIX_PATH=c:\\QtSDK-x86_64\n\n\n")
-endif ()
-if    (APPLE)
-  MESSAGE(STATUS "\n\n\n- - - Mac OSX  - - -\n\n\nWARNING : DO NOT FORGET TO RUN CMAKE LIKE THIS\n\n ")
-  MESSAGE(STATUS "/opt/local/bin/cmake .. -DCMAKE_PREFIX_PATH=/Users/grunner/Qt/5.15.2/clang_64/lib/cmake\n\n\n")
-  MESSAGE(STATUS "Mac ARM M[1-4] compilation :")
-  MESSAGE(STATUS "cmake -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qt@5/lib/cmake -DCMAKE_OSX_ARCHITECTURES=arm64\n\n\n")
+if(WIN32)
+  message(STATUS "\n\n\n- - - WINDOWS  - - -\n\n\nWARNING : DO NOT FORGET TO RUN CMAKE LIKE THIS\n\n ")
+  message(STATUS "cmake -G \"MinGW Makefiles\" .. -DCMAKE_PREFIX_PATH=c:\\QtSDK-x86_64\n\n\n")
+endif()
+if(APPLE)
+  message(STATUS "\n\n\n- - - Mac OSX  - - -\n\n\nWARNING : DO NOT FORGET TO RUN CMAKE LIKE THIS\n\n ")
+  message(STATUS "/opt/local/bin/cmake .. -DCMAKE_PREFIX_PATH=/Users/grunner/Qt/5.15.2/clang_64/lib/cmake\n\n\n")
+  message(STATUS "Mac ARM M[1-4] compilation :")
+  message(STATUS "cmake -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qt@5/lib/cmake -DCMAKE_OSX_ARCHITECTURES=arm64\n\n\n")
   set(CMAKE_MACOSX_RPATH TRUE)
   set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
-endif ()
+endif()
 # check for nemo
-SET(NEMO_INSTALLED FALSE)
-FILE(GLOB GLOB_TEMP_VAR $ENV{NEMO})
-IF(GLOB_TEMP_VAR)
-  SET(NEMO_INSTALLED TRUE)
-ENDIF()
+set(NEMO_INSTALLED FALSE)
+file(GLOB GLOB_TEMP_VAR $ENV{NEMO})
+if(GLOB_TEMP_VAR)
+  set(NEMO_INSTALLED TRUE)
+endif()
 
 # MODULEs PATH
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake )
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 # Instruct CMake to run moc automatically when needed.
 #set(CMAKE_AUTOMOC ON)
@@ -90,21 +91,21 @@ find_package(Qt6Gui)
 #find_package(Qt6 COMPONENTS ImageFormats REQUIRED)
 
 # HDF5 support
-FIND_PACKAGE(HDF5 COMPONENTS CXX REQUIRED)
+find_package(HDF5 COMPONENTS CXX REQUIRED)
 # find OpenGL package
 find_package(OpenGL REQUIRED)
 # find free type 2
 find_package(Freetype 2)
 
 # contains the full path to the top level directory of your build tree
-MESSAGE( STATUS "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
+message( STATUS "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
 
 # contains the full path to the root of your project source directory,
-# i.e. to the nearest directory where CMakeLists.txt contains the PROJECT() command
-MESSAGE( STATUS "PROJECT_SOURCE_DIR: " ${PROJECT_SOURCE_DIR} )
+# to the nearest directory where CMakeLists.txt contains the PROJECT() command
+message( STATUS "PROJECT_SOURCE_DIR: " ${PROJECT_SOURCE_DIR} )
 
 # Library's files
-FILE(GLOB lib_files
+file(GLOB lib_files
   "plugins/nemolight/*.c"
   "plugins/*.cc"
   "plugins/ftm/*.cc"
@@ -118,45 +119,56 @@ FILE(GLOB lib_files
   )
 
 # Find plugins qt headers
-FILE(GLOB hdrs1_files plugins/*.h plugins/ftm/*.h plugins/gadget/*.h plugins/gadgeth5/*.h
-  plugins/network/*.h plugins/ramses/*.h  plugins/tipsy/*.h
-  )
+file(GLOB hdrs1_files
+  "plugins/*.h"
+  "plugins/ftm/*.h"
+  "plugins/gadget/*.h"
+  "plugins/gadgeth5/*.h"
+  "plugins/network/*.h"
+  "plugins/ramses/*.h"
+  "plugins/tipsy/*.h"
+)
 
 # Tipsy is not suported by  WIN32
-if   (WIN32)
-  list (REMOVE_ITEM lib_files   ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.cc ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.cc)
-  list (REMOVE_ITEM hdrs1_files ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.h  ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.h)
+if(WIN32)
+  list(REMOVE_ITEM lib_files
+    ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.cc
+  )
+  list(REMOVE_ITEM hdrs1_files
+  ${CMAKE_CURRENT_SOURCE_DIR}/plugins/snapshottipsy.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/plugins/tipsy/tipsyio.h)
 endif()
 
 # Destination path for the lib
-SET(LIBRARY_OUTPUT_PATH LIB)
+set(LIBRARY_OUTPUT_PATH LIB)
 
 # compilation options
 
-ADD_DEFINITIONS(-DQT_PLUGIN)
-ADD_DEFINITIONS(-DQT_STATICPLUGIN)
-ADD_DEFINITIONS(-DQT_OPENGL_LIB)
-ADD_DEFINITIONS(-DQT_GUI_LIB)
-ADD_DEFINITIONS(-DQT_CORE_LIB)
-ADD_DEFINITIONS(-DQT_PRINTSUPPORT_LIB)
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-if   (WIN32)
-  ADD_DEFINITIONS(-DUNICODE -DGLEW_STATIC)
+add_definitions(-DQT_PLUGIN)
+add_definitions(-DQT_STATICPLUGIN)
+add_definitions(-DQT_OPENGL_LIB)
+add_definitions(-DQT_GUI_LIB)
+add_definitions(-DQT_CORE_LIB)
+add_definitions(-DQT_PRINTSUPPORT_LIB)
+add_definitions(${QT_DEFINITIONS})
+if(WIN32)
+  add_definitions(-DUNICODE -DGLEW_STATIC)
 endif()
 
-if (NOT APPLE)
-  ADD_DEFINITIONS(-D__x86_64__=1)  # fix compilation on fedora > 30
-  ADD_DEFINITIONS(-fopenmp)
+if(NOT APPLE)
+  add_definitions(-D__x86_64__=1)  # fix compilation on fedora > 30
+  add_definitions(-fopenmp)
 endif()
-if (APPLE)
+if(APPLE)
   #set(QMAKE_MACOSX_DEPLOYMENT_TARGET 10.9)
   #set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13)
-  #ADD_DEFINITIONS(-mmacosx-version-min=10.9)
-  ADD_DEFINITIONS(-Wno-implicit-function-declaration)
-  ADD_DEFINITIONS(-Wno-int-conversion)
-  ADD_DEFINITIONS(-Wno-implicit-int)
+  #add_definitions(-mmacosx-version-min=10.9)
+  add_definitions(-Wno-implicit-function-declaration)
+  add_definitions(-Wno-int-conversion)
+  add_definitions(-Wno-implicit-int)
 endif()
-ADD_DEFINITIONS(-fPIC)
+add_definitions(-fPIC)
 set (CMAKE_C_FLAGS "-std=gnu17 -Wno-implicit-function-declaration -Wno-int-conversion -Wno-implicit-int -Wno-write-strings ${CMAKE_C_FLAGS}")
 set (CMAKE_CXX_FLAGS "-std=c++17 -Wno-write-strings -Wno-conversion-null ${CMAKE_CXX_FLAGS}")
 # Add compiler flags for building executables (-fPIE)
@@ -169,14 +181,14 @@ include_directories(/usr/include/CCfits /opt/local/include /opt/local/include/CC
 include_directories(/usr/include/tirpc)
 include_directories(${PROJECT_SOURCE_DIR}/plugins/gadgeth5 ${HDF5_INCLUDE_DIRS})
 include_directories($FREETYPE_INCLUDE_DIRS)
-if (APPLE)
+if(APPLE)
   include_directories(/usr/include/malloc /usr/X11/include /usr/local/include /opt/homebrew/opt/ccfits/include/CCfits /opt/homebrew/opt/hdf5/include)
 endif()
 # run moc files
-Qt6_WRAP_CPP(moc1_src ${hdrs1_files})
+qt6_wrap_cpp(moc1_src ${hdrs1_files})
 
 # create library "uns"
-add_library (uns STATIC ${moc1_src} ${lib_files})
+add_library(uns STATIC ${moc1_src} ${lib_files})
 
 #
 
@@ -185,7 +197,7 @@ add_library (uns STATIC ${moc1_src} ${lib_files})
 # -----------------------
 
 # Make sure the linker can find the Hello library once it is built.
-if (APPLE)
+if(APPLE)
   link_directories (${CMAKE_BINARY_DIR}/LIB /opt/local/lib /usr/local/lib /opt/homebrew/opt/ccfits/lib /opt/homebrew/opt/cfitsio/lib/)
 endif()
 
@@ -193,53 +205,53 @@ endif()
 #set (glew src/glew/glew.c)
 
 # Find all cpp sources files
-FILE(GLOB src_files src/*.cc)
+file(GLOB src_files src/*.cc)
 
 # find all header's file
-FILE(GLOB hdrs_files src/*.h)
+file(GLOB hdrs_files src/*.h)
 
 # Find all UI's files
-FILE(GLOB ui_files src/*.ui)
+file(GLOB ui_files src/*.ui)
 
 # Find Resource file
-SET(rcs_file src/glnemo.qrc)
+set(rcs_file src/glnemo.qrc)
 
 # compute ressources
-QT6_ADD_RESOURCES( rc_src ${rcs_file} )
-
+qt6_add_resources( rc_src ${rcs_file} )
 # run uic files
-QT6_WRAP_UI(ui_headers ${ui_files})
+qt6_wrap_ui(ui_headers ${ui_files})
 
 # run moc files
-QT6_WRAP_CPP(moc_src ${hdrs_files})
+qt6_wrap_cpp(moc_src ${hdrs_files})
 
 # we need the following to be able to include headers produced by uic in our code
-# (CMAKE_BINARY_DIR holds a path to the build directory, while INCLUDE_DIRECTORIES()
+# (CMAKE_BINARY_DIR holds a path to the build directory, while include_directories()
 # works just like INCLUDEPATH from qmake)
-INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR} )
+include_directories( ${CMAKE_BINARY_DIR} )
 
 # Executbale output path
-if (UNIX AND NOT APPLE )
+if(UNIX AND NOT APPLE)
   set(EXECUTABLE_OUTPUT_PATH bin)
-endif ()
+endif()
 
-if (APPLE)
+if(APPLE)
   set(EXECUTABLE_OUTPUT_PATH "")
-endif ()
+endif()
 
-add_executable (glnemo2 WIN32 MACOSX_BUNDLE ${src_files} ${rc_src} ${ui_headers} ${moc_src})
+add_executable(glnemo2 WIN32 MACOSX_BUNDLE
+      ${src_files} ${rc_src} ${ui_headers} ${moc_src})
 
 # Link the executable to the Hello library.
-set (GOMP "gomp")
-if (APPLE)
-  set (GOMP "")
+set(GOMP "gomp")
+if(APPLE)
+  set(GOMP "")
 endif()
 #target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  ${QT_LIBRARIES} ${GOMP} CCfits cfitsio ${HDF5_CXX_LIBRARIES_LIST} )
 # special ARCH LINUX
 if (EXISTS "/usr/lib64/libtirpc.so" OR EXISTS "/usr/lib/x86_64-linux-gnu/libtirpc.so")
-  set (TIRPC "tirpc")
+  set(TIRPC "tirpc")
 else()
-  set (TIRPC "")
+  set(TIRPC "")
 endif()
 #target_link_libraries (glnemo2 uns z ${OPENGL_LIBRARY}  Qt6Core Qt6Widgets Qt6PrintSupport Qt6OpenGL Qt6OpenGLWidgets Qt6Network Qt6Gui Qt6Core5Compat ${QT6_LIBRARIES} ${GOMP} CCfits cfitsio ${TIRPC}  ${HDF5_CXX_LIBRARIES} )
 
@@ -265,14 +277,14 @@ target_link_libraries(glnemo2
 #qt6_use_modules(glnemo2 Gui Widgets Core OpenGL Network PrintSupport)
 
 # INSTALLATION
-IF (NEMO_INSTALLED)
-  set (CMAKE_INSTALL_PREFIX $ENV{NEMO})
-  INSTALL(FILES  ${PROJECT_SOURCE_DIR}/man/man1/glnemo2.1 DESTINATION man/man1)
-ELSE()
+if(NEMO_INSTALLED)
+  set(CMAKE_INSTALL_PREFIX $ENV{NEMO})
+  install(FILES  ${PROJECT_SOURCE_DIR}/man/man1/glnemo2.1 DESTINATION man/man1)
+else()
   set(CMAKE_INSTALL_PREFIX  "/usr")
-ENDIF ()
+endif()
 
-MESSAGE(STATUS "CMAKE_INSTALL_PREFIX :" ${CMAKE_INSTALL_PREFIX} )
+message(STATUS "CMAKE_INSTALL_PREFIX :" ${CMAKE_INSTALL_PREFIX})
 
 # VERSION
 if (EXISTS "${PROJECT_BINARY_DIR}/version.h") # detect version from "version.h" file
@@ -308,7 +320,7 @@ endif()
 #set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${PROJECT_VERSION_EXTRA}")
 
 
-if (APPLE)
+if(APPLE)
   #set(CMAKE_INSTALL_PREFIX "/Applications")
   set(CMAKE_INSTALL_PREFIX "")
   set(BIN_INSTALL_DIR ".")
@@ -318,18 +330,18 @@ endif()
 message("${PROJECT_NAME} will be installed to ${CMAKE_INSTALL_PREFIX}")
 #install(TARGETS ${PROJECT_NAME} DESTINATION ${BIN_INSTALL_DIR})
 
-if (UNIX AND NOT APPLE)
-  INSTALL(PROGRAMS   ${PROJECT_BINARY_DIR}/${EXECUTABLE_OUTPUT_PATH}/glnemo2   DESTINATION bin)
-  #INSTALL(CODE "execute_process(COMMAND ${CMAKE_STRIP} bin/glnemo2)")
-  #INSTALL(CODE "execute_process(COMMAND ${CMAKE_STRIP} _CPack_Packages/${CPACK_TOPLEVEL_TAG}/${CPACK_GENERATOR}/${PACK_PACKAGE_FILE_NAME}/${CMAKE_INSTALL_PREFIX}/bin/glnemo2)")
+if(UNIX AND NOT APPLE)
+  install(PROGRAMS   ${PROJECT_BINARY_DIR}/${EXECUTABLE_OUTPUT_PATH}/glnemo2   DESTINATION bin)
+  #install(CODE "execute_process(COMMAND ${CMAKE_STRIP} bin/glnemo2)")
+  #install(CODE "execute_process(COMMAND ${CMAKE_STRIP} _CPack_Packages/${CPACK_TOPLEVEL_TAG}/${CPACK_GENERATOR}/${PACK_PACKAGE_FILE_NAME}/${CMAKE_INSTALL_PREFIX}/bin/glnemo2)")
   #include(PostInstall)
-  if (NOT NEMO_INSTALLED)
-    INSTALL(FILES  ${PROJECT_SOURCE_DIR}/man/man1/glnemo2.1 DESTINATION share/man/man1)
+  if(NOT NEMO_INSTALLED)
+    install(FILES  ${PROJECT_SOURCE_DIR}/man/man1/glnemo2.1 DESTINATION share/man/man1)
   endif()
-endif ()
+endif()
 
-if (APPLE)
-  INSTALL(PROGRAMS  ${PROJECT_BINARY_DIR}/glnemo2.app   DESTINATION   . )
+if(APPLE)
+  install(PROGRAMS  ${PROJECT_BINARY_DIR}/glnemo2.app   DESTINATION   .)
 endif()
 
 if(APPLE)
@@ -365,15 +377,15 @@ set(CPACK_RPM_PACKAGE_DESCRIPTION "An interactive 3D visualization program for N
 # CPACK debian specific
 set(CPACK_DEBIAN_PACKAGE_NAME ${CPACK_PACKAGE_NAME})
 set(CPACK_DEBIAN_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${LINUX_NAME})
-IF(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
-  SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE amd64)
-ELSEIF(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686")
-  SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE i386)
-ENDIF(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+  set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE amd64)
+elseif(CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686")
+  set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE i386)
+endif()
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION ${CPACK_RPM_PACKAGE_DESCRIPTION})
 
 
-if (APPLE)
+if(APPLE)
   set(CPACK_GENERATOR "DragNDrop")
   set(CPACK_DMG_FORMAT "UDBZ")
   set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME}")
@@ -385,13 +397,13 @@ if (APPLE)
 endif()
 
 # stripping
-if (NOT WIN32)
-  #SET(CPACK_STRIP_FILES {CMAKE_INSTALL_PREFIX}/bin/glnemo2)
-  #SET(CPACK_STRIP_FILES "True")
-  #SET(CPACK_SET_DESTDIR On)
+if(NOT WIN32)
+  #set(CPACK_STRIP_FILES {CMAKE_INSTALL_PREFIX}/bin/glnemo2)
+  #set(CPACK_STRIP_FILES "True")
+  #set(CPACK_SET_DESTDIR On)
   set(CMAKE_INSTALL_DO_STRIP TRUE)
-  #SET(CPACK_INSTALL_PREFIX "/usr")
-  #SET(CMAKE_INSTALL_PREFIX ${CPACK_INSTALL_PREFIX})
+  #set(CPACK_INSTALL_PREFIX "/usr")
+  #set(CMAKE_INSTALL_PREFIX ${CPACK_INSTALL_PREFIX})
 endif()
 
 # This must always be last!
