@@ -13,7 +13,6 @@
 #include "glcolorbar.h"
 #include "gltextobject.h"
 #include "gltextrender.h"
-#include "ul.h"
 #include <GL/gl.h>
 #include <QtGlobal>
 #include <glm/fwd.hpp>
@@ -40,7 +39,6 @@
 #include "particlesdata.h"
 #include "particlesobject.h"
 #include "tools3d.h"
-#include "fnt.h"
 #include "glcpoints.h"
 #include <QOpenGLVersionFunctionsFactory>
 #include <QMessageBox>
@@ -80,12 +78,12 @@ GLWindow::GLWindow(QWidget * _parent, GlobalOptions*_go, QRecursiveMutex * _mute
   //setAttribute(Qt::WA_NoSystemBackground);
   // reset coordinates
   resetEvents(true);
-  is_mouse_pressed   = FALSE;
-  is_mouse_zoom      = FALSE;
-  is_key_pressed     = FALSE;
-  is_a_key_pressed   = FALSE;
-  is_shift_pressed   = FALSE;
-  is_pressed_ctrl    = FALSE;
+  is_mouse_pressed   = false;
+  is_mouse_zoom      = false;
+  is_key_pressed     = false;
+  is_a_key_pressed   = false;
+  is_shift_pressed   = false;
+  is_pressed_ctrl    = false;
   gpv.clear();
   pov = NULL;
   p_data = NULL;
@@ -656,7 +654,7 @@ void GLWindow::initializeGL()
   std::cerr << "\n>>>>>>>>> initializeGL()\n\n";
 
   initializeOpenGLFunctions();
-  if (FALSE) { // Sety TRUE to debug OpenGL calls
+  if (false) { // Sety true to debug OpenGL calls
     QOpenGLDebugLogger *logger = new QOpenGLDebugLogger(this);
     if (logger->initialize()) {
       connect(logger, &QOpenGLDebugLogger::messageLogged,
@@ -876,12 +874,12 @@ void GLWindow::resetEvents(bool pos)
     x_mouse= y_mouse= z_mouse=0;
     tx_mouse=ty_mouse=tz_mouse=0;
   }
-  is_pressed_left_button  =FALSE;
-  is_pressed_right_button =FALSE;
-  is_pressed_middle_button=FALSE;
-  is_mouse_pressed        =FALSE;
-  is_translation          =FALSE;
-  is_ctrl_pressed         =FALSE;
+  is_pressed_left_button  =false;
+  is_pressed_right_button =false;
+  is_pressed_middle_button=false;
+  is_mouse_pressed        =false;
+  is_translation          =false;
+  is_ctrl_pressed         =false;
 }
 // ============================================================================
 // manage rotation/translation according to mousePresssEvent
@@ -898,18 +896,18 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
   if ( e->button() == Qt::LeftButton ) {  // left button pressed
     if (is_shift_pressed)
       setCursor(Qt::CrossCursor);
-    is_mouse_pressed       = TRUE;
-    is_pressed_left_button = TRUE;
-    setMouseTracking(TRUE);
+    is_mouse_pressed       = true;
+    is_pressed_left_button = true;
+    setMouseTracking(true);
     last_posx =pos_x;
     last_posy =pos_y;
     if  (is_translation) {;} //!parent->statusBar()->message("Translating X/Y");
     else                 {;} //!parent->statusBar()->message("Rotating X/Y");
   }
   if ( e->button() == Qt::RightButton ) { // right button pressed
-    is_mouse_pressed        = TRUE;
-    is_pressed_right_button = TRUE;
-    setMouseTracking(TRUE);
+    is_mouse_pressed        = true;
+    is_pressed_right_button = true;
+    setMouseTracking(true);
     last_posz =pos_x;
     if (is_translation) {;} //!parent->statusBar()->message("Translating Z");
     else                {;} //!parent->statusBar()->message("Rotating Z");
@@ -917,9 +915,9 @@ void GLWindow::mousePressEvent( QMouseEvent *e )
   //if ( e->button() == Qt::MiddleButton ) {
   if ( e->button() == Qt::MiddleButton ) {
     //std::cerr << "Middle button pressed\n";
-    is_mouse_pressed        = TRUE;
-    is_pressed_middle_button= TRUE;
-    setMouseTracking(TRUE);
+    is_mouse_pressed        = true;
+    is_pressed_middle_button= true;
+    setMouseTracking(true);
     last_posx =pos_x;
     last_posy =pos_y;
   }
@@ -938,11 +936,11 @@ void GLWindow::mouseReleaseEvent(QMouseEvent *e) {
   int pos_y=e->y();
   #endif
   if (e) { ; }  // do nothing... just to remove the warning :p
-  is_pressed_left_button = FALSE;
-  is_pressed_right_button = FALSE;
-  is_mouse_pressed = FALSE;
-  is_pressed_middle_button = FALSE;
-  setMouseTracking(FALSE);
+  is_pressed_left_button = false;
+  is_pressed_right_button = false;
+  is_mouse_pressed = false;
+  is_pressed_middle_button = false;
+  setMouseTracking(false);
   //!statusBar()->message("Ready");
   //!options_form->downloadOptions(store_options);
 #if DRAWBOX
@@ -1077,35 +1075,35 @@ void GLWindow::keyPressEvent(QKeyEvent * k)
 {
   setFocus();
   if (k->key() == Qt::Key_Control ) {
-    is_key_pressed = TRUE;
-    is_translation = TRUE;
-    is_pressed_ctrl= TRUE;
+    is_key_pressed = true;
+    is_translation = true;
+    is_pressed_ctrl= true;
     getPixelTranslation(&tx_mouse,&ty_mouse,&tz_mouse);
     if (is_shift_pressed) {
-      is_translation=FALSE;
-      is_mouse_zoom=TRUE;
+      is_translation=false;
+      is_mouse_zoom=true;
     }
   }
   if (k->key() == Qt::Key_A) {
-    is_key_pressed = TRUE;
-    is_a_key_pressed = TRUE;
+    is_key_pressed = true;
+    is_a_key_pressed = true;
     //!glbox->toggleLineAliased();
   }
   if (k->key() == Qt::Key_Plus) {
-    is_key_pressed = TRUE;
+    is_key_pressed = true;
     setZoom(-1);
     //!statusBar()->message("Zoom IN");
   }
   if (k->key() == Qt::Key_Minus) {
-    is_key_pressed = TRUE;
+    is_key_pressed = true;
     setZoom(1);
     //!statusBar()->message("Zoom OUT");
   }
   if (k->key() == Qt::Key_Shift) {
-    is_shift_pressed = TRUE;
+    is_shift_pressed = true;
     if (is_pressed_ctrl) {
-      is_translation=FALSE;
-      is_mouse_zoom=TRUE;
+      is_translation=false;
+      is_mouse_zoom=true;
     }
   }
   emit sigKeyMouse( is_key_pressed, is_mouse_pressed);
@@ -1116,20 +1114,20 @@ void GLWindow::keyPressEvent(QKeyEvent * k)
 void GLWindow::keyReleaseEvent(QKeyEvent * k)
 {
   if (k->key() == Qt::Key_Control ) {
-    is_translation = FALSE;
-    is_pressed_ctrl= FALSE;
-    is_mouse_zoom  = FALSE;
+    is_translation = false;
+    is_pressed_ctrl= false;
+    is_mouse_zoom  = false;
   }
   if (k->key() == Qt::Key_Shift) {
-    is_shift_pressed = FALSE;
-    is_mouse_zoom  = FALSE;
+    is_shift_pressed = false;
+    is_mouse_zoom  = false;
     gl_select->reset();
     updateGL();
   }
   if (k->key() == Qt::Key_A) {
-    is_a_key_pressed = FALSE;
+    is_a_key_pressed = false;
   }
-  is_key_pressed = FALSE;
+  is_key_pressed = false;
   emit sigKeyMouse( is_key_pressed, is_mouse_pressed);
   //!options_form->downloadOptions(store_options);
 }

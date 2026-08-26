@@ -27,7 +27,7 @@ class GLObjectOsd : public GLObject {
   Q_OBJECT
   public:
     GLObjectOsd(const int w, const int h,GLTextRender * _gtr,
-		const QColor &c=Qt::green, bool activated=TRUE);
+		const QColor &c=Qt::green, bool activated=true);
    ~GLObjectOsd();
 
    enum OsdKeys {

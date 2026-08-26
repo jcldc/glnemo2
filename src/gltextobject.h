@@ -21,7 +21,6 @@
 //#include <qgl.h>
 #include "globject.h"
 #include "gltextrender.h"
-#include "ul.h"
 #include <GL/gl.h>
 #include <QOpenGLExtraFunctions> 
 #include <QOpenGLFunctions>
@@ -45,7 +44,7 @@ public:
         : GLObject(),m_gtr(_gtr)
     {
     }
-    GLTextObject(bool activated=TRUE);
+    GLTextObject(bool activated=true);
     
     ~GLTextObject() { };
 

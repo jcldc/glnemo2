@@ -64,17 +64,6 @@ if    (APPLE)
   set(CMAKE_MACOSX_RPATH TRUE)
   set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
 endif ()
-# check QTDIR5
-FILE(GLOB GLOB_TEMP_VAR1 $ENV{QTDIR5})
-IF(NOT GLOB_TEMP_VAR1)
-  MESSAGE(STATUS "\n\nWARNING,  environment variable >>> QTDIR5 <<< is not defined")
-  MESSAGE(STATUS "If it does not compile, try to set it to your QT5 location directory\n\n")
-  SET(QTDIR5 "/usr")
-ELSE (NOT GLOB_TEMP_VAR1)
-  SET(QTDIR5 $ENV{QTDIR5})
-  MESSAGE(STATUS "QTDIR5 location = $ENV{QTDIR5}")
-ENDIF()
-
 # check for nemo
 SET(NEMO_INSTALLED FALSE)
 FILE(GLOB GLOB_TEMP_VAR $ENV{NEMO})
@@ -83,7 +72,7 @@ IF(GLOB_TEMP_VAR)
 ENDIF()
 
 # MODULEs PATH
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake ${QTDIR5})
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake )
 
 # Instruct CMake to run moc automatically when needed.
 #set(CMAKE_AUTOMOC ON)
@@ -174,7 +163,7 @@ set (CMAKE_CXX_FLAGS "-std=c++17 -Wno-write-strings -Wno-conversion-null ${CMAKE
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 # Make sure the compiler can find include files from our Hello library.
-include_directories (${PROJECT_SOURCE_DIR}/plugins ${PROJECT_SOURCE_DIR}/plugins/nemolight/inc ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/plugins/ftm ${PROJECT_SOURCE_DIR}/plugins/gadget ${PROJECT_SOURCE_DIR}/plugins/tipsy ${PROJECT_SOURCE_DIR}/plugins/network ${PROJECT_SOURCE_DIR}/plugins/ramses ${PROJECT_SOURCE_DIR}/plugins/zlib ${PROJECT_SOURCE_DIR}/3rdparty/pfntlib ${PROJECT_SOURCE_DIR}/utils)
+include_directories (${PROJECT_SOURCE_DIR}/plugins ${PROJECT_SOURCE_DIR}/plugins/nemolight/inc ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/plugins/ftm ${PROJECT_SOURCE_DIR}/plugins/gadget ${PROJECT_SOURCE_DIR}/plugins/tipsy ${PROJECT_SOURCE_DIR}/plugins/network ${PROJECT_SOURCE_DIR}/plugins/ramses ${PROJECT_SOURCE_DIR}/plugins/zlib ${PROJECT_SOURCE_DIR}/utils)
 include_directories (${Qt6Widgets_INCLUDE_DIRS} ${Qt6Core_INCLUDE_DIRS} ${Qt6OpenGL_INCLUDE_DIRS} ${Qt6Core5Compat_INCLUDE_DIRS} ${Qt6OpenGLWidgets_INCLUDE_DIRS} ${Qt6Network_INCLUDE_DIRS} ${Qt6PrintSupport_INCLUDE_DIRS})
 include_directories(/usr/include/CCfits /opt/local/include /opt/local/include/CCfits  /usr/include/cfitsio /usr/local/include/CCfits)
 include_directories(/usr/include/tirpc)

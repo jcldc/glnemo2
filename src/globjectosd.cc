@@ -64,7 +64,7 @@ GLObjectOsd::GLObjectOsd(const int w, const int h,
   setText(Rot,0.,0.,0.);
   setText(Zoom,(const float) 0.);
   setText(Projection,"Perspective");
-  (*Osd_text)[Loading].setActivate(FALSE);
+  (*Osd_text)[Loading].setActivate(false);
   updateDisplay();
 }
 // ============================================================================

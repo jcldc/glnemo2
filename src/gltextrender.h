@@ -20,7 +20,6 @@
 
 //#include <qgl.h>
 #include "globject.h"
-#include "ul.h"
 #include <GL/gl.h>
 #include <QOpenGLExtraFunctions> 
 #include <QOpenGLFunctions>
@@ -63,7 +62,7 @@ public:
     {
       m_shader = _m_shader;
     }
-    GLTextRender(bool activated=TRUE);
+    GLTextRender(bool activated=true);
     
     ~GLTextRender() { destroy(); }
 
