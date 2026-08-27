@@ -19,6 +19,9 @@ Makefile*
 *.Release
 CMakeLists.txt.user
 
+# nvim
+compile_commands.json
+
 # git
 *stash
 

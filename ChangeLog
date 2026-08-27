@@ -1,7 +1,7 @@
-* Thu Apr 8 2026 - 2.0.0
+* Thu Aug 27 2026 - 2.0.0
 - switch to qt6 API
 - happy gcc 15.0
-- MacOs ARM build
+- MacOS ARM build
 - linux Wayland ready
 
 * Thu Apr 14 2023 - 1.21.0
