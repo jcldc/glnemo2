@@ -19,8 +19,6 @@
 #include <glm/trigonometric.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#endif
 #include <QtOpenGL>
 #include <QOpenGLExtraFunctions> 
 #include <QOpenGLFunctions>
@@ -28,7 +26,6 @@
 #include <QRecursiveMutex>
 #include <GL/glu.h>
 #include <assert.h>
-#include <limits>
 #include <math.h>
 #include "glwindow.h"
 #include "glgridobject.h"
@@ -277,8 +274,6 @@ void GLWindow::reverseColorMap(bool reverse)
 void GLWindow::rebuildGrid(bool ugl)
 {
   updateGrid(ugl);
-  // GLGridObject::nsquare = store_options->nb_meshs;
-  // GLGridObject::square_size = store_options->mesh_length;
  
   makeCurrent();
   gridx2->rebuild(store_options->nb_meshs, store_options->mesh_length);
@@ -365,19 +360,16 @@ void GLWindow::paintGL()
       store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(ru),
                                              glm::vec3(mScene[0],mScene[1], mScene[2]));
-      //glRotatef(ru, mScene[0],mScene[1], mScene[2] );
     }      
     if (rv!=0) {
       store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(rv),
                                              glm::vec3(mScene[4],mScene[5], mScene[6]));
-      //glRotatef(rv, mScene[4],mScene[5], mScene[6] );
     }
     if (rw!=0) {
       store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(rw),
                                              glm::vec3(mScene[8],mScene[9], mScene[10]));
-      //glRotatef(rw, mScene[8],mScene[9], mScene[10]);
     }
     
     last_urot = store_options->urot;
@@ -402,15 +394,12 @@ void GLWindow::paintGL()
     store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(rx),
                                              glm::vec3(1.0, 0.0, 0.0));
-    //glRotatef( rx, 1.0, 0.0, 0.0 );
     store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(ry),
                                              glm::vec3(0.0, 1.0, 0.0));
-    //glRotatef( ry, 0.0, 1.0, 0.0 );
     store_options->mat4_view = glm::rotate(store_options->mat4_view,
                                              glm::radians(rz),
                                              glm::vec3(0.0, 0.0, 1.0));
-    //glRotatef( rz, 0.0, 0.0, 1.0 );
     last_xrot = store_options->xrot;
     last_yrot = store_options->yrot;
     last_zrot = store_options->zrot;
@@ -466,8 +455,6 @@ void GLWindow::paintGL()
   // camera display path and control points
   camera->display(wheight);
 
-  // setModelMatrix(); // save ModelView  Matrix
-  // setProjMatrix();  // save Projection Matrix
   // move the scene
   store_options->mat4_model = glm::translate(store_options->mat4_model, glm::vec3(store_options->xtrans, store_options->ytrans, store_options->ztrans));
 
@@ -488,12 +475,8 @@ void GLWindow::paintGL()
   else                        glDisable(GL_DEPTH_TEST);
   //glDepthFunc(GL_LESS);
   // Display objects (particles and velocity vectors)
-  //makeCurrent();
-#if 1
   GLWindow::checkGLErrors("Before cpoints_manager start Display all");
   cpointset_manager->displayAll( store_options->mat4_proj, store_options->mat4_model, store_options->mat4_view);
-#endif
-  //doneCurrent();
   //
    glm::mat4 mv=store_options->mat4_view * store_options->mat4_model;
    // GLWindow::printMatrix(glm::value_ptr(mv)," mv 1");
@@ -535,14 +518,7 @@ void GLWindow::paintGL()
   // On Screen Display
   gtr->setScreenSize(wwidth,wheight);
   if (store_options->show_osd) osd->display(wwidth,wheight);
-  #if 0 // display TEXT in the middle of the screen
-  glnemo::TextBoundingBox box = gtr->getTextBoundingBox("Glnemo 2.0 core330", 100.f, 500.f, 2.0f);
 
-  // Si tu veux centrer ton texte sur l'axe X autour de la coordonnée 400 :
-  float xCentre = wwidth/2.0 - (box.width / 2.f);
-  float yCentre = wheight/2.0 - (box.height / 2.f);
-  gtr->draw("Glnemo 2.0 core330", xCentre, yCentre, 2.0f, glm::vec4(1.f));
-  #endif
   // display selected area
   gl_select->setScreenSize(QOpenGLWidget::width(),QOpenGLWidget::height());
   gl_select->draw(grid_shader->getProgramId());
@@ -654,7 +630,7 @@ void GLWindow::initializeGL()
   std::cerr << "\n>>>>>>>>> initializeGL()\n\n";
 
   initializeOpenGLFunctions();
-  if (false) { // Sety true to debug OpenGL calls
+  if (false) { // Set true to debug OpenGL calls
     QOpenGLDebugLogger *logger = new QOpenGLDebugLogger(this);
     if (logger->initialize()) {
       connect(logger, &QOpenGLDebugLogger::messageLogged,
@@ -666,13 +642,7 @@ void GLWindow::initializeGL()
     connect(logger, &QOpenGLDebugLogger::messageLogged,
             [](const QOpenGLDebugMessage &msg) {
               qDebug() << "OpenGL Debug:" << msg.message();
-
-              // Si c'est une erreur d'opération invalide ou de fonction
-              // dépréciée :
               if (msg.severity() >= QOpenGLDebugMessage::MediumSeverity) {
-                // En mode Debug sous Linux, ceci va faire crasher proprement le
-                // soft exactement sur la ligne coupable si vous êtes sous un
-                // IDE (Qt Creator / VS Code) Q_ASSERT(false);
               }
             });
   }
@@ -732,7 +702,7 @@ void GLWindow::initializeGL()
   qDebug() << "GLSL    :" << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
 
-///////////////////
+  ///////////////////
   // initialyze rendering shaders
   initShader();
 
@@ -740,8 +710,6 @@ void GLWindow::initializeGL()
   camera->loadShader();
   camera->init(GlobalOptions::RESPATH.toStdString()+"/camera/circle");
   
-  // GLGridObject::nsquare = store_options->nb_meshs;
-  // GLGridObject::square_size = store_options->mesh_length;
   // new grid2 with shaders
   gridx2 = new GLGridObject(store_options->nb_meshs, store_options->mesh_length, 0, store_options->col_x_grid);   // rouge  – plan XY
   gridy2 = new GLGridObject(store_options->nb_meshs, store_options->mesh_length, 1, store_options->col_y_grid);   // vert   – plan YZ
@@ -781,12 +749,6 @@ void GLWindow::initializeGL()
   }
   
   // Osd
-#if ON_LEGACY
-  fntRenderer text;
-  font = new fntTexFont(store_options->osd_font_name.toStdString().c_str());
-  text.setFont(font);
-  text.setPointSize(store_options->osd_font_size );
-#endif
   osd = new GLObjectOsd(wwidth,wheight,gtr,store_options->osd_color);
   // colorbar
   gl_colorbar = new GLColorbar(store_options,gtr_cb,true);
@@ -814,8 +776,6 @@ void GLWindow::resizeGL(int w, int h)
   wwidth = w;
   wheight= h;
   glViewport( 0, 0, (GLint)w, (GLint)h );
-  // glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, (float) DOF);
-  //gluPerspective(45.,ratio,0.0005,(float) DOF);
   osd->setWH(w,h);
   cpointset_manager->setScreenDim(w, h);
 }
@@ -828,18 +788,12 @@ void GLWindow::setProjection(const int x, const int y, const int width, const in
   store_options->mat4_proj = glm::mat4(1.0f); 
 
   if (store_options->perspective) {
-//    double mp[16];
-//    glGetDoublev(GL_PROJECTION_MATRIX, (GLdouble *) mp);
-//    for (int i=0;i<16;i++) std::cerr << "// "<< mp[i];
-//    std::cerr << "\n";
     const GLfloat zNear = 0.0005, zFar = (GLfloat) DOF, fov = 45.0;
     store_options->mat4_proj = glm::mat4();
     store_options->mat4_proj = glm::perspective(glm::radians(fov), (GLfloat)ratio, zNear, zFar);
   }
   else {
     computeOrthoFactor();    
-    //std::cerr << "RANGE="<<store_options->ortho_range<<" zoom="<<store_options->zoom<<" zoomo="<<store_options->zoomo<<"\n";
-    //std::cerr << "fx = "<< fx << " fy=" << fy <<  " range*fx*zoom0=" <<  store_options->zoomo*fx*store_options->ortho_range <<  "\n";
     ortho_right = store_options->ortho_range;
     ortho_left  =-store_options->ortho_range;
     ortho_top   = store_options->ortho_range;
@@ -948,7 +902,6 @@ void GLWindow::mouseReleaseEvent(QMouseEvent *e) {
 #endif
   if (is_shift_pressed) {
     if (!store_options->duplicate_mem) mutex_data->lock();
-    //JCL 07/21/2015 setPerspectiveMatrix(); // toggle to perspective matrix mode
     gl_select->selectOnArea(pov->size(), mProj, mModel, viewport);
     setPerspectiveMatrix(); // toggle to perspective matrix mode
     gl_select->zoomOnArea(mProj, mModel, viewport);
@@ -980,7 +933,6 @@ void GLWindow::mouseReleaseEvent(QMouseEvent *e) {
   }
   setCursor(Qt::ArrowCursor);
   emit sigKeyMouse(is_key_pressed, is_mouse_pressed);
-  //!draw_box->show();
 }
 
 // ============================================================================
@@ -1001,7 +953,6 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
     // offset displcacement
     dx =pos_x-last_posx;
     dy =pos_y-last_posy;
-    //std::cerr << "dxdy="<< dx << " " << dy << "\n";
     // save last position
     last_posx =pos_x;
     last_posy =pos_y;
@@ -1041,10 +992,8 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
     }
     if (is_translation) {
       setTranslation(tx_mouse,ty_mouse,tz_mouse);
-      //setTranslation(dx,dy,-dz);
     }
     else {
-      //std::cerr << "xyz mouse="<<x_mouse<<" "<<y_mouse<<" "<< z_mouse<<"\n";
       if (store_options->rotate_screen)
         setRotationScreen(y_mouse,x_mouse,z_mouse);
       else
@@ -1059,7 +1008,6 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
     last_posx =pos_x;
     last_posy =pos_y;
     emit sigMouseXY(dx,dy);
-    //std::cerr << "dx="<<dx<< "  dy="<<dy<<"\n";
   }
 }
 // ============================================================================
@@ -1067,7 +1015,6 @@ void GLWindow::mouseMoveEvent( QMouseEvent *e )
 void GLWindow::wheelEvent(QWheelEvent * e)
 {
   setZoom((int) e->angleDelta().y());
-  //!options_form->downloadOptions(store_options);
 }
 // ============================================================================
 // manage keyboard press events
@@ -1156,9 +1103,6 @@ void GLWindow::setRotationScene( const int x, const int y, const int z )
   GLfloat xRot = (GLfloat)(x % 360);
   GLfloat yRot = (GLfloat)(y % 360);
   GLfloat zRot = (GLfloat)(z % 360);
-//  // hud display
-//  osd->setText(GLObjectOsd::Rot,xRot,yRot,zRot);
-//  osd->updateDisplay();
   // save values
   store_options->urot =xRot;
   store_options->vrot =yRot;
@@ -1212,8 +1156,6 @@ void GLWindow::rotateAroundAxis(const int axis)
       } else {
         setRotationScene(store_options->urot,store_options->vrot,store_options->wrot);
       }
-      //setRotation(x,y,z);
-      //updateGL();
   }
 }
 // -----------------------------------------------------------------------------
@@ -1255,11 +1197,7 @@ void GLWindow::setTranslation( const int x, const int y, const int z )
 {
   GLint	Viewport[4];
   glGetIntegerv(GL_VIEWPORT,Viewport);
-#if 0
-  ixTrans = x;
-  iyTrans = y;
-  izTrans = z;
-#endif
+
   // compute translation
   GLfloat xTrans = (GLfloat)(-x*store_options->zoom/(Viewport[2]));
   GLfloat yTrans = (GLfloat)( y*store_options->zoom/(Viewport[3])); //Viewport[3]*ratio));
@@ -1293,9 +1231,7 @@ void GLWindow::updateOsdZrt(bool ugl)
   if (ugl) {
    updateGL();
   }
-
 }
-
 // ============================================================================
 // setup zoom according to a z value
 void GLWindow::setZoom(const int z)
@@ -1359,14 +1295,6 @@ void GLWindow::setOsd(const GLObjectOsd::OsdKeys k, const int value, bool show, 
 // Change OSD font
 void GLWindow::changeOsdFont()
 {
-#if ON_LEGACY
-  fntRenderer text;
-  if (font) delete font;
-  font = new fntTexFont(store_options->osd_font_name.toStdString().c_str());
-  text.setFont(font);
-  text.setPointSize(store_options->osd_font_size );
-  osd->setFont(text);
-#endif
   osd->setColor(store_options->osd_color);
   makeCurrent();
   osd->rebuildFont(store_options->osd_font_name.toStdString(),store_options->osd_font_size);
@@ -1403,15 +1331,10 @@ void GLWindow::setPerspectiveMatrix()
   camera->setEye(0.0,  0.0,  -store_options->zoom);
   camera->moveTo();
   // apply screen rotation on the whole system
-  // glMultMatrixd (mScreen);   
   store_options->mat4_view = store_options->mat4_view*m_screen;
   // apply scene/world rotation on the whole system
-  // glMultMatrixd (mScene);   
   store_options->mat4_view = store_options->mat4_view*m_scene;
-  // setModelMatrix(); // save ModelView  Matrix
-  // setProjMatrix();  // save Projection Matrix
 }
-
 // ============================================================================
 // Best Zoom fit
 // fit all the particles on the screen from perspective view
@@ -1424,7 +1347,6 @@ void GLWindow::bestZoomFit()
 
   setPerspectiveMatrix(); // toggle to perspective matric mode
 
-
   Tools3D::bestZoomFromObject(mProj,mModel,
                               viewport, pov, p_data, store_options);
     
@@ -1432,7 +1354,6 @@ void GLWindow::bestZoomFit()
   ortho_left  =-store_options->ortho_range;
   ortho_top   = store_options->ortho_range;
   ortho_bottom=-store_options->ortho_range;
-  //store_options->zoomo = 1.;
   
   osdZoom();
   if ( !store_options->duplicate_mem) mutex_data->unlock();
@@ -1449,4 +1370,4 @@ void GLWindow::renderGrids(const glm::mat4& model, const glm::mat4& view, const 
     // Display cube
     cube2->draw(grid_shader->getProgramId(), model, view, projection);
 }
- } // namespace glnemo
+} // namespace glnemo
