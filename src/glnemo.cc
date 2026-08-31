@@ -20,7 +20,7 @@
 #include <QApplication>
 #include <QOpenGLContext>
 #include <QSurfaceFormat>
-
+#include <QFontDatabase>
 #include <QtPlugin>
 // #include <QtOpenGL>
 // #include <QGLFormat>
@@ -204,7 +204,12 @@ int main(int argc, char *argv[]) {
   // glnemo::QMyApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   glnemo::QMyApplication app(argc, argv);
   // glnemo::QMyApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-
+  // Set application font from resources
+  int fontId = QFontDatabase::addApplicationFont(":/res/fonts/DejaVuSans.ttf");
+  if (fontId != -1) {
+      QString family = QFontDatabase::applicationFontFamilies(fontId).at(0);
+      app.setFont(QFont(family));
+  }
 #if 0
   QSurfaceFormat format;
 
