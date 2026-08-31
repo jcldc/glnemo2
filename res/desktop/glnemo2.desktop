@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=glnemo2
+Comment=Interactive 3D visualization program for N-body snapshots
+Exec=bin/glnemo2
+Icon=glnemo2
+Categories=Science;Graphics;
+Terminal=false
