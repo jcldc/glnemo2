@@ -2,7 +2,7 @@
 
 # Build docker
 ```
-docker build -t ubuntu20.04-app-image factory/docker/ubuntu20.04
+docker build -t ubuntu20.04-app-image-2 factory/docker/ubuntu20.04
 
 ```
 
@@ -11,7 +11,7 @@ docker build -t ubuntu20.04-app-image factory/docker/ubuntu20.04
 # /data is where Qt6 is installed
 # /glnemo2 is glnemo2 git directory
 
-docker run -it -v /data:/data -v /home/jcl/works/GIT/glnemo2:/glnemo2 ubuntu20.04-app-image:latest
+docker run -it -v /data:/data -v /home/jcl/works/GIT/glnemo2:/glnemo2 ubuntu20.04-app-image-2:latest
 ```
 
 # cmake and gcc 11 installation mandatory to compile qt
@@ -57,7 +57,7 @@ tar -xvf qt-everywhere-src-6.11.2.tar.xz
 # qt6 compilation (from docker)
 ```
 cd /data/QT6/qt-everywhere-src-6.11.2
-../configure -prefix /data/QT6/qt6.11.2   -release   -xcb    -nomake examples   -nomake tests   -skip qtwebengine,qtpdf,qtdoc,qtscxml,qtlocation
+../configure -prefix /data/QT6/qt6.11.2   -release   -xcb    -nomake examples   -nomake tests   -skip qtwebengine,qtpdf,qtdoc,qtscxml,qtlocation,qtquick3d,qtquick3dphysics
 cmake --build . --parallel 8
 cmake --install .
 ```
@@ -90,11 +90,14 @@ EOF
 
 ## AppImage creation
 ```
-cd /glnemo2
-mkdir build-docker
-cd build-docker
-cmake .. -DCMAKE_PREFIX_PATH=/data/QT6/qt6.11.2/lib/cmake
-make -j 8
-VERSION=2.0.0 /usr/local/squashfs-root/AppRun glnemo2.desktop -qmake=/opt/qt6.11.2/bin/qmake -appimage
+git config --global --add safe.directory /glnemo2
+cd /tmp
+mkdir build
+cd build
+cmake -S /glnemo2 -DCMAKE_PREFIX_PATH=/data/QT6/qt6.11.2/lib/cmake
+make -j
+/glnemo2/factory/scripts/create_AppImage.bash
+cp glnemo2-*-x86_64.AppImage /glnemo2/factory/AppImage
+#VERSION=2.0.0 /usr/local/squashfs-root/AppRun glnemo2.desktop -qmake=/opt/qt6.11.2/bin/qmake -appimage
 
 ```

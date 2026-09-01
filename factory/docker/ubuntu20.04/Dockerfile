@@ -46,7 +46,13 @@ RUN apt-get -y update && \
     libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-shm0-dev libxcb-sync-dev \
     libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libx11-xcb-dev \
     libxcb-xinerama0-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-render-util0-dev libxcb-util-dev libxcb-cursor-dev \
-    libgl1-mesa-dev libglu1-mesa-dev libegl1-mesa-dev libvulkan-dev
+    libgl1-mesa-dev libglu1-mesa-dev libegl1-mesa-dev libvulkan-dev \
+    python3 python3-pip libgl1-mesa-dev libglu1-mesa-dev \
+    libx11-dev libxcb1-dev libx11-xcb-dev libxcb-util-dev libxcb-image0-dev \
+    libxcb-keysyms1-dev libxcb-render-util0-dev libxcb-icccm4-dev \
+    libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev \
+    libxcb-render0-dev libxcb-glx0-dev libxcb-xinerama0-dev libxkbcommon-dev \
+    libxkbcommon-x11-dev libfontconfig1-dev libdbus-1-dev libzstd-dev
 
 # install gcc 11
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
