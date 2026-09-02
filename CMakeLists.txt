@@ -59,9 +59,8 @@ if(WIN32)
 endif()
 if(APPLE)
   message(STATUS "\n\n\n- - - Mac OSX  - - -\n\n\nWARNING : DO NOT FORGET TO RUN CMAKE LIKE THIS\n\n ")
-  message(STATUS "/opt/local/bin/cmake .. -DCMAKE_PREFIX_PATH=/Users/grunner/Qt/5.15.2/clang_64/lib/cmake\n\n\n")
   message(STATUS "Mac ARM M[1-4] compilation :")
-  message(STATUS "cmake -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qt@5/lib/cmake -DCMAKE_OSX_ARCHITECTURES=arm64\n\n\n")
+  message(STATUS "cmake -DCMAKE_PREFIX_PATH=/Users/grunner/Qt/6.11.0/macos/lib/cmake -D CMAKE_OSX_ARCHITECTURES=arm64 .. \n\n\n")
   set(CMAKE_MACOSX_RPATH TRUE)
   set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
 endif()
@@ -421,4 +420,12 @@ if(APPLE)
     NO_UNSUPPORTED_PLATFORM_ERROR
   )
   install(SCRIPT ${deploy_script})
+
+  # Ad-hoc signature for app bundle
+  install(CODE "
+    message(STATUS \"glnemo2.app Ad-hoc signature, in progress...\")
+    execute_process(
+      COMMAND codesign --force --deep --sign - \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/glnemo2.app\"
+    )
+  ")
 endif()
