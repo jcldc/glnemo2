@@ -773,8 +773,9 @@ void GLWindow::initializeGL()
 // resize the opengl viewport according to the new window size
 void GLWindow::resizeGL(int w, int h)
 {
-  wwidth = w;
-  wheight= h;
+  // devicePixelRatio = high-DPI scaling factor for the current window/screen
+  wwidth = w * devicePixelRatio();
+  wheight= h * devicePixelRatio();
   glViewport( 0, 0, (GLint)w, (GLint)h );
   osd->setWH(w,h);
   cpointset_manager->setScreenDim(w, h);
