@@ -777,8 +777,8 @@ void GLWindow::resizeGL(int w, int h)
   wwidth = w * devicePixelRatio();
   wheight= h * devicePixelRatio();
   glViewport( 0, 0, (GLint)w, (GLint)h );
-  osd->setWH(w,h);
-  cpointset_manager->setScreenDim(w, h);
+  osd->setWH(wwidth,wheight);
+  cpointset_manager->setScreenDim(wwidth, wheight);
 }
 // ============================================================================
 // set up the projection according to the width and height of the windows

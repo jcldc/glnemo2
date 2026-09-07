@@ -80,8 +80,8 @@ public:
   static QOpenGLFunctions_3_3_Core *m_glFunctions;
   void setFBO(bool _b) { fbo = _b; }
   void setFBOSize(GLuint w, GLuint h) {
-    texWidth = w;
-    texHeight = h;
+    texWidth  = w*devicePixelRatio();
+    texHeight = h*devicePixelRatio();
   }
   QImage grabFrameBufferObject() { return imgFBO; }
   void rotateAroundAxis(const int);
