@@ -16,11 +16,11 @@ docker run -it -v /data:/data -v /home/jcl/works/GIT/glnemo2:/glnemo2 ubuntu20.0
 
 # cmake and gcc 11 installation mandatory to compile qt
 ```
-# Ajouter le PPA des outils de compilation Ubuntu
+# Add toolchain PPA for ubuntu compilation
 sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
 sudo apt update
 
-# Installer GCC 11 et G++ 11
+# Install GCC 11 and G++ 11
 sudo apt install -y gcc-11 g++-11
 
 # set GCC 9 at priority 50
@@ -72,32 +72,27 @@ wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/lin
 ./linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
 
 ```
-
-## create a TOML for the application
-
-```
-cat << EOF > glnemo2.desktop
-[Desktop Entry]
-Type=Application
-Name=glnemo2
-Comment=Interactive 3D visualization program for N-body snapshots
-Exec=bin/glnemo2
-Icon=glnemo2
-Categories=Science;Graphics;
-Terminal=false
-EOF
-```
-
 ## AppImage creation
 ```
+# start docker
+# /data is where Qt6 is installed
+# /glnemo2 is glnemo2 git directory
+docker run -it -v /data:/data -v /home/jcl/works/GIT/glnemo2:/glnemo2 ubuntu20.04-app-image-2:latest
+
+# set git directory, mandatory to create version.h
 git config --global --add safe.directory /glnemo2
+
+# Run cmake and build
 cd /tmp
 mkdir build
 cd build
 cmake -S /glnemo2 -DCMAKE_PREFIX_PATH=/data/QT6/qt6.11.2/lib/cmake
 make -j
+
+# create AppImage
 /glnemo2/factory/scripts/create_AppImage.bash
-cp glnemo2-*-x86_64.AppImage /glnemo2/factory/AppImage
-#VERSION=2.0.0 /usr/local/squashfs-root/AppRun glnemo2.desktop -qmake=/opt/qt6.11.2/bin/qmake -appimage
+
+# save image
+cp glnemo2*AppImage /glnemo2/factory/AppImage
 
 ```

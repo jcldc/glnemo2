@@ -154,7 +154,7 @@ void GLObjectParticles::display(const double * mModel, int win_height)
     if (po->isGazEnable() && texture) {
       if (GLWindow::GLSL_support && po->isGazGlsl()) {
         GLObject::setColor(po->getColor());
-        displayVboShader(win_height,false);
+          displayVboShader(win_height,false);
       }
       else displaySprites(mModel);
     }
@@ -345,7 +345,6 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   // f->glGenVertexArrays(1, &vao);
   // f->glBindVertexArray(vao);
   f->glBindVertexArray(m_vao);
-
   if (go->zsort) { // Z sort particles
       zsort = true;
       sortByDepth();
@@ -364,9 +363,11 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   col[0] = c.redF();
   col[1] = c.greenF();
   col[2] = c.blueF();
-  if (use_point) col[3] = po->getPartAlpha()/255.0f;
-  else           col[3] = po->getGazAlpha()/255.0f;
-
+  if (use_point) {
+    col[3] = po->getPartAlpha() / 255.0f;
+  } else {
+    col[3] = po->getGazAlpha() / 255.0f;
+  }
   if ((go->render_mode == 0 ) ) { // Alpha blending accumulation
     f->glEnable(GL_BLEND);
     f->glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -390,36 +391,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
 
   f->glActiveTexture(GL_TEXTURE0);
   texture->glBindTexture();  // bind texture
-  #if 0 //
-  // get attribute location for sprite size
-  int a_sprite_size = f->glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
-  printf(">> a_sprite_size = %d\n",a_sprite_size);
-  if ( a_sprite_size != -1) {
-    if (hasPhysic && go->render_mode==1 && phys_select && phys_select->isValid()) {
-      f->glEnableVertexAttribArray(a_sprite_size);
-      f->glBindBuffer(GL_ARRAY_BUFFER, vbo_size);
-      int start_size = min_index*sizeof(float);
-      f->glVertexAttribPointer(a_sprite_size, 1, GL_FLOAT, GL_FALSE, 0, (void *) (intptr_t)(start_size));
-    } else {
-      f->glVertexAttrib1f(a_sprite_size, 1.0f);
-    }
-  }
-
-  // get attribute location for phys data
-  int a_phys_data = f->glGetAttribLocation(shader->getProgramId(), "a_phys_data");
-  printf(">> a_phys_data = %d\n",a_phys_data);
-  if ( a_phys_data != -1) {
-    if (hasPhysic && go->render_mode==1 && phys_select && phys_select->isValid()) {
-      f->glEnableVertexAttribArray(a_phys_data);
-      f->glBindBuffer(GL_ARRAY_BUFFER, vbo_data);
-      int start_data = min_index*sizeof(float);
-      f->glVertexAttribPointer(a_phys_data, 1, GL_FLOAT, GL_FALSE, 0, (void *) (intptr_t)(start_data));
-    } else {
-      f->glVertexAttrib1f(a_phys_data, 1.0f);
-    }
-  }
-
-  #endif
+  
   // get attribute location for position
   int vpositions = f->glGetAttribLocation(shader->getProgramId(), "position");
   if (vpositions != -1) {
@@ -438,15 +410,21 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   int maxvert = max_index - min_index + 1;
   if (maxvert > 0 && maxvert <= nvert_pos) {
     GLint a_sprite_size = f->glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
-    if (go->render_mode == 0) { 
-        // Same particles size 
+    if (use_point) { 
+        // Same particles size : particles point
         f->glDisableVertexAttribArray(a_sprite_size);   // <-- indispensable
         f->glVertexAttrib1f(a_sprite_size, 1.0f);
     } else {
-        // Each particles has its own size stored in vbo_size 
-        f->glBindBuffer(GL_ARRAY_BUFFER, vbo_size);
-        f->glVertexAttribPointer(a_sprite_size, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
-        f->glEnableVertexAttribArray(a_sprite_size);    // <-- réactive l'array
+        if (hasPhysic && phys_select && phys_select->isValid()) { // gas particles
+          // Each particles has its own size stored in vbo_size 
+          f->glBindBuffer(GL_ARRAY_BUFFER, vbo_size);
+          f->glVertexAttribPointer(a_sprite_size, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
+          f->glEnableVertexAttribArray(a_sprite_size);    // <-- réactive l'array
+        } else {
+        // Same particles size : particles with texture size 
+        f->glDisableVertexAttribArray(a_sprite_size);   // <-- indispensable
+        f->glVertexAttrib1f(a_sprite_size, 1.0f);
+      }
     }
     f->glDrawArrays(GL_POINTS, 0, maxvert);
   }
@@ -963,8 +941,15 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
 
   // send alpha color channel
   float alpha;
-  if (use_point) alpha=po->getPartAlpha()/255.;
-  else alpha=po->getGazAlpha()/255.;
+  if (use_point) {
+    if (po->isGazEnable()) {
+      alpha = po->getGazAlpha() / 255.;
+    } else {
+      alpha = po->getPartAlpha() / 255.;
+    }
+  } else {
+    alpha = po->getGazAlpha() / 255.;
+  }
   if (go->render_mode == 1 ) { // individual size and color
     if (physic)
       shader->sendUniformf("alpha", alpha*alpha); // send alpha channel
@@ -977,12 +962,13 @@ void GLObjectParticles::sendShaderData(const int win_height, const bool use_poin
 
   // Send texture size factor
   if (use_point) {
-    shader->sendUniformf("factor_size",(float) po->getPartSize());
+    shader->sendUniformf("factor_size", (float)po->getPartSize());
   } else {
     if (go->perspective) {
-        shader->sendUniformf("factor_size",po->getGazSize()*win_height);
+      shader->sendUniformf("factor_size", po->getGazSize() * win_height);
     } else {
-      shader->sendUniformf("factor_size",po->getGazSize()*win_height/fabs(go->zoom));//*win_height);
+      shader->sendUniformf("factor_size", po->getGazSize() * win_height /
+                                              fabs(go->zoom)); //*win_height);
     }
   }
   if (go->perspective) // perspective  projection

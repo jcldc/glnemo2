@@ -1,8 +1,11 @@
-* Thu Aug 27 2026 - 2.0.0
+* Thu Sep 30 2026 - 2.0.0
 - switch to qt6 API
+- full 3D engine based on OpenGL 3.3
+- full shader glsl 330 core profile
 - happy gcc 15.0
 - MacOS ARM build
 - linux Wayland ready
+- Universal Linux Bin using AppImage (glibc >= 2.31)
 
 * Thu Apr 14 2023 - 1.21.0
 - read Gadget4 hdf5 files

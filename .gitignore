@@ -19,6 +19,9 @@ Makefile*
 *.Release
 CMakeLists.txt.user
 
+# AppImage
+factory/AppImage/glnemo*
+
 # nvim
 compile_commands.json
 

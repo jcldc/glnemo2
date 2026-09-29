@@ -1,4 +1,4 @@
-.TH GLNEMO2 1NEMO "April 2026"
+.TH GLNEMO2 1NEMO "September 2026"
 .SH NAME
 glnemo2 \- An interactive 3D OpenGL visualization program for nbody snapshots
 .SH SYNOPSIS
@@ -9,7 +9,7 @@ particles positions of the different components (gas, stars, disk,
 dark mater halo, bulge) of an N-body snapshot. It's a very useful tool
 for everybody running N-body simulations from isolated galaxies to cosmological simulations. It can show quickly a lot of information about  data by revealing shapes, dense areas, formation of structures
 such as spirals arms, bars, peanuts or clumps of galaxies. Glnemo2 has
-been designed to meet the  requirements of the user, with simplicity in mind, easy to install, easy to use with an interactive and responsive graphical user interface (based on Digia QT 4.X/5.X API) , powerful with a fast 3D engine (OPenGL and GLSL), and generic with the possibility to load different kinds of input files. 
+been designed to meet the  requirements of the user, with simplicity in mind, easy to install, easy to use with an interactive and responsive graphical user interface (based on Digia QT 6.X API) , powerful with a fast 3D engine (OPenGL and GLSL), and generic with the possibility to load different kinds of input files. 
 
 
  You can zoom in/out, rotate, scale, translate, select different particles 
@@ -18,12 +18,12 @@ play with the density threshold, trace orbits, play different time steps, take a
 screenshots to make movies, select particles using the mouse, fly over your simulation 
 using camera path. All this features are accessible from a very intuitive graphic user interface.
 
-.SS Currently, glnemo2 reads:
+.SS Currently, glnemo2 reads following data:
 .nf
-- NEMO files ( http://carma.astro.umd.edu/nemo )
+- NEMO files (https://teuben.github.io/nemo)
 - Gadget 1 and 2 -little and big endian- files ( http://www.mpa-garching.mpg.de/gadget/ )
 - Gadget 3 (HDF5)
-- RAMSES files ( http://www.ics.uzh.ch/~teyssier/ramses/RAMSES.html  )
+- RAMSES files (https://github.com/ramses-organisation/ramses)
 - TIPSY file ( http://www-hpcc.astro.washington.edu/tools/tipsy/tipsy.html )
 - FTM files (Clayton Heller's sph/nbody code)
 - phiGRAPE file ( http://wiki.cs.rit.edu/bin/view/GRAPEcluster/phiGRAPE )
@@ -36,11 +36,9 @@ using camera path. All this features are accessible from a very intuitive graphi
  Glnemo2 uses a plugin mechanism to load data, so it's easy to add a new file reader.
 It uses the latest OpenGL technology like, shaders (glsl), vertex buffer object, 
 frame buffer object, and takes in account the power of your graphic card to accelerate the
-rendering. Millions of particles can be rendered, in real time, with a fast GPU. With this
-technology, glnemo2 can be 1000% times faster than glnemo1 !
-
- Glnemo2 runs fine on Linux, Windows(using minGW compiler), and
- MaxOSX, thanks to the QT4/QT5 API.
+rendering. Millions of particles can be rendered, in real time, with a fast GPU.
+ Glnemo2 runs fine on Linux, Windows, and
+ MaxOSX, thanks to the QT6 API.
 
 .SH Examples
  From the command line you can select particles to load by specifying a range of particles, or
@@ -397,7 +395,6 @@ Jean-Charles Lambert
 .SH UPDATE HISTORY
 .nf
 .ta +1.0i +5.0i
-09-Apr-26 qt6 + wayland + macos arm
 23-Apr-10	ramses reader + gyrfalcON manipulator	JCL
 19-May-10	- Leiden release - see ChangeLog	JCL
 28-Jul-10	Version 1.0 !!!				JCL
@@ -423,4 +420,5 @@ Jean-Charles Lambert
 04-Apr-18 Ver 1.11.0 - new RAMSES format, camera module, see Changelog    JCL
 14-May-20 Ver 1.20.0 - new feature (characteristics points),  see Changelog   GD 
 14-Apr-23 Ver 1.21.0 - Read Gagdet4 hdf5 files JCL 
+15-Sep-26 Ver 2.0.0  - qt6 + openGL 3.3 + wayland + macos arm + AppImg JCL
 .fi
