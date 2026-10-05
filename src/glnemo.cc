@@ -208,7 +208,7 @@ int main(int argc, char *argv[]) {
   int fontId = QFontDatabase::addApplicationFont(":/res/fonts/DejaVuSans.ttf");
   if (fontId != -1) {
       QString family = QFontDatabase::applicationFontFamilies(fontId).at(0);
-      app.setFont(QFont(family));
+      app.setFont(QFont(family,10));
   }
 #if 0
   QSurfaceFormat format;
