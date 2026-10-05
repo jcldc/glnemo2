@@ -210,37 +210,12 @@ int main(int argc, char *argv[]) {
       QString family = QFontDatabase::applicationFontFamilies(fontId).at(0);
       app.setFont(QFont(family,10));
   }
-#if 0
-  QSurfaceFormat format;
-
-  //format.setVersion(3, 3);
-  format.setProfile(QSurfaceFormat::CoreProfile);
-  format.setDepthBufferSize(24);
-  //format.setRenderableType(QSurfaceFormat::OpenGL);
-  format.setSamples(4);
-  format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-  QSurfaceFormat::setDefaultFormat(format);
-#endif
   setlocale(LC_NUMERIC, "C"); // force numerics functions to use decimal point
   if (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGL) {
     qDebug("Requesting 3.3 core context");
     // fmt.setVersion(3, 3);
     // fmt.setProfile(QSurfaceFormat::CoreProfile);
   }
-#if 0
-  if ( !QGLFormat::hasOpenGL() ) {
-    qWarning( "This system has no OpenGL support. Exiting." );
-    return -1;
-  }
-//   QGLFormat f;
-//   f.setDirectRendering(false);
-//   QGLFormat::setDefaultFormat(f);
-  // Get screen coordinates
-  QScreen  * desktop1 = QApplication::desktop();
-  std::cerr << "# screens = " << desktop1->numScreens()<< "\n";
-  std::cerr << "Is virtual desktop : " << desktop1->isVirtualDesktop() << "\n";
-  QWidget  * desktop = desktop1->screen(desktop1->primaryScreen());
-#endif
   // initialyze NEMO engine
   initparam(argv, const_cast<char **>(defv));
   // CAUTION !!! do not call getparam function after **MainWindow** object
@@ -257,12 +232,6 @@ int main(int argc, char *argv[]) {
   } else
     shot = "";
   Q_INIT_RESOURCE(glnemo); // load resources
-  //  QPixmap pixmap(glnemo::GlobalOptions::RESPATH+"/images/glnemo2.png");
-  //  QSplashScreen splash(pixmap);
-  //  if (interact) {
-  //    splash.show();
-  //    app.processEvents();
-  //  }
   glnemo::MainWindow main_win(release); // main window object
 
   // compute window size

@@ -741,7 +741,6 @@ void GLObjectParticles::buildVboPos()
   if (part_data->vel) {
       factor = 2.0;
   }
-printf(">> factor=%d\n",factor);
   // upload Positions (and Velocities) to VBO
   f->glBufferData(GL_ARRAY_BUFFER_ARB, factor * nvert_pos * 3 * sizeof(float), &vertices[0], GL_STATIC_DRAW_ARB);
   f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (factor-1)*3 * sizeof(float), (void*)0);
