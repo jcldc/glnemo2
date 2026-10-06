@@ -86,7 +86,11 @@ git config --global --add safe.directory /glnemo2
 cd /tmp
 mkdir build
 cd build
-cmake -S /glnemo2 -DCMAKE_PREFIX_PATH=/data/QT6/qt6.11.2/lib/cmake
+# for a PUBLISHED version
+cmake -S /glnemo2 -DCMAKE_PREFIX_PATH=/data/QT6/qt6.11.2/lib/cmake -DPUBLISH=ON
+# for a git version
+cmake -S /glnemo2 -DCMAKE_PREFIX_PATH=/data/QT6/qt6.11.2/lib/cmake -DPUBLISH=OFF
+
 make -j
 
 # create AppImage
