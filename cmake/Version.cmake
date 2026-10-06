@@ -15,6 +15,8 @@ find_package(Git QUIET)
 
 set(GIT_COMMIT_HASH "unknown")
 
+option(PUBLISH "" OFF)  # Variable used to publish a release
+
 if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
   # run git rev-parse
   execute_process(
@@ -24,6 +26,14 @@ if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
   )
+  set(GIT_COMMIT_HASH "-${GIT_COMMIT_HASH}")
+endif()
+
+if(PUBLISH)
+  set(GIT_COMMIT_HASH "")
+  message(STATUS " PUBLISH ON  ${GIT_COMMIT_HASH}")
+else()
+  message(STATUS " PUBLISH OFF ${GIT_COMMIT_HASH}")
 endif()
 
 # Create version.h file in project binary directory
