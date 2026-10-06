@@ -1,17 +1,18 @@
   
-# Requirements:
+# Introduction
 
 Glnemo2 compiles and runs fine on Linux, Windows and MacOSX platform.
 To compile it, you need QT6 library development kit.
-Go to https://download.qt.io/official_releases/qt/ to download QT.
+[Visit QT website](https://download.qt.io/official_releases/qt/)
 
 You also need a decent video card with a fast opengl driver. Glnemo2
-has been successfully tested on Nvidia, Intel and  ATI GPU cards. 
-visit http://projets.lam.fr/projects/glnemo2/wiki/Wiki#Installation
+has been successfully tested on Nvidia, Intel and  ATI GPU cards.
+[Visit Installation wiki](http://projets.lam.fr/projects/glnemo2/wiki/Wiki#Installation)
 
 ## Libraries dependencies
 
-To compile glnemo2 2.x.x you need the following dev packages and libraries : 
+To compile glnemo2 2.x.x you need the following dev packages and libraries :
+
 - HDF5 lib
 - Freetype2 lib
 - cfitsio lib
@@ -20,10 +21,9 @@ To compile glnemo2 2.x.x you need the following dev packages and libraries :
 - QT6 lib
 - cmake
 
-# Compilation :
+## Compilation
 
-
-```
+```"shell"
 # git clone the project
 git clone https://gitlab.lam.fr/jclamber/glnemo2.git
 cd glnemo2
@@ -39,17 +39,13 @@ cmake .. -DCMAKE_PREFIX_PATH=/data/QT6/qt6.11.2/lib/cmake
 make -j 4
 
 ```
-
-
-if the compilation fails, please send me a full report by e-mail : 
-jean-charles.lambert_at_lam.fr 
-
 it should take a while to compile, at the end you should have a 'glnemo2' binary located in
 "bin/glnemo2" directory.
 
+if the compilation fails, please send me a full report by e-mail :
+jean-charles.lambert_at_lam.fr
 
-# Binaries
+## Binaries
 
 You can download and install directly glnemo2 binary for different linux distributions, MacOSX and windows 32 et 64 bits platform.
-See http://projets.lam.fr/projects/glnemo2/wiki/Download
-
+[Visit glnemo2 download page](http://projets.lam.fr/projects/glnemo2/wiki/Download)
