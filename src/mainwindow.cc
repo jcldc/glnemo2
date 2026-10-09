@@ -1412,7 +1412,6 @@ void MainWindow::actionBestZoom()
 void MainWindow::actionRenderMode()
 {
   store_options->render_mode = (store_options->render_mode+1)%2;
-  std::cerr << "Render mode = " << store_options->render_mode << "\n";
   //if (store_options->render_mode==1) store_options->render_mode=2; // giveup mode 1
   store_options->auto_render=true;
   setRenderMode(pov2);

@@ -340,6 +340,7 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   static bool zsort=false;
   QOpenGLExtraFunctions *f = QOpenGLContext::currentContext()->extraFunctions();
 
+  // std::cerr << "Inside displayVboShader , use_point["<<use_point<<"] render_mode["<<go->render_mode<<"]\n";
   // Mandatory for Core Profile: VAO
   // GLuint vao;
   // f->glGenVertexArrays(1, &vao);
@@ -395,35 +396,63 @@ void GLObjectParticles::displayVboShader(const int win_height, const bool use_po
   // get attribute location for position
   int vpositions = f->glGetAttribLocation(shader->getProgramId(), "position");
   if (vpositions != -1) {
-      f->glEnableVertexAttribArray(vpositions);
-      f->glBindBuffer(GL_ARRAY_BUFFER, vbo_pos);
-      int start_pos;
-      GLsizei stride = 0;
-      if (part_data->vel) {
-          start_pos = 2*3*min_index*sizeof(float);
-          stride = 2*3*sizeof(GLfloat);
-      } else {
-          start_pos = 3*min_index*sizeof(float);
-      }
-      f->glVertexAttribPointer(vpositions, 3, GL_FLOAT, GL_FALSE, stride, (void *) (intptr_t)(start_pos));
+    f->glEnableVertexAttribArray(vpositions);
+    f->glBindBuffer(GL_ARRAY_BUFFER, vbo_pos);
+    int start_pos;
+    GLsizei stride = 0;
+    if (part_data->vel) {
+      start_pos = 2 * 3 * min_index * sizeof(float);
+      stride = 2 * 3 * sizeof(GLfloat);
+    } else {
+      start_pos = 3 * min_index * sizeof(float);
+    }
+    f->glVertexAttribPointer(vpositions, 3, GL_FLOAT, GL_FALSE, stride,
+                             (void *)(intptr_t)(start_pos));
   }
+  // get attribute location for phys data
+  int a_phys_data =
+      f->glGetAttribLocation(shader->getProgramId(), "a_phys_data");
+  if (a_phys_data == -1) {
+    std::cerr << "Error occured when getting \"a_phys_data\" attribute\n";
+    exit(1);
+  }
+  f->glVertexAttrib1f(a_phys_data, 1.0); // set default value
+
+  if ((go->render_mode == 1)) { // individual size and color
+    if (hasPhysic && phys_select && phys_select->isValid()) { // gas particles
+      f->glEnableVertexAttribArray(a_phys_data);
+      f->glBindBuffer(GL_ARRAY_BUFFER, vbo_data);
+      int start = min_index * sizeof(float);
+      f->glVertexAttribPointer(a_phys_data, 1, GL_FLOAT, GL_FALSE, 0,
+                               (void *)(intptr_t)(start));
+    }
+  } else { // fix 
+
+  }
+
   int maxvert = max_index - min_index + 1;
   if (maxvert > 0 && maxvert <= nvert_pos) {
-    GLint a_sprite_size = f->glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
-    if (use_point) { 
-        // Same particles size : particles point
-        f->glDisableVertexAttribArray(a_sprite_size);   // <-- indispensable
-        f->glVertexAttrib1f(a_sprite_size, 1.0f);
+    // get attribute location for sprite size
+    GLint a_sprite_size =
+        f->glGetAttribLocation(shader->getProgramId(), "a_sprite_size");
+    if (use_point) {
+      // Same particles size : particles point
+      f->glDisableVertexAttribArray(a_sprite_size); // <-- indispensable
+      f->glVertexAttrib1f(a_sprite_size, 1.0f);
     } else {
-        if (hasPhysic && phys_select && phys_select->isValid()) { // gas particles
-          // Each particles has its own size stored in vbo_size 
+      f->glDisableVertexAttribArray(a_sprite_size); // <-- indispensable
+      f->glVertexAttrib1f(a_sprite_size, 1.0f);
+      if ((go->render_mode == 1)) { // individual size and color
+        if (hasPhysic && phys_select &&
+            phys_select->isValid()) { // gas particles
+
+          // Each particles has its own size stored in vbo_size
+          f->glEnableVertexAttribArray(a_sprite_size); // <-- réactive l'array
           f->glBindBuffer(GL_ARRAY_BUFFER, vbo_size);
-          f->glVertexAttribPointer(a_sprite_size, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
-          f->glEnableVertexAttribArray(a_sprite_size);    // <-- réactive l'array
-        } else {
-        // Same particles size : particles with texture size 
-        f->glDisableVertexAttribArray(a_sprite_size);   // <-- indispensable
-        f->glVertexAttrib1f(a_sprite_size, 1.0f);
+          int start = min_index * sizeof(float);
+          f->glVertexAttribPointer(a_sprite_size, 1, GL_FLOAT, GL_FALSE, 0,
+                                   (void *)(intptr_t)(start));
+        }
       }
     }
     f->glDrawArrays(GL_POINTS, 0, maxvert);
