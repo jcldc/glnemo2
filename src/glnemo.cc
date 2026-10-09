@@ -194,12 +194,15 @@ int main(int argc, char *argv[]) {
   defaultFormat.setSamples(0);
   defaultFormat.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
 
+#ifdef Q_OS_LINUX
   // if QT_QPA_PLATFORM not defined, force XCB
   // Seems to be mandatory when running wayland, 
   // otherwise opengl blending area display background of the application
   if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
     qputenv("QT_QPA_PLATFORM", "xcb");
   }
+#endif 
+
 #ifdef Q_OS_MACOS
   // macOS requires forward-compatible flag for Core Profile > 2.1
   defaultFormat.setOption(QSurfaceFormat::DeprecatedFunctions, false);
