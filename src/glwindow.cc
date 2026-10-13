@@ -39,6 +39,7 @@
 #include "glcpoints.h"
 #include <QOpenGLVersionFunctionsFactory>
 #include <QMessageBox>
+#include <qglobal.h>
 
 #define ON_LEGACY 0
 namespace glnemo {
@@ -317,7 +318,7 @@ void GLWindow::paintGL()
   
   GLWindow::checkGLErrors("Begining paintGL");
   CPT++;
-  //std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
+  // std::cerr << "GLWindow::paintGL() --> "<<CPT<<"\n";
   if (store_options->auto_gl_screenshot) {
     store_options->auto_gl_screenshot = false;
     emit sigScreenshot();
@@ -530,6 +531,7 @@ void GLWindow::paintGL()
   }
   // reset viewport to the windows size because axes object modidy it
   glViewport(0, 0,  wwidth, wheight);
+  glGetIntegerv(GL_VIEWPORT,viewport);
 
   if (fbo && GLWindow::GLSL_support) {
     fbo = false;
@@ -1342,7 +1344,7 @@ void GLWindow::setPerspectiveMatrix()
 void GLWindow::bestZoomFit()
 {
   if ( !store_options->duplicate_mem) mutex_data->lock();
-
+  glViewport(0, 0,  wwidth, wheight);
   glGetIntegerv(GL_VIEWPORT,viewport);
   ratio =  ((double )viewport[2]) / ((double )viewport[3]);
 
