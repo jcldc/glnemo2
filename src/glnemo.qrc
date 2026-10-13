@@ -68,25 +68,25 @@
         <file>../res/images/window_nofullscreen.png</file>
         <file>../res/images/zoom-best-fit.png</file>
         <file>../res/camera/path_01</file>
-        <file>../res/shaders/glsl_330/particles.vert.cc</file>
-        <file>../res/shaders/glsl_330/particles.frag.cc</file>
-        <file>../res/shaders/glsl_330/velocity.vert.cc</file>
-        <file>../res/shaders/glsl_330/velocity.frag.cc</file>
-        <file>../res/shaders/glsl_330/camera.vert.cc</file>
-        <file>../res/shaders/glsl_330/camera.frag.cc</file>
-        <file>../res/shaders/glsl_330/grid.vert.cc</file>
-        <file>../res/shaders/glsl_330/grid.frag.cc</file>
-        <file>../res/shaders/glsl_330/text.vert.cc</file>
-        <file>../res/shaders/glsl_330/text.frag.cc</file>
-        <file>../res/shaders/glsl_330/colormap.frag.cc</file>
-        <file>../res/shaders/glsl_330/colormap.vert.cc</file>
-        <file>../res/shaders/glsl_330/glaxes.frag.cc</file>
-        <file>../res/shaders/glsl_330/glaxes.vert.cc</file>
-        <file>../res/shaders/velocity.vert130.cc</file>
-        <file>../res/shaders/velocity.frag130.cc</file>
-        <file>../res/shaders/velocity.vert330.cc</file>
-        <file>../res/shaders/velocity.geom330.cc</file>
-        <file>../res/shaders/velocity.frag330.cc</file>
+        <file>../res/shaders/glsl_330/particles.vert</file>
+        <file>../res/shaders/glsl_330/particles.frag</file>
+        <file>../res/shaders/glsl_330/velocity.vert</file>
+        <file>../res/shaders/glsl_330/velocity.frag</file>
+        <file>../res/shaders/glsl_330/camera.vert</file>
+        <file>../res/shaders/glsl_330/camera.frag</file>
+        <file>../res/shaders/glsl_330/grid.vert</file>
+        <file>../res/shaders/glsl_330/grid.frag</file>
+        <file>../res/shaders/glsl_330/text.vert</file>
+        <file>../res/shaders/glsl_330/text.frag</file>
+        <file>../res/shaders/glsl_330/colormap.frag</file>
+        <file>../res/shaders/glsl_330/colormap.vert</file>
+        <file>../res/shaders/glsl_330/glaxes.frag</file>
+        <file>../res/shaders/glsl_330/glaxes.vert</file>
+        <file>../res/shaders/velocity.vert130</file>
+        <file>../res/shaders/velocity.frag130</file>
+        <file>../res/shaders/velocity.vert330</file>
+        <file>../res/shaders/velocity.geom330</file>
+        <file>../res/shaders/velocity.frag330</file>
         <file>../res/shaders/cpoints_330/characteristic.frag</file>
         <file>../res/shaders/cpoints_330/regular_polygon.vert</file>
         <file>../res/shaders/cpoints_330/tag_shape.vert</file>

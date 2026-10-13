@@ -65,8 +65,8 @@ namespace glnemo {
       f->glGenBuffers(1,&vbo_path);
       f->glGenBuffers(1,&vbo_ctrl);
       // particles shader
-      shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/camera.vert.cc",
-                           GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/camera.frag.cc");
+      shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/camera.vert",
+                           GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/camera.frag");
       shader->init();
     }
     if (! texture) texture = new GLTexture();
