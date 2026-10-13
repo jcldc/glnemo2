@@ -555,24 +555,24 @@ void GLWindow::initShader()
       const GLubyte* glsl_version=glGetString ( GL_SHADING_LANGUAGE_VERSION );
       qDebug() << "GLSL version supported : ["<< glsl_version << "]\n";
       // particles shader
-      shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/particles.vert.cc",
-                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/particles.frag.cc");
+      shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/particles.vert",
+                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/particles.frag");
       shader->init();
       // grid shader
-      grid_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/grid.vert.cc",
-                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/grid.frag.cc");
+      grid_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/grid.vert",
+                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/grid.frag");
       grid_shader->init();
       // colorbar shader
-      colorbar_shader= new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/colormap.vert.cc",
-                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/colormap.frag.cc");
+      colorbar_shader= new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/colormap.vert",
+                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/colormap.frag");
       colorbar_shader->init();
       // text shader
-      text_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/text.vert.cc",
-                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/text.frag.cc");
+      text_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/text.vert",
+                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/text.frag");
       text_shader->init();
       // axes shader
-      axes_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/glaxes.vert.cc",
-                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/glaxes.frag.cc");
+      axes_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/glaxes.vert",
+                            GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/glaxes.frag");
       axes_shader->init();
 
       gtr = new GLTextRender(text_shader->getProgramId());
@@ -591,13 +591,13 @@ void GLWindow::initShader()
 
 #if 0
         // Geometry shader OpenGL 3.30 and above only
-        vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert330.cc",
-                                GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag330.cc",
-                                GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.geom330.cc");
+        vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.vert330",
+                                GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.frag330",
+                                GlobalOptions::RESPATH.toStdString()+"/shaders/velocity.geom330");
 
 #else
-        vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/velocity.vert.cc",
-                                GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/velocity.frag.cc");
+        vel_shader = new CShader(GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/velocity.vert",
+                                GlobalOptions::RESPATH.toStdString()+"/shaders/glsl_330/velocity.frag");
 
 #endif
         if (!vel_shader->init() ) {
