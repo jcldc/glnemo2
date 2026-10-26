@@ -25,14 +25,14 @@ It uses the latest OpenGL technology like, shaders (glsl core 330 profile), vert
 
 Glnemo2 runs fine on Linux, Windows, and MaxOSX, thanks to the QT6 API.
 
-0. how to compile and install glnemo2, see [INSTALL]: INSTALL.md
+0. how to compile and install glnemo2, see [INSTALL](https://gitlab.lam.fr/jclamber/glnemo2/blob/master/INSTALL.md)
  
-1. how to use it, see [MANUAL]: MANUAL
+1. how to use it, see [MANUAL](https://gitlab.lam.fr/jclamber/glnemo2/blob/master/MANUAL)
  
 3. test purpose files: see **snapshot/README**
 
 # Webpage
- Glnemo2 has a dedicated web site : http://projets.lam.fr/projects/glnemo2/wiki
+ Glnemo2 has a dedicated [web site](http://projets.lam.fr/projects/glnemo2/wiki)
 
 # License
 
@@ -42,7 +42,7 @@ modify and/ or redistribute the software under the terms of the CeCILL
 license as circulated by CEA, CNRS and INRIA at the following URL
 "http://www.cecill.info/index.en.html" and/or LICENSE file.                       
 
-See [License]: LICENSE
+See [License](https://gitlab.lam.fr/jclamber/glnemo2/blob/master/LICENSE)
 
 
 # © Copyright

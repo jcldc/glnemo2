@@ -1,4 +1,4 @@
-* Thu Sep 30 2026 - 2.0.0
+* Mon Oct 26 2026 - 2.0.0
 - switch to qt6 API
 - full 3D engine based on OpenGL 3.3
 - full shader glsl 330 core profile
